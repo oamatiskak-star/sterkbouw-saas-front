@@ -1,0 +1,1 @@
+export default function Notificaties(){return <h1>Berichten en Alerts</h1>}

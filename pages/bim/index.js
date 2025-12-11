@@ -1,0 +1,1 @@
+export default function BIM(){return <div>🧱 BIM Viewer Placeholder</div>}

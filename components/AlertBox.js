@@ -1,0 +1,1 @@
+export default function AlertBox({text}){return <div className='alert'>{text}</div>}

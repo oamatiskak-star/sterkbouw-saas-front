@@ -1,0 +1,1 @@
+export const projecten = [{ id: 1, naam: 'Project A' }, { id: 2, naam: 'Project B' }]

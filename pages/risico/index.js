@@ -1,0 +1,1 @@
+export default function Risico(){return <div>Risico Analyse</div>}
