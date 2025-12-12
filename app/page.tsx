@@ -2,28 +2,19 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Session } from '@supabase/supabase-js'
 
-export default function HomePage() {
+export default function Home() {
   const router = useRouter()
-  const supabase = createClientComponentClient()
-  
+
   useEffect(() => {
-    const checkSession = async () => {
-      const {
-        data: { session },
-      }: { data: { session: Session | null } } = await supabase.auth.getSession()
+    router.push('/login')
+  }, [router])
 
-      if (session) {
-        router.push('/dashboard')
-      } else {
-        router.push('/login')
-      }
-    }
-
-    checkSession()
-  }, [router, supabase])
-
-  return <p>Bezig met controleren...</p>
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-gray-100">
+      <h1 className="text-xl font-semibold text-gray-700">
+        Bezig met laden...
+      </h1>
+    </main>
+  )
 }
