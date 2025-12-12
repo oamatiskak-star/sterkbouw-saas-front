@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
   const { data, error } = await supabase
     .from("notificaties")
     .select("*")
-    .order("verzonden_op", { ascending: false })
+    .order("aangemaakt_op", { ascending: false })
 
   if (error) {
     return res.status(500).json({ error: error.message })
@@ -21,7 +21,7 @@ router.get("/", async (req, res) => {
   res.status(200).json(data)
 })
 
-// Nieuwe notificatie aanmaken
+// Nieuwe notificatie toevoegen
 router.post("/", async (req, res) => {
   const { titel, inhoud, type } = req.body
 
@@ -34,22 +34,6 @@ router.post("/", async (req, res) => {
   }
 
   res.status(201).json(data)
-})
-
-// Notificatie verwijderen
-router.delete("/:id", async (req, res) => {
-  const { id } = req.params
-
-  const { error } = await supabase
-    .from("notificaties")
-    .delete()
-    .eq("id", id)
-
-  if (error) {
-    return res.status(500).json({ error: error.message })
-  }
-
-  res.status(204).end()
 })
 
 export default router
