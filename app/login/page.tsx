@@ -1,55 +1,87 @@
 'use client'
 
-import { useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [status, setStatus] = useState('')
-  const supabase = createClientComponentClient()
   const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [foutmelding, setFoutmelding] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setStatus('Magic link wordt verstuurd...')
+    setFoutmelding('')
+    setLoading(true)
 
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
-      options: {
-        emailRedirectTo: 'https://app.sterkbouw.nl',
-      },
+      password,
     })
 
     if (error) {
-      setStatus('Fout bij versturen link')
+      setFoutmelding('Inloggen mislukt: ' + error.message)
+      setLoading(false)
     } else {
-      setStatus('Check je e-mail voor de loginlink')
+      router.push('/dashboard')
     }
   }
 
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        router.push('/dashboard')
+      }
+    })
+  }, [router])
+
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white rounded-2xl shadow-xl p-10 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-yellow-600 mb-6">SterkBouw Inloggen</h1>
-        <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="E-mailadres"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-yellow-600"
-            required
-          />
-          <button
-            type="submit"
-            className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-3 rounded-lg"
-          >
-            Stuur Magic Link
-          </button>
-        </form>
-        {status && <p className="text-sm text-gray-600 mt-4">{status}</p>}
-      </div>
-    </main>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <form
+        onSubmit={handleLogin}
+        className="bg-white p-8 rounded-2xl shadow-md w-full max-w-sm"
+      >
+        <h1 className="text-2xl font-bold mb-6 text-gray-800">SterkBouw Login</h1>
+
+        {foutmelding && (
+          <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+            {foutmelding}
+          </div>
+        )}
+
+        <input
+          type="email"
+          placeholder="E-mailadres"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full p-3 mb-4 border border-gray-300 rounded"
+        />
+
+        <input
+          type="password"
+          placeholder="Wachtwoord"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="w-full p-3 mb-4 border border-gray-300 rounded"
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded"
+        >
+          {loading ? 'Bezig...' : 'Inloggen'}
+        </button>
+      </form>
+    </div>
   )
 }
