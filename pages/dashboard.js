@@ -12,51 +12,46 @@ export default function Dashboard() {
   const [user, setUser] = useState(null)
 
   useEffect(() => {
-    const getUser = async () => {
+    const checkUser = async () => {
       const { data, error } = await supabase.auth.getUser()
-      if (error || !data?.user) {
+      if (error || !data.user) {
         router.push("/login")
       } else {
         setUser(data.user)
       }
     }
-    getUser()
+    checkUser()
   }, [])
 
-  if (!user) return <p>Bezig met laden...</p>
+  if (!user) {
+    return <div className="p-6 text-gray-700">Laden...</div>
+  }
 
-  return (<button
-  onClick={async () => {
-    await fetch("/api/logout")
-    window.location.href = "/login"
-  }}
-  className="absolute top-6 right-6 bg-red-500 text-white px-4 py-2 rounded"
->
-  Uitloggen
-</button>
+  return (
+    <div className="min-h-screen bg-gray-100 text-gray-900 p-6">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-2xl font-bold mb-4">Welkom, {user.email}</h1>
 
-    <div className="p-10">
-      <h1 className="text-4xl font-bold text-yellow-500">SterkBouw Dashboard</h1>
-      <p className="text-gray-700 mt-4">Welkom terug, {user.email}</p>
-
-      <div className="grid grid-cols-2 gap-6 mt-10">
-        <div className="border p-6 rounded-xl shadow bg-white">
-          <h2 className="text-lg font-semibold">Projecten</h2>
-          <p className="text-sm text-gray-500">Beheer alle lopende projecten</p>
-        </div>
-        <div className="border p-6 rounded-xl shadow bg-white">
-          <h2 className="text-lg font-semibold">Calculaties</h2>
-          <p className="text-sm text-gray-500">STABU en Fixed Price modules</p>
-        </div>
-        <div className="border p-6 rounded-xl shadow bg-white">
-          <h2 className="text-lg font-semibold">Risico Analyse</h2>
-          <p className="text-sm text-gray-500">Bekijk risicoprofielen en alerts</p>
-        </div>
-        <div className="border p-6 rounded-xl shadow bg-white">
-          <h2 className="text-lg font-semibold">Teambeheer</h2>
-          <p className="text-sm text-gray-500">Voeg nieuwe gebruikers toe</p>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <DashboardTile title="📊 Calculaties" link="/calculator" />
+          <DashboardTile title="🏗️ Projecten" link="/projecten" />
+          <DashboardTile title="🧱 BIM Architectuur" link="/bim" />
+          <DashboardTile title="🛠️ Risico Analyse" link="/risico" />
+          <DashboardTile title="📣 Notificaties" link="/notificaties" />
+          <DashboardTile title="👥 Teambeheer" link="/team" />
         </div>
       </div>
     </div>
+  )
+}
+
+function DashboardTile({ title, link }) {
+  return (
+    <a
+      href={link}
+      className="bg-white rounded-2xl shadow p-6 hover:shadow-md transition"
+    >
+      <div className="text-lg font-semibold">{title}</div>
+    </a>
   )
 }
