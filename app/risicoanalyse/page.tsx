@@ -9,7 +9,7 @@ const supabase = createClient(
 )
 
 export default function RisicoanalysePage() {
-  const [data, setData] = useState<any[]>([])
+  const [risicoData, setRisicoData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function RisicoanalysePage() {
       if (error) {
         console.error("Fout bij ophalen risicoanalyse:", error)
       } else {
-        setData(data)
+        setRisicoData(data || [])
       }
       setLoading(false)
     }
@@ -33,7 +33,7 @@ export default function RisicoanalysePage() {
 
         {loading ? (
           <p>Gegevens worden geladen...</p>
-        ) : data.length === 0 ? (
+        ) : risicoData.length === 0 ? (
           <p>Geen risico’s gevonden.</p>
         ) : (
           <table className="w-full bg-white rounded-2xl shadow border border-gray-200">
@@ -45,7 +45,7 @@ export default function RisicoanalysePage() {
               </tr>
             </thead>
             <tbody>
-              {data.map((item) => (
+              {risicoData.map((item) => (
                 <tr key={item.id} className="border-t border-gray-100">
                   <td className="p-3">{item.categorie}</td>
                   <td className="p-3">{item.beschrijving}</td>
