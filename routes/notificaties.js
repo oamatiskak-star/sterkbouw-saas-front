@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
   const { data, error } = await supabase
     .from("notificaties")
     .select("*")
-    .order("created_at", { ascending: false })
+    .order("aangemaakt_op", { ascending: false })
 
   if (error) {
     return res.status(500).json({ error: error.message })
@@ -21,13 +21,13 @@ router.get("/", async (req, res) => {
   res.status(200).json(data)
 })
 
-// Nieuwe notificatie toevoegen
+// Nieuwe notificatie aanmaken
 router.post("/", async (req, res) => {
-  const { gebruiker_id, type, bericht, belangrijk } = req.body
+  const { titel, bericht, categorie } = req.body
 
   const { data, error } = await supabase
     .from("notificaties")
-    .insert([{ gebruiker_id, type, bericht, belangrijk }])
+    .insert([{ titel, bericht, categorie }])
 
   if (error) {
     return res.status(500).json({ error: error.message })
@@ -36,13 +36,14 @@ router.post("/", async (req, res) => {
   res.status(201).json(data)
 })
 
-// Specifieke notificatie markeren als gelezen
-router.patch("/:id", async (req, res) => {
+// Notificatie bijwerken
+router.put("/:id", async (req, res) => {
   const { id } = req.params
+  const updates = req.body
 
   const { data, error } = await supabase
     .from("notificaties")
-    .update({ gelezen: true })
+    .update(updates)
     .eq("id", id)
 
   if (error) {
@@ -50,6 +51,22 @@ router.patch("/:id", async (req, res) => {
   }
 
   res.status(200).json(data)
+})
+
+// Notificatie verwijderen
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params
+
+  const { error } = await supabase
+    .from("notificaties")
+    .delete()
+    .eq("id", id)
+
+  if (error) {
+    return res.status(500).json({ error: error.message })
+  }
+
+  res.status(204).end()
 })
 
 export default router
