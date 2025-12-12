@@ -12,37 +12,35 @@ const supabase = createClient(
 export default function CalculatorPage() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const checkUser = async () => {
       const { data, error } = await supabase.auth.getUser()
-      if (!data?.user || error) {
+      if (error || !data.user) {
         router.push("/login")
       } else {
         setUser(data.user)
       }
-      setLoading(false)
     }
 
     checkUser()
   }, [])
 
-  if (loading || !user) {
+  if (!user) {
     return <div className="p-6 text-gray-700">Laden...</div>
   }
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 text-gray-900">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">STABU Calculatie</h1>
+        <h1 className="text-2xl font-bold mb-6">Calculatie</h1>
 
         <div className="bg-white shadow rounded-2xl p-6">
           <p className="mb-4">
-            Hier komt de STABU calculatietool met inputvelden, tabellen en prijsberekeningen.
+            Hier komt jouw STABU calculatie tool met inputvelden en uitkomsten.
           </p>
           <p className="text-sm text-gray-500">
-            Volgende stap: data ophalen uit Supabase en koppeling met STABU-bestanden.
+            Volgende stap: koppeling met backend en STABU-prijslijsten.
           </p>
         </div>
       </div>
