@@ -1,1 +1,8 @@
-body{font-family:Arial;margin:0;padding:0;background:#f8f8f8;}
+body {
+  background-color: #f9fafb; /* Lichtgrijs/wit */
+  font-family: "Roboto", sans-serif;
+}
+
+nav a {
+  transition: color 0.3s ease;
+}
