@@ -12,6 +12,7 @@ router.get("/", async (req, res) => {
   const { data, error } = await supabase
     .from("projecten")
     .select("*")
+    .order("aangemaakt_op", { ascending: false })
 
   if (error) {
     return res.status(500).json({ error: error.message })
@@ -20,13 +21,13 @@ router.get("/", async (req, res) => {
   res.status(200).json(data)
 })
 
-// Nieuw project toevoegen
+// Nieuw project aanmaken
 router.post("/", async (req, res) => {
-  const { naam, locatie, status } = req.body
+  const { titel, locatie, status, startdatum, einddatum } = req.body
 
   const { data, error } = await supabase
     .from("projecten")
-    .insert([{ naam, locatie, status }])
+    .insert([{ titel, locatie, status, startdatum, einddatum }])
 
   if (error) {
     return res.status(500).json({ error: error.message })
@@ -35,11 +36,28 @@ router.post("/", async (req, res) => {
   res.status(201).json(data)
 })
 
+// Project bijwerken
+router.put("/:id", async (req, res) => {
+  const { id } = req.params
+  const updates = req.body
+
+  const { data, error } = await supabase
+    .from("projecten")
+    .update(updates)
+    .eq("id", id)
+
+  if (error) {
+    return res.status(500).json({ error: error.message })
+  }
+
+  res.status(200).json(data)
+})
+
 // Project verwijderen
 router.delete("/:id", async (req, res) => {
   const { id } = req.params
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("projecten")
     .delete()
     .eq("id", id)
@@ -48,7 +66,7 @@ router.delete("/:id", async (req, res) => {
     return res.status(500).json({ error: error.message })
   }
 
-  res.status(200).json(data)
+  res.status(204).end()
 })
 
 export default router
