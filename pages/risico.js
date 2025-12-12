@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
@@ -8,38 +7,53 @@ const supabase = createClient(
 )
 
 export default function RisicoAnalyse() {
-  const router = useRouter()
-  const [user, setUser] = useState(null)
+  const [risicoData, setRisicoData] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data, error } = await supabase.auth.getUser()
-      if (error || !data.user) {
-        router.push("/login")
-      } else {
-        setUser(data.user)
+    const fetchRisico = async () => {
+      const { data, error } = await supabase.from("risicoanalyse").select("*")
+      if (error) {
+        console.error("Fout bij ophalen risicoanalyse:", error)
+        setLoading(false)
+        return
       }
+      setRisicoData(data)
+      setLoading(false)
     }
-    checkUser()
-  }, [])
 
-  if (!user) {
-    return <div className="p-6 text-gray-700">Laden...</div>
-  }
+    fetchRisico()
+  }, [])
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 text-gray-900">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Risicoanalyse</h1>
 
-        <div className="bg-white shadow rounded-2xl p-6">
-          <p className="mb-4">
-            Deze module toont straks automatisch gegenereerde risicoanalyses op basis van projectdata.
-          </p>
-          <p className="text-sm text-gray-500">
-            Volgende stap: integratie met backend en Excel-import.
-          </p>
-        </div>
+        {loading ? (
+          <p>Gegevens worden geladen...</p>
+        ) : risicoData.length === 0 ? (
+          <p>Geen risico’s gevonden.</p>
+        ) : (
+          <table className="w-full bg-white rounded-2xl shadow border border-gray-200">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="text-left p-3">Categorie</th>
+                <th className="text-left p-3">Beschrijving</th>
+                <th className="text-left p-3">Impact</th>
+              </tr>
+            </thead>
+            <tbody>
+              {risicoData.map((item) => (
+                <tr key={item.id} className="border-t border-gray-100">
+                  <td className="p-3">{item.categorie}</td>
+                  <td className="p-3">{item.beschrijving}</td>
+                  <td className="p-3">{item.impact}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )
