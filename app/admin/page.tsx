@@ -8,8 +8,14 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+type Gebruiker = {
+  id: string
+  email: string
+  rol: string
+}
+
 export default function AdminPage() {
-  const [users, setUsers] = useState<any[]>([])
+  const [users, setUsers] = useState<Gebruiker[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -22,7 +28,7 @@ export default function AdminPage() {
         return
       }
 
-      setUsers(data)
+      setUsers(data as Gebruiker[])
       setLoading(false)
     }
 
@@ -31,7 +37,7 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 text-gray-900">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Adminbeheer</h1>
 
         {loading ? (
