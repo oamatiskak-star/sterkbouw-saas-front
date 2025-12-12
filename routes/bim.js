@@ -7,12 +7,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 )
 
-// BIM-modellen ophalen
+// Alle BIM-documenten ophalen
 router.get("/", async (req, res) => {
   const { data, error } = await supabase
-    .from("bim_modellen")
+    .from("bim_documenten")
     .select("*")
-    .order("aangemaakt_op", { ascending: false })
+    .order("upload_datum", { ascending: false })
 
   if (error) {
     return res.status(500).json({ error: error.message })
@@ -21,35 +21,19 @@ router.get("/", async (req, res) => {
   res.status(200).json(data)
 })
 
-// BIM-model uploaden
+// Nieuw BIM-document uploaden
 router.post("/", async (req, res) => {
-  const { naam, url, type } = req.body
+  const { project_id, bestandsnaam, bestand_url, omschrijving } = req.body
 
   const { data, error } = await supabase
-    .from("bim_modellen")
-    .insert([{ naam, url, type }])
+    .from("bim_documenten")
+    .insert([{ project_id, bestandsnaam, bestand_url, omschrijving }])
 
   if (error) {
     return res.status(500).json({ error: error.message })
   }
 
   res.status(201).json(data)
-})
-
-// BIM-model verwijderen
-router.delete("/:id", async (req, res) => {
-  const { id } = req.params
-
-  const { error } = await supabase
-    .from("bim_modellen")
-    .delete()
-    .eq("id", id)
-
-  if (error) {
-    return res.status(500).json({ error: error.message })
-  }
-
-  res.status(204).end()
 })
 
 export default router
