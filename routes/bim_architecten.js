@@ -1,44 +1,51 @@
 import express from "express"
-import multer from "multer"
-import fs from "fs"
-import path from "path"
-import { sendTelegram } from "../utils/telegram.js"
+import supabase from "../../../supabaseClient.js"
 
 const router = express.Router()
 
-const bimUploadPath = "./uploads/bim/"
-if (!fs.existsSync(bimUploadPath)) fs.mkdirSync(bimUploadPath, { recursive: true })
+// GET: Alle BIM-projecten ophalen
+router.get("/", async (req, res) => {
+  const { data, error } = await supabase.from("bim_architecten").select("*").order("created_at", { ascending: false })
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, bimUploadPath),
-  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname)
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data)
 })
 
-const upload = multer({ storage })
+// POST: Nieuw BIM-project toevoegen
+router.post("/", async (req, res) => {
+  const { project_id, architect_id, model_url, opmerking } = req.body
 
-// BIM-bestand uploaden (IFC, PDF, JSON)
-router.post("/upload", upload.single("bestand"), async (req, res) => {
-  const file = req.file
-  if (!file) return res.status(400).json({ error: "Geen bestand geüpload" })
+  const { data, error } = await supabase.from("bim_architecten").insert([
+    {
+      project_id,
+      architect_id,
+      model_url,
+      opmerking
+    }
+  ])
 
-  await sendTelegram(`🧱 BIM-bestand ontvangen: ${file.originalname}`)
-  res.status(200).json({ message: "Upload succesvol", bestand: file.filename })
+  if (error) return res.status(500).json({ error: error.message })
+  res.status(201).json(data)
 })
 
-// Lijst van geüploade BIM-bestanden
-router.get("/list", (req, res) => {
-  const bestanden = fs.readdirSync(bimUploadPath)
-  res.status(200).json({ bestanden })
+// PUT: BIM-project bewerken
+router.put("/:id", async (req, res) => {
+  const { id } = req.params
+  const { model_url, opmerking } = req.body
+
+  const { data, error } = await supabase.from("bim_architecten").update({ model_url, opmerking }).eq("id", id)
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json(data)
 })
 
-// Verwijderen van BIM-bestand
-router.delete("/delete/:filename", (req, res) => {
-  const file = path.join(bimUploadPath, req.params.filename)
-  if (fs.existsSync(file)) {
-    fs.unlinkSync(file)
-    return res.status(200).json({ message: "Bestand verwijderd" })
-  }
-  res.status(404).json({ error: "Bestand niet gevonden" })
+// DELETE: BIM-project verwijderen
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params
+  const { error } = await supabase.from("bim_architecten").delete().eq("id", id)
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.status(204).send()
 })
 
 export default router
