@@ -23,11 +23,11 @@ router.get("/", async (req, res) => {
 
 // Nieuw project aanmaken
 router.post("/", async (req, res) => {
-  const { titel, locatie, status, startdatum, einddatum } = req.body
+  const { naam, locatie, status, startdatum, einddatum } = req.body
 
   const { data, error } = await supabase
     .from("projecten")
-    .insert([{ titel, locatie, status, startdatum, einddatum }])
+    .insert([{ naam, locatie, status, startdatum, einddatum }])
 
   if (error) {
     return res.status(500).json({ error: error.message })
@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
   res.status(201).json(data)
 })
 
-// Project bijwerken
+// Projectgegevens bijwerken
 router.put("/:id", async (req, res) => {
   const { id } = req.params
   const updates = req.body
