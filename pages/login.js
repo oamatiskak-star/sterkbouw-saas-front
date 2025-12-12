@@ -28,8 +28,18 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="bg-white shadow-lg rounded-2xl p-10 w-full max-w-md">
+      <div className="bg-white shadow-xl rounded-2xl p-10 w-full max-w-md">
+        {/* Logo bovenaan */}
+        <div className="flex justify-center mb-6">
+          <img
+            src="/logo-sterkbouw.svg" // Zet hier jouw juiste logopad
+            alt="SterkBouw Logo"
+            className="h-16"
+          />
+        </div>
+
         <h1 className="text-2xl font-bold text-center mb-6 text-gray-900">Inloggen</h1>
+
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="block mb-1 text-gray-700">E-mailadres</label>
