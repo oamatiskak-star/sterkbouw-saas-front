@@ -1,41 +1,29 @@
-'use client'
+"use client"
 
-import { useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
+import { useEffect, useState } from "react"
+import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-type Risico = {
-  id: string
-  categorie: string
-  beschrijving: string
-  impact: string
-}
-
-export default function RisicoAnalysePage() {
-  const [risicoData, setRisicoData] = useState<Risico[]>([])
+export default function RisicoanalysePage() {
+  const [data, setData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchRisico = async () => {
-      const { data, error } = await supabase
-        .from('risicoanalyse')
-        .select('*')
-
+    const fetchData = async () => {
+      const { data, error } = await supabase.from("risicoanalyse").select("*")
       if (error) {
-        console.error('Fout bij ophalen risicoanalyse:', error)
-        setLoading(false)
-        return
+        console.error("Fout bij ophalen risicoanalyse:", error)
+      } else {
+        setData(data)
       }
-
-      setRisicoData(data as Risico[])
       setLoading(false)
     }
 
-    fetchRisico()
+    fetchData()
   }, [])
 
   return (
@@ -45,7 +33,7 @@ export default function RisicoAnalysePage() {
 
         {loading ? (
           <p>Gegevens worden geladen...</p>
-        ) : risicoData.length === 0 ? (
+        ) : data.length === 0 ? (
           <p>Geen risico’s gevonden.</p>
         ) : (
           <table className="w-full bg-white rounded-2xl shadow border border-gray-200">
@@ -57,7 +45,7 @@ export default function RisicoAnalysePage() {
               </tr>
             </thead>
             <tbody>
-              {risicoData.map((item) => (
+              {data.map((item) => (
                 <tr key={item.id} className="border-t border-gray-100">
                   <td className="p-3">{item.categorie}</td>
                   <td className="p-3">{item.beschrijving}</td>
