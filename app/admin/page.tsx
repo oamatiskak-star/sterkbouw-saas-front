@@ -8,28 +8,22 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-type Gebruiker = {
-  id: string
-  email: string
-  rol: string | null
-}
-
-export default function AdminBeheer() {
-  const [gebruikers, setGebruikers] = useState<Gebruiker[]>([])
+export default function AdminPage() {
+  const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchGebruikers = async () => {
+    const fetchUsers = async () => {
       const { data, error } = await supabase.from("gebruikers").select("*")
       if (error) {
-        console.error("Fout bij ophalen gebruikers:", error.message)
+        console.error("Fout bij ophalen gebruikers:", error)
       } else {
-        setGebruikers(data)
+        setUsers(data || [])
       }
       setLoading(false)
     }
 
-    fetchGebruikers()
+    fetchUsers()
   }, [])
 
   return (
@@ -38,22 +32,22 @@ export default function AdminBeheer() {
         <h1 className="text-2xl font-bold mb-6">Adminbeheer</h1>
 
         {loading ? (
-          <p className="text-gray-600">Laden...</p>
-        ) : gebruikers.length === 0 ? (
-          <p className="text-gray-600">Geen gebruikers gevonden.</p>
+          <p>Gebruikers worden geladen...</p>
+        ) : users.length === 0 ? (
+          <p>Geen gebruikers gevonden.</p>
         ) : (
           <table className="w-full bg-white rounded-2xl shadow border border-gray-200">
-            <thead className="bg-gray-200 text-left">
+            <thead className="bg-gray-200">
               <tr>
-                <th className="p-3">Email</th>
-                <th className="p-3">Rol</th>
+                <th className="text-left p-3">Email</th>
+                <th className="text-left p-3">Rol</th>
               </tr>
             </thead>
             <tbody>
-              {gebruikers.map((gebruiker) => (
+              {users.map((gebruiker) => (
                 <tr key={gebruiker.id} className="border-t border-gray-100">
                   <td className="p-3">{gebruiker.email}</td>
-                  <td className="p-3">{gebruiker.rol ?? "Onbekend"}</td>
+                  <td className="p-3">{gebruiker.rol || "Onbekend"}</td>
                 </tr>
               ))}
             </tbody>
