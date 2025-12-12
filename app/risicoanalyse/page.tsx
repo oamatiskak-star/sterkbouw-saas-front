@@ -8,22 +8,23 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-export default function RisicoanalysePage() {
+export default function RisicoAnalysePage() {
   const [risicoData, setRisicoData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchRisico = async () => {
       const { data, error } = await supabase.from("risicoanalyse").select("*")
       if (error) {
         console.error("Fout bij ophalen risicoanalyse:", error)
-      } else {
-        setRisicoData(data || [])
+        setLoading(false)
+        return
       }
+      setRisicoData(data)
       setLoading(false)
     }
 
-    fetchData()
+    fetchRisico()
   }, [])
 
   return (
