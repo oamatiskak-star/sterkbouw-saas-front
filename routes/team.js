@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
   const { data, error } = await supabase
     .from("team")
     .select("*")
-    .order("toegevoegd_op", { ascending: false })
+    .order("aangemaakt_op", { ascending: false })
 
   if (error) {
     return res.status(500).json({ error: error.message })
@@ -23,11 +23,11 @@ router.get("/", async (req, res) => {
 
 // Nieuw teamlid toevoegen
 router.post("/", async (req, res) => {
-  const { naam, email, rol } = req.body
+  const { naam, rol, email, telefoon } = req.body
 
   const { data, error } = await supabase
     .from("team")
-    .insert([{ naam, email, rol }])
+    .insert([{ naam, rol, email, telefoon }])
 
   if (error) {
     return res.status(500).json({ error: error.message })
@@ -36,14 +36,14 @@ router.post("/", async (req, res) => {
   res.status(201).json(data)
 })
 
-// Teamlid bijwerken
+// Teamlid bewerken
 router.put("/:id", async (req, res) => {
   const { id } = req.params
-  const { naam, email, rol } = req.body
+  const updates = req.body
 
   const { data, error } = await supabase
     .from("team")
-    .update({ naam, email, rol })
+    .update(updates)
     .eq("id", id)
 
   if (error) {
