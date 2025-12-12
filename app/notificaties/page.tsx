@@ -13,7 +13,7 @@ export default function NotificatiesPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchBerichten = async () => {
       const { data, error } = await supabase
         .from("notificaties")
         .select("*")
@@ -21,14 +21,14 @@ export default function NotificatiesPage() {
 
       if (error) {
         console.error("Fout bij ophalen notificaties:", error)
-      } else {
-        setBerichten(data || [])
+        setLoading(false)
+        return
       }
-
+      setBerichten(data)
       setLoading(false)
     }
 
-    fetchData()
+    fetchBerichten()
   }, [])
 
   return (
