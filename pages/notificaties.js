@@ -11,7 +11,7 @@ export default function Notificaties() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchNotificaties = async () => {
+    const fetchBerichten = async () => {
       const { data, error } = await supabase.from("notificaties").select("*").order("created_at", { ascending: false })
       if (error) {
         console.error("Fout bij ophalen notificaties:", error)
@@ -22,12 +22,12 @@ export default function Notificaties() {
       setLoading(false)
     }
 
-    fetchNotificaties()
+    fetchBerichten()
   }, [])
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 text-gray-900">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Notificaties</h1>
 
         {loading ? (
@@ -36,10 +36,11 @@ export default function Notificaties() {
           <p>Geen notificaties gevonden.</p>
         ) : (
           <ul className="space-y-4">
-            {berichten.map((bericht) => (
-              <li key={bericht.id} className="bg-white p-4 rounded-2xl shadow border border-gray-200">
-                <p className="text-sm text-gray-500 mb-1">{new Date(bericht.created_at).toLocaleString()}</p>
-                <p>{bericht.tekst}</p>
+            {berichten.map((item) => (
+              <li key={item.id} className="bg-white rounded-2xl shadow p-4 border border-gray-200">
+                <div className="font-semibold">{item.titel}</div>
+                <div className="text-sm text-gray-600">{item.bericht}</div>
+                <div className="text-xs text-gray-400 mt-1">{new Date(item.created_at).toLocaleString()}</div>
               </li>
             ))}
           </ul>
