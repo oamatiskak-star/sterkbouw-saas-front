@@ -1,8 +1,8 @@
-'use client'
+"use client"
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@supabase/supabase-js'
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,8 +17,8 @@ export default function CalculatiePage() {
   useEffect(() => {
     const checkUser = async () => {
       const { data, error } = await supabase.auth.getUser()
-      if (error || !data.user) {
-        router.push('/login')
+      if (!data?.user || error) {
+        router.push("/login")
       } else {
         setUser(data.user)
       }
@@ -29,11 +29,11 @@ export default function CalculatiePage() {
   }, [router])
 
   if (loading) {
-    return <div className="p-6 text-gray-600">Laden...</div>
+    return <p className="p-6">Laden...</p>
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 p-6">
+    <div className="min-h-screen bg-gray-100 p-6 text-gray-900">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Calculatie</h1>
 
