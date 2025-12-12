@@ -1,51 +1,51 @@
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
 import { useRouter } from "next/router"
+import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-export default function DashboardPage() {
-  const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState(null)
+export default function Dashboard() {
   const router = useRouter()
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession()
-      if (!data.session) {
-        router.replace("/login")
-        return
+    const getUser = async () => {
+      const { data, error } = await supabase.auth.getUser()
+      if (error || !data?.user) {
+        router.push("/login")
+      } else {
+        setUser(data.user)
       }
-      setUser(data.session.user)
-      setLoading(false)
     }
-
-    checkSession()
+    getUser()
   }, [])
 
-  if (loading) {
-    return (
-      <div className="flex h-screen justify-center items-center">
-        <p className="text-lg">Dashboard laden...</p>
-      </div>
-    )
-  }
+  if (!user) return <p>Bezig met laden...</p>
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold text-black mb-4">Welkom bij SterkBouw, {user.email}</h1>
-        <p className="text-gray-700">Je bent nu ingelogd en hebt toegang tot het dashboard.</p>
+    <div className="p-10">
+      <h1 className="text-4xl font-bold text-yellow-500">SterkBouw Dashboard</h1>
+      <p className="text-gray-700 mt-4">Welkom terug, {user.email}</p>
 
-        {/* Extra modules, tegels of cards kunnen hier toegevoegd worden */}
-        <div className="grid grid-cols-2 gap-4 mt-8">
-          <div className="bg-white p-6 rounded-2xl shadow">Module: Calculatie</div>
-          <div className="bg-white p-6 rounded-2xl shadow">Module: Projectbeheer</div>
-          <div className="bg-white p-6 rounded-2xl shadow">Module: Risicoanalyse</div>
-          <div className="bg-white p-6 rounded-2xl shadow">Module: Notificaties</div>
+      <div className="grid grid-cols-2 gap-6 mt-10">
+        <div className="border p-6 rounded-xl shadow bg-white">
+          <h2 className="text-lg font-semibold">Projecten</h2>
+          <p className="text-sm text-gray-500">Beheer alle lopende projecten</p>
+        </div>
+        <div className="border p-6 rounded-xl shadow bg-white">
+          <h2 className="text-lg font-semibold">Calculaties</h2>
+          <p className="text-sm text-gray-500">STABU en Fixed Price modules</p>
+        </div>
+        <div className="border p-6 rounded-xl shadow bg-white">
+          <h2 className="text-lg font-semibold">Risico Analyse</h2>
+          <p className="text-sm text-gray-500">Bekijk risicoprofielen en alerts</p>
+        </div>
+        <div className="border p-6 rounded-xl shadow bg-white">
+          <h2 className="text-lg font-semibold">Teambeheer</h2>
+          <p className="text-sm text-gray-500">Voeg nieuwe gebruikers toe</p>
         </div>
       </div>
     </div>
