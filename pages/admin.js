@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-export default function Admin() {
+export default function AdminBeheer() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
 
