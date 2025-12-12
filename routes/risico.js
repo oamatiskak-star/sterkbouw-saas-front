@@ -21,13 +21,13 @@ router.get("/", async (req, res) => {
   res.status(200).json(data)
 })
 
-// Nieuwe risicoanalyse opslaan
+// Nieuwe risicoanalyse toevoegen
 router.post("/", async (req, res) => {
-  const { project_id, risico_score, opmerkingen } = req.body
+  const { project_id, categorie, impact, kans, toelichting } = req.body
 
   const { data, error } = await supabase
     .from("risicoanalyses")
-    .insert([{ project_id, risico_score, opmerkingen }])
+    .insert([{ project_id, categorie, impact, kans, toelichting }])
 
   if (error) {
     return res.status(500).json({ error: error.message })
