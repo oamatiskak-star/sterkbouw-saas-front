@@ -8,8 +8,15 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+type Notificatie = {
+  id: string
+  titel: string
+  bericht: string
+  created_at: string
+}
+
 export default function NotificatiesPage() {
-  const [berichten, setBerichten] = useState<any[]>([])
+  const [berichten, setBerichten] = useState<Notificatie[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -25,7 +32,7 @@ export default function NotificatiesPage() {
         return
       }
 
-      setBerichten(data)
+      setBerichten(data as Notificatie[])
       setLoading(false)
     }
 
@@ -44,7 +51,10 @@ export default function NotificatiesPage() {
         ) : (
           <ul className="space-y-4">
             {berichten.map((item) => (
-              <li key={item.id} className="bg-white rounded-2xl shadow p-4 border border-gray-200">
+              <li
+                key={item.id}
+                className="bg-white rounded-2xl shadow p-4 border border-gray-200"
+              >
                 <div className="font-semibold">{item.titel}</div>
                 <div className="text-sm text-gray-600">{item.bericht}</div>
                 <div className="text-xs text-gray-400 mt-1">
