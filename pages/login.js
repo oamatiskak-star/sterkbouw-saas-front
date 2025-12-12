@@ -11,62 +11,66 @@ export default function Login() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [wachtwoord, setWachtwoord] = useState("")
-  const [foutmelding, setFoutmelding] = useState("")
+  const [error, setError] = useState("")
 
   const handleLogin = async (e) => {
     e.preventDefault()
+    setError("")
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password: wachtwoord,
     })
+
     if (error) {
-      setFoutmelding("Inloggen mislukt. Controleer je gegevens.")
+      setError("Inloggen mislukt: " + error.message)
     } else {
       router.push("/dashboard")
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="bg-white shadow-xl rounded-2xl p-10 w-full max-w-md">
-        {/* Logo bovenaan */}
-        <div className="flex justify-center mb-6">
-          <img
-            src="/logo-sterkbouw.svg" // Zet hier jouw juiste logopad
-            alt="SterkBouw Logo"
-            className="h-16"
-          />
-        </div>
-
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-900">Inloggen</h1>
-
-        <form onSubmit={handleLogin} className="space-y-5">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-md">
+        <h1 className="text-3xl font-bold mb-6 text-center">SterkBouw Login</h1>
+        <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block mb-1 text-gray-700">E-mailadres</label>
+            <label htmlFor="email" className="block text-sm font-medium mb-1">
+              E-mail
+            </label>
             <input
+              id="email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-5 py-3 border border-gray-300 rounded-xl text-gray-900 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              placeholder="jouw@voorbeeld.nl"
+              className="w-full px-5 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500"
               required
             />
           </div>
+
           <div>
-            <label className="block mb-1 text-gray-700">Wachtwoord</label>
+            <label htmlFor="wachtwoord" className="block text-sm font-medium mb-1">
+              Wachtwoord
+            </label>
             <input
+              id="wachtwoord"
               type="password"
+              autoComplete="current-password"
               value={wachtwoord}
               onChange={(e) => setWachtwoord(e.target.value)}
-              className="w-full px-5 py-3 border border-gray-300 rounded-xl text-gray-900 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              placeholder="••••••••••"
+              className="w-full px-5 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500"
               required
             />
           </div>
-          {foutmelding && <p className="text-red-600 text-sm">{foutmelding}</p>}
+
+          {error && (
+            <div className="text-red-600 text-sm text-center">{error}</div>
+          )}
+
           <button
             type="submit"
-            className="w-full py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-xl text-lg transition"
+            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-4 rounded-xl transition"
           >
             Inloggen
           </button>
