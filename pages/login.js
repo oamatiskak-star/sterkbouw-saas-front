@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
@@ -7,58 +6,46 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-export default function Login() {
+export default function LoginPage() {
   const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState("")
 
-  const handleLogin = async (e) => {
-    e.preventDefault()
-    setError("")
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
+  const handleLogin = async () => {
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithOtp({ email })
     if (error) {
-      setError("Inloggen mislukt: " + error.message)
+      setMessage("Fout bij versturen link")
     } else {
-      router.push("/dashboard")
+      setMessage("Magic link verstuurd naar je e-mail")
     }
+    setLoading(false)
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form
-        onSubmit={handleLogin}
-        className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center text-black">SterkBouw Login</h2>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="bg-white rounded-2xl shadow-xl p-10 w-full max-w-md">
+        <h1 className="text-2xl font-bold text-black mb-6 text-center">
+          SterkBouw Inloggen
+        </h1>
         <input
           type="email"
+          placeholder="E-mailadres"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="E-mail"
-          required
-          className="w-full mb-4 p-3 border border-gray-300 rounded-xl"
+          className="w-full p-3 border rounded-xl mb-4"
         />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Wachtwoord"
-          required
-          className="w-full mb-6 p-3 border border-gray-300 rounded-xl"
-        />
-        {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
         <button
-          type="submit"
-          className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-3 rounded-xl"
+          onClick={handleLogin}
+          disabled={loading || !email}
+          className="w-full bg-yellow-400 text-black py-3 rounded-xl hover:bg-yellow-500 transition"
         >
-          Inloggen
+          {loading ? "Versturen..." : "Stuur Magic Link"}
         </button>
-      </form>
+        {message && (
+          <p className="text-center text-sm mt-4 text-gray-700">{message}</p>
+        )}
+      </div>
     </div>
   )
 }
