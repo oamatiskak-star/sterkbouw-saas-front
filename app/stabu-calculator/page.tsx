@@ -22,9 +22,8 @@ export default function STABUCalculatorPage() {
         setUser(data.user)
       }
     }
-
     checkUser()
-  }, [router])
+  }, [])
 
   if (!user) {
     return <div className="p-6 text-gray-700">Laden...</div>
@@ -33,14 +32,14 @@ export default function STABUCalculatorPage() {
   return (
     <div className="min-h-screen bg-gray-100 p-6 text-gray-900">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">STABU Calculatie</h1>
+        <h1 className="text-2xl font-bold mb-6">STABU Calculator</h1>
 
         <div className="bg-white shadow rounded-2xl p-6">
           <p className="mb-4">
-            Hier komt jouw STABU calculatietool met inputvelden en directe koppeling naar de backend.
+            Hier komt jouw STABU calculatie tool met inputvelden en uitkomsten.
           </p>
           <p className="text-sm text-gray-500">
-            De backend is al voorbereid. Volgende stap: inputformulieren en prijsopbouw op basis van STABU-codes.
+            Volgende stap: koppeling met backend en STABU-prijslijsten.
           </p>
         </div>
       </div>
