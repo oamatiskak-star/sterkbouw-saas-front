@@ -8,7 +8,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-type RisicoItem = {
+type Risico = {
   id: string
   categorie: string
   beschrijving: string
@@ -16,12 +16,14 @@ type RisicoItem = {
 }
 
 export default function RisicoAnalysePage() {
-  const [risicoData, setRisicoData] = useState<RisicoItem[]>([])
+  const [risicoData, setRisicoData] = useState<Risico[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchRisico = async () => {
-      const { data, error } = await supabase.from('risicoanalyse').select('*')
+      const { data, error } = await supabase
+        .from('risicoanalyse')
+        .select('*')
 
       if (error) {
         console.error('Fout bij ophalen risicoanalyse:', error)
@@ -29,7 +31,7 @@ export default function RisicoAnalysePage() {
         return
       }
 
-      setRisicoData(data as RisicoItem[])
+      setRisicoData(data as Risico[])
       setLoading(false)
     }
 
