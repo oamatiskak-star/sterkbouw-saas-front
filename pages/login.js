@@ -12,10 +12,12 @@ export default function Login() {
   const [email, setEmail] = useState("")
   const [wachtwoord, setWachtwoord] = useState("")
   const [error, setError] = useState("")
+  const [melding, setMelding] = useState("")
 
   const handleLogin = async (e) => {
     e.preventDefault()
     setError("")
+    setMelding("")
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -26,6 +28,25 @@ export default function Login() {
       setError("Inloggen mislukt: " + error.message)
     } else {
       router.push("/dashboard")
+    }
+  }
+
+  const wachtwoordReset = async () => {
+    setError("")
+    setMelding("")
+    if (!email) {
+      setError("Vul je e-mailadres in om je wachtwoord te herstellen.")
+      return
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: process.env.NEXT_PUBLIC_SUPABASE_RESET_REDIRECT_URL || "https://app.sterkbouw.nl/reset",
+    })
+
+    if (error) {
+      setError("Fout bij versturen resetlink: " + error.message)
+    } else {
+      setMelding("Resetlink is verstuurd naar je e-mail.")
     }
   }
 
@@ -64,9 +85,8 @@ export default function Login() {
             />
           </div>
 
-          {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
-          )}
+          {error && <div className="text-red-600 text-sm text-center">{error}</div>}
+          {melding && <div className="text-green-600 text-sm text-center">{melding}</div>}
 
           <button
             type="submit"
@@ -74,6 +94,16 @@ export default function Login() {
           >
             Inloggen
           </button>
+
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              onClick={wachtwoordReset}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Wachtwoord vergeten?
+            </button>
+          </div>
         </form>
       </div>
     </div>
