@@ -25,7 +25,16 @@ export default function Dashboard() {
 
   if (!user) return <p>Bezig met laden...</p>
 
-  return (
+  return (<button
+  onClick={async () => {
+    await fetch("/api/logout")
+    window.location.href = "/login"
+  }}
+  className="absolute top-6 right-6 bg-red-500 text-white px-4 py-2 rounded"
+>
+  Uitloggen
+</button>
+
     <div className="p-10">
       <h1 className="text-4xl font-bold text-yellow-500">SterkBouw Dashboard</h1>
       <p className="text-gray-700 mt-4">Welkom terug, {user.email}</p>
