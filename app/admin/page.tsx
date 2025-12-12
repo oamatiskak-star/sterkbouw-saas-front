@@ -15,11 +15,13 @@ export default function AdminPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       const { data, error } = await supabase.from('gebruikers').select('*')
+
       if (error) {
         console.error('Fout bij ophalen gebruikers:', error)
         setLoading(false)
         return
       }
+
       setUsers(data)
       setLoading(false)
     }
@@ -28,8 +30,8 @@ export default function AdminPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gray-100 p-6 text-gray-900">
+      <div className="max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Adminbeheer</h1>
 
         {loading ? (
