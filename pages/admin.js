@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
@@ -7,54 +6,51 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-export default function AdminPanel() {
-  const router = useRouter()
-  const [user, setUser] = useState(null)
-  const [isAdmin, setIsAdmin] = useState(false)
+export default function Admin() {
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const checkAdmin = async () => {
-      const { data, error } = await supabase.auth.getUser()
-      if (error || !data.user) {
-        router.push("/login")
+    const fetchUsers = async () => {
+      const { data, error } = await supabase.from("gebruikers").select("*")
+      if (error) {
+        console.error("Fout bij ophalen gebruikers:", error)
+        setLoading(false)
         return
       }
-
-      const email = data.user.email
-      setUser(data.user)
-
-      if (email === "o.amatiskak@sterkbouw.nl") {
-        setIsAdmin(true)
-      } else {
-        router.push("/dashboard")
-      }
+      setUsers(data)
+      setLoading(false)
     }
 
-    checkAdmin()
+    fetchUsers()
   }, [])
-
-  if (!user) {
-    return <div className="p-6 text-gray-700">Bezig met laden...</div>
-  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 text-gray-900">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Adminpaneel</h1>
+        <h1 className="text-2xl font-bold mb-6">Adminbeheer</h1>
 
-        {!isAdmin && (
-          <p className="text-red-500">Geen toegang tot deze pagina.</p>
-        )}
-
-        {isAdmin && (
-          <div className="space-y-4">
-            <div className="bg-white shadow rounded-2xl p-4">
-              <p className="font-semibold">Toekomstige functies hier zichtbaar</p>
-              <p className="text-sm text-gray-600">
-                Zoals gebruikersbeheer, systeemstatus en AO Agent instellingen.
-              </p>
-            </div>
-          </div>
+        {loading ? (
+          <p>Gebruikers worden geladen...</p>
+        ) : users.length === 0 ? (
+          <p>Geen gebruikers gevonden.</p>
+        ) : (
+          <table className="w-full bg-white rounded-2xl shadow border border-gray-200">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="text-left p-3">Email</th>
+                <th className="text-left p-3">Rol</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((gebruiker) => (
+                <tr key={gebruiker.id} className="border-t border-gray-100">
+                  <td className="p-3">{gebruiker.email}</td>
+                  <td className="p-3">{gebruiker.rol || "Onbekend"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>
