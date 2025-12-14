@@ -3,6 +3,7 @@ margin: 0;
 padding: 0;
 height: 100%;
 font-family: Arial, sans-serif;
+background: #f5f5f5;
 }
 
 .sb-app {
@@ -15,6 +16,7 @@ width: 240px;
 background: #f4c300;
 color: #000;
 padding: 20px;
+box-sizing: border-box;
 }
 
 .sb-logo {
@@ -28,19 +30,26 @@ display: block;
 color: #000;
 text-decoration: none;
 padding: 8px 0;
+font-size: 14px;
+}
+
+.sb-nav a:hover {
+text-decoration: underline;
 }
 
 .sb-main {
 flex: 1;
-background: #f5f5f5;
 display: flex;
 flex-direction: column;
 }
 
 .sb-header {
-background: #fff;
-padding: 16px;
+background: #ffffff;
+padding: 16px 24px;
 border-bottom: 1px solid #ddd;
+display: flex;
+justify-content: space-between;
+align-items: center;
 }
 
 .sb-content {
@@ -48,29 +57,31 @@ padding: 24px;
 overflow: auto;
 }
 
-Stap 4. Controleer dit pad
-app/dashboard/page.jsx
+.dashboard-grid {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 20px;
+}
 
-Dit bestand mag alleen content renderen.
-Geen html, geen body, geen layout.
+.card {
+background: #ffffff;
+border-radius: 8px;
+padding: 20px;
+box-sizing: border-box;
+box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
 
-Voorbeeld correcte dashboard page:
+.card h3 {
+margin: 0 0 12px 0;
+font-size: 16px;
+}
 
-export default function DashboardPage() {
-return (
-<div>
-<h1>Dashboard</h1>
+.card ul {
+margin: 0;
+padding-left: 18px;
+}
 
-  <p>Project voortgang</p>
-  <p>Cashflow en calculaties</p>
-
-  <ul>
-    <li>Project Breskens</li>
-    <li>Project Hilversum</li>
-    <li>Project Apeldoorn</li>
-  </ul>
-</div>
-
-
-)
+.card li {
+font-size: 14px;
+margin-bottom: 6px;
 }
