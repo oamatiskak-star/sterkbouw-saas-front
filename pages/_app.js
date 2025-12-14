@@ -1,33 +1,23 @@
 import "../styles/global.css"
-import { menuConfig } from "../lib/menuConfig"
 
 export default function MyApp({ Component, pageProps }) {
   return (
     <div className="sb-app">
       <aside className="sb-sidebar">
         <div className="sb-logo">SterkBouw</div>
-
         <nav className="sb-nav">
-          {menuConfig.map(m => (
-            <div key={m.key} className="sb-group">
-              <div className="sb-group-title">{m.title}</div>
-
-              {m.actions.map(a => (
-                <a
-                  key={a.id}
-                  href={`/workspace?action=${a.id}`}
-                >
-                  {a.label}
-                </a>
-              ))}
-            </div>
-          ))}
+          <a href="/dashboard">Dashboard</a>
+          <a href="/calculator">Calculaties</a>
+          <a href="/planning">Planning</a>
+          <a href="/cashflow">Cashflow</a>
+          <a href="/uploads">Uploads</a>
+          <a href="/bim">BIM</a>
         </nav>
       </aside>
 
       <main className="sb-main">
         <header className="sb-header">
-          <div>Workspace</div>
+          <div>Breskens Achterkant</div>
         </header>
 
         <section className="sb-content">
