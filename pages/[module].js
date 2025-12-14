@@ -1,24 +1,28 @@
+import { useEffect } from "react"
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { moduleConfig } from "../lib/moduleEngine"
-import ModuleRenderer from "../components/ModuleRenderer"
-import { apiGet } from "../lib/api"
 
-export default function ModulePage() {
+const map = {
+  calculator: "calculaties:bouw",
+  "stabu-calculator": "calculaties:stabu",
+  bim: "architecten:bim",
+  constructeurs: "engineering:controle",
+  risicoanalyse: "analyse:risico",
+  kopersportaal: "documenten:overzicht",
+  planning: "planning:genereer",
+  documenten: "documenten:overzicht",
+  uploads: "documenten:upload"
+}
+
+export default function LegacyRedirect() {
   const router = useRouter()
   const { module } = router.query
-  const [data, setData] = useState(null)
-
-  const config = moduleConfig[module]
 
   useEffect(() => {
-    if (!config) return
-    apiGet(config.api).then(setData)
+    if (!module) return
+
+    const action = map[module] || module
+    router.replace(`/workspace?action=${action}`)
   }, [module])
 
-  return (
-    <div className="dashboard-grid">
-      <ModuleRenderer config={config} data={data} />
-    </div>
-  )
+  return null
 }
