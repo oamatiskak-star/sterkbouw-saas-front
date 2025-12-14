@@ -20,11 +20,10 @@ export default function Dashboard() {
         router.push("/login")
         return
       }
-
       setUser(data.user)
 
-      const dashboardData = await apiGet("/api/dashboard")
-      setStats(dashboardData)
+      const dashboardStats = await apiGet("/api/dashboard")
+      setStats(dashboardStats)
     }
 
     init()
@@ -45,8 +44,39 @@ export default function Dashboard() {
           <KPIGrid stats={stats} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Panel title="Project voortgang" />
-            <Panel title="Cashflow en calculaties" />
+            <Panel title="Project voortgang">
+              <div className="h-64 bg-gray-200 rounded"></div>
+            </Panel>
+
+            <Panel title="Cashflow en calculaties">
+              <div className="h-64 bg-gray-200 rounded"></div>
+            </Panel>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Panel title="Laatste projecten">
+              <ul className="space-y-2">
+                <li>Project Breskens</li>
+                <li>Project Hilversum</li>
+                <li>Project Apeldoorn</li>
+              </ul>
+            </Panel>
+
+            <Panel title="Recente uploads">
+              <ul className="space-y-2">
+                <li>STABU calculatie.xlsx</li>
+                <li>BIM model.ifc</li>
+                <li>Contract.pdf</li>
+              </ul>
+            </Panel>
+
+            <Panel title="Open acties">
+              <ul className="space-y-2">
+                <li>Calculatie afronden</li>
+                <li>Risico analyse check</li>
+                <li>Document uploaden</li>
+              </ul>
+            </Panel>
           </div>
         </main>
       </div>
@@ -54,10 +84,87 @@ export default function Dashboard() {
   )
 }
 
-/* ========== COMPONENTS ========== */
+/* =======================
+SIDEBAR
+======================= */
+function Sidebar() {
+  return (
+    <aside className="w-64 bg-gray-900 text-white flex flex-col">
+      <div className="p-6 text-xl font-bold border-b border-gray-700">
+        SterkBouw
+      </div>
 
+      <nav className="flex-1 p-4 space-y-2 text-sm">
+        <MenuLink label="Dashboard" link="/dashboard" />
+        <MenuLink label="Projecten" link="/projecten" />
+        <MenuLink label="Calculaties" link="/calculator" />
+        <MenuLink label="STABU Calculator" link="/stabu-calculator" />
+        <MenuLink label="Fixed Price" link="/fixed-price" />
+        <MenuLink label="BIM Architect" link="/bim" />
+        <MenuLink label="Constructeurs" link="/constructeurs" />
+        <MenuLink label="E en W" link="/ew" />
+        <MenuLink label="Risico Analyse" link="/risico" />
+        <MenuLink label="Kopersportaal" link="/kopersportaal" />
+        <MenuLink label="Documenten" link="/documenten" />
+        <MenuLink label="Uploads" link="/uploads" />
+        <MenuLink label="Installatie" link="/installatie" />
+        <MenuLink label="Team" link="/team" />
+        <MenuLink label="Notificaties" link="/notificaties" />
+        <MenuLink label="Instellingen" link="/admin" />
+      </nav>
+
+      <div className="p-4 border-t border-gray-700 text-sm">
+        <MenuLink label="Profiel" link="/profiel" />
+        <MenuLink label="Uitloggen" link="/logout" />
+      </div>
+    </aside>
+  )
+}
+
+function MenuLink({ label, link }) {
+  return (
+    <a href={link} className="block px-3 py-2 rounded hover:bg-gray-800">
+      {label}
+    </a>
+  )
+}
+
+/* =======================
+TOPBAR
+======================= */
+function Topbar({ user }) {
+  return (
+    <header className="h-16 bg-white border-b flex items-center justify-between px-6">
+      <div className="text-lg font-semibold">Dashboard</div>
+
+      <div className="flex items-center space-x-3">
+        <ActionButton label="Nieuwe calculatie" />
+        <ActionButton label="Upload bestanden" />
+        <ActionButton label="Nieuw project" />
+
+        <div className="text-sm text-gray-600">
+          {user.email}
+        </div>
+      </div>
+    </header>
+  )
+}
+
+function ActionButton({ label }) {
+  return (
+    <button className="px-3 py-2 bg-yellow-400 text-black rounded text-sm font-medium">
+      {label}
+    </button>
+  )
+}
+
+/* =======================
+KPI
+======================= */
 function KPIGrid({ stats }) {
-  if (!stats) return <div>Laden dashboard data...</div>
+  if (!stats) {
+    return <div className="p-4">Dashboard data laden...</div>
+  }
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -79,43 +186,14 @@ function KPI({ title, value }) {
   )
 }
 
-function Panel({ title }) {
+/* =======================
+PANEL
+======================= */
+function Panel({ title, children }) {
   return (
-    <div className="bg-white rounded shadow p-4 h-64">
+    <div className="bg-white rounded shadow p-4">
       <div className="font-semibold mb-3">{title}</div>
+      {children}
     </div>
-  )
-}
-
-function Sidebar() {
-  return (
-    <aside className="w-64 bg-gray-900 text-white">
-      <div className="p-6 font-bold text-xl">SterkBouw</div>
-      <nav className="p-4 space-y-2 text-sm">
-        <MenuLink label="Dashboard" link="/dashboard" />
-        <MenuLink label="Projecten" link="/projecten" />
-        <MenuLink label="Calculaties" link="/calculator" />
-        <MenuLink label="BIM" link="/bim" />
-        <MenuLink label="Risico" link="/risico" />
-        <MenuLink label="Team" link="/team" />
-      </nav>
-    </aside>
-  )
-}
-
-function MenuLink({ label, link }) {
-  return (
-    <a href={link} className="block px-3 py-2 rounded hover:bg-gray-800">
-      {label}
-    </a>
-  )
-}
-
-function Topbar({ user }) {
-  return (
-    <header className="h-16 bg-white border-b flex items-center justify-between px-6">
-      <div className="font-semibold">Dashboard</div>
-      <div className="text-sm">{user.email}</div>
-    </header>
   )
 }
