@@ -1,22 +1,24 @@
 import { useRouter } from "next/router"
-import { modules } from "../lib/modules"
+import { useEffect, useState } from "react"
+import { moduleConfig } from "../lib/moduleEngine"
+import ModuleRenderer from "../components/ModuleRenderer"
+import { apiGet } from "../lib/api"
 
 export default function ModulePage() {
-const router = useRouter()
-const { module } = router.query
+  const router = useRouter()
+  const { module } = router.query
+  const [data, setData] = useState(null)
 
-const mod = modules.find(m => m.slug === module)
+  const config = moduleConfig[module]
 
-if (!mod) {
-return <div className="card">Module niet gevonden</div>
-}
+  useEffect(() => {
+    if (!config) return
+    apiGet(config.api).then(setData)
+  }, [module])
 
-return (
-<div className="dashboard-grid">
-<div className="card">
-<h3>{mod.title}</h3>
-<p>Module in opbouw</p>
-</div>
-</div>
-)
+  return (
+    <div className="dashboard-grid">
+      <ModuleRenderer config={config} data={data} />
+    </div>
+  )
 }
