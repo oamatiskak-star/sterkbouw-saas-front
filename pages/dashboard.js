@@ -49,7 +49,7 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Panel title="Laatste projecten">
-              <ul className="space-y-2">
+              <ul className="space-y-2 text-sm">
                 <li>Project Breskens</li>
                 <li>Project Hilversum</li>
                 <li>Project Apeldoorn</li>
@@ -57,17 +57,17 @@ export default function Dashboard() {
             </Panel>
 
             <Panel title="Recente uploads">
-              <ul className="space-y-2">
-                <li>STABU calculatie.xlsx</li>
-                <li>BIM model.ifc</li>
+              <ul className="space-y-2 text-sm">
+                <li>STABU_calculatie.xlsx</li>
+                <li>BIM_model.ifc</li>
                 <li>Contract.pdf</li>
               </ul>
             </Panel>
 
             <Panel title="Open acties">
-              <ul className="space-y-2">
+              <ul className="space-y-2 text-sm">
                 <li>Calculatie afronden</li>
-                <li>Risico analyse check</li>
+                <li>Risico analyse controleren</li>
                 <li>Document uploaden</li>
               </ul>
             </Panel>
@@ -78,6 +78,9 @@ export default function Dashboard() {
   )
 }
 
+/* =======================
+SIDEBAR
+======================= */
 function Sidebar() {
   return (
     <aside className="w-64 bg-gray-900 text-white flex flex-col">
@@ -85,7 +88,7 @@ function Sidebar() {
         SterkBouw
       </div>
 
-      <nav className="flex-1 p-4 space-y-2 text-sm">
+      <nav className="flex-1 p-4 space-y-1 text-sm">
         <MenuLink label="Dashboard" link="/dashboard" />
         <MenuLink label="Projecten" link="/projecten" />
         <MenuLink label="Calculaties" link="/calculator" />
@@ -123,11 +126,14 @@ function MenuLink({ label, link }) {
   )
 }
 
+/* =======================
+TOPBAR
+======================= */
 function Topbar({ user }) {
   return (
     <header className="h-16 bg-white border-b flex items-center justify-between px-6">
       <div className="text-lg font-semibold">
-        Dashboard
+        SterkBouw SaaS Dashboard
       </div>
 
       <div className="flex items-center space-x-3">
@@ -151,6 +157,9 @@ function ActionButton({ label }) {
   )
 }
 
+/* =======================
+KPI BLOK
+======================= */
 function KPIGrid() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -172,6 +181,9 @@ function KPI({ title, value }) {
   )
 }
 
+/* =======================
+PANEL
+======================= */
 function Panel({ title, children }) {
   return (
     <div className="bg-white rounded shadow p-4">
