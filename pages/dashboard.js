@@ -38,36 +38,48 @@ export default function DashboardPage() {
     <div className="dashboard-grid">
 
       <div className="card">
-        <h3>Actieve projecten</h3>
-        <p>{stats ? stats.projecten : "-"}</p>
+        <h3>Snelle acties</h3>
+        <ul>
+          <li><a href="/actie/calculaties:bouw">Start bouwcalculatie</a></li>
+          <li><a href="/actie/calculaties:ew">Start E en W calculatie</a></li>
+          <li><a href="/actie/architecten:bouwtekening">Genereer bouwtekening</a></li>
+          <li><a href="/actie/planning:genereer">Genereer planning</a></li>
+          <li><a href="/actie/documenten:upload">Upload bestanden</a></li>
+        </ul>
       </div>
 
       <div className="card">
-        <h3>Lopende calculaties</h3>
-        <p>{stats ? stats.calculaties : "-"}</p>
+        <h3>Projectstatus</h3>
+        <p>Actieve projecten: {stats ? stats.projecten : "-"}</p>
+        <p>Lopende calculaties: {stats ? stats.calculaties : "-"}</p>
       </div>
 
       <div className="card">
-        <h3>Totale bouwsom</h3>
-        <p>{stats ? stats.bouwsom : "-"}</p>
+        <h3>Financieel overzicht</h3>
+        <p>Totale bouwsom: {stats ? stats.bouwsom : "-"}</p>
+        <p>Risicoscore: {stats ? stats.risico : "-"}</p>
       </div>
 
       <div className="card">
-        <h3>Risicoscore</h3>
-        <p>{stats ? stats.risico : "-"}</p>
+        <h3>Laatst gebruikte acties</h3>
+        <ul>
+          <li>Bouwcalculatie – afgerond</li>
+          <li>BIM model gegenereerd</li>
+          <li>Planning gegenereerd</li>
+        </ul>
       </div>
 
       <div className="card">
         <h3>Laatste projecten</h3>
         <ul>
-          <li>Breskens</li>
-          <li>Hilversum</li>
-          <li>Apeldoorn</li>
+          <li>Project Breskens</li>
+          <li>Project Hilversum</li>
+          <li>Project Apeldoorn</li>
         </ul>
       </div>
 
       <div className="card">
-        <h3>Recente uploads</h3>
+        <h3>Documenten & uploads</h3>
         <ul>
           <li>STABU calculatie.xlsx</li>
           <li>BIM model.ifc</li>
@@ -76,11 +88,11 @@ export default function DashboardPage() {
       </div>
 
       <div className="card">
-        <h3>Open acties</h3>
+        <h3>Openstaande aandachtspunten</h3>
         <ul>
-          <li>Calculatie afronden</li>
-          <li>Risico analyse check</li>
-          <li>Document uploaden</li>
+          <li>Calculatie controleren</li>
+          <li>Risicoanalyse afronden</li>
+          <li>Document upload ontbreekt</li>
         </ul>
       </div>
 
