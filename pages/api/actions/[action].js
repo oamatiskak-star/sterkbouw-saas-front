@@ -1,19 +1,28 @@
-import { runAction, getStatus } from "../../../executor/actionRouter"
-
 export default async function handler(req, res) {
   const { action } = req.query
 
-  if (req.method === "POST") {
-    const r = await runAction(action, {})
-    res.json(r)
-    return
+  if (req.method !== "POST") {
+    return res.status(405).json({ ok: false, error: "Method not allowed" })
   }
 
-  if (req.method === "GET") {
-    const s = await getStatus(action)
-    res.json(s)
-    return
-  }
+  try {
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_AO_CORE_URL + "/action",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          target: action,
+          payload: req.body
+        })
+      }
+    )
 
-  res.status(405).end()
+    const data = await response.json()
+    res.status(200).json(data)
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message })
+  }
 }
