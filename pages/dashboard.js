@@ -1,3 +1,4 @@
+import { apiGet } from "../lib/api"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
