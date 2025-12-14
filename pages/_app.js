@@ -1,13 +1,12 @@
 import "../styles/global.css"
 import "../styles/dashboard.css"
 import "../styles/admin.css"
-
-import DashboardLayout from "../components/DashboardLayout"
+import Layout from "../components/Layout"
 
 export default function App({ Component, pageProps }) {
-return (
-<DashboardLayout>
-<Component {...pageProps} />
-</DashboardLayout>
-)
+  return (
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
+  )
 }
