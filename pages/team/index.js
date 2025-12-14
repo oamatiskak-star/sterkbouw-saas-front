@@ -1,1 +1,0 @@
-export default function Team(){return <h1>Ons team</h1>}
