@@ -1,59 +1,69 @@
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
+import { actionSchemas } from "../lib/actionSchemas"
 
 export default function Workspace() {
-  const router = useRouter()
-  const { action } = router.query
-  const [status, setStatus] = useState(null)
-  const [result, setResult] = useState(null)
+  const { query } = useRouter()
+  const action = query.action
+  const schema = actionSchemas[action]
 
-  const startAction = async () => {
-    const res = await fetch(`/api/actions/${action}`, { method: "POST" })
-    const data = await res.json()
-    setStatus(data)
+  const [status, setStatus] = useState(null)
+  const [files, setFiles] = useState([])
+
+  const start = async () => {
+    const res = await fetch(`/api/actions/${action}`, { method:"POST" })
+    setStatus(await res.json())
   }
 
-  useEffect(() => {
-    if (!action) return
-    const poll = setInterval(async () => {
-      const res = await fetch(`/api/actions/${action}?status=1`)
-      const data = await res.json()
-      setStatus(data)
-      if (data?.state === "KLAAR") {
-        setResult(data.result)
-        clearInterval(poll)
-      }
-    }, 2000)
-    return () => clearInterval(poll)
-  }, [action])
+  if (!schema) {
+    return <div className="card">Onbekende actie</div>
+  }
 
   return (
-    <div className="dashboard-grid">
+    <div className="workspace">
 
-      <div className="card">
-        <h3>Actie</h3>
-        <p>{action}</p>
-      </div>
+      <h2>{schema.title}</h2>
 
-      <div className="card">
-        <h3>Bestanden uploaden</h3>
-        <input type="file" multiple />
-      </div>
+      {schema.blocks.includes("project") && (
+        <div className="card">
+          <h3>Project</h3>
+          <select><option>Selecteer project</option></select>
+        </div>
+      )}
 
-      <div className="card">
-        <h3>Actie uitvoeren</h3>
-        <button onClick={startAction}>Start</button>
-      </div>
+      {schema.blocks.includes("upload") && (
+        <div className="card">
+          <h3>Bestanden</h3>
+          <input type="file" multiple onChange={e => setFiles(e.target.files)} />
+        </div>
+      )}
 
-      <div className="card">
-        <h3>Status</h3>
-        <pre>{JSON.stringify(status, null, 2)}</pre>
-      </div>
+      {schema.blocks.includes("parameters") && (
+        <div className="card">
+          <h3>Instellingen</h3>
+          <input placeholder="Aantal m2" />
+        </div>
+      )}
 
-      <div className="card">
-        <h3>Resultaat</h3>
-        <pre>{JSON.stringify(result, null, 2)}</pre>
-      </div>
+      {schema.blocks.includes("start") && (
+        <div className="card">
+          <button onClick={start}>Start</button>
+        </div>
+      )}
+
+      {schema.blocks.includes("status") && (
+        <div className="card">
+          <h3>Status</h3>
+          <pre>{JSON.stringify(status, null, 2)}</pre>
+        </div>
+      )}
+
+      {schema.blocks.includes("result") && (
+        <div className="card">
+          <h3>Resultaat</h3>
+          <div>Nog geen resultaat</div>
+        </div>
+      )}
 
     </div>
   )
