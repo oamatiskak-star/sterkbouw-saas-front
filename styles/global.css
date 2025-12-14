@@ -1,26 +1,52 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f3f4f6;
+/* =======================
+RESET
+======================= */
+* {
+  box-sizing: border-box;
 }
 
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f3f4f6;
+  color: #111827;
+}
+
+/* =======================
+LAYOUT
+======================= */
 .sb-app {
   display: flex;
   height: 100vh;
+  width: 100vw;
 }
 
 .sb-sidebar {
   width: 240px;
   background: #111827;
-  color: white;
+  color: #ffffff;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sb-logo {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
 }
 
 .sb-nav a {
   display: block;
-  color: white;
+  color: #ffffff;
   text-decoration: none;
   padding: 8px 0;
+  font-size: 14px;
+}
+
+.sb-nav a:hover {
+  text-decoration: underline;
 }
 
 .sb-main {
@@ -31,13 +57,103 @@ body {
 
 .sb-header {
   height: 56px;
-  background: white;
+  background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   padding: 0 20px;
+  font-weight: bold;
 }
 
 .sb-content {
+  flex: 1;
   padding: 20px;
+  overflow-y: auto;
+}
+
+/* =======================
+DASHBOARD
+======================= */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 20px;
+}
+
+.card h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.card p {
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* =======================
+TABLES
+======================= */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+th {
+  background: #f9fafb;
+  font-weight: bold;
+}
+
+/* =======================
+BUTTONS
+======================= */
+button {
+  background: #facc15;
+  color: #111827;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #eab308;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =======================
+HEADINGS
+======================= */
+h1 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 18px;
 }
