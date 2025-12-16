@@ -1,4 +1,3 @@
-import "../styles/globals.css"
 import TablerLayout from "../components/TablerLayout"
 
 export default function App({ Component, pageProps }) {
