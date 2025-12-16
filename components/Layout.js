@@ -1,9 +1,5 @@
-import DashboardLayout from "./DashboardLayout"
+import TablerLayout from "./TablerLayout"
 
 export default function Layout({ children }) {
-  return (
-    <DashboardLayout>
-      {children}
-    </DashboardLayout>
-  )
+  return <TablerLayout>{children}</TablerLayout>
 }
