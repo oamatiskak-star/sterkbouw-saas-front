@@ -5,35 +5,48 @@ export default function CalculatieBouw() {
 
   return (
     <div>
-      <h1>Calculatie module</h1>
+      <h1>Calculaties</h1>
 
-      {/* ACTIEKNOPPEN */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 16,
-          marginBottom: 30
-        }}
-      >
-        <button>Nieuwe calculatie</button>
-        <button>Calculatie aanpassen</button>
+      <p>
+        Start en beheer alle calculaties vanuit één centrale plek
+      </p>
 
-        <button>Electra calculatie</button>
-        <button>W calculatie</button>
-        <button>E &amp; W calculatie gecombineerd</button>
+      <div className="grid">
 
-        <button>Bestanden uploaden</button>
+        <div className="card">
+          <h3>Basis</h3>
+          <button>Nieuwe calculatie</button>
+          <button>Calculatie aanpassen</button>
+        </div>
 
-        <button>Genereer bouwtekening BIM</button>
-        <button>Genereer installatietekening BIM</button>
+        <div className="card">
+          <h3>Installaties</h3>
+          <button>Electra calculatie</button>
+          <button>W-calculatie</button>
+          <button>E &amp; W gecombineerd</button>
+        </div>
 
-        <button>Ontwerp module (projectontwikkeling)</button>
+        <div className="card">
+          <h3>Bestanden</h3>
+          <button>Bestanden uploaden</button>
+          <button>Bekijk uploads</button>
+        </div>
+
+        <div className="card">
+          <h3>BIM & Tekeningen</h3>
+          <button>Genereer bouwtekening BIM</button>
+          <button>Genereer installatietekening BIM</button>
+        </div>
+
+        <div className="card">
+          <h3>Ontwerp</h3>
+          <button>Ontwerp module projectontwikkeling</button>
+        </div>
+
       </div>
 
-      {/* OPMERKINGEN */}
-      <div style={{ maxWidth: 600 }}>
-        <h2>Opmerking voor calculatie</h2>
+      <div className="card" style={{ maxWidth: 640, marginTop: 24 }}>
+        <h3>Opmerking voor calculatie</h3>
 
         <textarea
           placeholder="Bijvoorbeeld: splits 14 appartementen in 6 voorkant en 8 achterkant"
@@ -42,17 +55,17 @@ export default function CalculatieBouw() {
           rows={4}
           style={{
             width: "100%",
-            padding: 10,
+            padding: 12,
             fontSize: 14,
-            borderRadius: 4,
-            border: "1px solid #e5e7eb"
+            borderRadius: 8,
+            border: "1px solid #e5e7eb",
+            marginBottom: 12
           }}
         />
 
-        <div style={{ marginTop: 10 }}>
-          <button>Opmerking opslaan</button>
-        </div>
+        <button>Opmerking opslaan</button>
       </div>
+
     </div>
   )
 }
