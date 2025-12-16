@@ -1,45 +1,41 @@
 export default function Layout({ children }) {
   return (
-    <div className="flex min-h-screen bg-gray-100 text-gray-900">
-      <aside className="w-64 bg-gray-900 text-white flex flex-col">
-        <div className="p-6 text-xl font-bold border-b border-gray-700">
+    <div className="sb-app">
+      <aside className="sb-sidebar">
+        <div className="sb-logo">
           SterkBouw
         </div>
 
-        <nav className="flex-1 p-4 space-y-1 text-sm">
+        <nav className="sb-nav">
           <MenuLink label="Dashboard" link="/dashboard" />
           <MenuLink label="Projecten" link="/projecten" />
-          <MenuLink label="Calculaties" link="/calculator" />
-          <MenuLink label="STABU Calculator" link="/stabu-calculator" />
-          <MenuLink label="Fixed Price" link="/fixed-price" />
+          <MenuLink label="Calculaties" link="/calculaties" />
+          <MenuLink label="Projectontwikkeling" link="/ontwikkeling" />
+          <MenuLink label="Documenten" link="/documenten" />
+          <MenuLink label="Planning" link="/planning" />
+          <MenuLink label="Inkoop" link="/inkoop" />
+          <MenuLink label="Risico" link="/risico" />
           <MenuLink label="BIM Architect" link="/bim" />
           <MenuLink label="Constructeurs" link="/constructeurs" />
-          <MenuLink label="E en W" link="/ew" />
-          <MenuLink label="Risico Analyse" link="/risico" />
           <MenuLink label="Kopersportaal" link="/kopersportaal" />
-          <MenuLink label="Documenten" link="/documenten" />
-          <MenuLink label="Uploads" link="/uploads" />
-          <MenuLink label="Installatie" link="/installatie" />
-          <MenuLink label="Team" link="/team" />
-          <MenuLink label="Notificaties" link="/notificaties" />
           <MenuLink label="Instellingen" link="/admin" />
         </nav>
       </aside>
 
-      <div className="flex-1 flex flex-col">
-        <header className="h-16 bg-white border-b flex items-center justify-between px-6">
-          <div className="text-lg font-semibold">
+      <div className="sb-main">
+        <header className="sb-header">
+          <div className="sb-header-title">
             SterkBouw SaaS
           </div>
 
-          <div className="flex items-center space-x-3">
-            <ActionButton label="Nieuwe calculatie" />
-            <ActionButton label="Upload bestanden" />
-            <ActionButton label="Nieuw project" />
+          <div className="sb-header-actions">
+            <HeaderButton label="Nieuwe calculatie" />
+            <HeaderButton label="Upload bestanden" />
+            <HeaderButton label="Nieuw project" />
           </div>
         </header>
 
-        <main className="p-6">
+        <main className="sb-content">
           {children}
         </main>
       </div>
@@ -49,15 +45,15 @@ export default function Layout({ children }) {
 
 function MenuLink({ label, link }) {
   return (
-    <a href={link} className="block px-3 py-2 rounded hover:bg-gray-800">
+    <a href={link} className="sb-menu-link">
       {label}
     </a>
   )
 }
 
-function ActionButton({ label }) {
+function HeaderButton({ label }) {
   return (
-    <button className="px-3 py-2 bg-yellow-400 text-black rounded text-sm font-medium">
+    <button className="sb-header-button">
       {label}
     </button>
   )
