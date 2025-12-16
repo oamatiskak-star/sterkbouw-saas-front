@@ -1,28 +1,37 @@
-import Image from "next/image"
-import Link from "next/link"
-
-export default function Home() {
+export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900 flex flex-col items-center justify-center px-4">
-      <Image
-        src="/logo-sterkbouw.svg"
-        alt="SterkBouw Logo"
-        width={180}
-        height={60}
-        className="mb-6"
-        priority
-      />
-
-      <h1 className="text-3xl font-bold mb-4 text-yellow-500">Welkom bij SterkBouw</h1>
-      <p className="text-center max-w-md mb-6">
-        Toegang tot jouw projecten, calculaties, dashboards en meer. Alles op één centrale plek.
+    <div className="max-w-md mx-auto mt-20 bg-white rounded-3xl shadow-xl p-10">
+      <h1 className="text-2xl font-bold mb-4">Login</h1>
+      <p className="text-gray-600 mb-6">
+        Log in om toegang te krijgen tot jouw projecten, calculaties en dashboards.
       </p>
 
-      <Link href="/login">
-        <button className="bg-yellow-500 text-black px-6 py-3 rounded-full shadow hover:bg-yellow-600 transition">
-          Ga naar login
+      <form className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">E-mailadres</label>
+          <input
+            type="email"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            placeholder="voorbeeld@sterkbouw.nl"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Wachtwoord</label>
+          <input
+            type="password"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-yellow-400 text-black font-semibold py-2 px-4 rounded-lg shadow hover:bg-yellow-300 transition"
+        >
+          Inloggen
         </button>
-      </Link>
+      </form>
     </div>
   )
 }
