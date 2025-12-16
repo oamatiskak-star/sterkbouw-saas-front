@@ -8,13 +8,27 @@ export default function MyApp({ Component, pageProps }) {
         <div className="sb-logo">SterkBouw</div>
 
         <nav className="sb-nav">
-          <Link href="/project/overzicht">Project</Link>
-          <Link href="/calculaties/bouw">Calculaties</Link>
-          <Link href="/documenten/bestek">Documenten</Link>
-          <Link href="/planning/fasering">Planning</Link>
-          <Link href="/inkoop/prijzen">Inkoop</Link>
-          <Link href="/risico/analyse">Risico</Link>
-          <Link href="/output/dashboard">Dashboard</Link>
+          <Link href="/dashboard">Dashboard</Link>
+
+          <hr style={{ margin: "16px 0", opacity: 0.2 }} />
+
+          <strong style={{ fontSize: 12, opacity: 0.7 }}>PROJECTEN</strong>
+          <Link href="/projecten">Projecten</Link>
+
+          <hr style={{ margin: "16px 0", opacity: 0.2 }} />
+
+          <strong style={{ fontSize: 12, opacity: 0.7 }}>KERN FLOWS</strong>
+          <Link href="/calculaties">Calculatie</Link>
+          <Link href="/project-ontwikkeling">Project Ontwikkeling</Link>
+
+          <hr style={{ margin: "16px 0", opacity: 0.2 }} />
+
+          <strong style={{ fontSize: 12, opacity: 0.7 }}>ONDERSTEUNEND</strong>
+          <Link href="/uploads">Bestanden</Link>
+          <Link href="/bim">BIM</Link>
+          <Link href="/planning">Planning</Link>
+          <Link href="/inkoop">Inkoop</Link>
+          <Link href="/risico">Risico</Link>
         </nav>
       </aside>
 
