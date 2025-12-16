@@ -140,6 +140,29 @@ DASHBOARD / CARDS
 }
 
 /* =======================
+COMMAND BUTTON GRID
+======================= */
+.button-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.button-tile {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button-tile:hover {
+  background: #f9fafb;
+}
+
+/* =======================
 TABLES
 ======================= */
 table {
@@ -174,4 +197,48 @@ button {
   padding: 12px 16px;
   font-size: 16px;
   font-weight: 600;
-  cursor: pointe
+  cursor: pointer;
+}
+
+button:hover {
+  background: #eab308;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =======================
+HEADINGS
+======================= */
+h1 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 22px;
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+/* =======================
+RESPONSIVE SWITCH
+======================= */
+@media (max-width: 768px) {
+  .sb-app {
+    display: none;
+  }
+
+  .sb-mobile {
+    display: flex;
+  }
+}
+
+@media (min-width: 769px) {
+  .sb-mobile {
+    display: none;
+  }
+}
