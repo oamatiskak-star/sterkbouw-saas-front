@@ -1,45 +1,46 @@
-export default function Calculaties() {
+import "../styles/global.css"
+import Link from "next/link"
+
+export default function MyApp({ Component, pageProps }) {
   return (
-    <div className="flow-page">
-      <h1>Calculaties</h1>
-      <p className="flow-subtitle">
-        Start en beheer alle calculaties vanuit één centrale plek
-      </p>
+    <div className="sb-app">
+      <aside className="sb-sidebar">
+        <div className="sb-logo">SterkBouw</div>
 
-      <div className="flow-grid">
+        <nav className="sb-nav">
+          <Link href="/dashboard">Dashboard</Link>
 
-        <div className="flow-card">
-          <h2>Basis</h2>
-          <button>Nieuwe calculatie</button>
-          <button>Calculatie aanpassen</button>
-          <button>Opmerking voor calculatie</button>
-        </div>
+          <hr style={{ margin: "16px 0", opacity: 0.2 }} />
 
-        <div className="flow-card">
-          <h2>Installaties</h2>
-          <button>Electra calculatie</button>
-          <button>W-calculatie</button>
-          <button>E & W gecombineerd</button>
-        </div>
+          <strong style={{ fontSize: 12, opacity: 0.7 }}>PROJECTEN</strong>
+          <Link href="/projecten">Projecten</Link>
 
-        <div className="flow-card">
-          <h2>Bestanden</h2>
-          <button>Bestanden uploaden</button>
-          <button>Bekijk uploads</button>
-        </div>
+          <hr style={{ margin: "16px 0", opacity: 0.2 }} />
 
-        <div className="flow-card">
-          <h2>BIM & Tekeningen</h2>
-          <button>Genereer bouwtekening BIM</button>
-          <button>Genereer installatietekening BIM</button>
-        </div>
+          <strong style={{ fontSize: 12, opacity: 0.7 }}>KERN FLOWS</strong>
+          <Link href="/calculaties">Calculatie</Link>
+          <Link href="/project-ontwikkeling">Project Ontwikkeling</Link>
 
-        <div className="flow-card">
-          <h2>Ontwerp</h2>
-          <button>Ontwerp module projectontwikkeling</button>
-        </div>
+          <hr style={{ margin: "16px 0", opacity: 0.2 }} />
 
-      </div>
+          <strong style={{ fontSize: 12, opacity: 0.7 }}>ONDERSTEUNEND</strong>
+          <Link href="/uploads">Bestanden</Link>
+          <Link href="/bim">BIM</Link>
+          <Link href="/planning">Planning</Link>
+          <Link href="/inkoop">Inkoop</Link>
+          <Link href="/risico">Risico</Link>
+        </nav>
+      </aside>
+
+      <main className="sb-main">
+        <header className="sb-header">
+          SterkBouw SaaS
+        </header>
+
+        <section className="sb-content">
+          <Component {...pageProps} />
+        </section>
+      </main>
     </div>
   )
 }
