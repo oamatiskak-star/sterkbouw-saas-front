@@ -1,46 +1,55 @@
-import "../styles/global.css"
 import Link from "next/link"
 
-export default function MyApp({ Component, pageProps }) {
+export default function CalculatiesIndex() {
   return (
-    <div className="sb-app">
-      <aside className="sb-sidebar">
-        <div className="sb-logo">SterkBouw</div>
+    <div>
+      <h1>Calculaties</h1>
+      <p>Start en beheer alle calculaties vanuit één centrale plek</p>
 
-        <nav className="sb-nav">
-          <Link href="/dashboard">Dashboard</Link>
+      {/* BASIS */}
+      <h2>Basis</h2>
+      <div className="grid">
+        <Link href="/calculaties/bouw">
+          <button>Nieuwe calculatie</button>
+        </Link>
 
-          <hr style={{ margin: "16px 0", opacity: 0.2 }} />
+        <button>Calculatie aanpassen</button>
 
-          <strong style={{ fontSize: 12, opacity: 0.7 }}>PROJECTEN</strong>
-          <Link href="/projecten">Projecten</Link>
+        <button>Opmerking voor calculatie</button>
+      </div>
 
-          <hr style={{ margin: "16px 0", opacity: 0.2 }} />
+      {/* INSTALLATIES */}
+      <h2 style={{ marginTop: 30 }}>Installaties</h2>
+      <div className="grid">
+        <button>Electra calculatie</button>
+        <button>W-calculatie</button>
+        <button>E &amp; W gecombineerd</button>
+      </div>
 
-          <strong style={{ fontSize: 12, opacity: 0.7 }}>KERN FLOWS</strong>
-          <Link href="/calculaties">Calculatie</Link>
-          <Link href="/project-ontwikkeling">Project Ontwikkeling</Link>
+      {/* BESTANDEN */}
+      <h2 style={{ marginTop: 30 }}>Bestanden</h2>
+      <div className="grid">
+        <Link href="/uploads">
+          <button>Bestanden uploaden</button>
+        </Link>
 
-          <hr style={{ margin: "16px 0", opacity: 0.2 }} />
+        <button>Bekijk uploads</button>
+      </div>
 
-          <strong style={{ fontSize: 12, opacity: 0.7 }}>ONDERSTEUNEND</strong>
-          <Link href="/uploads">Bestanden</Link>
-          <Link href="/bim">BIM</Link>
-          <Link href="/planning">Planning</Link>
-          <Link href="/inkoop">Inkoop</Link>
-          <Link href="/risico">Risico</Link>
-        </nav>
-      </aside>
+      {/* BIM */}
+      <h2 style={{ marginTop: 30 }}>BIM & Tekeningen</h2>
+      <div className="grid">
+        <button>Genereer bouwtekening BIM</button>
+        <button>Genereer installatietekening BIM</button>
+      </div>
 
-      <main className="sb-main">
-        <header className="sb-header">
-          SterkBouw SaaS
-        </header>
-
-        <section className="sb-content">
-          <Component {...pageProps} />
-        </section>
-      </main>
+      {/* ONTWERP */}
+      <h2 style={{ marginTop: 30 }}>Ontwerp</h2>
+      <div className="grid">
+        <Link href="/project-ontwikkeling">
+          <button>Ontwerp module projectontwikkeling</button>
+        </Link>
+      </div>
     </div>
   )
 }
