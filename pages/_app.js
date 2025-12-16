@@ -1,6 +1,22 @@
 import "../styles/global.css"
+import { useRouter } from "next/router"
 
 export default function MyApp({ Component, pageProps }) {
+  const router = useRouter()
+
+  const isDashboardRoute =
+    router.pathname.startsWith("/dashboard") ||
+    router.pathname.startsWith("/calculator") ||
+    router.pathname.startsWith("/planning") ||
+    router.pathname.startsWith("/cashflow") ||
+    router.pathname.startsWith("/uploads") ||
+    router.pathname.startsWith("/bim") ||
+    router.pathname.startsWith("/taken")
+
+  if (!isDashboardRoute) {
+    return <Component {...pageProps} />
+  }
+
   return (
     <div className="sb-app">
       <aside className="sb-sidebar">
