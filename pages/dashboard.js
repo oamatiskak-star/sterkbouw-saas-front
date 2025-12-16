@@ -1,45 +1,63 @@
+import Sidebar from "@/components/Sidebar"
+import Head from "next/head"
+
 export default function Dashboard() {
   return (
-    <div>
-      <h1>Dashboard</h1>
+    <>
+      <Head>
+        <title>Dashboard | SterkBouw SaaS</title>
+      </Head>
+      <div className="sb-dashboard">
+        <Sidebar active="dashboard" />
 
-      <div className="grid">
+        <main className="sb-content">
+          <h1 className="sb-title">Dashboard</h1>
 
-        <div className="card">
-          <h3>Project</h3>
-          <button>Nieuw project</button>
-          <button>Project aanpassen</button>
-          <button>Projectoverzicht</button>
-        </div>
+          <section className="sb-section">
+            <h2 className="sb-section-title">Project</h2>
+            <div className="sb-button-group">
+              <button className="sb-button">Nieuw project</button>
+              <button className="sb-button">Project aanpassen</button>
+              <button className="sb-button">Projectoverzicht</button>
+            </div>
+          </section>
 
-        <div className="card">
-          <h3>Calculaties</h3>
-          <button>Bouwkundige calculatie</button>
-          <button>E/W calculatie</button>
-          <button>Complete calculatie</button>
-        </div>
+          <section className="sb-section">
+            <h2 className="sb-section-title">Calculaties</h2>
+            <div className="sb-button-group">
+              <button className="sb-button">Bouwkundige calculatie</button>
+              <button className="sb-button">E/W calculatie</button>
+              <button className="sb-button">Complete calculatie</button>
+            </div>
+          </section>
 
-        <div className="card">
-          <h3>Uploads</h3>
-          <button>Upload tekeningen</button>
-          <button>Upload bestek</button>
-          <button>Upload offertes</button>
-        </div>
+          <section className="sb-section">
+            <h2 className="sb-section-title">Uploads</h2>
+            <div className="sb-button-group">
+              <button className="sb-button">Upload tekeningen</button>
+              <button className="sb-button">Upload bestek</button>
+              <button className="sb-button">Upload offertes</button>
+            </div>
+          </section>
 
-        <div className="card">
-          <h3>Tekeningen & BIM</h3>
-          <button>Tekeningset genereren</button>
-          <button>BIM openen</button>
-        </div>
+          <section className="sb-section">
+            <h2 className="sb-section-title">Tekeningen & BIM</h2>
+            <div className="sb-button-group">
+              <button className="sb-button">Tekeningset genereren</button>
+              <button className="sb-button">BIM openen</button>
+            </div>
+          </section>
 
-        <div className="card">
-          <h3>Rapportages</h3>
-          <button>Dashboard rapport</button>
-          <button>PDF export</button>
-          <button>Excel export</button>
-        </div>
-
+          <section className="sb-section">
+            <h2 className="sb-section-title">Rapportages</h2>
+            <div className="sb-button-group">
+              <button className="sb-button">Dashboard rapport</button>
+              <button className="sb-button">PDF export</button>
+              <button className="sb-button">Excel export</button>
+            </div>
+          </section>
+        </main>
       </div>
-    </div>
+    </>
   )
 }
