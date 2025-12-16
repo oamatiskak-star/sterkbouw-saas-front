@@ -1,11 +1,6 @@
 import { useState } from "react"
 import { useRouter } from "next/router"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { supabase } from "../lib/supabase"
 
 export default function Login() {
   const router = useRouter()
@@ -13,34 +8,41 @@ export default function Login() {
   const [wachtwoord, setWachtwoord] = useState("")
   const [error, setError] = useState("")
   const [melding, setMelding] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const handleLogin = async (e) => {
     e.preventDefault()
     setError("")
     setMelding("")
+    setLoading(true)
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
-      password: wachtwoord,
+      password: wachtwoord
     })
+
+    setLoading(false)
 
     if (error) {
       setError("Inloggen mislukt: " + error.message)
     } else {
-      router.push("/dashboard")
+      router.push("/dashboard/projects")
     }
   }
 
   const wachtwoordReset = async () => {
     setError("")
     setMelding("")
+
     if (!email) {
       setError("Vul je e-mailadres in om je wachtwoord te herstellen.")
       return
     }
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: process.env.NEXT_PUBLIC_SUPABASE_RESET_REDIRECT_URL || "https://app.sterkbouw.nl/reset",
+      redirectTo:
+        process.env.NEXT_PUBLIC_SUPABASE_RESET_REDIRECT_URL ||
+        "https://app.sterkbouw.nl/reset"
     })
 
     if (error) {
@@ -53,10 +55,16 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-md">
-        <h1 className="text-3xl font-bold mb-6 text-center">SterkBouw Login</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center">
+          SterkBouw Login
+        </h1>
+
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium mb-1"
+            >
               E-mail
             </label>
             <input
@@ -71,7 +79,10 @@ export default function Login() {
           </div>
 
           <div>
-            <label htmlFor="wachtwoord" className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="wachtwoord"
+              className="block text-sm font-medium mb-1"
+            >
               Wachtwoord
             </label>
             <input
@@ -85,14 +96,24 @@ export default function Login() {
             />
           </div>
 
-          {error && <div className="text-red-600 text-sm text-center">{error}</div>}
-          {melding && <div className="text-green-600 text-sm text-center">{melding}</div>}
+          {error && (
+            <div className="text-red-600 text-sm text-center">
+              {error}
+            </div>
+          )}
+
+          {melding && (
+            <div className="text-green-600 text-sm text-center">
+              {melding}
+            </div>
+          )}
 
           <button
             type="submit"
-            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-4 rounded-xl transition"
+            disabled={loading}
+            className="w-full bg-yellow-500 hover:bg-yellow-600 disabled:opacity-60 text-white font-semibold py-4 rounded-xl transition"
           >
-            Inloggen
+            {loading ? "Bezig met inloggen…" : "Inloggen"}
           </button>
 
           <div className="text-center mt-4">
