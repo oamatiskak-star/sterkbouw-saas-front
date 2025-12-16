@@ -1,15 +1,10 @@
-import "../styles/global.css"
-import Layout from "../components/Layout"
-import { useRouter } from "next/router"
+import "../styles/globals.css"
+import TablerLayout from "../components/TablerLayout"
 
-export default function MyApp({ Component, pageProps }) {
-  const router = useRouter()
-  const path = router.pathname
-  const active = path.split("/")[1]
-
+export default function App({ Component, pageProps }) {
   return (
-    <Layout active={active}>
+    <TablerLayout>
       <Component {...pageProps} />
-    </Layout>
+    </TablerLayout>
   )
 }
