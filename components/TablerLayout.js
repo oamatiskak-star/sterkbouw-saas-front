@@ -3,11 +3,7 @@ import TablerNav from "./TablerNav"
 export default function TablerLayout({ children }) {
   return (
     <div className="page">
-      <aside className="navbar navbar-vertical navbar-expand-lg">
-        <div className="container-fluid">
-          <TablerNav />
-        </div>
-      </aside>
+      <TablerNav />
 
       <div className="page-wrapper">
         <div className="page-body">
