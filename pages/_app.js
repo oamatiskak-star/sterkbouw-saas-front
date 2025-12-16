@@ -1,46 +1,100 @@
-import "../styles/global.css"
 import Link from "next/link"
 
-export default function MyApp({ Component, pageProps }) {
+export default function Layout({ children, active }) {
   return (
-    <div className="sb-app">
-      <aside className="sb-sidebar">
-        <div className="sb-logo">SterkBouw</div>
+    <div className="min-h-screen flex bg-gray-200">
+      {/* SIDEBAR */}
+      <aside className="w-64 bg-gray-900 text-white flex flex-col rounded-r-3xl shadow-xl">
+        <div className="px-6 py-5 text-lg font-bold border-b border-gray-800">
+          SterkBouw SaaS
+        </div>
 
-        <nav className="sb-nav">
-          <Link href="/dashboard">Dashboard</Link>
+        <nav className="flex-1 px-4 py-4 text-sm space-y-1">
+          <Section title="Dashboard">
+            <NavItem href="/dashboard" label="Dashboard" active={active === "dashboard"} />
+          </Section>
 
-          <hr style={{ margin: "16px 0", opacity: 0.2 }} />
+          <Section title="Projecten">
+            <NavItem href="/projecten" label="Projecten" active={active === "projecten"} />
+          </Section>
 
-          <strong style={{ fontSize: 12, opacity: 0.7 }}>PROJECTEN</strong>
-          <Link href="/projecten">Projecten</Link>
+          <Section title="Kern flows">
+            <NavItem href="/calculaties" label="Calculatie" active={active === "calculaties"} highlight />
+            <NavItem
+              href="/project-ontwikkeling"
+              label="Project Ontwikkeling"
+              active={active === "project-ontwikkeling"}
+            />
+          </Section>
 
-          <hr style={{ margin: "16px 0", opacity: 0.2 }} />
-
-          <strong style={{ fontSize: 12, opacity: 0.7 }}>KERN FLOWS</strong>
-          <Link href="/calculaties">Calculatie</Link>
-          <Link href="/project-ontwikkeling">Project Ontwikkeling</Link>
-
-          <hr style={{ margin: "16px 0", opacity: 0.2 }} />
-
-          <strong style={{ fontSize: 12, opacity: 0.7 }}>ONDERSTEUNEND</strong>
-          <Link href="/uploads">Bestanden</Link>
-          <Link href="/bim">BIM</Link>
-          <Link href="/planning">Planning</Link>
-          <Link href="/inkoop">Inkoop</Link>
-          <Link href="/risico">Risico</Link>
+          <Section title="Ondersteunend">
+            <NavItem href="/uploads" label="Bestanden" />
+            <NavItem href="/bim" label="BIM" />
+            <NavItem href="/planning" label="Planning" />
+            <NavItem href="/inkoop" label="Inkoop" />
+            <NavItem href="/risico" label="Risico" />
+          </Section>
         </nav>
       </aside>
 
-      <main className="sb-main">
-        <header className="sb-header">
-          SterkBouw SaaS
+      {/* MAIN */}
+      <div className="flex-1 flex flex-col">
+        {/* HEADER */}
+        <header className="h-16 bg-white flex items-center justify-between px-8 shadow-sm">
+          <div className="text-lg font-semibold">
+            Admin Main
+          </div>
+
+          <div className="text-sm text-gray-500">
+            Ingelogd als admin
+          </div>
         </header>
 
-        <section className="sb-content">
-          <Component {...pageProps} />
-        </section>
-      </main>
+        {/* CONTENT */}
+        <main className="flex-1 p-8">
+          <div className="bg-white rounded-3xl shadow-xl p-8">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
+  )
+}
+
+function Section({ title, children }) {
+  return (
+    <div className="mt-4">
+      <div className="px-3 mb-2 text-xs uppercase tracking-wide text-gray-400">
+        {title}
+      </div>
+      <div className="space-y-1">
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function NavItem({ href, label, active, highlight }) {
+  const base =
+    "block px-3 py-2 rounded-lg transition"
+
+  const normal =
+    "text-gray-300 hover:bg-gray-800 hover:text-white"
+
+  const activeStyle =
+    "bg-yellow-400 text-gray-900 font-semibold"
+
+  const highlightStyle =
+    "bg-gray-800 text-yellow-400 font-semibold"
+
+  return (
+    <Link
+      href={href}
+      className={`${base} ${
+        active ? activeStyle : highlight ? highlightStyle : normal
+      }`}
+    >
+      {label}
+    </Link>
   )
 }
