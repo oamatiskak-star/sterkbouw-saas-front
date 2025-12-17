@@ -1,10 +1,11 @@
 import "../styles/globals.css"
-import TablerLayout from "../components/TablerLayout"
+import "@tabler/core/dist/css/tabler.min.css"
+import TablerLayout from "../components/layout/TablerLayout"
 
-export default function App({ Component, pageProps }) {
-  return (
-    <TablerLayout>
-      <Component {...pageProps} />
-    </TablerLayout>
-  )
+export default function MyApp({ Component, pageProps }) {
+return (
+<TablerLayout>
+<Component {...pageProps} />
+</TablerLayout>
+)
 }
