@@ -1,4 +1,8 @@
+@import "@tabler/core/dist/css/tabler.min.css";
+@import "@tabler/core/dist/css/tabler-flags.min.css";
+@import "@tabler/core/dist/css/tabler-payments.min.css";
+@import "@tabler/core/dist/css/tabler-vendors.min.css";
+
 body {
   margin: 0;
-  font-family: 'Roboto', sans-serif;
 }
