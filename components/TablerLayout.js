@@ -74,36 +74,4 @@ export default function TablerLayout({ children }) {
 
   return (
     <div className={`page ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
-      <aside className="navbar navbar-vertical navbar-expand-lg">
-        <div className="container-fluid">
-          <div className="navbar-brand d-flex justify-content-between align-items-center">
-            <span>Admin Main</span>
-            <button
-              className="btn btn-sm btn-ghost-secondary"
-              onClick={toggleSidebar}
-            >
-              {sidebarCollapsed ? "›" : "‹"}
-            </button>
-          </div>
-
-          <div className="navbar-nav flex-column">
-            {menu.map(item => {
-              const isActive =
-                router.pathname === item.href ||
-                router.pathname.startsWith(item.href + "/")
-
-              return (
-                <div key={item.label} className="nav-item">
-                  <Link
-                    href={item.href}
-                    className={`nav-link ${isActive ? "active" : ""}`}
-                  >
-                    <span className="nav-link-icon">
-                      <i className={`ti ti-${item.icon}`}></i>
-                    </span>
-                    {!sidebarCollapsed && (
-                      <span className="nav-link-title">{item.label}</span>
-                    )}
-                  </Link>
-
-                  {!sidebarCollapsed && item.children && isActive && (
+      <aside cla
