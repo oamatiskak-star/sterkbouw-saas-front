@@ -1,131 +1,83 @@
 import { useState } from "react"
-import { useRouter } from "next/router"
 import { supabase } from "../lib/supabase"
 
 export default function Login() {
-  const router = useRouter()
   const [email, setEmail] = useState("")
-  const [wachtwoord, setWachtwoord] = useState("")
-  const [error, setError] = useState("")
-  const [melding, setMelding] = useState("")
+  const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  const handleLogin = async (e) => {
+  async function handleLogin(e) {
     e.preventDefault()
-    setError("")
-    setMelding("")
     setLoading(true)
+    setError(null)
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
-      password: wachtwoord
+      password
     })
 
-    setLoading(false)
-
     if (error) {
-      setError("Inloggen mislukt: " + error.message)
-    } else {
-      router.push("/dashboard/projects")
-    }
-  }
-
-  const wachtwoordReset = async () => {
-    setError("")
-    setMelding("")
-
-    if (!email) {
-      setError("Vul je e-mailadres in om je wachtwoord te herstellen.")
+      setError(error.message)
+      setLoading(false)
       return
     }
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo:
-        process.env.NEXT_PUBLIC_SUPABASE_RESET_REDIRECT_URL ||
-        "https://app.sterkbouw.nl/reset"
-    })
-
-    if (error) {
-      setError("Fout bij versturen resetlink: " + error.message)
-    } else {
-      setMelding("Resetlink is verstuurd naar je e-mail.")
-    }
+    window.location.href = "/dashboard"
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-md">
-        <h1 className="text-3xl font-bold mb-6 text-center">
-          SterkBouw Login
-        </h1>
+    <div className="page page-center">
+      <div className="container-tight py-4">
+        <div className="card card-md">
+          <div className="card-body">
+            <h2 className="h2 text-center mb-4">Inloggen</h2>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium mb-1"
-            >
-              E-mail
-            </label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-5 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              required
-            />
+            <form onSubmit={handleLogin} autoComplete="off">
+              <div className="mb-3">
+                <label className="form-label">E-mailadres</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  placeholder="naam@bedrijf.nl"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label">Wachtwoord</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              {error && (
+                <div className="alert alert-danger">{error}</div>
+              )}
+
+              <div className="form-footer">
+                <button
+                  type="submit"
+                  className="btn btn-primary w-100"
+                  disabled={loading}
+                >
+                  {loading ? "Bezig..." : "Inloggen"}
+                </button>
+              </div>
+            </form>
           </div>
+        </div>
 
-          <div>
-            <label
-              htmlFor="wachtwoord"
-              className="block text-sm font-medium mb-1"
-            >
-              Wachtwoord
-            </label>
-            <input
-              id="wachtwoord"
-              type="password"
-              autoComplete="current-password"
-              value={wachtwoord}
-              onChange={(e) => setWachtwoord(e.target.value)}
-              className="w-full px-5 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500"
-              required
-            />
-          </div>
-
-          {error && (
-            <div className="text-red-600 text-sm text-center">
-              {error}
-            </div>
-          )}
-
-          {melding && (
-            <div className="text-green-600 text-sm text-center">
-              {melding}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-yellow-500 hover:bg-yellow-600 disabled:opacity-60 text-white font-semibold py-4 rounded-xl transition"
-          >
-            {loading ? "Bezig met inloggen…" : "Inloggen"}
-          </button>
-
-          <div className="text-center mt-4">
-            <button
-              type="button"
-              onClick={wachtwoordReset}
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Wachtwoord vergeten?
-            </button>
-          </div>
-        </form>
+        <div className="text-center text-muted mt-3">
+          SterkBouw SaaS
+        </div>
       </div>
     </div>
   )
