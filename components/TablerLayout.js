@@ -74,4 +74,67 @@ export default function TablerLayout({ children }) {
 
   return (
     <div className={`page ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
-      <aside cla
+      <aside className="navbar navbar-vertical navbar-expand-lg">
+        <div className="container-fluid">
+          <div className="navbar-brand d-flex justify-content-between align-items-center">
+            <span>Admin Main</span>
+            <button
+              className="btn btn-sm btn-ghost-secondary"
+              onClick={toggleSidebar}
+            >
+              {sidebarCollapsed ? "›" : "‹"}
+            </button>
+          </div>
+
+          <div className="navbar-nav flex-column">
+            {menu.map(item => {
+              const isActive =
+                router.pathname === item.href ||
+                router.pathname.startsWith(item.href + "/")
+
+              return (
+                <div key={item.label} className="nav-item">
+                  <Link
+                    href={item.href}
+                    className={`nav-link ${isActive ? "active" : ""}`}
+                  >
+                    <span className="nav-link-icon">
+                      <i className={`ti ti-${item.icon}`}></i>
+                    </span>
+                    {!sidebarCollapsed && (
+                      <span className="nav-link-title">{item.label}</span>
+                    )}
+                  </Link>
+
+                  {!sidebarCollapsed && item.children && isActive && (
+                    <div className="nav nav-sm flex-column ms-3">
+                      {item.children.map(sub => (
+                        <Link
+                          key={sub.href}
+                          href={sub.href}
+                          className={`nav-link ${
+                            router.pathname === sub.href ? "active" : ""
+                          }`}
+                        >
+                          {sub.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </aside>
+
+      <div className="page-wrapper">
+        <div className="page-body">
+          <div className="container-xl">
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
