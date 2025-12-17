@@ -1,12 +1,16 @@
 export const NAVIGATION = [
   {
-    key: "dashboard",
-    label: "Dashboard",
-    route: "/dashboard",
+    key: "nieuw_project",
+    label: "Nieuw Project",
+    route: "/nieuw-project",
     children: [
-      { key: "dashboard_overzicht", label: "Overzicht", route: "/dashboard" },
-      { key: "dashboard_activiteiten", label: "Activiteiten", route: "/dashboard/activiteiten" },
-      { key: "dashboard_meldingen", label: "Meldingen", route: "/dashboard/meldingen" }
+      { key: "nieuw_project_overzicht", label: "Overzicht", route: "/nieuw-project" },
+      { key: "nieuw_project_import", label: "Importeer bestanden", route: "/nieuw-project/import" },
+      { key: "nieuw_project_structuur", label: "Maak mapstructuur", route: "/nieuw-project/structuur" },
+      { key: "nieuw_project_contact", label: "Nieuw contact", route: "/nieuw-project/contact" },
+      { key: "nieuw_project_activiteiten", label: "Activiteiten", route: "/nieuw-project/activiteiten" },
+      { key: "nieuw_project_taken", label: "Open taken", route: "/nieuw-project/taken" },
+      { key: "nieuw_project_meldingen", label: "Meldingen", route: "/nieuw-project/meldingen" }
     ]
   },
   {
@@ -14,11 +18,16 @@ export const NAVIGATION = [
     label: "Projecten",
     route: "/projecten",
     children: [
-      { key: "projecten_overzicht", label: "Overzicht", route: "/projecten" },
-      { key: "projecten_nieuw", label: "Nieuw project", route: "/projecten/nieuw" },
+      { key: "projecten_lopend", label: "Lopende projecten", route: "/projecten" },
+      { key: "projecten_detail", label: "Projectdetail", route: "/projecten/detail" },
       { key: "projecten_planning", label: "Planning", route: "/projecten/planning" },
+      { key: "projecten_bestellingen", label: "Bestellingen", route: "/projecten/bestellingen" },
+      { key: "projecten_offertes", label: "Offertes", route: "/projecten/offertes" },
+      { key: "projecten_cashflow", label: "Cashflow", route: "/projecten/cashflow" },
+      { key: "projecten_risico", label: "Risico", route: "/projecten/risico" },
       { key: "projecten_documenten", label: "Documenten", route: "/projecten/documenten" },
-      { key: "projecten_risico", label: "Risico", route: "/projecten/risico" }
+      { key: "projecten_kalender", label: "Kalender", route: "/projecten/kalender" },
+      { key: "projecten_archief", label: "Archief", route: "/projecten/archief" }
     ]
   },
   {
@@ -26,20 +35,67 @@ export const NAVIGATION = [
     label: "Calculaties",
     route: "/calculaties",
     children: [
-      { key: "calculaties_overzicht", label: "Overzicht", route: "/calculaties" },
+      { key: "calculaties_overzicht", label: "Overzicht calculaties", route: "/calculaties" },
       { key: "calculaties_nieuw", label: "Nieuwe calculatie", route: "/calculaties/nieuw" },
+      { key: "calculaties_import", label: "Importeer bestanden", route: "/calculaties/import" },
       { key: "calculaties_bewerken", label: "Calculatie bewerken", route: "/calculaties/bewerken" },
+      { key: "calculaties_fixed_price", label: "Fixed Price", route: "/calculaties/fixed-price" },
+      { key: "calculaties_ew", label: "E en W", route: "/calculaties/ew" },
       { key: "calculaties_output", label: "Output / PDF", route: "/calculaties/output" }
     ]
   },
   {
+    key: "financiering",
+    label: "Financiering",
+    route: "/financiering",
+    children: [
+      { key: "financiering_aankoop_verhuurd", label: "Aankoop belegging verhuurd", route: "/financiering/aankoop-verhuurd" },
+      { key: "financiering_aankoop_leegstand", label: "Aankoop belegging leegstaand", route: "/financiering/aankoop-leegstand" },
+      { key: "financiering_projectontwikkeling", label: "Aankoop projectontwikkeling", route: "/financiering/projectontwikkeling" },
+      { key: "financiering_structuur", label: "Financieringsstructuur", route: "/financiering/structuur" },
+      { key: "financiering_ltv", label: "LTV overzicht", route: "/financiering/ltv" },
+      { key: "financiering_exit", label: "Exit scenario’s", route: "/financiering/exit" },
+      { key: "financiering_import", label: "Importeer bestanden", route: "/financiering/import" }
+    ]
+  },
+  {
+    key: "projectontwikkeling",
+    label: "Projectontwikkeling",
+    route: "/projectontwikkeling",
+    children: [
+      { key: "projectontwikkeling_portalen", label: "Portalen", route: "/projectontwikkeling/portalen" },
+      { key: "projectontwikkeling_updates", label: "Updates", route: "/projectontwikkeling/updates" },
+      { key: "projectontwikkeling_documenten", label: "Documentdeling", route: "/projectontwikkeling/documenten" },
+      { key: "projectontwikkeling_meldingen", label: "Meldingen", route: "/projectontwikkeling/meldingen" },
+      { key: "projectontwikkeling_helpdesk", label: "Helpdesk", route: "/projectontwikkeling/helpdesk" },
+      { key: "projectontwikkeling_tickets", label: "Tickets", route: "/projectontwikkeling/tickets" },
+      { key: "projectontwikkeling_status", label: "Status", route: "/projectontwikkeling/status" }
+    ]
+  },
+  {
     key: "ontwerp_bim",
-    label: "Ontwerp & BIM",
+    label: "Ontwerp en BIM",
     route: "/bim",
     children: [
-      { key: "bim_ontwerp", label: "Ontwerp bouwkundig", route: "/bim/ontwerp" },
-      { key: "bim_ew", label: "E en W", route: "/bim/ew" },
-      { key: "bim_tekeningen", label: "Tekeningen", route: "/bim/tekeningen" }
+      { key: "bim_bouwkundig", label: "Ontwerp bouwkundig", route: "/bim/bouwkundig" },
+      { key: "bim_installaties", label: "Ontwerp installaties", route: "/bim/installaties" },
+      { key: "bim_elektrisch", label: "Ontwerp elektra", route: "/bim/elektra" },
+      { key: "bim_water", label: "Ontwerp water en verwarming", route: "/bim/water" },
+      { key: "bim_tekeningen", label: "Tekeningen", route: "/bim/tekeningen" },
+      { key: "bim_vergunning", label: "Vergunningsstukken", route: "/bim/vergunning" },
+      { key: "bim_3d", label: "3D plattegrond render", route: "/bim/3d" }
+    ]
+  },
+  {
+    key: "constructie",
+    label: "Constructie berekenen",
+    route: "/constructie",
+    children: [
+      { key: "constructie_fundering", label: "Fundering", route: "/constructie/fundering" },
+      { key: "constructie_staal", label: "Staal", route: "/constructie/staal" },
+      { key: "constructie_beton", label: "Beton", route: "/constructie/beton" },
+      { key: "constructie_rapport", label: "Rapporten", route: "/constructie/rapporten" },
+      { key: "constructie_nieuw", label: "Nieuw rapport", route: "/constructie/nieuw" }
     ]
   },
   {
@@ -48,7 +104,37 @@ export const NAVIGATION = [
     route: "/financien",
     children: [
       { key: "financien_cashflow", label: "Cashflow", route: "/financien/cashflow" },
+      { key: "financien_projecten", label: "Alle projecten", route: "/financien/projecten" },
+      { key: "financien_per_project", label: "Per project", route: "/financien/per-project" },
+      { key: "financien_ontwikkelaar", label: "Ontwikkelaarscashflow", route: "/financien/ontwikkelaar" },
+      { key: "financien_administratie", label: "Administratie", route: "/financien/administratie" },
       { key: "financien_rapportages", label: "Rapportages", route: "/financien/rapportages" }
+    ]
+  },
+  {
+    key: "investeringen",
+    label: "Investeringen",
+    route: "/investeringen",
+    children: [
+      { key: "investeringen_haalbaarheid", label: "Haalbaarheidsanalyse", route: "/investeringen/haalbaarheid" },
+      { key: "investeringen_import", label: "Importeer bestanden", route: "/investeringen/import" },
+      { key: "investeringen_scenarios", label: "Scenario’s", route: "/investeringen/scenarios" },
+      { key: "investeringen_rendement", label: "Rendement", route: "/investeringen/rendement" },
+      { key: "investeringen_risico", label: "Risicoanalyse", route: "/investeringen/risico" }
+    ]
+  },
+  {
+    key: "mail",
+    label: "Mail",
+    route: "/mail",
+    children: [
+      { key: "mail_inbox", label: "Inbox", route: "/mail" },
+      { key: "mail_dagelijks", label: "Dagelijkse verwerking", route: "/mail/dagelijks" },
+      { key: "mail_concepten", label: "Antwoordconcepten", route: "/mail/concepten" },
+      { key: "mail_offertes", label: "Offerteaanvragen", route: "/mail/offertes" },
+      { key: "mail_bestellingen", label: "Bestellingen", route: "/mail/bestellingen" },
+      { key: "mail_facturen", label: "Facturen", route: "/mail/facturen" },
+      { key: "mail_project", label: "Projectmail", route: "/mail/project" }
     ]
   },
   {
@@ -58,6 +144,11 @@ export const NAVIGATION = [
     children: [
       { key: "instellingen_gebruikers", label: "Gebruikers", route: "/instellingen/gebruikers" },
       { key: "instellingen_rollen", label: "Rollen", route: "/instellingen/rollen" },
+      { key: "instellingen_rechten", label: "Rechten", route: "/instellingen/rechten" },
+      { key: "instellingen_modules", label: "Modules", route: "/instellingen/modules" },
+      { key: "instellingen_kpi", label: "KPI definities", route: "/instellingen/kpi" },
+      { key: "instellingen_pdf", label: "PDF templates", route: "/instellingen/pdf" },
+      { key: "instellingen_bedrijf", label: "Bedrijfsgegevens", route: "/instellingen/bedrijf" },
       { key: "instellingen_systeem", label: "Systeem", route: "/instellingen/systeem" }
     ]
   }
