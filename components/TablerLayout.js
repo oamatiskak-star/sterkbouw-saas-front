@@ -1,17 +1,22 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
+import { useContext } from "react"
+import { AppContext } from "../pages/_app"
 
 export default function TablerLayout({ children }) {
 const router = useRouter()
+const { sidebarCollapsed, toggleSidebar, role } = useContext(AppContext)
 
 const menu = [
 {
 label: "Dashboard",
-href: "/dashboard"
+href: "/dashboard",
+icon: "home"
 },
 {
 label: "Projecten",
 href: "/projecten/overzicht",
+icon: "building",
 children: [
 { label: "Overzicht", href: "/projecten/overzicht" },
 { label: "Nieuw project", href: "/projecten/nieuw" }
@@ -20,6 +25,7 @@ children: [
 {
 label: "Calculaties",
 href: "/calculaties",
+icon: "calculator",
 children: [
 { label: "STABU calculator", href: "/calculaties/stabu" },
 { label: "Fixed Price", href: "/calculaties/fixed-price" }
@@ -28,6 +34,7 @@ children: [
 {
 label: "Ontwerp & BIM",
 href: "/bim",
+icon: "cube",
 children: [
 { label: "BIM Architect", href: "/bim/architect" },
 { label: "Constructeurs", href: "/bim/constructeurs" },
@@ -37,6 +44,7 @@ children: [
 {
 label: "Portalen",
 href: "/portalen",
+icon: "users",
 children: [
 { label: "Kopersportaal", href: "/portalen/kopers" },
 { label: "Huurdersportaal", href: "/portalen/huurders" }
@@ -45,6 +53,7 @@ children: [
 {
 label: "Financiën",
 href: "/financien",
+icon: "cash",
 children: [
 { label: "Investeringen", href: "/financien/investeringen" },
 { label: "Cashflow", href: "/financien/cashflow" },
@@ -54,6 +63,7 @@ children: [
 {
 label: "Instellingen",
 href: "/instellingen",
+icon: "settings",
 children: [
 { label: "Gebruikers", href: "/instellingen/gebruikers" },
 { label: "Rollen", href: "/instellingen/rollen" },
@@ -63,12 +73,15 @@ children: [
 ]
 
 return (
-<div className="page">
+<div className={"page" + (sidebarCollapsed ? " sidebar-collapsed" : "")}>
 <aside className="navbar navbar-vertical navbar-expand-lg">
 <div className="container-fluid">
-<h1 className="navbar-brand navbar-brand-autodark">
-Admin Main
-</h1>
+<div className="navbar-brand d-flex justify-content-between align-items-center">
+<span>Admin Main</span>
+<button className="btn btn-sm btn-ghost-secondary" onClick={toggleSidebar} >
+{sidebarCollapsed ? "›" : "‹"}
+</button>
+</div>
 
       <div className="navbar-nav flex-column">
         {menu.map(item => (
@@ -80,10 +93,15 @@ Admin Main
                 (router.pathname.startsWith(item.href) ? " active" : "")
               }
             >
-              <span className="nav-link-title">{item.label}</span>
+              <span className="nav-link-icon">
+                <i className={"ti ti-" + item.icon}></i>
+              </span>
+              {!sidebarCollapsed && (
+                <span className="nav-link-title">{item.label}</span>
+              )}
             </Link>
 
-            {item.children && (
+            {!sidebarCollapsed && item.children && (
               <div className="nav nav-sm flex-column ms-3">
                 {item.children.map(sub => (
                   <Link
