@@ -9,10 +9,7 @@ export default function Login() {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  async function handleLogin(e) {
-    e.preventDefault()
-    e.stopPropagation()
-
+  async function handleLogin() {
     setLoading(true)
     setError(null)
 
@@ -31,46 +28,44 @@ export default function Login() {
   }
 
   return (
-    <form
-      onSubmit={handleLogin}
-      action="#"
-      method="post"
-    >
-      <div className="mb-3">
-        <label className="form-label">E-mailadres</label>
-        <input
-          type="email"
-          className="form-control"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-        />
-      </div>
+    <div className="card card-md">
+      <div className="card-body">
+        <h2 className="h2 text-center mb-4">Inloggen</h2>
 
-      <div className="mb-3">
-        <label className="form-label">Wachtwoord</label>
-        <input
-          type="password"
-          className="form-control"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-        />
-      </div>
-
-      {error && (
-        <div className="alert alert-danger">
-          {error}
+        <div className="mb-3">
+          <label className="form-label">E-mailadres</label>
+          <input
+            type="email"
+            className="form-control"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+          />
         </div>
-      )}
 
-      <button
-        type="submit"
-        className="btn btn-primary w-100"
-        disabled={loading}
-      >
-        {loading ? "Inloggen..." : "Inloggen"}
-      </button>
-    </form>
+        <div className="mb-3">
+          <label className="form-label">Wachtwoord</label>
+          <input
+            type="password"
+            className="form-control"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
+        </div>
+
+        {error && (
+          <div className="alert alert-danger">
+            {error}
+          </div>
+        )}
+
+        <button
+          className="btn btn-primary w-100"
+          onClick={handleLogin}
+          disabled={loading}
+        >
+          {loading ? "Bezig..." : "Inloggen"}
+        </button>
+      </div>
+    </div>
   )
 }
