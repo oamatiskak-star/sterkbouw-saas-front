@@ -1,56 +1,46 @@
 import Link from "next/link"
-import { useRouter } from "next/router"
-import { MENU } from "../lib/menu"
+import { useEffect, useState } from "react"
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 
 export default function Sidebar() {
-const router = useRouter()
+  const [modules, setModules] = useState([])
 
-return (
-<aside style={{ width: 260, padding: 20, borderRight: "1px solid #eee" }}>
-<strong style={{ display: "block", marginBottom: 16 }}>
-Admin Main
-</strong>
+  useEffect(() => {
+    loadMenu()
+  }, [])
 
-  {MENU.map(menu => (
-    <div key={menu.key} style={{ marginBottom: 20 }}>
-      <Link href={menu.route}>
-        <div
-          style={{
-            fontWeight: router.pathname.startsWith(menu.route)
-              ? "bold"
-              : "normal",
-            cursor: "pointer"
-          }}
-        >
-          {menu.label}
-        </div>
-      </Link>
+  async function loadMenu() {
+    const { data, error } = await supabase
+      .from("modules")
+      .select("key,label,icon,route,sort_order")
+      .eq("active", true)
+      .order("sort_order", { ascending: true })
 
-      {menu.children && (
-        <div style={{ marginLeft: 12, marginTop: 8 }}>
-          {menu.children.map(sub => (
-            <Link key={sub.route} href={sub.route}>
-              <div
-                style={{
-                  fontSize: 14,
-                  padding: "4px 0",
-                  cursor: "pointer",
-                  color:
-                    router.pathname === sub.route
-                      ? "#f59e0b"
-                      : "#444"
-                }}
-              >
-                {sub.label}
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  ))}
-</aside>
+    if (!error) setModules(data || [])
+  }
 
+  return (
+    <aside style={{ width: 260, padding: 16, borderRight: "1px solid #eee" }}>
+      <div style={{ fontWeight: 700, marginBottom: 16 }}>Admin Main</div>
 
-)
+      {modules.map(m => (
+        <Link key={m.key} href={m.route || "#"}>
+          <div
+            style={{
+              padding: "8px 12px",
+              cursor: "pointer",
+              borderRadius: 6
+            }}
+          >
+            {m.label}
+          </div>
+        </Link>
+      ))}
+    </aside>
+  )
 }
