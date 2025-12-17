@@ -1,4 +1,5 @@
 import Head from "next/head"
+import KpiGrid from "../components/KpiGrid"
 
 export default function Dashboard() {
   return (
@@ -7,35 +8,42 @@ export default function Dashboard() {
         <title>Dashboard | SterkBouw SaaS</title>
       </Head>
 
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <h1 className="page-title mb-6">Dashboard</h1>
 
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold mb-3">Project</h2>
-        <div className="flex flex-wrap gap-4">
-          <button className="px-4 py-2 rounded-lg bg-yellow-400 text-gray-900 font-semibold">
+      {/* KPI BLOKKEN */}
+      <KpiGrid module="dashboard" />
+
+      {/* PROJECT ACTIES */}
+      <section className="mt-8">
+        <h2 className="text-lg font-semibold mb-3">Projecten</h2>
+
+        <div className="d-flex flex-wrap gap-3">
+          <a href="/projecten/nieuw" className="btn btn-warning">
             Nieuw project
-          </button>
-          <button className="px-4 py-2 rounded-lg bg-yellow-400 text-gray-900 font-semibold">
-            Project aanpassen
-          </button>
-          <button className="px-4 py-2 rounded-lg bg-yellow-400 text-gray-900 font-semibold">
+          </a>
+
+          <a href="/projecten" className="btn btn-warning">
             Projectoverzicht
-          </button>
+          </a>
         </div>
       </section>
 
-      <section className="mb-8">
+      {/* CALCULATIES ACTIES */}
+      <section className="mt-8">
         <h2 className="text-lg font-semibold mb-3">Calculaties</h2>
-        <div className="flex flex-wrap gap-4">
-          <button className="px-4 py-2 rounded-lg bg-yellow-400 text-gray-900 font-semibold">
+
+        <div className="d-flex flex-wrap gap-3">
+          <a href="/calculaties/bouw" className="btn btn-warning">
             Bouwkundige calculatie
-          </button>
-          <button className="px-4 py-2 rounded-lg bg-yellow-400 text-gray-900 font-semibold">
+          </a>
+
+          <a href="/calculaties/ew" className="btn btn-warning">
             E/W calculatie
-          </button>
-          <button className="px-4 py-2 rounded-lg bg-yellow-400 text-gray-900 font-semibold">
+          </a>
+
+          <a href="/calculaties" className="btn btn-warning">
             Complete calculatie
-          </button>
+          </a>
         </div>
       </section>
     </>
