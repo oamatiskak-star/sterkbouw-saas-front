@@ -1,144 +1,65 @@
+import express from "express"
 import { createClient } from "@supabase/supabase-js"
 import fs from "fs"
 import path from "path"
+
+const app = express()
+const PORT = process.env.FRONTEND_PORT || 3000
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-const FRONTEND_ROOT = process.cwd()
+const ROOT = process.cwd()
 
-async function runFrontendTask(task) {
-  const action = task.type
+console.log("FRONTEND RUNNER LIVE")
+console.log("ROOT:", ROOT)
 
-  if (action === "frontend:apply_tabler_layout") {
-    applyTablerLayout()
-  }
-
-  if (action === "frontend:update_dashboard") {
-    updateDashboard(task.payload)
-  }
-}
-
-function applyTablerLayout() {
-  const stylesDir = path.join(FRONTEND_ROOT, "styles")
-  fs.mkdirSync(stylesDir, { recursive: true })
-
-  fs.writeFileSync(
-    path.join(stylesDir, "globals.css"),
-    `
-@import "@tabler/core/dist/css/tabler.min.css";
-
-body {
-  background-color: #f5f7fb;
-}
-`.trim()
-  )
-
-  const componentsDir = path.join(FRONTEND_ROOT, "components")
-  fs.mkdirSync(componentsDir, { recursive: true })
-
-  fs.writeFileSync(
-    path.join(componentsDir, "Layout.js"),
-    `
-export default function Layout({ children }) {
-  return (
-    <div className="page">
-      <aside className="navbar navbar-vertical">
-        <div className="navbar-brand">Admin Main</div>
-      </aside>
-      <div className="page-wrapper">
-        <div className="page-body container-xl">
-          {children}
-        </div>
-      </div>
-    </div>
-  )
-}
-`.trim()
-  )
-
-  const pagesDir = path.join(FRONTEND_ROOT, "pages")
-  fs.mkdirSync(pagesDir, { recursive: true })
-
-  fs.writeFileSync(
-    path.join(pagesDir, "_app.js"),
-    `
-import "../styles/globals.css"
-import Layout from "../components/Layout"
-
-export default function App({ Component, pageProps }) {
-  return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
-  )
-}
-`.trim()
-  )
-}
-
-function updateDashboard(payload) {
-  const pagesDir = path.join(FRONTEND_ROOT, "pages")
-  fs.mkdirSync(pagesDir, { recursive: true })
-
-  fs.writeFileSync(
-    path.join(pagesDir, "dashboard.js"),
-    `
-export default function Dashboard() {
-  return (
-    <div className="row row-cards">
-      <div className="col-md-3">
-        <div className="card">
-          <div className="card-body">Projecten</div>
-        </div>
-      </div>
-      <div className="col-md-3">
-        <div className="card">
-          <div className="card-body">Calculaties</div>
-        </div>
-      </div>
-      <div className="col-md-3">
-        <div className="card">
-          <div className="card-body">Inkoop</div>
-        </div>
-      </div>
-      <div className="col-md-3">
-        <div className="card">
-          <div className="card-body">Planning</div>
-        </div>
-      </div>
-    </div>
-  )
-}
-`.trim()
-  )
-}
-
-async function poll() {
-  const { data: tasks } = await supabase
+async function pollTasks() {
+  const { data: tasks, error } = await supabase
     .from("tasks")
-    .select("*")
+    .select("id, type, payload")
     .eq("status", "open")
     .eq("assigned_to", "frontend")
+    .order("created_at", { ascending: true })
     .limit(1)
 
-  if (!tasks || tasks.length === 0) return
+  if (error || !tasks || tasks.length === 0) return
 
   const task = tasks[0]
+  console.log("FRONTEND TASK:", task.type)
 
-  await supabase
-    .from("tasks")
+  await supabase.from("tasks")
     .update({ status: "running" })
     .eq("id", task.id)
 
-  await runFrontendTask(task)
+  try {
+    if (task.type === "frontend:write_file") {
+      const { file_path, content } = task.payload
+      const fullPath = path.join(ROOT, file_path)
 
-  await supabase
-    .from("tasks")
-    .update({ status: "done" })
-    .eq("id", task.id)
+      fs.mkdirSync(path.dirname(fullPath), { recursive: true })
+      fs.writeFileSync(fullPath, content, "utf8")
+    }
+
+    await supabase.from("tasks")
+      .update({ status: "done" })
+      .eq("id", task.id)
+
+  } catch (e) {
+    await supabase.from("tasks")
+      .update({ status: "failed", error: e.message })
+      .eq("id", task.id)
+  }
 }
 
-setInterval(poll, 3000)
+setInterval(pollTasks, 2000)
+
+app.get("/", (_, res) => {
+  res.send("Frontend runner alive")
+})
+
+app.listen(PORT, () => {
+  console.log("Frontend listening on", PORT)
+})
