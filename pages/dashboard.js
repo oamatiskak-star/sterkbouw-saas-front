@@ -1,51 +1,22 @@
-import Head from "next/head"
-import KpiGrid from "../components/KpiGrid"
+
+import { NAVIGATION } from "../config/navigation"
 
 export default function Dashboard() {
   return (
-    <>
-      <Head>
-        <title>Dashboard | SterkBouw SaaS</title>
-      </Head>
-
-      <h1 className="page-title mb-6">Dashboard</h1>
-
-      {/* KPI BLOKKEN */}
-      <KpiGrid module="dashboard" />
-
-      {/* PROJECT ACTIES */}
-      <section className="mt-8">
-        <h2 className="text-lg font-semibold mb-3">Projecten</h2>
-
-        <div className="d-flex flex-wrap gap-3">
-          <a href="/projecten/nieuw" className="btn btn-warning">
-            Nieuw project
-          </a>
-
-          <a href="/projecten" className="btn btn-warning">
-            Projectoverzicht
-          </a>
-        </div>
-      </section>
-
-      {/* CALCULATIES ACTIES */}
-      <section className="mt-8">
-        <h2 className="text-lg font-semibold mb-3">Calculaties</h2>
-
-        <div className="d-flex flex-wrap gap-3">
-          <a href="/calculaties/bouw" className="btn btn-warning">
-            Bouwkundige calculatie
-          </a>
-
-          <a href="/calculaties/ew" className="btn btn-warning">
-            E/W calculatie
-          </a>
-
-          <a href="/calculaties" className="btn btn-warning">
-            Complete calculatie
-          </a>
-        </div>
-      </section>
-    </>
+    <div>
+      <h1 className="page-title">Dashboard</h1>
+      <div className="row row-cards mt-4">
+        {NAVIGATION.map(item => (
+          <div key={item.key} className="col-md-4">
+            <div className="card">
+              <div className="card-body">
+                <h3>{item.label}</h3>
+                <a href={item.route}>Ga naar {item.label}</a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
