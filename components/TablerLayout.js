@@ -1,66 +1,36 @@
 import Link from "next/link"
-import { useRouter } from "next/router"
-import { useContext } from "react"
-import { AppContext } from "../pages/_app"
-import { NAVIGATION } from "../config/navigation"
 
 export default function TablerLayout({ children }) {
-  const router = useRouter()
-  const { sidebarCollapsed, toggleSidebar } = useContext(AppContext)
+  const menu = [
+    { label: "Nieuw Project", href: "/nieuw-project" },
+    { label: "Projecten", href: "/projecten" },
+    { label: "Calculaties", href: "/calculaties" },
+    { label: "Financiering", href: "/financiering" },
+    { label: "Projectontwikkeling", href: "/projectontwikkeling" },
+    { label: "Ontwerp en BIM", href: "/bim" },
+    { label: "Constructie", href: "/constructie" },
+    { label: "Financiën", href: "/financien" },
+    { label: "Investeringen", href: "/investeringen" },
+    { label: "Mail", href: "/mail" },
+    { label: "Instellingen", href: "/instellingen" }
+  ]
 
   return (
-    <div className={`page ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
+    <div className="page">
       <aside className="navbar navbar-vertical navbar-expand-lg">
         <div className="container-fluid">
-          <div className="navbar-brand d-flex justify-content-between align-items-center">
-            <span>Admin Main</span>
-            <button
-              className="btn btn-sm btn-ghost-secondary"
-              onClick={toggleSidebar}
-            >
-              {sidebarCollapsed ? "›" : "‹"}
-            </button>
-          </div>
+          <div className="navbar-brand">Admin Main</div>
 
           <div className="navbar-nav flex-column">
-            {NAVIGATION.map(item => {
-              const isActive =
-                router.pathname === item.route ||
-                router.pathname.startsWith(item.route + "/")
-
-              return (
-                <div key={item.key} className="nav-item">
-                  <Link
-                    href={item.route}
-                    className={`nav-link ${isActive ? "active" : ""}`}
-                  >
-                    <span className="nav-link-icon">
-                      <i className="ti ti-layout-grid"></i>
-                    </span>
-                    {!sidebarCollapsed && (
-                      <span className="nav-link-title">{item.label}</span>
-                    )}
-                  </Link>
-
-                  {!sidebarCollapsed && item.children && isActive && (
-                    <div className="nav nav-sm flex-column ms-3">
-                      {item.children.map(sub => {
-                        const subActive = router.pathname === sub.route
-                        return (
-                          <Link
-                            key={sub.key}
-                            href={sub.route}
-                            className={`nav-link ${subActive ? "active" : ""}`}
-                          >
-                            {sub.label}
-                          </Link>
-                        )
-                      })}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
+            {menu.map(item => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="nav-link"
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
         </div>
       </aside>
