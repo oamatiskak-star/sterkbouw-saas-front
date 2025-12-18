@@ -12,16 +12,16 @@ export default function Page() {
 
       <div className="mt-4">
         
-    <a href="/projecten" className="btn btn-primary me-2 mb-2">
-      Lopende projecten
-    </a>
-  
     <a href="/projecten/planning" className="btn btn-primary me-2 mb-2">
       Planning
     </a>
   
     <a href="/projecten/documenten" className="btn btn-primary me-2 mb-2">
       Documenten
+    </a>
+  
+    <a href="/projecten/cashflow" className="btn btn-primary me-2 mb-2">
+      Cashflow
     </a>
   
       </div>
