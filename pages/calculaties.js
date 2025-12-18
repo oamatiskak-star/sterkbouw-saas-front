@@ -12,18 +12,6 @@ export default function Page() {
 
       <div className="mt-4">
         
-    <a href="/calculaties/nieuw" className="btn btn-primary me-2 mb-2">
-      Nieuwe calculatie
-    </a>
-  
-    <a href="/calculaties" className="btn btn-primary me-2 mb-2">
-      Overzicht
-    </a>
-  
-    <a href="/calculaties/output" className="btn btn-primary me-2 mb-2">
-      Output PDF
-    </a>
-  
       </div>
     </div>
   )
