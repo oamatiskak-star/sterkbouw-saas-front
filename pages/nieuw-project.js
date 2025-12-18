@@ -12,16 +12,16 @@ export default function Page() {
 
       <div className="mt-4">
         
-    <a href="/nieuw-project" className="btn btn-primary me-2 mb-2">
-      Overzicht
-    </a>
-  
     <a href="/nieuw-project/import" className="btn btn-primary me-2 mb-2">
-      Import
+      Importeer bestanden
     </a>
   
     <a href="/nieuw-project/structuur" className="btn btn-primary me-2 mb-2">
-      Structuur
+      Maak structuur
+    </a>
+  
+    <a href="/nieuw-project/taken" className="btn btn-primary me-2 mb-2">
+      Open taken
     </a>
   
       </div>

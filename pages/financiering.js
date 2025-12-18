@@ -17,11 +17,11 @@ export default function Page() {
     </a>
   
     <a href="/financiering/ltv" className="btn btn-primary me-2 mb-2">
-      LTV
+      LTV overzicht
     </a>
   
     <a href="/financiering/exit" className="btn btn-primary me-2 mb-2">
-      Exit
+      Exit scenario
     </a>
   
       </div>

@@ -20,6 +20,10 @@ export default function Page() {
       Rapportages
     </a>
   
+    <a href="/financien/administratie" className="btn btn-primary me-2 mb-2">
+      Administratie
+    </a>
+  
       </div>
     </div>
   )

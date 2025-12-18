@@ -21,7 +21,7 @@ export default function Page() {
     </a>
   
     <a href="/calculaties/output" className="btn btn-primary me-2 mb-2">
-      Output
+      Output / PDF
     </a>
   
       </div>
