@@ -2,35 +2,48 @@ import Link from "next/link"
 
 export default function TablerLayout({ children }) {
   const menu = [
-    { label: "Nieuw Project", href: "/nieuw-project" },
-    { label: "Projecten", href: "/projecten" },
-    { label: "Calculaties", href: "/calculaties" },
-    { label: "Financiering", href: "/financiering" },
-    { label: "Projectontwikkeling", href: "/projectontwikkeling" },
-    { label: "Ontwerp en BIM", href: "/bim" },
-    { label: "Constructie", href: "/constructie" },
-    { label: "Financiën", href: "/financien" },
-    { label: "Investeringen", href: "/investeringen" },
-    { label: "Mail", href: "/mail" },
-    { label: "Instellingen", href: "/instellingen" }
+    { key: "nieuw_project", label: "Nieuw project", href: "/nieuw-project" },
+    { key: "projecten", label: "Projecten", href: "/projecten" },
+    { key: "calculaties", label: "Calculaties", href: "/calculaties" },
+    { key: "financiering", label: "Financiering", href: "/financiering" },
+    { key: "projectontwikkeling", label: "Projectontwikkeling", href: "/projectontwikkeling" },
+    { key: "bim", label: "Ontwerp & BIM", href: "/bim" },
+    { key: "constructie", label: "Constructie", href: "/constructie" },
+    { key: "financien", label: "Financiën", href: "/financien" },
+    { key: "investeringen", label: "Investeringen", href: "/investeringen" },
+    { key: "mail", label: "Mail", href: "/mail" },
+    { key: "instellingen", label: "Instellingen", href: "/instellingen" }
   ]
 
   return (
     <div className="page">
       <aside className="navbar navbar-vertical navbar-expand-lg">
         <div className="container-fluid">
-          <div className="navbar-brand">Admin Main</div>
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#sidebar-menu"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
 
-          <div className="navbar-nav flex-column">
-            {menu.map(item => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="nav-link"
-              >
-                {item.label}
-              </Link>
-            ))}
+          <div className="navbar-brand navbar-brand-autodark">
+            Admin Main
+          </div>
+
+          <div className="collapse navbar-collapse" id="sidebar-menu">
+            <ul className="navbar-nav pt-lg-3">
+              {menu.map(item => (
+                <li className="nav-item" key={item.key}>
+                  <Link href={item.href} className="nav-link">
+                    <span className="nav-link-title">
+                      {item.label}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </aside>
