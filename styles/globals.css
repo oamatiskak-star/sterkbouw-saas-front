@@ -11,6 +11,8 @@
 body {
   margin: 0;
   font-family: 'Inter', sans-serif; /* Gebruik Inter als lettertype */
+  background: #ffffff;
+  color: #333333; /* Donkere tekstkleur voor betere leesbaarheid */
 }
 
 /* Sidebar styling */
@@ -82,4 +84,60 @@ body {
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 998;
+}
+
+/* Formulier layout */
+form {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Twee kolommen voor de formuliervelden */
+  gap: 16px;
+  max-width: 800px;
+  margin: auto;
+  padding: 16px;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+input,
+textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+}
+
+input[type="number"] {
+  width: 100%;
+}
+
+input[type="date"],
+input[type="email"] {
+  width: 100%;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button {
+  grid-column: span 2; /* Maak de submitknop breed over beide kolommen */
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #dcdcdc;
+}
+
+@media (max-width: 767px) {
+  form {
+    grid-template-columns: 1fr; /* Bij kleinere schermen de velden onder elkaar */
+  }
 }
