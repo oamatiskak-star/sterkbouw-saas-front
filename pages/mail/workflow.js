@@ -1,4 +1,4 @@
-import { canRunMailWorkflow } from "../../../lib/mailWorkflowPermissions"
+import { canProcessMailWorkflow } from "../../../lib/mailWorkflowPermissions"
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
