@@ -1,27 +1,17 @@
 import { createContext, useContext, useEffect, useState } from "react"
-import { useRouter } from "next/router"
 
 const ProjectContext = createContext(null)
 
 export function ProjectProvider({ children }) {
-  const router = useRouter()
   const [projectId, setProjectId] = useState(null)
 
   useEffect(() => {
-    const stored = typeof window !== "undefined"
-      ? localStorage.getItem("active_project_id")
-      : null
-
+    if (typeof window === "undefined") return
+    const stored = localStorage.getItem("active_project_id")
     if (stored) {
       setProjectId(stored)
     }
   }, [])
-
-  useEffect(() => {
-    if (!projectId && router.pathname !== "/projecten") {
-      router.replace("/projecten")
-    }
-  }, [projectId, router.pathname])
 
   function selectProject(id) {
     setProjectId(id)
@@ -30,8 +20,21 @@ export function ProjectProvider({ children }) {
     }
   }
 
+  function clearProject() {
+    setProjectId(null)
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("active_project_id")
+    }
+  }
+
   return (
-    <ProjectContext.Provider value={{ projectId, selectProject }}>
+    <ProjectContext.Provider
+      value={{
+        projectId,
+        selectProject,
+        clearProject
+      }}
+    >
       {children}
     </ProjectContext.Provider>
   )
