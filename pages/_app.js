@@ -13,30 +13,46 @@ export default function MyApp({ Component, pageProps }) {
   const isAuthPage = router.pathname === "/login"
 
   useEffect(() => {
+    let mounted = true
+
     async function checkSession() {
       try {
         const s = await getSession()
+
+        if (!mounted) return
+
         setSession(s || null)
 
         if (!s && !isAuthPage) {
           router.replace("/login")
+          return
         }
 
         if (s && isAuthPage) {
           router.replace("/dashboard")
+          return
         }
-      } catch (e) {
+      } catch (err) {
+        if (!mounted) return
         setSession(null)
-        if (!isAuthPage) router.replace("/login")
+        if (!isAuthPage) {
+          router.replace("/login")
+        }
       } finally {
-        setLoading(false)
+        if (mounted) setLoading(false)
       }
     }
 
     checkSession()
+
+    return () => {
+      mounted = false
+    }
   }, [router.pathname])
 
-  if (loading) return null
+  if (loading) {
+    return null
+  }
 
   if (isAuthPage) {
     return (
