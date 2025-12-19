@@ -33,6 +33,7 @@ export default function CalculatieDetail() {
         .from("calculatie_regels")
         .select("*")
         .eq("calculatie_id", id)
+        .order("created_at", { ascending: true })
 
       const { data: o } = await supabase
         .from("calculatie_opslagen")
@@ -57,6 +58,15 @@ export default function CalculatieDetail() {
   }, [id])
 
   if (loading || !calculatie) return null
+
+  async function updateRegel(regelId, field, value) {
+    await supabase
+      .from("calculatie_regels")
+      .update({ [field]: value })
+      .eq("id", regelId)
+
+    router.reload()
+  }
 
   async function wijzigStatus(nieuweStatus) {
     await supabase.rpc("wijzig_calculatie_status", {
@@ -86,7 +96,7 @@ export default function CalculatieDetail() {
         <p>Marge: € {Number(calculatie.marge).toFixed(2)}</p>
       </section>
 
-      {/* REGELS */}
+      {/* REGELS INLINE */}
       <section style={{ marginBottom: 32 }}>
         <h2>Regels</h2>
 
@@ -106,10 +116,45 @@ export default function CalculatieDetail() {
             <tbody>
               {regels.map(r => (
                 <tr key={r.id}>
-                  <td>{r.hoeveelheid}</td>
+                  <td>
+                    <input
+                      type="number"
+                      value={r.hoeveelheid}
+                      onChange={e =>
+                        updateRegel(r.id, "hoeveelheid", Number(e.target.value))
+                      }
+                      style={{ width: 80 }}
+                    />
+                  </td>
                   <td>{r.eenheid}</td>
-                  <td>€ {Number(r.materiaalprijs).toFixed(2)}</td>
-                  <td>€ {Number(r.arbeidsprijs).toFixed(2)}</td>
+                  <td>
+                    <input
+                      type="number"
+                      value={r.materiaalprijs}
+                      onChange={e =>
+                        updateRegel(
+                          r.id,
+                          "materiaalprijs",
+                          Number(e.target.value)
+                        )
+                      }
+                      style={{ width: 100 }}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      value={r.arbeidsprijs}
+                      onChange={e =>
+                        updateRegel(
+                          r.id,
+                          "arbeidsprijs",
+                          Number(e.target.value)
+                        )
+                      }
+                      style={{ width: 100 }}
+                    />
+                  </td>
                   <td>€ {Number(r.totaal).toFixed(2)}</td>
                 </tr>
               ))}
@@ -124,7 +169,7 @@ export default function CalculatieDetail() {
           <h2>Fixed Price</h2>
           <p>AK: {opslagen.ak_pct}%</p>
           <p>ABK: {opslagen.abk_pct}%</p>
-          <p>W&amp;R: {opslagen.wr_pct}%</p>
+          <p>W&R: {opslagen.wr_pct}%</p>
         </section>
       )}
 
@@ -137,36 +182,3 @@ export default function CalculatieDetail() {
         </button>
 
         <button
-          onClick={() => wijzigStatus("akkoord")}
-          style={{ marginLeft: 8 }}
-        >
-          Akkoord
-        </button>
-
-        <ul style={{ marginTop: 16 }}>
-          {workflowLog.map(w => (
-            <li key={w.id}>
-              {w.oude_status} → {w.nieuwe_status}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {/* EXPORT */}
-      <section>
-        <h2>Export</h2>
-
-        <button onClick={() => exporteer("pdf")}>
-          Exporteer PDF
-        </button>
-
-        <button
-          onClick={() => exporteer("excel")}
-          style={{ marginLeft: 8 }}
-        >
-          Exporteer Excel
-        </button>
-      </section>
-    </>
-  )
-}
