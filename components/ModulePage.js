@@ -10,7 +10,7 @@ const supabase = createClient(
 
 export default function ModulePage() {
   const router = useRouter()
-  const [module, setModule] = useState(null)
+  const [title, setTitle] = useState("Projecten")
   const [buttons, setButtons] = useState([])
 
   useEffect(() => {
@@ -19,35 +19,28 @@ export default function ModulePage() {
   }, [router.pathname])
 
   async function load() {
-    const baseRoute =
-      router.pathname === "/projecten"
-        ? "/projecten"
-        : router.pathname.split("/").slice(0, 2).join("/")
-
-    const { data: mod } = await supabase
+    const { data: current } = await supabase
       .from("modules")
-      .select("key,label,route")
-      .eq("route", baseRoute)
+      .select("label")
+      .eq("route", router.pathname)
       .single()
 
-    setModule(mod || { label: "Projecten" })
+    setTitle(current?.label || "Projecten")
 
-    const { data: items } = await supabase
+    const { data } = await supabase
       .from("modules")
       .select("key,label,route,sort_order")
-      .like("route", `${baseRoute}/%`)
+      .like("route", "/projecten/%")
       .eq("active", true)
       .order("sort_order", { ascending: true })
 
-    setButtons(items || [])
+    setButtons(data || [])
   }
-
-  if (!module) return null
 
   return (
     <div>
       <h1 style={{ fontSize: 26, fontWeight: 700, marginBottom: 20 }}>
-        {module.label}
+        {title}
       </h1>
 
       <div
