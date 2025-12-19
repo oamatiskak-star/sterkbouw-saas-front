@@ -4,16 +4,16 @@ import { useEffect, useState } from "react"
 import { createClient } from "@supabase/supabase-js"
 import { isActiveRoute } from "../lib/isActiveRoute"
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
-
 export default function Sidebar({ mobileOpen, onClose }) {
   const router = useRouter()
   const [modules, setModules] = useState([])
 
   useEffect(() => {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    )
+
     async function load() {
       const { data } = await supabase
         .from("modules")
@@ -23,6 +23,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
 
       setModules(data || [])
     }
+
     load()
   }, [])
 
@@ -40,7 +41,9 @@ export default function Sidebar({ mobileOpen, onClose }) {
           <div key={root.key} className="sb-group">
             <Link
               href={root.route}
-              className={`sb-root ${isActiveRoute(router.pathname, root.route) ? "active" : ""}`}
+              className={`sb-root ${
+                isActiveRoute(router.pathname, root.route) ? "active" : ""
+              }`}
             >
               {root.label}
             </Link>
@@ -52,7 +55,9 @@ export default function Sidebar({ mobileOpen, onClose }) {
                   <Link
                     key={child.key}
                     href={child.route}
-                    className={`sb-sub ${isActiveRoute(router.pathname, child.route) ? "active" : ""}`}
+                    className={`sb-sub ${
+                      isActiveRoute(router.pathname, child.route) ? "active" : ""
+                    }`}
                   >
                     {child.label}
                   </Link>
