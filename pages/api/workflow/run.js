@@ -1,4 +1,5 @@
 import { canRunWorkflow } from "../../../lib/workflowPermissions"
+import { logAudit } from "../../../lib/audit"
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -17,6 +18,12 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: "NOT_ALLOWED" })
   }
 
-  // workflow trigger naar backend/executor
+  await logAudit({
+    user_id: userId,
+    project_id,
+    workflow_key,
+    action: "workflow_run"
+  })
+
   return res.status(200).json({ ok: true })
 }
