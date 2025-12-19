@@ -11,15 +11,18 @@ export default function CalculatieDetail() {
   const router = useRouter()
   const { id } = router.query
 
-  const [calc, setCalc] = useState(null)
+  const [calculatie, setCalculatie] = useState(null)
   const [regels, setRegels] = useState([])
   const [opslagen, setOpslagen] = useState(null)
   const [workflowLog, setWorkflowLog] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!id) return
 
     async function load() {
+      setLoading(true)
+
       const { data: c } = await supabase
         .from("calculaties")
         .select("*")
@@ -43,102 +46,127 @@ export default function CalculatieDetail() {
         .eq("calculatie_id", id)
         .order("changed_at", { ascending: false })
 
-      setCalc(c)
+      setCalculatie(c)
       setRegels(r || [])
       setOpslagen(o)
       setWorkflowLog(w || [])
+      setLoading(false)
     }
 
     load()
   }, [id])
 
-  if (!calc) return null
+  if (loading || !calculatie) return null
+
+  async function wijzigStatus(nieuweStatus) {
+    await supabase.rpc("wijzig_calculatie_status", {
+      p_calculatie_id: id,
+      p_nieuwe_status: nieuweStatus
+    })
+    router.reload()
+  }
+
+  async function exporteer(type) {
+    await supabase.from("calculatie_exports").insert({
+      calculatie_id: id,
+      export_type: type
+    })
+    alert(type.toUpperCase() + " export aangemaakt")
+  }
 
   return (
     <>
-      <h1>{calc.naam}</h1>
+      <h1>{calculatie.naam}</h1>
 
       {/* SAMENVATTING */}
-      <div style={{ marginBottom: 24 }}>
-        <strong>Status:</strong> {calc.workflow_status}<br />
-        <strong>Kostprijs:</strong> € {Number(calc.kostprijs).toFixed(2)}<br />
-        <strong>Verkoopprijs:</strong> € {Number(calc.verkoopprijs).toFixed(2)}<br />
-        <strong>Marge:</strong> € {Number(calc.marge).toFixed(2)}
-      </div>
+      <section style={{ marginBottom: 32 }}>
+        <p>Status: <strong>{calculatie.workflow_status}</strong></p>
+        <p>Kostprijs: € {Number(calculatie.kostprijs).toFixed(2)}</p>
+        <p>Verkoopprijs: € {Number(calculatie.verkoopprijs).toFixed(2)}</p>
+        <p>Marge: € {Number(calculatie.marge).toFixed(2)}</p>
+      </section>
 
       {/* REGELS */}
-      <h2>Regels</h2>
-      <table width="100%" cellPadding="8">
-        <thead>
-          <tr>
-            <th>Hoeveelheid</th>
-            <th>Eenheid</th>
-            <th>Materiaal</th>
-            <th>Arbeid</th>
-            <th>Totaal</th>
-          </tr>
-        </thead>
-        <tbody>
-          {regels.map(r => (
-            <tr key={r.id}>
-              <td>{r.hoeveelheid}</td>
-              <td>{r.eenheid}</td>
-              <td>€ {Number(r.materiaalprijs).toFixed(2)}</td>
-              <td>€ {Number(r.arbeidsprijs).toFixed(2)}</td>
-              <td>€ {Number(r.totaal).toFixed(2)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <section style={{ marginBottom: 32 }}>
+        <h2>Regels</h2>
+
+        {regels.length === 0 && <p>Geen regels aanwezig.</p>}
+
+        {regels.length > 0 && (
+          <table width="100%" cellPadding="8">
+            <thead>
+              <tr>
+                <th>Hoeveelheid</th>
+                <th>Eenheid</th>
+                <th>Materiaal</th>
+                <th>Arbeid</th>
+                <th>Totaal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {regels.map(r => (
+                <tr key={r.id}>
+                  <td>{r.hoeveelheid}</td>
+                  <td>{r.eenheid}</td>
+                  <td>€ {Number(r.materiaalprijs).toFixed(2)}</td>
+                  <td>€ {Number(r.arbeidsprijs).toFixed(2)}</td>
+                  <td>€ {Number(r.totaal).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
 
       {/* FIXED PRICE */}
       {opslagen && (
-        <>
+        <section style={{ marginBottom: 32 }}>
           <h2>Fixed Price</h2>
-          <div>
-            AK: {opslagen.ak_pct}%<br />
-            ABK: {opslagen.abk_pct}%<br />
-            W&R: {opslagen.wr_pct}%
-          </div>
-        </>
+          <p>AK: {opslagen.ak_pct}%</p>
+          <p>ABK: {opslagen.abk_pct}%</p>
+          <p>W&amp;R: {opslagen.wr_pct}%</p>
+        </section>
       )}
 
       {/* WORKFLOW */}
-      <h2>Workflow</h2>
-      <div style={{ marginBottom: 16 }}>
-        <button
-          onClick={async () => {
-            await supabase.rpc("wijzig_calculatie_status", {
-              p_calculatie_id: id,
-              p_nieuwe_status: "in_behandeling"
-            })
-            router.reload()
-          }}
-        >
+      <section style={{ marginBottom: 32 }}>
+        <h2>Workflow</h2>
+
+        <button onClick={() => wijzigStatus("in_behandeling")}>
           Naar in behandeling
         </button>
 
         <button
-          onClick={async () => {
-            await supabase.rpc("wijzig_calculatie_status", {
-              p_calculatie_id: id,
-              p_nieuwe_status: "akkoord"
-            })
-            router.reload()
-          }}
+          onClick={() => wijzigStatus("akkoord")}
           style={{ marginLeft: 8 }}
         >
           Akkoord
         </button>
-      </div>
 
-      <ul>
-        {workflowLog.map(w => (
-          <li key={w.id}>
-            {w.oude_status} → {w.nieuwe_status}
-          </li>
-        ))}
-      </ul>
+        <ul style={{ marginTop: 16 }}>
+          {workflowLog.map(w => (
+            <li key={w.id}>
+              {w.oude_status} → {w.nieuwe_status}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* EXPORT */}
+      <section>
+        <h2>Export</h2>
+
+        <button onClick={() => exporteer("pdf")}>
+          Exporteer PDF
+        </button>
+
+        <button
+          onClick={() => exporteer("excel")}
+          style={{ marginLeft: 8 }}
+        >
+          Exporteer Excel
+        </button>
+      </section>
     </>
   )
 }
