@@ -6,32 +6,46 @@ const supabase = createClient(
 )
 
 export async function getServerSideProps() {
-  const { data: buttons, error } = await supabase
+  // 1. Haal page_buttons op
+  const { data: pageButtons, error: pbError } = await supabase
     .from("page_buttons")
-    .select(`
-      sort_order,
-      ui_buttons (
-        action_key,
-        label,
-        icon
-      )
-    `)
+    .select("button_action, sort_order")
     .eq("page_slug", "dashboard")
     .order("sort_order", { ascending: true })
 
-  if (error) {
-    console.error(error)
+  if (pbError || !pageButtons || pageButtons.length === 0) {
     return { props: { buttons: [] } }
   }
 
-  return {
-    props: {
-      buttons: buttons.map(b => ({
-        action_key: b.ui_buttons.action_key,
-        label: b.ui_buttons.label,
-        icon: b.ui_buttons.icon
-      }))
+  // 2. Haal bijbehorende ui_buttons op via action_key
+  const actionKeys = pageButtons.map(b => b.button_action)
+
+  const { data: uiButtons, error: ubError } = await supabase
+    .from("ui_buttons")
+    .select("action_key, label, icon")
+    .in("action_key", actionKeys)
+
+  if (ubError || !uiButtons) {
+    return { props: { buttons: [] } }
+  }
+
+  // 3. Merge + sort
+  const buttons = pageButtons.map(pb => {
+    const ui = uiButtons.find(
+      ub => ub.action_key === pb.button_action
+    )
+
+    if (!ui) return null
+
+    return {
+      action_key: ui.action_key,
+      label: ui.label,
+      icon: ui.icon
     }
+  }).filter(Boolean)
+
+  return {
+    props: { buttons }
   }
 }
 
