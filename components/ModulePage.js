@@ -1,8 +1,47 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
+import { useEffect, useState } from "react"
+import { createClient } from "@supabase/supabase-js"
 
-export default function ModulePage({ module }) {
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
+
+export default function ModulePage() {
   const router = useRouter()
+  const [module, setModule] = useState(null)
+  const [children, setChildren] = useState([])
+
+  useEffect(() => {
+    if (!router.pathname) return
+    loadModule()
+  }, [router.pathname])
+
+  async function loadModule() {
+    const { data: mod } = await supabase
+      .from("modules")
+      .select("key,label,route")
+      .eq("route", router.pathname)
+      .single()
+
+    if (!mod) {
+      setModule(null)
+      setChildren([])
+      return
+    }
+
+    setModule(mod)
+
+    const { data: childs } = await supabase
+      .from("modules")
+      .select("key,label,route,sort_order")
+      .eq("parent_key", mod.key)
+      .eq("active", true)
+      .order("sort_order", { ascending: true })
+
+    setChildren(childs || [])
+  }
 
   if (!module) return null
 
@@ -19,7 +58,7 @@ export default function ModulePage({ module }) {
           gap: 16
         }}
       >
-        {(module.children || []).map(child => {
+        {children.map(child => {
           const active = router.pathname === child.route
 
           return (
