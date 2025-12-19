@@ -19,9 +19,13 @@ export default function Sidebar() {
       .from("modules")
       .select("key,label,icon,route,sort_order")
       .eq("active", true)
+      .not("route", "is", null)
       .order("sort_order", { ascending: true })
 
-    if (!error) setModules(data || [])
+    if (!error) {
+      const filtered = (data || []).filter(m => m.route && m.route.startsWith("/"))
+      setModules(filtered)
+    }
   }
 
   return (
@@ -29,7 +33,7 @@ export default function Sidebar() {
       <div style={{ fontWeight: 700, marginBottom: 16 }}>Admin Main</div>
 
       {modules.map(m => (
-        <Link key={m.key} href={m.route || "#"}>
+        <Link key={m.key} href={m.route}>
           <div
             style={{
               padding: "8px 12px",
