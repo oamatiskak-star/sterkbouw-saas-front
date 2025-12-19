@@ -88,7 +88,6 @@ export default function CalculatieDetail() {
     <>
       <h1>{calculatie.naam}</h1>
 
-      {/* SAMENVATTING */}
       <section style={{ marginBottom: 32 }}>
         <p>Status: <strong>{calculatie.workflow_status}</strong></p>
         <p>Kostprijs: € {Number(calculatie.kostprijs).toFixed(2)}</p>
@@ -96,12 +95,9 @@ export default function CalculatieDetail() {
         <p>Marge: € {Number(calculatie.marge).toFixed(2)}</p>
       </section>
 
-      {/* REGELS INLINE */}
       <section style={{ marginBottom: 32 }}>
         <h2>Regels</h2>
-
         {regels.length === 0 && <p>Geen regels aanwezig.</p>}
-
         {regels.length > 0 && (
           <table width="100%" cellPadding="8">
             <thead>
@@ -132,11 +128,7 @@ export default function CalculatieDetail() {
                       type="number"
                       value={r.materiaalprijs}
                       onChange={e =>
-                        updateRegel(
-                          r.id,
-                          "materiaalprijs",
-                          Number(e.target.value)
-                        )
+                        updateRegel(r.id, "materiaalprijs", Number(e.target.value))
                       }
                       style={{ width: 100 }}
                     />
@@ -146,11 +138,7 @@ export default function CalculatieDetail() {
                       type="number"
                       value={r.arbeidsprijs}
                       onChange={e =>
-                        updateRegel(
-                          r.id,
-                          "arbeidsprijs",
-                          Number(e.target.value)
-                        )
+                        updateRegel(r.id, "arbeidsprijs", Number(e.target.value))
                       }
                       style={{ width: 100 }}
                     />
@@ -163,7 +151,6 @@ export default function CalculatieDetail() {
         )}
       </section>
 
-      {/* FIXED PRICE */}
       {opslagen && (
         <section style={{ marginBottom: 32 }}>
           <h2>Fixed Price</h2>
@@ -173,12 +160,18 @@ export default function CalculatieDetail() {
         </section>
       )}
 
-      {/* WORKFLOW */}
       <section style={{ marginBottom: 32 }}>
         <h2>Workflow</h2>
-
         <button onClick={() => wijzigStatus("in_behandeling")}>
           Naar in behandeling
         </button>
-
-        <button
+        <button onClick={() => wijzigStatus("goedkeuring")}>
+          Naar goedkeuring
+        </button>
+        <button onClick={() => wijzigStatus("afgerond")}>
+          Afgerond
+        </button>
+      </section>
+    </>
+  )
+}
