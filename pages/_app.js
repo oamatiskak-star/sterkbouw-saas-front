@@ -10,7 +10,8 @@ export default function MyApp({ Component, pageProps }) {
   const [loading, setLoading] = useState(true)
   const [session, setSession] = useState(null)
 
-  const isAuthPage = router.pathname === "/login"
+  const authPages = ["/", "/login"]
+  const isAuthPage = authPages.includes(router.pathname)
 
   useEffect(() => {
     let mounted = true
@@ -22,11 +23,13 @@ export default function MyApp({ Component, pageProps }) {
 
         setSession(s || null)
 
+        // Niet ingelogd → altijd naar login
         if (!s && !isAuthPage) {
           router.replace("/login")
           return
         }
 
+        // Ingelogd en op auth-pagina → dashboard
         if (s && isAuthPage) {
           router.replace("/dashboard")
           return
