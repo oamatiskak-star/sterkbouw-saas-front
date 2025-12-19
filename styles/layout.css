@@ -18,7 +18,7 @@ body {
 
 .sb-sidebar {
   width: 260px;
-  background: #f7f7f8;
+  background: #f7f7f7; /* Lichte grijze achtergrond, iets lichter dan de huidige */
   border-right: 1px solid #e5e7eb;
   padding: 16px;
 }
@@ -36,13 +36,18 @@ body {
   display: block;
   padding: 10px 12px;
   font-weight: 500;
-  color: #111827;
+  color: #333333; /* Donkerdere tekstkleur voor betere leesbaarheid */
   text-decoration: none;
+  border-radius: 6px;
+  transition: background-color 0.3s ease; /* Zachte overgang bij hover */
 }
 
 .sb-root.active {
-  background: #ececf1;
-  border-radius: 6px;
+  background: #ececf1; /* Lichtgrijze achtergrond wanneer geselecteerd */
+}
+
+.sb-root:hover {
+  background: #e6e6e6; /* Lichte hover kleur voor root-items */
 }
 
 .sb-submenu {
@@ -53,14 +58,19 @@ body {
   display: block;
   padding: 8px 12px;
   font-size: 14px;
-  color: #6b7280;
+  color: #6b7280; /* Lichtgrijze kleur voor submenu's */
   text-decoration: none;
+  border-radius: 6px;
+  transition: background-color 0.3s ease; /* Zachte overgang bij hover */
 }
 
 .sb-sub.active {
-  color: #111827;
-  background: #f0f0f3;
-  border-radius: 6px;
+  color: #111827; /* Donkere kleur voor actieve submenu's */
+  background: #f0f0f3; /* Subtiele hover-effect kleur */
+}
+
+.sb-sub:hover {
+  background: #e6e6e6; /* Hover-effect voor submenu-items */
 }
 
 .sb-content {
