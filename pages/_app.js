@@ -1,6 +1,10 @@
 import "../styles/globals.css"
+import "../styles/layout.css"
+import "../styles/kpi.css"
+
 import { useEffect, useState } from "react"
 import { useRouter } from "next/router"
+
 import AppLayout from "../layouts/AppLayout"
 import AuthLayout from "../layouts/AuthLayout"
 import { getSession } from "../lib/auth"
