@@ -1,8 +1,79 @@
+/* Tabler default imports */
 @import "@tabler/core/dist/css/tabler.min.css";
 @import "@tabler/core/dist/css/tabler-flags.min.css";
 @import "@tabler/core/dist/css/tabler-payments.min.css";
 @import "@tabler/core/dist/css/tabler-vendors.min.css";
 
+/* Body setup */
 body {
   margin: 0;
+}
+
+/* Sidebar styling */
+.sb-sidebar {
+  width: 250px;
+  height: 100vh;
+  background-color: #f7f7f7; /* Lichte grijze achtergrond (zelfde als ChatGPT sidebar) */
+  color: #333; /* Donkere tekstkleur */
+  padding: 16px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+}
+
+.sb-sidebar .sb-logo {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.sb-sidebar .sb-group {
+  margin-bottom: 16px;
+}
+
+.sb-sidebar .sb-root {
+  display: block;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333; /* Donkere tekstkleur */
+  background-color: transparent;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.sb-sidebar .sb-root:hover {
+  background-color: #e6e6e6; /* Hover effect met een lichte grijze achtergrond */
+}
+
+.sb-sidebar .sb-sub {
+  display: block;
+  padding: 8px 16px;
+  color: #666; /* Lichtere tekstkleur voor submenu-items */
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.sb-sidebar .sb-sub:hover {
+  background-color: #e6e6e6; /* Hover effect voor submenu */
+}
+
+/* Opened sidebar when in mobile view */
+.sb-sidebar.open {
+  width: 250px;
+  transition: width 0.3s ease;
+}
+
+.sb-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
 }
