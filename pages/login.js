@@ -1,71 +1,74 @@
 import { useState } from "react"
-import { supabase } from "../lib/supabase"
 import { useRouter } from "next/router"
+import { createClient } from "@supabase/supabase-js"
 
-export default function Login() {
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
+
+export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  async function handleLogin() {
+  async function handleLogin(e) {
+    e.preventDefault()
     setLoading(true)
     setError(null)
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
 
     if (error) {
-      setError(error.message)
+      setError("Inloggen mislukt")
       setLoading(false)
       return
     }
 
+    // SUCCES → naar dashboard
     router.replace("/dashboard")
   }
 
   return (
-    <div className="card card-md">
-      <div className="card-body">
-        <h2 className="h2 text-center mb-4">Inloggen</h2>
+    <form onSubmit={handleLogin} style={{ maxWidth: 420, margin: "0 auto" }}>
+      <h1 className="mb-4">Inloggen</h1>
 
-        <div className="mb-3">
-          <label className="form-label">E-mailadres</label>
-          <input
-            type="email"
-            className="form-control"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Wachtwoord</label>
-          <input
-            type="password"
-            className="form-control"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-          />
-        </div>
-
-        {error && (
-          <div className="alert alert-danger">
-            {error}
-          </div>
-        )}
-
-        <button
-          className="btn btn-primary w-100"
-          onClick={handleLogin}
-          disabled={loading}
-        >
-          {loading ? "Bezig..." : "Inloggen"}
-        </button>
+      <div className="mb-3">
+        <label>E-mailadres</label>
+        <input
+          type="email"
+          className="form-control"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          required
+        />
       </div>
-    </div>
+
+      <div className="mb-3">
+        <label>Wachtwoord</label>
+        <input
+          type="password"
+          className="form-control"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+        />
+      </div>
+
+      {error && <div className="text-danger mb-3">{error}</div>}
+
+      <button
+        type="submit"
+        className="btn btn-primary w-100"
+        disabled={loading}
+      >
+        {loading ? "Bezig..." : "Inloggen"}
+      </button>
+    </form>
   )
 }
