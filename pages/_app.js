@@ -1,36 +1,54 @@
 import "../styles/globals.css"
-import "@tabler/core/dist/css/tabler.min.css"
-
-import { useState, createContext } from "react"
-import TablerLayout from "../components/TablerLayout"
-
-export const AppContext = createContext(null)
+import { useEffect, useState } from "react"
+import { useRouter } from "next/router"
+import AppLayout from "../layouts/AppLayout"
+import AuthLayout from "../layouts/AuthLayout"
+import { getSession } from "../lib/api"
 
 export default function MyApp({ Component, pageProps }) {
-const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [session, setSession] = useState(null)
 
-const toggleSidebar = () => {
-setSidebarCollapsed(prev => {
-const next = !prev
-if (typeof window !== "undefined") {
-localStorage.setItem("sb-sidebar-collapsed", next ? "1" : "0")
-}
-return next
-})
-}
+  const isAuthPage = router.pathname === "/login"
 
-const contextValue = {
-sidebarCollapsed,
-toggleSidebar,
-user: pageProps.user || null,
-role: pageProps.role || "admin"
-}
+  useEffect(() => {
+    async function checkSession() {
+      try {
+        const s = await getSession()
+        setSession(s || null)
 
-return (
-<AppContext.Provider value={contextValue}>
-<TablerLayout>
-<Component {...pageProps} />
-</TablerLayout>
-</AppContext.Provider>
-)
+        if (!s && !isAuthPage) {
+          router.replace("/login")
+        }
+
+        if (s && isAuthPage) {
+          router.replace("/dashboard")
+        }
+      } catch (e) {
+        setSession(null)
+        if (!isAuthPage) router.replace("/login")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkSession()
+  }, [router.pathname])
+
+  if (loading) return null
+
+  if (isAuthPage) {
+    return (
+      <AuthLayout>
+        <Component {...pageProps} />
+      </AuthLayout>
+    )
+  }
+
+  return (
+    <AppLayout session={session}>
+      <Component {...pageProps} />
+    </AppLayout>
+  )
 }
