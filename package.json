@@ -13,6 +13,7 @@
     "react-dom": "18.2.0",
     "@supabase/supabase-js": "^2.38.0",
     "axios": "^1.6.0",
-    "@tabler/core": "^1.0.0-beta21"
+    "@tabler/core": "^1.0.0-beta21",
+    "formidable": "^3.5.1"
   }
 }
