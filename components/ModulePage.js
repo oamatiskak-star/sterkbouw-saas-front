@@ -11,36 +11,35 @@ const supabase = createClient(
 export default function ModulePage() {
   const router = useRouter()
   const [module, setModule] = useState(null)
-  const [children, setChildren] = useState([])
+  const [buttons, setButtons] = useState([])
 
   useEffect(() => {
     if (!router.pathname) return
-    loadModule()
+    load()
   }, [router.pathname])
 
-  async function loadModule() {
+  async function load() {
+    const baseRoute =
+      router.pathname === "/projecten"
+        ? "/projecten"
+        : router.pathname.split("/").slice(0, 2).join("/")
+
     const { data: mod } = await supabase
       .from("modules")
       .select("key,label,route")
-      .eq("route", router.pathname)
+      .eq("route", baseRoute)
       .single()
 
-    if (!mod) {
-      setModule(null)
-      setChildren([])
-      return
-    }
+    setModule(mod || { label: "Projecten" })
 
-    setModule(mod)
-
-    const { data: childs } = await supabase
+    const { data: items } = await supabase
       .from("modules")
       .select("key,label,route,sort_order")
-      .eq("parent_key", mod.key)
+      .like("route", `${baseRoute}/%`)
       .eq("active", true)
       .order("sort_order", { ascending: true })
 
-    setChildren(childs || [])
+    setButtons(items || [])
   }
 
   if (!module) return null
@@ -58,11 +57,11 @@ export default function ModulePage() {
           gap: 16
         }}
       >
-        {children.map(child => {
-          const active = router.pathname === child.route
+        {buttons.map(b => {
+          const active = router.pathname === b.route
 
           return (
-            <Link key={child.key} href={child.route}>
+            <Link key={b.key} href={b.route}>
               <div
                 style={{
                   border: "1px solid #e5e7eb",
@@ -73,7 +72,7 @@ export default function ModulePage() {
                 }}
               >
                 <div style={{ fontWeight: 600, marginBottom: 6 }}>
-                  {child.label}
+                  {b.label}
                 </div>
                 <div style={{ fontSize: 13, color: "#6b7280" }}>
                   Open
