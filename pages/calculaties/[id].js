@@ -23,29 +23,34 @@ export default function CalculatieDetail() {
     async function load() {
       setLoading(true)
 
-      const { data: c } = await supabase
+      const { data: c, error: cError } = await supabase
         .from("calculaties")
         .select("*")
         .eq("id", id)
         .single()
 
-      const { data: r } = await supabase
+      const { data: r, error: rError } = await supabase
         .from("calculatie_regels")
         .select("*")
         .eq("calculatie_id", id)
         .order("created_at", { ascending: true })
 
-      const { data: o } = await supabase
+      const { data: o, error: oError } = await supabase
         .from("calculatie_opslagen")
         .select("*")
         .eq("calculatie_id", id)
         .single()
 
-      const { data: w } = await supabase
+      const { data: w, error: wError } = await supabase
         .from("calculatie_workflow_log")
         .select("*")
         .eq("calculatie_id", id)
         .order("changed_at", { ascending: false })
+
+      // Error handling
+      if (cError || rError || oError || wError) {
+        console.error("Error loading data", cError, rError, oError, wError)
+      }
 
       setCalculatie(c)
       setRegels(r || [])
@@ -57,7 +62,7 @@ export default function CalculatieDetail() {
     load()
   }, [id])
 
-  if (loading || !calculatie) return null
+  if (loading || !calculatie) return <div>Loading...</div>
 
   async function updateRegel(regelId, field, value) {
     await supabase
@@ -171,6 +176,12 @@ export default function CalculatieDetail() {
         <button onClick={() => wijzigStatus("afgerond")}>
           Afgerond
         </button>
+      </section>
+
+      <section style={{ marginBottom: 32 }}>
+        <h2>Export</h2>
+        <button onClick={() => exporteer("pdf")}>Exporteren naar PDF</button>
+        <button onClick={() => exporteer("excel")}>Exporteren naar Excel</button>
       </section>
     </>
   )
