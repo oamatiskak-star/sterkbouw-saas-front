@@ -66,3 +66,21 @@ export default function LoginPage() {
             required
           />
         </div>
+
+        {error && (
+          <div className="text-red-600 text-sm">
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-yellow-400 text-black font-semibold py-2 px-4 rounded-lg shadow hover:bg-yellow-300 transition disabled:opacity-50"
+        >
+          {loading ? "Inloggen..." : "Inloggen"}
+        </button>
+      </form>
+    </div>
+  )
+}
