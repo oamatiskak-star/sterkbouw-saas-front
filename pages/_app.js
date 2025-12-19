@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/router"
 import AppLayout from "../layouts/AppLayout"
 import AuthLayout from "../layouts/AuthLayout"
-import { getSession } from "../lib/api"
+import { getSession } from "../lib/auth"
 
 export default function MyApp({ Component, pageProps }) {
   const router = useRouter()
@@ -18,7 +18,6 @@ export default function MyApp({ Component, pageProps }) {
     async function checkSession() {
       try {
         const s = await getSession()
-
         if (!mounted) return
 
         setSession(s || null)
@@ -50,9 +49,7 @@ export default function MyApp({ Component, pageProps }) {
     }
   }, [router.pathname])
 
-  if (loading) {
-    return null
-  }
+  if (loading) return null
 
   if (isAuthPage) {
     return (
