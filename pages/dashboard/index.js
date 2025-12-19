@@ -19,7 +19,8 @@ export default function DashboardPage() {
       .from("modules")
       .select("key,label,route,icon,sort_order")
       .eq("active", true)
-      .not("route", "like", "/projecten/%")
+      .not("route", "like", "%/%/%")
+      .neq("route", "/dashboard")
       .order("sort_order", { ascending: true })
 
     setModules(data || [])
@@ -43,16 +44,7 @@ export default function DashboardPage() {
           <div className="card card-sm">
             <div className="card-body">
               <div className="h3">€ 0</div>
-              <div className="text-muted">Openstaand</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-3">
-          <div className="card card-sm">
-            <div className="card-body">
-              <div className="h3">0</div>
-              <div className="text-muted">Taken vandaag</div>
+              <div className="text-muted">Cashflow</div>
             </div>
           </div>
         </div>
@@ -65,7 +57,7 @@ export default function DashboardPage() {
               <a className="card card-link">
                 <div className="card-body">
                   <div className="h3">{m.label}</div>
-                  <div className="text-muted">Open module</div>
+                  <div className="text-muted">Open</div>
                 </div>
               </a>
             </Link>
