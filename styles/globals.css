@@ -4,17 +4,21 @@
 @import "@tabler/core/dist/css/tabler-payments.min.css";
 @import "@tabler/core/dist/css/tabler-vendors.min.css";
 
+/* Import van het Inter lettertype (ChatGPT font) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
 /* Body setup */
 body {
   margin: 0;
+  font-family: 'Inter', sans-serif; /* Gebruik Inter als lettertype */
 }
 
 /* Sidebar styling */
 .sb-sidebar {
   width: 250px;
   height: 100vh;
-  background-color: #f7f7f7; /* Lichte grijze achtergrond (zelfde als ChatGPT sidebar) */
-  color: #333; /* Donkere tekstkleur */
+  background-color: #f7f7f7; /* Lichte grijze achtergrond */
+  color: #333; /* Donkere tekstkleur voor betere leesbaarheid */
   padding: 16px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   position: fixed;
@@ -25,7 +29,7 @@ body {
 
 .sb-sidebar .sb-logo {
   font-size: 20px;
-  font-weight: bold;
+  font-weight: 600; /* Meer gewicht voor de logo-tekst */
   margin-bottom: 16px;
 }
 
@@ -37,25 +41,27 @@ body {
   display: block;
   padding: 10px 16px;
   margin-bottom: 8px;
-  font-weight: bold;
-  color: #333; /* Donkere tekstkleur */
+  font-weight: 600; /* Gebruik een zwaarder gewicht voor hoofdmenu-items */
+  color: #333; /* Donkere kleur voor leesbaarheid */
   background-color: transparent;
   text-decoration: none;
   border-radius: 4px;
   transition: background-color 0.3s;
+  font-family: 'Inter', sans-serif;
 }
 
 .sb-sidebar .sb-root:hover {
-  background-color: #e6e6e6; /* Hover effect met een lichte grijze achtergrond */
+  background-color: #e6e6e6; /* Lichte grijze hover voor rootmenu */
 }
 
 .sb-sidebar .sb-sub {
   display: block;
   padding: 8px 16px;
-  color: #666; /* Lichtere tekstkleur voor submenu-items */
+  color: #666; /* Lichtere kleur voor submenu-items */
   text-decoration: none;
   border-radius: 4px;
   transition: background-color 0.3s;
+  font-family: 'Inter', sans-serif;
 }
 
 .sb-sidebar .sb-sub:hover {
