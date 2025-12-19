@@ -1,4 +1,6 @@
 import { createClient } from "@supabase/supabase-js"
+import Link from "next/link"
+import { NAVIGATION } from "../config/navigation"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -6,7 +8,7 @@ const supabase = createClient(
 )
 
 export async function getServerSideProps() {
-  // 1. Haal page_buttons op
+  // Haal dashboard buttons op
   const { data: pageButtons, error: pbError } = await supabase
     .from("page_buttons")
     .select("button_action, sort_order")
@@ -17,7 +19,6 @@ export async function getServerSideProps() {
     return { props: { buttons: [] } }
   }
 
-  // 2. Haal bijbehorende ui_buttons op via action_key
   const actionKeys = pageButtons.map(b => b.button_action)
 
   const { data: uiButtons, error: ubError } = await supabase
@@ -29,20 +30,19 @@ export async function getServerSideProps() {
     return { props: { buttons: [] } }
   }
 
-  // 3. Merge + sort
-  const buttons = pageButtons.map(pb => {
-    const ui = uiButtons.find(
-      ub => ub.action_key === pb.button_action
-    )
-
-    if (!ui) return null
-
-    return {
-      action_key: ui.action_key,
-      label: ui.label,
-      icon: ui.icon
-    }
-  }).filter(Boolean)
+  const buttons = pageButtons
+    .map(pb => {
+      const ui = uiButtons.find(
+        ub => ub.action_key === pb.button_action
+      )
+      if (!ui) return null
+      return {
+        action_key: ui.action_key,
+        label: ui.label,
+        icon: ui.icon
+      }
+    })
+    .filter(Boolean)
 
   return {
     props: { buttons }
@@ -54,25 +54,36 @@ export default function DashboardPage({ buttons }) {
     <div>
       <h1 className="mb-4">Dashboard</h1>
 
+      {/* KPI BLOK – bewust leeg, live inject later */}
       <div className="row mb-4">
-        <div className="col"><div className="card"><div className="card-body">KPI 1</div></div></div>
-        <div className="col"><div className="card"><div className="card-body">KPI 2</div></div></div>
-        <div className="col"><div className="card"><div className="card-body">KPI 3</div></div></div>
-        <div className="col"><div className="card"><div className="card-body">KPI 4</div></div></div>
+        <div className="col"><div className="card"><div className="card-body">KPI</div></div></div>
+        <div className="col"><div className="card"><div className="card-body">KPI</div></div></div>
+        <div className="col"><div className="card"><div className="card-body">KPI</div></div></div>
+        <div className="col"><div className="card"><div className="card-body">KPI</div></div></div>
       </div>
 
-      <div className="d-flex flex-wrap gap-2">
-        {buttons.map(btn => (
-          <a
-            key={btn.action_key}
-            href={`/${btn.action_key.replace("project_", "")}`}
-            className="btn btn-primary"
-          >
-            <i className={`ti ti-${btn.icon} me-2`} />
-            {btn.label}
-          </a>
-        ))}
+      {/* 11 HOOFDMENU KNOPPEN – DATA GEDREVEN */}
+      <div className="d-flex flex-wrap gap-3">
+        {NAVIGATION.map(menu => {
+          const btn = buttons.find(
+            b => b.action_key === menu.key
+          )
+
+          if (!btn) return null
+
+          return (
+            <Link
+              key={menu.key}
+              href={menu.route}
+              className="btn btn-primary"
+            >
+              <i className={`ti ti-${btn.icon} me-2`} />
+              {btn.label}
+            </Link>
+          )
+        })}
       </div>
     </div>
   )
 }
+
