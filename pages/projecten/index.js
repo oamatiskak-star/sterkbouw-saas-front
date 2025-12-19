@@ -1,11 +1,7 @@
+import { NAVIGATION } from "../../config/navigation"
+import ModulePage from "../../components/ModulePage"
 
-import PageShell from "../../components/PageShell"
-
-export default function Projecten() {
-  return (
-    <PageShell
-      title="Projecten"
-      description="Overzichtspagina voor projecten"
-    />
-  )
+export default function ProjectenLanding() {
+  const module = NAVIGATION.find(m => m.key === "projecten")
+  return <ModulePage module={module} />
 }
