@@ -7,107 +7,120 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
+const STATUS_ORDER = [
+  "PROJECT_SCAN",
+  "REKENWOLK",
+  "STABU",
+  "HOEVEELHEDEN",
+  "INSTALLATIES_E",
+  "INSTALLATIES_W",
+  "PLANNING",
+  "RAPPORTAGE"
+]
+
 export default function InitialisatieStatus() {
   const router = useRouter()
   const { id } = router.query
 
   const [logs, setLogs] = useState([])
-  const [status, setStatus] = useState("initializing")
-  const [reports, setReports] = useState([])
+  const [completed, setCompleted] = useState(false)
 
   useEffect(() => {
     if (!id) return
 
     const load = async () => {
-      const { data: logData } = await supabase
+      const { data } = await supabase
         .from("project_initialization_log")
         .select("*")
         .eq("project_id", id)
-        .order("started_at", { ascending: true })
+        .order("created_at", { ascending: true })
 
-      setLogs(logData || [])
+      setLogs(data || [])
 
-      const { data: calc } = await supabase
-        .from("calculaties")
-        .select("status")
-        .eq("id", id)
-        .single()
-
-      if (calc?.status === "initialized") {
-        setStatus("done")
+      const doneModules = (data || []).filter(l => l.status === "done")
+      if (doneModules.length >= STATUS_ORDER.length) {
+        setCompleted(true)
       }
-
-      const { data: rep } = await supabase
-        .from("project_reports")
-        .select("*")
-        .eq("project_id", id)
-
-      setReports(rep || [])
     }
 
     load()
-    const interval = setInterval(load, 3000)
+    const interval = setInterval(load, 2000)
     return () => clearInterval(interval)
   }, [id])
 
+  const doneCount = logs.filter(l => l.status === "done").length
+  const progressPct = Math.min(
+    Math.round((doneCount / STATUS_ORDER.length) * 100),
+    100
+  )
+
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: 32 }}>
+    <div style={{ maxWidth: 900, margin: "60px auto" }}>
       <h1>Project initialisatie</h1>
+      <p>Project wordt geanalyseerd. Dit kan enkele minuten duren.</p>
 
-      {status !== "done" && (
-        <p>Project wordt geanalyseerd. Dit kan enkele minuten duren.</p>
-      )}
-
-      <div style={{ marginTop: 24 }}>
-        {logs.map(log => (
+      {/* STATUSBALK */}
+      <div style={{ margin: "24px 0" }}>
+        <div
+          style={{
+            height: 12,
+            background: "#e5e7eb",
+            borderRadius: 6,
+            overflow: "hidden"
+          }}
+        >
           <div
-            key={log.id}
             style={{
-              padding: 12,
-              marginBottom: 8,
-              border: "1px solid #e5e7eb",
-              borderRadius: 6,
-              background:
-                log.status === "running"
-                  ? "#fef3c7"
-                  : log.status === "done"
-                  ? "#ecfeff"
-                  : "#fee2e2"
+              width: `${progressPct}%`,
+              height: "100%",
+              background: "#2563eb",
+              transition: "width 0.3s"
             }}
-          >
-            <strong>{log.module}</strong><br />
-            Status: {log.status}
+          />
+        </div>
+        <div style={{ marginTop: 8, fontSize: 13 }}>
+          Voortgang: {progressPct}%
+        </div>
+      </div>
+
+      {/* LIVE LOG */}
+      <div
+        style={{
+          background: "#0f172a",
+          color: "#e5e7eb",
+          padding: 16,
+          borderRadius: 6,
+          fontFamily: "monospace",
+          fontSize: 13,
+          maxHeight: 300,
+          overflowY: "auto"
+        }}
+      >
+        {logs.length === 0 && <div>Wachten op eerste logregel…</div>}
+
+        {logs.map((log, i) => (
+          <div key={i} style={{ marginBottom: 6 }}>
+            [{new Date(log.created_at).toLocaleTimeString()}]{" "}
+            {log.module} →{" "}
+            <strong>{log.status}</strong>
           </div>
         ))}
       </div>
 
-      {status === "done" && (
+      {/* KLAAR */}
+      {completed && (
         <div style={{ marginTop: 32 }}>
-          <h3>Rapporten</h3>
-
-          {reports.map(r => (
-            <div key={r.id} style={{ marginBottom: 8 }}>
-              <a
-                href={`/api/download-report?project_id=${id}&type=${r.report_type}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Download {r.report_type}
-              </a>
-            </div>
-          ))}
-
           <button
+            onClick={() => router.push(`/calculaties/${id}`)}
             style={{
-              marginTop: 24,
               padding: "12px 20px",
-              background: "#2563eb",
+              background: "#16a34a",
               color: "#fff",
               border: "none",
               borderRadius: 6,
+              fontWeight: 600,
               cursor: "pointer"
             }}
-            onClick={() => router.push(`/calculaties/${id}`)}
           >
             Ga naar calculatie
           </button>
