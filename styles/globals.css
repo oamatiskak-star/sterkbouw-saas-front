@@ -208,4 +208,13 @@ body {
   .sb-form-actions button {
     width: 100%;
   }
+}/* ======================
+   OPLOSSING UITLIJNING OPMERKING
+   ====================== */
+
+/* Opmerking exact 2 veldhoogtes */
+.sb-form-field textarea {
+  min-height: calc(38px * 2 + 20px); /* 2 inputs + tussenruimte */
+  resize: none;
 }
+
