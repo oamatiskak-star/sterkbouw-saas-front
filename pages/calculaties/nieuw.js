@@ -9,12 +9,32 @@ const supabase = createClient(
 )
 
 /* =========================
-   HELPER
+   STYLING
 ========================= */
+
+const inputStyle = {
+  width: "100%",
+  height: 44,
+  padding: "8px 12px",
+  fontSize: 14,
+  boxSizing: "border-box",
+  borderRadius: 4,
+  border: "1px solid #d1d5db"
+}
+
+const buttonStyle = {
+  ...inputStyle,
+  background: "#2563eb",
+  color: "#ffffff",
+  border: "none",
+  fontWeight: 600,
+  cursor: "pointer"
+}
+
 function Field({ label, children }) {
   return (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ fontSize: 13, marginBottom: 4 }}>{label}</div>
+    <div style={{ marginBottom: 18 }}>
+      <div style={{ fontSize: 13, marginBottom: 6 }}>{label}</div>
       {children}
     </div>
   )
@@ -23,6 +43,7 @@ function Field({ label, children }) {
 /* =========================
    PAGE
 ========================= */
+
 export default function NieuweCalculatie() {
   const router = useRouter()
 
@@ -51,9 +72,7 @@ export default function NieuweCalculatie() {
 
   const [facturatieGegevens, setFacturatieGegevens] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
-  const [error, setError] = useState(null)
 
-  /* Kopieer projectadres → facturatieadres */
   useEffect(() => {
     if (facturatieGegevens) {
       setAdresFacturatie(adres)
@@ -63,114 +82,54 @@ export default function NieuweCalculatie() {
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
-  /* Startknop → opt form */
-  const handleStartClick = () => {
-    setError(null)
-    setShowOptions(true)
-  }
-
-  /* Bevestigen opt-form → aanmaken */
-  const handleConfirmOptions = async (options) => {
-    try {
-      if (!naamOpdrachtgever.trim()) {
-        setError("Naam opdrachtgever is verplicht")
-        return
-      }
-
-      const { data, error } = await supabase
-        .from("calculaties")
-        .insert({
-          naam_opdrachtgever: naamOpdrachtgever,
-          omschrijving,
-          adres,
-          postcode,
-          plaatsnaam,
-          land,
-          telefoon,
-          project_type: projectType,
-          opmerking,
-
-          bedrijf_naam: bedrijfNaam,
-          postbus,
-          adres_facturatie: adresFacturatie,
-          postcode_facturatie: postcodeFacturatie,
-          plaatsnaam_facturatie: plaatsnaamFacturatie,
-          land_facturatie: landFacturatie,
-          email_facturen: emailFacturen,
-          telefoon_kantoor: telefoonKantoor,
-          naam_projectleider: naamProjectleider,
-          telefoon_projectleider: telefoonProjectleider,
-
-          facturatie_gegevens: facturatieGegevens,
-          opties: options,
-
-          status: "nieuw",
-          workflow_status: "open"
-        })
-        .select("id")
-        .single()
-
-      if (error) throw error
-
-      router.push(`/calculaties/${data.id}`)
-    } catch (err) {
-      setError(err.message)
-    }
-  }
-
   return (
     <>
       <h1>Nieuwe Calculatie</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <label style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+        <input
+          type="checkbox"
+          checked={facturatieGegevens}
+          onChange={e => setFacturatieGegevens(e.target.checked)}
+        />
+        Facturatiegegevens kopiëren van projectadres
+      </label>
 
       <form onSubmit={(e) => e.preventDefault()}>
-
-        <div style={{ marginBottom: 24 }}>
-          <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <input
-              type="checkbox"
-              checked={facturatieGegevens}
-              onChange={(e) => setFacturatieGegevens(e.target.checked)}
-            />
-            Facturatiegegevens kopiëren van projectadres
-          </label>
-        </div>
-
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
-            gap: 32,
-            maxWidth: 900
+            gap: 40,
+            maxWidth: 1200
           }}
         >
-
-          {/* PROJECT */}
+          {/* LINKER KOLOM */}
           <div>
             <h3>Projectgegevens</h3>
 
             <Field label="Naam opdrachtgever">
-              <input value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
+              <input style={inputStyle} value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
             </Field>
 
             <Field label="Omschrijving">
-              <input value={omschrijving} onChange={e => setOmschrijving(e.target.value)} />
+              <input style={inputStyle} value={omschrijving} onChange={e => setOmschrijving(e.target.value)} />
             </Field>
 
             <Field label="Adres">
-              <input value={adres} onChange={e => setAdres(e.target.value)} />
+              <input style={inputStyle} value={adres} onChange={e => setAdres(e.target.value)} />
             </Field>
 
             <Field label="Postcode">
-              <input value={postcode} onChange={e => setPostcode(e.target.value)} />
+              <input style={inputStyle} value={postcode} onChange={e => setPostcode(e.target.value)} />
             </Field>
 
             <Field label="Plaatsnaam">
-              <input value={plaatsnaam} onChange={e => setPlaatsnaam(e.target.value)} />
+              <input style={inputStyle} value={plaatsnaam} onChange={e => setPlaatsnaam(e.target.value)} />
             </Field>
 
             <Field label="Land">
-              <select value={land} onChange={e => setLand(e.target.value)}>
+              <select style={inputStyle} value={land} onChange={e => setLand(e.target.value)}>
                 <option>Nederland</option>
                 <option>België</option>
                 <option>Duitsland</option>
@@ -178,11 +137,11 @@ export default function NieuweCalculatie() {
             </Field>
 
             <Field label="Telefoon">
-              <input value={telefoon} onChange={e => setTelefoon(e.target.value)} />
+              <input style={inputStyle} value={telefoon} onChange={e => setTelefoon(e.target.value)} />
             </Field>
 
             <Field label="Projecttype">
-              <select value={projectType} onChange={e => setProjectType(e.target.value)}>
+              <select style={inputStyle} value={projectType} onChange={e => setProjectType(e.target.value)}>
                 <option>Nieuwbouw</option>
                 <option>Utiliteitsbouw</option>
                 <option>Transformatie</option>
@@ -191,36 +150,36 @@ export default function NieuweCalculatie() {
             </Field>
 
             <Field label="Opmerking">
-              <input value={opmerking} onChange={e => setOpmerking(e.target.value)} />
+              <input style={inputStyle} value={opmerking} onChange={e => setOpmerking(e.target.value)} />
             </Field>
           </div>
 
-          {/* FACTURATIE */}
+          {/* RECHTER KOLOM */}
           <div>
             <h3>Facturatiegegevens</h3>
 
             <Field label="Bedrijfsnaam">
-              <input value={bedrijfNaam} onChange={e => setBedrijfNaam(e.target.value)} />
+              <input style={inputStyle} value={bedrijfNaam} onChange={e => setBedrijfNaam(e.target.value)} />
             </Field>
 
             <Field label="Postbus">
-              <input value={postbus} onChange={e => setPostbus(e.target.value)} />
+              <input style={inputStyle} value={postbus} onChange={e => setPostbus(e.target.value)} />
             </Field>
 
             <Field label="Adres">
-              <input value={adresFacturatie} onChange={e => setAdresFacturatie(e.target.value)} readOnly={facturatieGegevens} />
+              <input style={inputStyle} value={adresFacturatie} onChange={e => setAdresFacturatie(e.target.value)} />
             </Field>
 
             <Field label="Postcode">
-              <input value={postcodeFacturatie} onChange={e => setPostcodeFacturatie(e.target.value)} readOnly={facturatieGegevens} />
+              <input style={inputStyle} value={postcodeFacturatie} onChange={e => setPostcodeFacturatie(e.target.value)} />
             </Field>
 
             <Field label="Plaatsnaam">
-              <input value={plaatsnaamFacturatie} onChange={e => setPlaatsnaamFacturatie(e.target.value)} readOnly={facturatieGegevens} />
+              <input style={inputStyle} value={plaatsnaamFacturatie} onChange={e => setPlaatsnaamFacturatie(e.target.value)} />
             </Field>
 
             <Field label="Land">
-              <select value={landFacturatie} onChange={e => setLandFacturatie(e.target.value)} disabled={facturatieGegevens}>
+              <select style={inputStyle} value={landFacturatie} onChange={e => setLandFacturatie(e.target.value)}>
                 <option>Nederland</option>
                 <option>België</option>
                 <option>Duitsland</option>
@@ -228,33 +187,46 @@ export default function NieuweCalculatie() {
             </Field>
 
             <Field label="Email facturen">
-              <input value={emailFacturen} onChange={e => setEmailFacturen(e.target.value)} />
+              <input style={inputStyle} value={emailFacturen} onChange={e => setEmailFacturen(e.target.value)} />
             </Field>
 
             <Field label="Telefoon kantoor">
-              <input value={telefoonKantoor} onChange={e => setTelefoonKantoor(e.target.value)} />
+              <input style={inputStyle} value={telefoonKantoor} onChange={e => setTelefoonKantoor(e.target.value)} />
             </Field>
 
-            <Field label="Projectleider">
-              <input value={naamProjectleider} onChange={e => setNaamProjectleider(e.target.value)} />
-            </Field>
+            {/* GEKOPPELDE LAATSTE RIJ */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 40
+              }}
+            >
+              <Field label=" ">
+                <button
+                  type="button"
+                  onClick={() => setShowOptions(true)}
+                  style={buttonStyle}
+                >
+                  Start calculatie
+                </button>
+              </Field>
 
-            <Field label="Tel. projectleider">
-              <input value={telefoonProjectleider} onChange={e => setTelefoonProjectleider(e.target.value)} />
-            </Field>
+              <Field label="Tel. projectleider">
+                <input
+                  style={inputStyle}
+                  value={telefoonProjectleider}
+                  onChange={e => setTelefoonProjectleider(e.target.value)}
+                />
+              </Field>
+            </div>
           </div>
-        </div>
-
-        <div style={{ marginTop: 32 }}>
-          <button type="button" onClick={handleStartClick}>
-            Start calculatie
-          </button>
         </div>
       </form>
 
       {showOptions && (
         <ProjectInitOptionsModal
-          onConfirm={handleConfirmOptions}
+          onConfirm={() => {}}
           onCancel={() => setShowOptions(false)}
         />
       )}
