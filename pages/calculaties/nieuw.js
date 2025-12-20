@@ -13,38 +13,32 @@ export default function NieuweCalculatie() {
   const [projectnummer, setProjectnummer] = useState("")
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
+
   const [adres, setAdres] = useState("")
   const [postcode, setPostcode] = useState("")
   const [plaatsnaam, setPlaatsnaam] = useState("")
   const [land, setLand] = useState("")
-  const [email, setEmail] = useState("")
-  const [telefoon, setTelefoon] = useState("")
-  const [facturatieGegevens, setFacturatieGegevens] = useState(false)
+
   const [bedrijfNaam, setBedrijfNaam] = useState("")
   const [postbus, setPostbus] = useState("")
   const [emailFacturen, setEmailFacturen] = useState("")
   const [telefoonKantoor, setTelefoonKantoor] = useState("")
+
+  const [email, setEmail] = useState("")
+  const [telefoon, setTelefoon] = useState("")
+
   const [naamProjectleider, setNaamProjectleider] = useState("")
   const [telefoonProjectleider, setTelefoonProjectleider] = useState("")
+
   const [startDatum, setStartDatum] = useState("")
   const [eindDatum, setEindDatum] = useState("")
+
+  const [facturatieGegevens, setFacturatieGegevens] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
-    if (
-      !projectnummer ||
-      !naamOpdrachtgever ||
-      !adres ||
-      !postcode ||
-      !email ||
-      !bedrijfNaam
-    ) {
-      setError("Alle verplichte velden moeten ingevuld zijn")
-      return
-    }
 
     setLoading(true)
     setError(null)
@@ -63,7 +57,6 @@ export default function NieuweCalculatie() {
             land,
             email,
             telefoon,
-            facturatie_gegevens: facturatieGegevens,
             bedrijf_naam: bedrijfNaam,
             postbus,
             email_facturen: emailFacturen,
@@ -72,6 +65,7 @@ export default function NieuweCalculatie() {
             telefoon_projectleider: telefoonProjectleider,
             start_datum: startDatum,
             eind_datum: eindDatum,
+            facturatie_gegevens: facturatieGegevens
           }
         ])
         .select()
@@ -90,56 +84,12 @@ export default function NieuweCalculatie() {
   return (
     <>
       <h1>Nieuwe Calculatie</h1>
-
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <form className="sb-form-grid" onSubmit={handleSubmit}>
-        <div className="sb-form-field">
-          <label>Projectnummer ID</label>
-          <input value={projectnummer} onChange={(e) => setProjectnummer(e.target.value)} />
-        </div>
+      <form onSubmit={handleSubmit}>
 
-        <div className="sb-form-field">
-          <label>Naam opdrachtgever</label>
-          <input value={naamOpdrachtgever} onChange={(e) => setNaamOpdrachtgever(e.target.value)} />
-        </div>
-
-        <div className="sb-form-field full">
-          <label>Omschrijving</label>
-          <textarea value={omschrijving} onChange={(e) => setOmschrijving(e.target.value)} />
-        </div>
-
-        <div className="sb-form-field">
-          <label>Adres</label>
-          <input value={adres} onChange={(e) => setAdres(e.target.value)} />
-        </div>
-
-        <div className="sb-form-field">
-          <label>Postcode</label>
-          <input value={postcode} onChange={(e) => setPostcode(e.target.value)} />
-        </div>
-
-        <div className="sb-form-field">
-          <label>Plaatsnaam</label>
-          <input value={plaatsnaam} onChange={(e) => setPlaatsnaam(e.target.value)} />
-        </div>
-
-        <div className="sb-form-field">
-          <label>Land</label>
-          <input value={land} onChange={(e) => setLand(e.target.value)} />
-        </div>
-
-        <div className="sb-form-field">
-          <label>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-
-        <div className="sb-form-field">
-          <label>Telefoonnummer</label>
-          <input value={telefoon} onChange={(e) => setTelefoon(e.target.value)} />
-        </div>
-
-        <div className="sb-form-field full">
+        {/* Checkbox bovenin */}
+        <div className="sb-form-field full" style={{ marginBottom: 32 }}>
           <label className="sb-checkbox">
             <input
               type="checkbox"
@@ -150,50 +100,163 @@ export default function NieuweCalculatie() {
           </label>
         </div>
 
-        <div className="sb-form-field">
-          <label>Bedrijfsnaam</label>
-          <input value={bedrijfNaam} onChange={(e) => setBedrijfNaam(e.target.value)} />
-        </div>
+        <div className="sb-form-two-col">
 
-        <div className="sb-form-field">
-          <label>Postbus</label>
-          <input value={postbus} onChange={(e) => setPostbus(e.target.value)} />
-        </div>
+          {/* RIJ 1 */}
+          <div className="sb-form-col left">
+            <div className="sb-form-field">
+              <label>Projectnummer ID</label>
+              <input value={projectnummer} onChange={(e) => setProjectnummer(e.target.value)} />
+            </div>
+          </div>
+          <div className="sb-form-col right">
+            <div className="sb-form-field">
+              <label>Bedrijfsnaam</label>
+              <input value={bedrijfNaam} onChange={(e) => setBedrijfNaam(e.target.value)} />
+            </div>
+          </div>
 
-        <div className="sb-form-field">
-          <label>Email facturen</label>
-          <input type="email" value={emailFacturen} onChange={(e) => setEmailFacturen(e.target.value)} />
-        </div>
+          {/* RIJ 2 */}
+          <div className="sb-form-col left">
+            <div className="sb-form-field">
+              <label>Naam opdrachtgever</label>
+              <input value={naamOpdrachtgever} onChange={(e) => setNaamOpdrachtgever(e.target.value)} />
+            </div>
+          </div>
+          <div className="sb-form-col right">
+            <div className="sb-form-field">
+              <label>Postbus</label>
+              <input value={postbus} onChange={(e) => setPostbus(e.target.value)} />
+            </div>
+          </div>
 
-        <div className="sb-form-field">
-          <label>Telefoon kantoor</label>
-          <input value={telefoonKantoor} onChange={(e) => setTelefoonKantoor(e.target.value)} />
-        </div>
+          {/* RIJ 3 */}
+          <div className="sb-form-col left">
+            <div className="sb-form-field">
+              <label>Omschrijving</label>
+              <textarea value={omschrijving} onChange={(e) => setOmschrijving(e.target.value)} />
+            </div>
+          </div>
+          <div className="sb-form-col right">
+            <div className="sb-form-field">
+              <label>Email facturen</label>
+              <input value={emailFacturen} onChange={(e) => setEmailFacturen(e.target.value)} />
+            </div>
+          </div>
 
-        <div className="sb-form-field">
-          <label>Naam projectleider</label>
-          <input value={naamProjectleider} onChange={(e) => setNaamProjectleider(e.target.value)} />
-        </div>
+          {/* RIJ 4 */}
+          <div className="sb-form-col left">
+            <div className="sb-form-field">
+              <label>Adres</label>
+              <input value={adres} onChange={(e) => setAdres(e.target.value)} />
+            </div>
+          </div>
+          <div className="sb-form-col right">
+            <div className="sb-form-field">
+              <label>Adres</label>
+              <input value={adres} onChange={(e) => setAdres(e.target.value)} />
+            </div>
+          </div>
 
-        <div className="sb-form-field">
-          <label>Telefoon projectleider</label>
-          <input value={telefoonProjectleider} onChange={(e) => setTelefoonProjectleider(e.target.value)} />
-        </div>
+          {/* RIJ 5 */}
+          <div className="sb-form-col left">
+            <div className="sb-form-field">
+              <label>Postcode</label>
+              <input value={postcode} onChange={(e) => setPostcode(e.target.value)} />
+            </div>
+          </div>
+          <div className="sb-form-col right">
+            <div className="sb-form-field">
+              <label>Postcode</label>
+              <input value={postcode} onChange={(e) => setPostcode(e.target.value)} />
+            </div>
+          </div>
 
-        <div className="sb-form-field">
-          <label>Startdatum</label>
-          <input type="date" value={startDatum} onChange={(e) => setStartDatum(e.target.value)} />
-        </div>
+          {/* RIJ 6 */}
+          <div className="sb-form-col left">
+            <div className="sb-form-field">
+              <label>Plaatsnaam</label>
+              <input value={plaatsnaam} onChange={(e) => setPlaatsnaam(e.target.value)} />
+            </div>
+          </div>
+          <div className="sb-form-col right">
+            <div className="sb-form-field">
+              <label>Plaatsnaam</label>
+              <input value={plaatsnaam} onChange={(e) => setPlaatsnaam(e.target.value)} />
+            </div>
+          </div>
 
-        <div className="sb-form-field">
-          <label>Einddatum</label>
-          <input type="date" value={eindDatum} onChange={(e) => setEindDatum(e.target.value)} />
-        </div>
+          {/* RIJ 7 */}
+          <div className="sb-form-col left">
+            <div className="sb-form-field">
+              <label>Land</label>
+              <input value={land} onChange={(e) => setLand(e.target.value)} />
+            </div>
+          </div>
+          <div className="sb-form-col right">
+            <div className="sb-form-field">
+              <label>Land</label>
+              <input value={land} onChange={(e) => setLand(e.target.value)} />
+            </div>
+          </div>
 
-        <div className="sb-form-actions">
-          <button type="submit" disabled={loading}>
-            {loading ? "Verwerken..." : "Maak nieuwe calculatie"}
-          </button>
+          {/* RIJ 8 */}
+          <div className="sb-form-col left">
+            <div className="sb-form-field">
+              <label>Email</label>
+              <input value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+          </div>
+          <div className="sb-form-col right">
+            <div className="sb-form-field">
+              <label>Telefoon kantoor</label>
+              <input value={telefoonKantoor} onChange={(e) => setTelefoonKantoor(e.target.value)} />
+            </div>
+          </div>
+
+          {/* RIJ 9 */}
+          <div className="sb-form-col left">
+            <div className="sb-form-field">
+              <label>Telefoon</label>
+              <input value={telefoon} onChange={(e) => setTelefoon(e.target.value)} />
+            </div>
+          </div>
+          <div className="sb-form-col right">
+            <div className="sb-form-field">
+              <label>Projectleider</label>
+              <input value={naamProjectleider} onChange={(e) => setNaamProjectleider(e.target.value)} />
+            </div>
+          </div>
+
+          {/* RIJ 10 */}
+          <div className="sb-form-col left">
+            <div className="sb-form-field">
+              <label>Startdatum</label>
+              <input type="date" value={startDatum} onChange={(e) => setStartDatum(e.target.value)} />
+            </div>
+          </div>
+          <div className="sb-form-col right">
+            <div className="sb-form-field">
+              <label>Tel. projectleider</label>
+              <input value={telefoonProjectleider} onChange={(e) => setTelefoonProjectleider(e.target.value)} />
+            </div>
+          </div>
+
+          {/* RIJ 11 */}
+          <div className="sb-form-col left">
+            <div className="sb-form-actions">
+              <button type="submit" disabled={loading}>
+                {loading ? "Verwerken..." : "Start calculatie"}
+              </button>
+            </div>
+          </div>
+          <div className="sb-form-col right">
+            <div className="sb-form-field">
+              <label>Einddatum</label>
+              <input type="date" value={eindDatum} onChange={(e) => setEindDatum(e.target.value)} />
+            </div>
+          </div>
+
         </div>
       </form>
     </>
