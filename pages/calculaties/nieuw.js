@@ -1,182 +1,144 @@
-import { useState, useEffect } from "react"
-import { useRouter } from "next/router"
-import { createClient } from "@supabase/supabase-js"
-import ProjectInitOptionsModal from "../../components/ProjectInitOptionsModal"
+<form onSubmit={(e) => e.preventDefault()}>
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+  <div style={{ marginBottom: 24 }}>
+    <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <input
+        type="checkbox"
+        checked={facturatieGegevens}
+        onChange={(e) => setFacturatieGegevens(e.target.checked)}
+      />
+      Facturatiegegevens kopiëren van projectadres
+    </label>
+  </div>
 
-// Volgend projectnummer
-async function getNextProjectnummer() {
-  const { data } = await supabase
-    .from("calculaties")
-    .select("projectnummer")
-    .order("projectnummer", { ascending: false })
-    .limit(1)
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: 32,
+      maxWidth: 900
+    }}
+  >
 
-  if (!data || data.length === 0) return 1001
-  const last = parseInt(data[0].projectnummer, 10)
-  return isNaN(last) ? 1001 : last + 1
-}
+    {/* LINKER KOLOM – PROJECT */}
+    <div>
+      <h3 style={{ marginBottom: 16 }}>Projectgegevens</h3>
 
-export default function NieuweCalculatie() {
-  const router = useRouter()
+      <Field label="Naam opdrachtgever">
+        <input value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
+      </Field>
 
-  // PROJECT (links)
-  const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
-  const [omschrijving, setOmschrijving] = useState("")
-  const [adres, setAdres] = useState("")
-  const [postcode, setPostcode] = useState("")
-  const [plaatsnaam, setPlaatsnaam] = useState("")
-  const [land, setLand] = useState("Nederland")
-  const [telefoon, setTelefoon] = useState("")
-  const [projectType, setProjectType] = useState("Nieuwbouw")
-  const [opmerking, setOpmerking] = useState("")
+      <Field label="Omschrijving">
+        <input value={omschrijving} onChange={e => setOmschrijving(e.target.value)} />
+      </Field>
 
-  // FACTURATIE (rechts)
-  const [bedrijfNaam, setBedrijfNaam] = useState("")
-  const [postbus, setPostbus] = useState("")
-  const [adresFacturatie, setAdresFacturatie] = useState("")
-  const [postcodeFacturatie, setPostcodeFacturatie] = useState("")
-  const [plaatsnaamFacturatie, setPlaatsnaamFacturatie] = useState("")
-  const [landFacturatie, setLandFacturatie] = useState("Nederland")
-  const [emailFacturen, setEmailFacturen] = useState("")
-  const [telefoonKantoor, setTelefoonKantoor] = useState("")
-  const [naamProjectleider, setNaamProjectleider] = useState("")
-  const [telefoonProjectleider, setTelefoonProjectleider] = useState("")
+      <Field label="Adres">
+        <input value={adres} onChange={e => setAdres(e.target.value)} />
+      </Field>
 
-  const [facturatieGegevens, setFacturatieGegevens] = useState(false)
-  const [showOptions, setShowOptions] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+      <Field label="Postcode">
+        <input value={postcode} onChange={e => setPostcode(e.target.value)} />
+      </Field>
 
-  // Kopieer projectadres → facturatieadres
-  useEffect(() => {
-    if (facturatieGegevens) {
-      setAdresFacturatie(adres)
-      setPostcodeFacturatie(postcode)
-      setPlaatsnaamFacturatie(plaatsnaam)
-      setLandFacturatie(land)
-    }
-  }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
+      <Field label="Plaatsnaam">
+        <input value={plaatsnaam} onChange={e => setPlaatsnaam(e.target.value)} />
+      </Field>
 
-  // Startknop → altijd opt-form
-  const handleStartClick = () => {
-    setError(null)
-    setShowOptions(true)
-  }
+      <Field label="Land">
+        <select value={land} onChange={e => setLand(e.target.value)}>
+          <option>Nederland</option>
+          <option>België</option>
+          <option>Duitsland</option>
+        </select>
+      </Field>
 
-  // Bevestigen opt-form → calculatie aanmaken
-  const handleConfirmOptions = async (options) => {
-    setLoading(true)
-    setError(null)
+      <Field label="Telefoon">
+        <input value={telefoon} onChange={e => setTelefoon(e.target.value)} />
+      </Field>
 
-    try {
-      if (!naamOpdrachtgever.trim()) {
-        throw new Error("Naam opdrachtgever is verplicht")
-      }
+      <Field label="Projecttype">
+        <select value={projectType} onChange={e => setProjectType(e.target.value)}>
+          <option>Nieuwbouw</option>
+          <option>Utiliteitsbouw</option>
+          <option>Transformatie</option>
+          <option>Renovatie</option>
+        </select>
+      </Field>
 
-      const projectnummer = await getNextProjectnummer()
+      <Field label="Opmerking">
+        <input value={opmerking} onChange={e => setOpmerking(e.target.value)} />
+      </Field>
+    </div>
 
-      const { data, error } = await supabase
-        .from("calculaties")
-        .insert({
-          projectnummer,
+    {/* RECHTER KOLOM – FACTURATIE */}
+    <div>
+      <h3 style={{ marginBottom: 16 }}>Facturatiegegevens</h3>
 
-          naam_opdrachtgever: naamOpdrachtgever,
-          omschrijving,
-          adres,
-          postcode,
-          plaatsnaam,
-          land,
-          telefoon,
-          project_type: projectType,
-          opmerking,
+      <Field label="Bedrijfsnaam">
+        <input value={bedrijfNaam} onChange={e => setBedrijfNaam(e.target.value)} />
+      </Field>
 
-          bedrijf_naam: bedrijfNaam,
-          postbus,
-          adres_facturatie: adresFacturatie,
-          postcode_facturatie: postcodeFacturatie,
-          plaatsnaam_facturatie: plaatsnaamFacturatie,
-          land_facturatie: landFacturatie,
-          email_facturen: emailFacturen,
-          telefoon_kantoor: telefoonKantoor,
-          naam_projectleider: naamProjectleider,
-          telefoon_projectleider: telefoonProjectleider,
+      <Field label="Postbus">
+        <input value={postbus} onChange={e => setPostbus(e.target.value)} />
+      </Field>
 
-          facturatie_gegevens: facturatieGegevens,
-          opties: options,
-
-          status: "nieuw",
-          workflow_status: "open"
-        })
-        .select("id")
-        .single()
-
-      if (error) throw error
-
-      await fetch("/api/initialize-project", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          project_id: data.id,
-          options
-        })
-      })
-
-      router.push(`/calculaties/${data.id}`)
-    } catch (err) {
-      setError(err.message)
-      setLoading(false)
-    }
-  }
-
-  return (
-    <>
-      <h1>Nieuwe Calculatie</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <form onSubmit={(e) => e.preventDefault()}>
-        <label>
-          <input
-            type="checkbox"
-            checked={facturatieGegevens}
-            onChange={(e) => setFacturatieGegevens(e.target.checked)}
-          />
-          Facturatiegegevens kopiëren
-        </label>
-
-        <div className="sb-form-two-col">
-          <div>
-            <input placeholder="Naam opdrachtgever" value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
-            <input placeholder="Omschrijving" value={omschrijving} onChange={e => setOmschrijving(e.target.value)} />
-            <input placeholder="Adres" value={adres} onChange={e => setAdres(e.target.value)} />
-            <input placeholder="Postcode" value={postcode} onChange={e => setPostcode(e.target.value)} />
-            <input placeholder="Plaatsnaam" value={plaatsnaam} onChange={e => setPlaatsnaam(e.target.value)} />
-            <input placeholder="Telefoon" value={telefoon} onChange={e => setTelefoon(e.target.value)} />
-          </div>
-
-          <div>
-            <input placeholder="Bedrijfsnaam" value={bedrijfNaam} onChange={e => setBedrijfNaam(e.target.value)} />
-            <input placeholder="Adres facturatie" value={adresFacturatie} onChange={e => setAdresFacturatie(e.target.value)} />
-            <input placeholder="Email facturen" value={emailFacturen} onChange={e => setEmailFacturen(e.target.value)} />
-            <input placeholder="Projectleider" value={naamProjectleider} onChange={e => setNaamProjectleider(e.target.value)} />
-          </div>
-        </div>
-
-        <button type="button" onClick={handleStartClick} disabled={loading}>
-          Start calculatie
-        </button>
-      </form>
-
-      {showOptions && (
-        <ProjectInitOptionsModal
-          onConfirm={handleConfirmOptions}
-          onCancel={() => setShowOptions(false)}
+      <Field label="Adres">
+        <input
+          value={adresFacturatie}
+          onChange={e => setAdresFacturatie(e.target.value)}
+          readOnly={facturatieGegevens}
         />
-      )}
-    </>
-  )
-}
+      </Field>
+
+      <Field label="Postcode">
+        <input
+          value={postcodeFacturatie}
+          onChange={e => setPostcodeFacturatie(e.target.value)}
+          readOnly={facturatieGegevens}
+        />
+      </Field>
+
+      <Field label="Plaatsnaam">
+        <input
+          value={plaatsnaamFacturatie}
+          onChange={e => setPlaatsnaamFacturatie(e.target.value)}
+          readOnly={facturatieGegevens}
+        />
+      </Field>
+
+      <Field label="Land">
+        <select
+          value={landFacturatie}
+          onChange={e => setLandFacturatie(e.target.value)}
+          disabled={facturatieGegevens}
+        >
+          <option>Nederland</option>
+          <option>België</option>
+          <option>Duitsland</option>
+        </select>
+      </Field>
+
+      <Field label="Email facturen">
+        <input value={emailFacturen} onChange={e => setEmailFacturen(e.target.value)} />
+      </Field>
+
+      <Field label="Telefoon kantoor">
+        <input value={telefoonKantoor} onChange={e => setTelefoonKantoor(e.target.value)} />
+      </Field>
+
+      <Field label="Projectleider">
+        <input value={naamProjectleider} onChange={e => setNaamProjectleider(e.target.value)} />
+      </Field>
+
+      <Field label="Tel. projectleider">
+        <input value={telefoonProjectleider} onChange={e => setTelefoonProjectleider(e.target.value)} />
+      </Field>
+    </div>
+  </div>
+
+  <div style={{ marginTop: 32 }}>
+    <button type="button" onClick={handleStartClick}>
+      Start calculatie
+    </button>
+  </div>
+</form>
