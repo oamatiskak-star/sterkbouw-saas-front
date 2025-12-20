@@ -9,8 +9,10 @@ const supabase = createClient(
 
 export default function NieuweCalculatie() {
   const router = useRouter()
+
   const [projectnummer, setProjectnummer] = useState("")
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
+  const [omschrijving, setOmschrijving] = useState("")
   const [adres, setAdres] = useState("")
   const [postcode, setPostcode] = useState("")
   const [plaatsnaam, setPlaatsnaam] = useState("")
@@ -24,7 +26,6 @@ export default function NieuweCalculatie() {
   const [telefoonKantoor, setTelefoonKantoor] = useState("")
   const [naamProjectleider, setNaamProjectleider] = useState("")
   const [telefoonProjectleider, setTelefoonProjectleider] = useState("")
-  const [omschrijving, setOmschrijving] = useState("")
   const [startDatum, setStartDatum] = useState("")
   const [eindDatum, setEindDatum] = useState("")
   const [loading, setLoading] = useState(false)
@@ -33,8 +34,15 @@ export default function NieuweCalculatie() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!projectnummer || !naamOpdrachtgever || !adres || !postcode || !email || !bedrijfNaam) {
-      setError("Alle velden zijn verplicht!")
+    if (
+      !projectnummer ||
+      !naamOpdrachtgever ||
+      !adres ||
+      !postcode ||
+      !email ||
+      !bedrijfNaam
+    ) {
+      setError("Alle verplichte velden moeten ingevuld zijn")
       return
     }
 
@@ -42,227 +50,152 @@ export default function NieuweCalculatie() {
     setError(null)
 
     try {
-      // Voeg een nieuwe calculatie toe
-      const { data, error } = await supabase.from("calculaties").insert([
-        {
-          projectnummer,
-          naam_opdrachtgever: naamOpdrachtgever,
-          omschrijving,
-          adres,
-          postcode,
-          plaatsnaam,
-          land,
-          email,
-          telefoon,
-          facturatie_gegevens: facturatieGegevens,
-          bedrijf_naam: bedrijfNaam,
-          postbus,
-          email_facturen: emailFacturen,
-          telefoon_kantoor: telefoonKantoor,
-          naam_projectleider: naamProjectleider,
-          telefoon_projectleider: telefoonProjectleider,
-          start_datum: startDatum,
-          eind_datum: eindDatum,
-        }
-      ])
+      const { data, error } = await supabase
+        .from("calculaties")
+        .insert([
+          {
+            projectnummer,
+            naam_opdrachtgever: naamOpdrachtgever,
+            omschrijving,
+            adres,
+            postcode,
+            plaatsnaam,
+            land,
+            email,
+            telefoon,
+            facturatie_gegevens: facturatieGegevens,
+            bedrijf_naam: bedrijfNaam,
+            postbus,
+            email_facturen: emailFacturen,
+            telefoon_kantoor: telefoonKantoor,
+            naam_projectleider: naamProjectleider,
+            telefoon_projectleider: telefoonProjectleider,
+            start_datum: startDatum,
+            eind_datum: eindDatum,
+          }
+        ])
+        .select()
+        .single()
 
       if (error) throw error
 
-      // Redirect naar de calculatie detailpagina
-      router.push(`/calculaties/${data[0].id}`)
-    } catch (error) {
-      setError(error.message)
+      router.push(`/calculaties/${data.id}`)
+    } catch (err) {
+      setError(err.message)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={{ padding: 16 }}>
+    <>
       <h1>Nieuwe Calculatie</h1>
-      
+
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <form onSubmit={handleSubmit}>
-        <div>
+      <form className="sb-form-grid" onSubmit={handleSubmit}>
+        <div className="sb-form-field">
           <label>Projectnummer ID</label>
-          <input
-            type="text"
-            value={projectnummer}
-            onChange={(e) => setProjectnummer(e.target.value)}
-            required
-          />
+          <input value={projectnummer} onChange={(e) => setProjectnummer(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Naam opdrachtgever</label>
-          <input
-            type="text"
-            value={naamOpdrachtgever}
-            onChange={(e) => setNaamOpdrachtgever(e.target.value)}
-            required
-          />
+          <input value={naamOpdrachtgever} onChange={(e) => setNaamOpdrachtgever(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field full">
           <label>Omschrijving</label>
-          <textarea
-            value={omschrijving}
-            onChange={(e) => setOmschrijving(e.target.value)}
-            required
-          />
+          <textarea value={omschrijving} onChange={(e) => setOmschrijving(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Adres</label>
-          <input
-            type="text"
-            value={adres}
-            onChange={(e) => setAdres(e.target.value)}
-            required
-          />
+          <input value={adres} onChange={(e) => setAdres(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Postcode</label>
-          <input
-            type="text"
-            value={postcode}
-            onChange={(e) => setPostcode(e.target.value)}
-            required
-          />
+          <input value={postcode} onChange={(e) => setPostcode(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Plaatsnaam</label>
-          <input
-            type="text"
-            value={plaatsnaam}
-            onChange={(e) => setPlaatsnaam(e.target.value)}
-            required
-          />
+          <input value={plaatsnaam} onChange={(e) => setPlaatsnaam(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Land</label>
-          <input
-            type="text"
-            value={land}
-            onChange={(e) => setLand(e.target.value)}
-            required
-          />
+          <input value={land} onChange={(e) => setLand(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Telefoonnummer</label>
-          <input
-            type="text"
-            value={telefoon}
-            onChange={(e) => setTelefoon(e.target.value)}
-            required
-          />
+          <input value={telefoon} onChange={(e) => setTelefoon(e.target.value)} />
         </div>
 
-        <div>
-          <label>Facturatiegegevens kopiëren</label>
-          <input
-            type="checkbox"
-            checked={facturatieGegevens}
-            onChange={(e) => setFacturatieGegevens(e.target.checked)}
-          />
+        <div className="sb-form-field full">
+          <label className="sb-checkbox">
+            <input
+              type="checkbox"
+              checked={facturatieGegevens}
+              onChange={(e) => setFacturatieGegevens(e.target.checked)}
+            />
+            Facturatiegegevens kopiëren
+          </label>
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Bedrijfsnaam</label>
-          <input
-            type="text"
-            value={bedrijfNaam}
-            onChange={(e) => setBedrijfNaam(e.target.value)}
-            required
-          />
+          <input value={bedrijfNaam} onChange={(e) => setBedrijfNaam(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Postbus</label>
-          <input
-            type="text"
-            value={postbus}
-            onChange={(e) => setPostbus(e.target.value)}
-          />
+          <input value={postbus} onChange={(e) => setPostbus(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Email facturen</label>
-          <input
-            type="email"
-            value={emailFacturen}
-            onChange={(e) => setEmailFacturen(e.target.value)}
-          />
+          <input type="email" value={emailFacturen} onChange={(e) => setEmailFacturen(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Telefoon kantoor</label>
-          <input
-            type="text"
-            value={telefoonKantoor}
-            onChange={(e) => setTelefoonKantoor(e.target.value)}
-          />
+          <input value={telefoonKantoor} onChange={(e) => setTelefoonKantoor(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Naam projectleider</label>
-          <input
-            type="text"
-            value={naamProjectleider}
-            onChange={(e) => setNaamProjectleider(e.target.value)}
-            required
-          />
+          <input value={naamProjectleider} onChange={(e) => setNaamProjectleider(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Telefoon projectleider</label>
-          <input
-            type="text"
-            value={telefoonProjectleider}
-            onChange={(e) => setTelefoonProjectleider(e.target.value)}
-            required
-          />
+          <input value={telefoonProjectleider} onChange={(e) => setTelefoonProjectleider(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Startdatum</label>
-          <input
-            type="date"
-            value={startDatum}
-            onChange={(e) => setStartDatum(e.target.value)}
-            required
-          />
+          <input type="date" value={startDatum} onChange={(e) => setStartDatum(e.target.value)} />
         </div>
 
-        <div>
+        <div className="sb-form-field">
           <label>Einddatum</label>
-          <input
-            type="date"
-            value={eindDatum}
-            onChange={(e) => setEindDatum(e.target.value)}
-            required
-          />
+          <input type="date" value={eindDatum} onChange={(e) => setEindDatum(e.target.value)} />
         </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Verwerken..." : "Maak nieuwe calculatie"}
-        </button>
+        <div className="sb-form-actions">
+          <button type="submit" disabled={loading}>
+            {loading ? "Verwerken..." : "Maak nieuwe calculatie"}
+          </button>
+        </div>
       </form>
-    </div>
+    </>
   )
 }
