@@ -26,7 +26,7 @@ export default function NieuweCalculatie() {
 
   // 🔴 DEBUG – BEWIJS DAT DEZE PAGINA ECHT RENDERT
   useEffect(() => {
-    throw new Error("IK BEN HIER – NIEUWE CALCULATIE PAGE")
+
   }, [])
 
   /* LINKER KOLOM – PROJECT */
