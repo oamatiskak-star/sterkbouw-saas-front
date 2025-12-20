@@ -5,7 +5,10 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
 
-/* Base */
+/* ======================
+   BASE
+   ====================== */
+
 body {
   margin: 0;
   font-family: Inter, sans-serif;
@@ -72,7 +75,7 @@ body {
 }
 
 /* ======================
-   FORM SYSTEM (ENIGE WAARHEID)
+   FORM SYSTEM – BASIS
    ====================== */
 
 .sb-form-grid {
@@ -114,7 +117,7 @@ body {
   grid-column: 1 / -1;
 }
 
-/* Checkbox exact zoals screenshot */
+/* Checkbox */
 .sb-checkbox {
   display: flex;
   align-items: center;
@@ -146,6 +149,32 @@ body {
 }
 
 /* ======================
+   FORM SYSTEM – TWEE KOLOMMEN
+   (volgens screenshot 2)
+   ====================== */
+
+.sb-form-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  max-width: 1100px;
+}
+
+.sb-form-col {
+  display: grid;
+  row-gap: 20px;
+  align-content: start;
+}
+
+.sb-form-col.left {
+  justify-items: stretch;
+}
+
+.sb-form-col.right {
+  justify-items: stretch;
+}
+
+/* ======================
    RESPONSIVE
    ====================== */
 
@@ -156,6 +185,11 @@ body {
 
   .sb-form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .sb-form-two-col {
+    grid-template-columns: 1fr;
+    gap: 32px;
   }
 
   .sb-main {
