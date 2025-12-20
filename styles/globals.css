@@ -1,143 +1,61 @@
-/* Tabler default imports */
-@import "@tabler/core/dist/css/tabler.min.css";
-@import "@tabler/core/dist/css/tabler-flags.min.css";
-@import "@tabler/core/dist/css/tabler-payments.min.css";
-@import "@tabler/core/dist/css/tabler-vendors.min.css";
-
-/* Import van het Inter lettertype (ChatGPT font) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-
-/* Body setup */
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif; /* Gebruik Inter als lettertype */
-  background: #ffffff;
-  color: #333333; /* Donkere tekstkleur voor betere leesbaarheid */
-}
-
-/* Sidebar styling */
-.sb-sidebar {
-  width: 250px;
-  height: 100vh;
-  background-color: #f7f7f7; /* Lichte grijze achtergrond */
-  color: #333; /* Donkere tekstkleur voor betere leesbaarheid */
-  padding: 16px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 999;
-}
-
-.sb-sidebar .sb-logo {
-  font-size: 20px;
-  font-weight: 600; /* Meer gewicht voor de logo-tekst */
-  margin-bottom: 16px;
-}
-
-.sb-sidebar .sb-group {
-  margin-bottom: 16px;
-}
-
-.sb-sidebar .sb-root {
-  display: block;
-  padding: 10px 16px;
-  margin-bottom: 8px;
-  font-weight: 600; /* Gebruik een zwaarder gewicht voor hoofdmenu-items */
-  color: #333; /* Donkere kleur voor leesbaarheid */
-  background-color: transparent;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-  font-family: 'Inter', sans-serif;
-}
-
-.sb-sidebar .sb-root:hover {
-  background-color: #e6e6e6; /* Lichte grijze hover voor rootmenu */
-}
-
-.sb-sidebar .sb-sub {
-  display: block;
-  padding: 8px 16px;
-  color: #666; /* Lichtere kleur voor submenu-items */
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-  font-family: 'Inter', sans-serif;
-}
-
-.sb-sidebar .sb-sub:hover {
-  background-color: #e6e6e6; /* Hover effect voor submenu */
-}
-
-/* Opened sidebar when in mobile view */
-.sb-sidebar.open {
-  width: 250px;
-  transition: width 0.3s ease;
-}
-
-.sb-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 998;
-}
-
 /* Formulier layout */
-form {
+.form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Twee kolommen voor de formuliervelden */
-  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 24px;
+  row-gap: 20px;
   max-width: 900px;
-  margin: auto;
+  margin: 0 auto;
   padding: 16px;
 }
 
-label {
-  font-weight: bold;
-  margin-bottom: 8px;
+.form-field {
+  display: flex;
+  flex-direction: column;
 }
 
-input,
-textarea {
+.form-field label {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.form-field input,
+.form-field textarea {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 100%;
 }
 
-input[type="number"] {
-  width: 100%;
-}
-
-input[type="date"],
-input[type="email"] {
-  width: 100%;
-}
-
-textarea {
+.form-field textarea {
   resize: vertical;
 }
 
-button {
-  grid-column: span 2; /* Maak de submitknop breed over beide kolommen */
-  padding: 10px;
+.form-field.full {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  margin-top: 24px;
+}
+
+.form-actions button {
+  width: 100%;
+  padding: 12px;
   background-color: #007bff;
-  color: white;
+  color: #ffffff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
-button:disabled {
+.form-actions button:disabled {
   background-color: #dcdcdc;
 }
 
 @media (max-width: 767px) {
-  form {
-    grid-template-columns: 1fr; /* Bij kleinere schermen de velden onder elkaar */
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 }
