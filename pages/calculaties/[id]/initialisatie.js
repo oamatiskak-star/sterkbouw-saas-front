@@ -11,29 +11,38 @@ export default function InitialisatieStatus() {
   const router = useRouter()
   const { id } = router.query
 
-  const [project, setProject] = useState(null)
   const [logs, setLogs] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [status, setStatus] = useState("initializing")
+  const [reports, setReports] = useState([])
 
   useEffect(() => {
     if (!id) return
 
     const load = async () => {
-      const { data: project } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("id", id)
-        .single()
-
-      const { data: logs } = await supabase
+      const { data: logData } = await supabase
         .from("project_initialization_log")
         .select("*")
         .eq("project_id", id)
         .order("started_at", { ascending: true })
 
-      setProject(project)
-      setLogs(logs || [])
-      setLoading(false)
+      setLogs(logData || [])
+
+      const { data: calc } = await supabase
+        .from("calculaties")
+        .select("status")
+        .eq("id", id)
+        .single()
+
+      if (calc?.status === "initialized") {
+        setStatus("done")
+      }
+
+      const { data: rep } = await supabase
+        .from("project_reports")
+        .select("*")
+        .eq("project_id", id)
+
+      setReports(rep || [])
     }
 
     load()
@@ -41,12 +50,13 @@ export default function InitialisatieStatus() {
     return () => clearInterval(interval)
   }, [id])
 
-  if (loading) return <p>Initialisatie starten…</p>
-
   return (
-    <>
+    <div style={{ maxWidth: 900, margin: "0 auto", padding: 32 }}>
       <h1>Project initialisatie</h1>
-      <p>Status: <strong>{project.status}</strong></p>
+
+      {status !== "done" && (
+        <p>Project wordt geanalyseerd. Dit kan enkele minuten duren.</p>
+      )}
 
       <div style={{ marginTop: 24 }}>
         {logs.map(log => (
@@ -71,11 +81,25 @@ export default function InitialisatieStatus() {
         ))}
       </div>
 
-      {project.status === "initialized" && (
+      {status === "done" && (
         <div style={{ marginTop: 32 }}>
+          <h3>Rapporten</h3>
+
+          {reports.map(r => (
+            <div key={r.id} style={{ marginBottom: 8 }}>
+              <a
+                href={`/api/download-report?project_id=${id}&type=${r.report_type}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Download {r.report_type}
+              </a>
+            </div>
+          ))}
+
           <button
-            onClick={() => router.push(`/calculaties/${id}`)}
             style={{
+              marginTop: 24,
               padding: "12px 20px",
               background: "#2563eb",
               color: "#fff",
@@ -83,11 +107,12 @@ export default function InitialisatieStatus() {
               borderRadius: 6,
               cursor: "pointer"
             }}
+            onClick={() => router.push(`/calculaties/${id}`)}
           >
             Ga naar calculatie
           </button>
         </div>
       )}
-    </>
+    </div>
   )
 }
