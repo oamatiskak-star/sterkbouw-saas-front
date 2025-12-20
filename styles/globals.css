@@ -91,7 +91,7 @@ form {
   display: grid;
   grid-template-columns: 1fr 1fr; /* Twee kolommen voor de formuliervelden */
   gap: 16px;
-  max-width: 800px;
+  max-width: 900px;
   margin: auto;
   padding: 16px;
 }
