@@ -3,17 +3,41 @@
 @import "@tabler/core/dist/css/tabler-payments.min.css";
 @import "@tabler/core/dist/css/tabler-vendors.min.css";
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
 
 /* ======================
-   BASE
+   BASE – CHATGPT STYLE
    ====================== */
 
 body {
   margin: 0;
-  font-family: Inter, sans-serif;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: #ffffff;
-  color: #1f2937;
+  color: #0f172a;          /* rustiger donker */
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Koppen */
+
+h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #020617;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #020617;
+}
+
+h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
 }
 
 /* ======================
@@ -38,16 +62,17 @@ body {
   width: 250px;
   height: 100vh;
   background: #0f172a;
-  color: #ffffff;
+  color: #e5e7eb;
   padding: 20px;
   position: fixed;
   top: 0;
   left: 0;
+  font-size: 14px;
 }
 
 .sb-sidebar a {
   display: block;
-  color: #c7d2fe;
+  color: #cbd5f5;
   text-decoration: none;
   padding: 8px 0;
   font-weight: 500;
@@ -75,7 +100,7 @@ body {
 }
 
 /* ======================
-   FORM – TWEE KOLOMMEN (DEFINITIEF)
+   FORM – TWEE KOLOMMEN
    ====================== */
 
 .sb-form-two-col {
@@ -85,7 +110,6 @@ body {
   max-width: 1200px;
 }
 
-/* Beide kolommen exact dezelfde grid-structuur */
 .sb-form-col {
   display: grid;
   grid-auto-rows: auto;
@@ -103,32 +127,45 @@ body {
 }
 
 .sb-form-field label {
-  font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   margin-bottom: 6px;
+  color: #334155;          /* subtiel, ChatGPT-achtig */
 }
 
 .sb-form-field input,
-.sb-form-field select {
+.sb-form-field select,
+.sb-form-field textarea {
   height: 38px;
   padding: 8px 10px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #d1d5db;
   border-radius: 4px;
   font-size: 14px;
+  color: #020617;
   background: #ffffff;
 }
 
-.sb-form-field textarea {
-  padding: 8px 10px;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
-  font-size: 14px;
-  background: #ffffff;
-  resize: none;
+.sb-form-field input::placeholder,
+.sb-form-field textarea::placeholder {
+  color: #9ca3af;
+}
 
-  /* BELANGRIJK */
-  grid-row: span 2;        /* exact 2 velden hoog */
-  min-height: 96px;       /* 2 × 38px + label spacing */
+/* Focus state */
+
+.sb-form-field input:focus,
+.sb-form-field select:focus,
+.sb-form-field textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px #2563eb;
+}
+
+/* Opmerking – exact 2 rijen */
+
+.sb-form-field textarea {
+  resize: none;
+  grid-row: span 2;
+  min-height: 96px; /* 2 × inputhoogte */
 }
 
 /* ======================
@@ -139,8 +176,9 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 14px;
+  color: #0f172a;
 }
 
 .sb-checkbox input {
@@ -153,7 +191,7 @@ body {
    ====================== */
 
 .sb-form-actions {
-  grid-row: span 1;        /* exact 1 rij */
+  grid-row: span 1;
   align-self: start;
 }
 
@@ -164,8 +202,13 @@ body {
   color: #ffffff;
   border: none;
   border-radius: 6px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.sb-form-actions button:hover {
+  background: #1d4ed8;
 }
 
 /* ======================
