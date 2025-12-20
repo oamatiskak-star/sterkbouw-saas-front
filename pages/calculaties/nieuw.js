@@ -72,6 +72,7 @@ export default function NieuweCalculatie() {
 
   const [facturatieGegevens, setFacturatieGegevens] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
+  const [creating, setCreating] = useState(false)
 
   useEffect(() => {
     if (facturatieGegevens) {
@@ -81,6 +82,79 @@ export default function NieuweCalculatie() {
       setLandFacturatie(land)
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
+
+  /* =========================
+     START PROJECT
+  ========================= */
+
+  async function handleConfirmOptions(options) {
+    if (creating) return
+    setCreating(true)
+
+    try {
+      // 1. Calculatie aanmaken
+      const { data: calculatie, error } = await supabase
+        .from("calculaties")
+        .insert({
+          naam_opdrachtgever: naamOpdrachtgever,
+          omschrijving,
+          adres,
+          postcode,
+          plaatsnaam,
+          land,
+          telefoon,
+          project_type: projectType,
+          opmerking,
+
+          bedrijf_naam: bedrijfNaam,
+          postbus,
+          adres_facturatie: adresFacturatie,
+          postcode_facturatie: postcodeFacturatie,
+          plaatsnaam_facturatie: plaatsnaamFacturatie,
+          land_facturatie: landFacturatie,
+          email_facturen: emailFacturen,
+          telefoon_kantoor: telefoonKantoor,
+          naam_projectleider: naamProjectleider,
+          telefoon_projectleider: telefoonProjectleider,
+
+          status: "initializing",
+          workflow_status: "scan_pending"
+        })
+        .select("id")
+        .single()
+
+      if (error) throw error
+
+      const projectId = calculatie.id
+
+      // 2. PROJECT SCAN TASK
+      await supabase.from("executor_tasks").insert({
+        task_type: "PROJECT_SCAN",
+        status: "open",
+        payload: {
+          project_id: projectId,
+          options
+        }
+      })
+
+      // 3. START REKENWOLK (wacht op scan)
+      await supabase.from("executor_tasks").insert({
+        task_type: "START_REKENWOLK",
+        status: "waiting",
+        depends_on: "PROJECT_SCAN",
+        payload: {
+          project_id: projectId,
+          options
+        }
+      })
+
+      // 4. Door naar statuspagina
+      router.push(`/calculaties/${projectId}/initialisatie`)
+    } catch (err) {
+      alert(err.message)
+      setCreating(false)
+    }
+  }
 
   return (
     <>
@@ -95,7 +169,7 @@ export default function NieuweCalculatie() {
         Facturatiegegevens kopiëren van projectadres
       </label>
 
-      <form onSubmit={(e) => e.preventDefault()}>
+      <form onSubmit={e => e.preventDefault()}>
         <div
           style={{
             display: "grid",
@@ -153,7 +227,6 @@ export default function NieuweCalculatie() {
               <input style={inputStyle} value={opmerking} onChange={e => setOpmerking(e.target.value)} />
             </Field>
 
-            {/* STARTKNOP DIRECT ONDER OPMERKING */}
             <Field label=" ">
               <button
                 type="button"
@@ -218,7 +291,7 @@ export default function NieuweCalculatie() {
 
       {showOptions && (
         <ProjectInitOptionsModal
-          onConfirm={() => {}}
+          onConfirm={handleConfirmOptions}
           onCancel={() => setShowOptions(false)}
         />
       )}
