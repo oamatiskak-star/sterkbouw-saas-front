@@ -27,13 +27,11 @@ export default function MyApp({ Component, pageProps }) {
 
         setSession(s || null)
 
-        // Niet ingelogd → altijd naar login
         if (!s && !isAuthPage) {
           router.replace("/login")
           return
         }
 
-        // Ingelogd en op auth-pagina → dashboard
         if (s && isAuthPage) {
           router.replace("/dashboard")
           return
@@ -67,8 +65,12 @@ export default function MyApp({ Component, pageProps }) {
   }
 
   return (
-    <AppLayout session={session}>
-      <Component {...pageProps} />
-    </AppLayout>
+    <div className="sb-app">
+      <AppLayout session={session}>
+        <main className="sb-main">
+          <Component {...pageProps} />
+        </main>
+      </AppLayout>
+    </div>
   )
 }
