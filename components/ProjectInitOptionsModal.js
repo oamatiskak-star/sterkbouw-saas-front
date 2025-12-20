@@ -1,6 +1,18 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 
 export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
+  const fileInputRef = useRef(null)
+
+  const [filesUploaded, setFilesUploaded] = useState(false)
+  const [uploadedFiles, setUploadedFiles] = useState([])
+  const [uploading, setUploading] = useState(false)
+
   const [options, setOptions] = useState({
     documents: true,
     rename_files: true,
@@ -25,26 +37,13 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
     risk_report: true
   })
 
-  const [filesUploaded, setFilesUploaded] = useState(false)
-
   const toggle = key =>
     setOptions(prev => ({ ...prev, [key]: !prev[key] }))
 
-  const Row = ({ checked, onChange, label }) => (
-    <label style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-      <input type="checkbox" checked={checked} onChange={onChange} />
-      <span>{label}</span>
-    </label>
-  )
+  /* =========================
+     STYLING
+  ========================= */
 
-  const Section = ({ title, children }) => (
-    <div style={{ marginBottom: 20 }}>
-      <div style={{ fontWeight: 600, marginBottom: 8 }}>{title}</div>
-      {children}
-    </div>
-  )
-
-  /* === BUTTON STYLES === */
   const baseButton = {
     height: 44,
     minWidth: 180,
@@ -68,10 +67,76 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
     border: "1px solid #d1d5db"
   }
 
-  const handleFileUpload = () => {
-    // placeholder – hier komt later Supabase upload
-    setFilesUploaded(true)
+  /* =========================
+     UPLOAD LOGIC
+  ========================= */
+
+  const openFilePicker = () => {
+    fileInputRef.current.click()
   }
+
+  const handleFileUpload = async e => {
+    const files = Array.from(e.target.files)
+    if (files.length === 0) return
+
+    setUploading(true)
+
+    const uploaded = []
+
+    for (const file of files) {
+      const path = `uploads/${Date.now()}-${file.name}`
+
+      const { error } = await supabase.storage
+        .from("project_uploads")
+        .upload(path, file)
+
+      if (!error) {
+        uploaded.push({
+          name: file.name,
+          path
+        })
+      }
+    }
+
+    setUploadedFiles(uploaded)
+    setFilesUploaded(uploaded.length > 0)
+    setUploading(false)
+  }
+
+  /* =========================
+     CONFIRM → START REKENWOLK
+  ========================= */
+
+  const handleStart = () => {
+    if (!filesUploaded) return
+
+    onConfirm({
+      options,
+      files: uploadedFiles
+    })
+  }
+
+  /* =========================
+     UI HELPERS
+  ========================= */
+
+  const Row = ({ checked, onChange, label }) => (
+    <label style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+      <input type="checkbox" checked={checked} onChange={onChange} />
+      <span>{label}</span>
+    </label>
+  )
+
+  const Section = ({ title, children }) => (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ fontWeight: 600, marginBottom: 8 }}>{title}</div>
+      {children}
+    </div>
+  )
+
+  /* =========================
+     RENDER
+  ========================= */
 
   return (
     <div
@@ -96,6 +161,14 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
         <h2 style={{ marginTop: 0, marginBottom: 20 }}>
           Project initialisatie
         </h2>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          style={{ display: "none" }}
+          onChange={handleFileUpload}
+        />
 
         <Section title="Document & structuur">
           <Row checked={options.documents} onChange={() => toggle("documents")} label="Document scan" />
@@ -131,7 +204,11 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
           <Row checked={options.risk_report} onChange={() => toggle("risk_report")} label="Risico’s" />
         </Section>
 
-        {/* === ACTIEKNOPPEN === */}
+        {/* STATUS */}
+        {uploading && <p>Bestanden uploaden…</p>}
+        {filesUploaded && <p>{uploadedFiles.length} bestanden geüpload</p>}
+
+        {/* ACTIES */}
         <div
           style={{
             display: "flex",
@@ -143,7 +220,8 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
           <button
             type="button"
             style={primaryButton}
-            onClick={handleFileUpload}
+            onClick={openFilePicker}
+            disabled={uploading}
           >
             Importeer bestanden
           </button>
@@ -160,7 +238,7 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
             type="button"
             style={primaryButton}
             disabled={!filesUploaded}
-            onClick={() => onConfirm(options)}
+            onClick={handleStart}
           >
             Start
           </button>
