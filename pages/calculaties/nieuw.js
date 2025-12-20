@@ -99,7 +99,7 @@ export default function NieuweCalculatie() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: "1.4fr 1.4fr",
             gap: 40,
             maxWidth: 1800
           }}
