@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
 
@@ -7,11 +7,24 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
+// Haal volgend projectnummer op (opvolgend)
+async function getNextProjectnummer() {
+  const { data, error } = await supabase
+    .from("calculaties")
+    .select("projectnummer")
+    .order("projectnummer", { ascending: false })
+    .limit(1)
+
+  if (error || !data || data.length === 0) return 1001
+
+  const last = parseInt(data[0].projectnummer, 10)
+  return isNaN(last) ? 1001 : last + 1
+}
+
 export default function NieuweCalculatie() {
   const router = useRouter()
 
-  // LINKER KOLOM
-  const [projectnummer, setProjectnummer] = useState("")
+  // LINKER KOLOM – PROJECTADRES
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
   const [adres, setAdres] = useState("")
@@ -21,7 +34,7 @@ export default function NieuweCalculatie() {
   const [telefoon, setTelefoon] = useState("")
   const [opmerking, setOpmerking] = useState("")
 
-  // RECHTER KOLOM
+  // RECHTER KOLOM – FACTURATIEADRES
   const [bedrijfNaam, setBedrijfNaam] = useState("")
   const [postbus, setPostbus] = useState("")
   const [adresFacturatie, setAdresFacturatie] = useState("")
@@ -37,12 +50,24 @@ export default function NieuweCalculatie() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  // Kopieer projectadres → facturatieadres
+  useEffect(() => {
+    if (facturatieGegevens) {
+      setAdresFacturatie(adres)
+      setPostcodeFacturatie(postcode)
+      setPlaatsnaamFacturatie(plaatsnaam)
+      setLandFacturatie(land)
+    }
+  }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
     try {
+      const projectnummer = await getNextProjectnummer()
+
       const { data, error } = await supabase
         .from("calculaties")
         .insert([
@@ -56,6 +81,7 @@ export default function NieuweCalculatie() {
             land,
             telefoon,
             opmerking,
+
             bedrijf_naam: bedrijfNaam,
             postbus,
             adres_facturatie: adresFacturatie,
@@ -66,6 +92,7 @@ export default function NieuweCalculatie() {
             telefoon_kantoor: telefoonKantoor,
             naam_projectleider: naamProjectleider,
             telefoon_projectleider: telefoonProjectleider,
+
             facturatie_gegevens: facturatieGegevens
           }
         ])
@@ -89,7 +116,7 @@ export default function NieuweCalculatie() {
 
       <form onSubmit={handleSubmit}>
 
-        {/* Checkbox bovenaan */}
+        {/* Facturatie = projectadres */}
         <div className="sb-form-field full" style={{ marginBottom: 32 }}>
           <label className="sb-checkbox">
             <input
@@ -105,11 +132,6 @@ export default function NieuweCalculatie() {
 
           {/* LINKER KOLOM */}
           <div className="sb-form-col left">
-            <div className="sb-form-field">
-              <label>Projectnummer ID</label>
-              <input value={projectnummer} onChange={(e) => setProjectnummer(e.target.value)} />
-            </div>
-
             <div className="sb-form-field">
               <label>Naam opdrachtgever</label>
               <input value={naamOpdrachtgever} onChange={(e) => setNaamOpdrachtgever(e.target.value)} />
@@ -179,22 +201,38 @@ export default function NieuweCalculatie() {
 
             <div className="sb-form-field">
               <label>Adres</label>
-              <input value={adresFacturatie} onChange={(e) => setAdresFacturatie(e.target.value)} />
+              <input
+                value={adresFacturatie}
+                onChange={(e) => setAdresFacturatie(e.target.value)}
+                readOnly={facturatieGegevens}
+              />
             </div>
 
             <div className="sb-form-field">
               <label>Postcode</label>
-              <input value={postcodeFacturatie} onChange={(e) => setPostcodeFacturatie(e.target.value)} />
+              <input
+                value={postcodeFacturatie}
+                onChange={(e) => setPostcodeFacturatie(e.target.value)}
+                readOnly={facturatieGegevens}
+              />
             </div>
 
             <div className="sb-form-field">
               <label>Plaatsnaam</label>
-              <input value={plaatsnaamFacturatie} onChange={(e) => setPlaatsnaamFacturatie(e.target.value)} />
+              <input
+                value={plaatsnaamFacturatie}
+                onChange={(e) => setPlaatsnaamFacturatie(e.target.value)}
+                readOnly={facturatieGegevens}
+              />
             </div>
 
             <div className="sb-form-field">
               <label>Land</label>
-              <select value={landFacturatie} onChange={(e) => setLandFacturatie(e.target.value)}>
+              <select
+                value={landFacturatie}
+                onChange={(e) => setLandFacturatie(e.target.value)}
+                disabled={facturatieGegevens}
+              >
                 <option>Nederland</option>
                 <option>België</option>
                 <option>Duitsland</option>
