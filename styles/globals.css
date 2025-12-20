@@ -75,16 +75,27 @@ body {
 }
 
 /* ======================
-   FORM SYSTEM – BASIS
+   FORM – TWEE KOLOMMEN (DEFINITIEF)
    ====================== */
 
-.sb-form-grid {
+.sb-form-two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 24px;
-  row-gap: 20px;
+  column-gap: 48px;
   max-width: 1200px;
 }
+
+/* Beide kolommen exact dezelfde grid-structuur */
+.sb-form-col {
+  display: grid;
+  grid-auto-rows: auto;
+  row-gap: 20px;
+  align-content: start;
+}
+
+/* ======================
+   FORM FIELDS
+   ====================== */
 
 .sb-form-field {
   display: flex;
@@ -98,7 +109,6 @@ body {
 }
 
 .sb-form-field input,
-.sb-form-field textarea,
 .sb-form-field select {
   height: 38px;
   padding: 8px 10px;
@@ -109,16 +119,22 @@ body {
 }
 
 .sb-form-field textarea {
-  height: auto;
-  min-height: 80px;
-  resize: vertical;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #ffffff;
+  resize: none;
+
+  /* BELANGRIJK */
+  grid-row: span 2;        /* exact 2 velden hoog */
+  min-height: 96px;       /* 2 × 38px + label spacing */
 }
 
-.sb-form-field.full {
-  grid-column: 1 / -1;
-}
+/* ======================
+   CHECKBOX
+   ====================== */
 
-/* Checkbox */
 .sb-checkbox {
   display: flex;
   align-items: center;
@@ -133,16 +149,16 @@ body {
 }
 
 /* ======================
-   FORM SYSTEM – ACTIES
+   ACTIEKNOP
    ====================== */
 
 .sb-form-actions {
-  margin-top: 0;
-  align-self: end; /* zorgt dat knop gelijk uitlijnt met laatste veld rechts */
+  grid-row: span 1;        /* exact 1 rij */
+  align-self: start;
 }
 
 .sb-form-actions button {
-  width: 260px; /* niet full-width, zoals schets */
+  width: 260px;
   padding: 12px;
   background: #2563eb;
   color: #ffffff;
@@ -153,41 +169,11 @@ body {
 }
 
 /* ======================
-   FORM SYSTEM – TWEE KOLOMMEN
-   (definitieve layout)
-   ====================== */
-
-.sb-form-two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 48px;          /* meer ruimte tussen kolommen */
-  max-width: 1200px;        /* ± 1/3 breder dan eerst */
-}
-
-.sb-form-col {
-  display: grid;
-  row-gap: 20px;
-  align-content: start;
-}
-
-.sb-form-col.left {
-  justify-items: stretch;
-}
-
-.sb-form-col.right {
-  justify-items: stretch;
-}
-
-/* ======================
    RESPONSIVE
    ====================== */
 
 @media (max-width: 900px) {
   .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .sb-form-grid {
     grid-template-columns: 1fr;
   }
 
@@ -208,33 +194,4 @@ body {
   .sb-form-actions button {
     width: 100%;
   }
-}/* ======================
-   OPLOSSING UITLIJNING OPMERKING
-   ====================== */
-
-/* Opmerking exact 2 veldhoogtes */
-.sb-form-field textarea {
-  min-height: calc(38px * 2 + 20px); /* 2 inputs + tussenruimte */
-  resize: none;
-}/* ======================
-   DEFINITIEVE UITLIJNING OPMERKING + KNOP
-   ====================== */
-
-/* Forceer vaste rijhoogte voor form-velden */
-.sb-form-col {
-  grid-auto-rows: min-content;
 }
-
-/* Opmerking exact gelijk aan 2 velden rechts */
-.sb-form-field textarea {
-  min-height: 76px; /* exact 2 inputs zonder extra spacing */
-  resize: none;
-}
-
-/* Knop omhoog trekken zodat hij gelijk valt met Tel. projectleider */
-.sb-form-actions {
-  margin-top: -12px;
-  align-self: start;
-}
-
-
