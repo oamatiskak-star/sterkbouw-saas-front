@@ -216,5 +216,25 @@ body {
 .sb-form-field textarea {
   min-height: calc(38px * 2 + 20px); /* 2 inputs + tussenruimte */
   resize: none;
+}/* ======================
+   DEFINITIEVE UITLIJNING OPMERKING + KNOP
+   ====================== */
+
+/* Forceer vaste rijhoogte voor form-velden */
+.sb-form-col {
+  grid-auto-rows: min-content;
 }
+
+/* Opmerking exact gelijk aan 2 velden rechts */
+.sb-form-field textarea {
+  min-height: 76px; /* exact 2 inputs zonder extra spacing */
+  resize: none;
+}
+
+/* Knop omhoog trekken zodat hij gelijk valt met Tel. projectleider */
+.sb-form-actions {
+  margin-top: -12px;
+  align-self: start;
+}
+
 
