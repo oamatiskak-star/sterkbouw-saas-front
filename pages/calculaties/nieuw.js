@@ -7,7 +7,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-// Haal volgend projectnummer op (opvolgend)
+// Haal volgend projectnummer op
 async function getNextProjectnummer() {
   const { data, error } = await supabase
     .from("calculaties")
@@ -32,6 +32,7 @@ export default function NieuweCalculatie() {
   const [plaatsnaam, setPlaatsnaam] = useState("")
   const [land, setLand] = useState("Nederland")
   const [telefoon, setTelefoon] = useState("")
+  const [projectType, setProjectType] = useState("Nieuwbouw")
   const [opmerking, setOpmerking] = useState("")
 
   // RECHTER KOLOM – FACTURATIEADRES
@@ -80,6 +81,7 @@ export default function NieuweCalculatie() {
             plaatsnaam,
             land,
             telefoon,
+            project_type: projectType,
             opmerking,
 
             bedrijf_naam: bedrijfNaam,
@@ -115,8 +117,6 @@ export default function NieuweCalculatie() {
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       <form onSubmit={handleSubmit}>
-
-        {/* Facturatie = projectadres */}
         <div className="sb-form-field full" style={{ marginBottom: 32 }}>
           <label className="sb-checkbox">
             <input
@@ -171,17 +171,24 @@ export default function NieuweCalculatie() {
               <input value={telefoon} onChange={(e) => setTelefoon(e.target.value)} />
             </div>
 
-            <div className="sb-form-field" style={{ marginTop: 12 }}>
-              <label>Opmerking</label>
-              <textarea
-                value={opmerking}
-                onChange={(e) => setOpmerking(e.target.value)}
-                style={{ minHeight: 140 }}
-              />
+            {/* ✅ HIER: PROJECTTYPE TUSSEN TELEFOON EN OPMERKING */}
+            <div className="sb-form-field">
+              <label>Projecttype</label>
+              <select value={projectType} onChange={(e) => setProjectType(e.target.value)}>
+                <option>Nieuwbouw</option>
+                <option>Utiliteitsbouw</option>
+                <option>Transformatie</option>
+                <option>Renovatie</option>
+              </select>
             </div>
 
-            <div className="sb-form-actions" style={{ marginTop: 32 }}>
-              <button type="submit" disabled={loading} style={{ width: 260 }}>
+            <div className="sb-form-field">
+              <label>Opmerking</label>
+              <input value={opmerking} onChange={(e) => setOpmerking(e.target.value)} />
+            </div>
+
+            <div className="sb-form-actions">
+              <button type="submit" disabled={loading}>
                 {loading ? "Verwerken..." : "Start calculatie"}
               </button>
             </div>
@@ -201,38 +208,22 @@ export default function NieuweCalculatie() {
 
             <div className="sb-form-field">
               <label>Adres</label>
-              <input
-                value={adresFacturatie}
-                onChange={(e) => setAdresFacturatie(e.target.value)}
-                readOnly={facturatieGegevens}
-              />
+              <input value={adresFacturatie} onChange={(e) => setAdresFacturatie(e.target.value)} readOnly={facturatieGegevens} />
             </div>
 
             <div className="sb-form-field">
               <label>Postcode</label>
-              <input
-                value={postcodeFacturatie}
-                onChange={(e) => setPostcodeFacturatie(e.target.value)}
-                readOnly={facturatieGegevens}
-              />
+              <input value={postcodeFacturatie} onChange={(e) => setPostcodeFacturatie(e.target.value)} readOnly={facturatieGegevens} />
             </div>
 
             <div className="sb-form-field">
               <label>Plaatsnaam</label>
-              <input
-                value={plaatsnaamFacturatie}
-                onChange={(e) => setPlaatsnaamFacturatie(e.target.value)}
-                readOnly={facturatieGegevens}
-              />
+              <input value={plaatsnaamFacturatie} onChange={(e) => setPlaatsnaamFacturatie(e.target.value)} readOnly={facturatieGegevens} />
             </div>
 
             <div className="sb-form-field">
               <label>Land</label>
-              <select
-                value={landFacturatie}
-                onChange={(e) => setLandFacturatie(e.target.value)}
-                disabled={facturatieGegevens}
-              >
+              <select value={landFacturatie} onChange={(e) => setLandFacturatie(e.target.value)} disabled={facturatieGegevens}>
                 <option>Nederland</option>
                 <option>België</option>
                 <option>Duitsland</option>
