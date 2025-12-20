@@ -24,11 +24,6 @@ async function getNextProjectnummer() {
 export default function NieuweCalculatie() {
   const router = useRouter()
 
-  // 🔴 DEBUG – BEWIJS DAT DEZE PAGINA ECHT RENDERT
-  useEffect(() => {
-
-  }, [])
-
   /* LINKER KOLOM – PROJECT */
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
