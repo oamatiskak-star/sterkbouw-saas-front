@@ -8,7 +8,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-// Haal volgend projectnummer op
+// Volgend projectnummer
 async function getNextProjectnummer() {
   const { data } = await supabase
     .from("calculaties")
@@ -24,7 +24,7 @@ async function getNextProjectnummer() {
 export default function NieuweCalculatie() {
   const router = useRouter()
 
-  /* LINKER KOLOM – PROJECT */
+  // PROJECT (links)
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
   const [adres, setAdres] = useState("")
@@ -35,7 +35,7 @@ export default function NieuweCalculatie() {
   const [projectType, setProjectType] = useState("Nieuwbouw")
   const [opmerking, setOpmerking] = useState("")
 
-  /* RECHTER KOLOM – FACTURATIE */
+  // FACTURATIE (rechts)
   const [bedrijfNaam, setBedrijfNaam] = useState("")
   const [postbus, setPostbus] = useState("")
   const [adresFacturatie, setAdresFacturatie] = useState("")
@@ -52,7 +52,7 @@ export default function NieuweCalculatie() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  /* Kopieer projectadres → facturatieadres */
+  // Kopieer projectadres → facturatieadres
   useEffect(() => {
     if (facturatieGegevens) {
       setAdresFacturatie(adres)
@@ -62,13 +62,13 @@ export default function NieuweCalculatie() {
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
-  /* STARTKNOP – ALLEEN MODAL */
+  // Startknop → altijd opt-form
   const handleStartClick = () => {
     setError(null)
     setShowOptions(true)
   }
 
-  /* BEVESTIG OPT-FORM → AANMAKEN */
+  // Bevestigen opt-form → calculatie aanmaken
   const handleConfirmOptions = async (options) => {
     setLoading(true)
     setError(null)
@@ -84,6 +84,7 @@ export default function NieuweCalculatie() {
         .from("calculaties")
         .insert({
           projectnummer,
+
           naam_opdrachtgever: naamOpdrachtgever,
           omschrijving,
           adres,
@@ -93,6 +94,7 @@ export default function NieuweCalculatie() {
           telefoon,
           project_type: projectType,
           opmerking,
+
           bedrijf_naam: bedrijfNaam,
           postbus,
           adres_facturatie: adresFacturatie,
@@ -103,8 +105,10 @@ export default function NieuweCalculatie() {
           telefoon_kantoor: telefoonKantoor,
           naam_projectleider: naamProjectleider,
           telefoon_projectleider: telefoonProjectleider,
+
           facturatie_gegevens: facturatieGegevens,
           opties: options,
+
           status: "nieuw",
           workflow_status: "open"
         })
@@ -134,9 +138,38 @@ export default function NieuweCalculatie() {
       <h1>Nieuwe Calculatie</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <button type="button" onClick={handleStartClick}>
-        Start calculatie
-      </button>
+      <form onSubmit={(e) => e.preventDefault()}>
+        <label>
+          <input
+            type="checkbox"
+            checked={facturatieGegevens}
+            onChange={(e) => setFacturatieGegevens(e.target.checked)}
+          />
+          Facturatiegegevens kopiëren
+        </label>
+
+        <div className="sb-form-two-col">
+          <div>
+            <input placeholder="Naam opdrachtgever" value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
+            <input placeholder="Omschrijving" value={omschrijving} onChange={e => setOmschrijving(e.target.value)} />
+            <input placeholder="Adres" value={adres} onChange={e => setAdres(e.target.value)} />
+            <input placeholder="Postcode" value={postcode} onChange={e => setPostcode(e.target.value)} />
+            <input placeholder="Plaatsnaam" value={plaatsnaam} onChange={e => setPlaatsnaam(e.target.value)} />
+            <input placeholder="Telefoon" value={telefoon} onChange={e => setTelefoon(e.target.value)} />
+          </div>
+
+          <div>
+            <input placeholder="Bedrijfsnaam" value={bedrijfNaam} onChange={e => setBedrijfNaam(e.target.value)} />
+            <input placeholder="Adres facturatie" value={adresFacturatie} onChange={e => setAdresFacturatie(e.target.value)} />
+            <input placeholder="Email facturen" value={emailFacturen} onChange={e => setEmailFacturen(e.target.value)} />
+            <input placeholder="Projectleider" value={naamProjectleider} onChange={e => setNaamProjectleider(e.target.value)} />
+          </div>
+        </div>
+
+        <button type="button" onClick={handleStartClick} disabled={loading}>
+          Start calculatie
+        </button>
+      </form>
 
       {showOptions && (
         <ProjectInitOptionsModal
