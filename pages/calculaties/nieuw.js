@@ -152,6 +152,17 @@ export default function NieuweCalculatie() {
             <Field label="Opmerking">
               <input style={inputStyle} value={opmerking} onChange={e => setOpmerking(e.target.value)} />
             </Field>
+
+            {/* STARTKNOP DIRECT ONDER OPMERKING */}
+            <Field label=" ">
+              <button
+                type="button"
+                onClick={() => setShowOptions(true)}
+                style={buttonStyle}
+              >
+                Start calculatie
+              </button>
+            </Field>
           </div>
 
           {/* RECHTER KOLOM */}
@@ -194,32 +205,13 @@ export default function NieuweCalculatie() {
               <input style={inputStyle} value={telefoonKantoor} onChange={e => setTelefoonKantoor(e.target.value)} />
             </Field>
 
-            {/* GEKOPPELDE LAATSTE RIJ */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 40
-              }}
-            >
-              <Field label=" ">
-                <button
-                  type="button"
-                  onClick={() => setShowOptions(true)}
-                  style={buttonStyle}
-                >
-                  Start calculatie
-                </button>
-              </Field>
+            <Field label="Projectleider">
+              <input style={inputStyle} value={naamProjectleider} onChange={e => setNaamProjectleider(e.target.value)} />
+            </Field>
 
-              <Field label="Tel. projectleider">
-                <input
-                  style={inputStyle}
-                  value={telefoonProjectleider}
-                  onChange={e => setTelefoonProjectleider(e.target.value)}
-                />
-              </Field>
-            </div>
+            <Field label="Tel. projectleider">
+              <input style={inputStyle} value={telefoonProjectleider} onChange={e => setTelefoonProjectleider(e.target.value)} />
+            </Field>
           </div>
         </div>
       </form>
