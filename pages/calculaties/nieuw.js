@@ -62,54 +62,57 @@ export default function NieuweCalculatie() {
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
-  /* STARTKNOP */
+  /* STARTKNOP – ALTIJD OPT-FORM */
   const handleStartClick = () => {
-    if (!naamOpdrachtgever.trim()) {
-      setError("Naam opdrachtgever is verplicht")
-      return
-    }
     setError(null)
     setShowOptions(true)
   }
 
-  /* BEVESTIG OPT-FORM → PROJECT AANMAKEN + INITIALISEREN */
+  /* BEVESTIG OPT-FORM → AANMAKEN */
   const handleConfirmOptions = async (options) => {
     setLoading(true)
+    setError(null)
 
     try {
+      if (!naamOpdrachtgever.trim()) {
+        throw new Error("Naam opdrachtgever is verplicht")
+      }
+
       const projectnummer = await getNextProjectnummer()
 
       const { data, error } = await supabase
         .from("calculaties")
-        .insert([
-          {
-            projectnummer,
-            naam_opdrachtgever: naamOpdrachtgever,
-            omschrijving,
-            adres,
-            postcode,
-            plaatsnaam,
-            land,
-            telefoon,
-            project_type: projectType,
-            opmerking,
+        .insert({
+          projectnummer,
 
-            bedrijf_naam: bedrijfNaam,
-            postbus,
-            adres_facturatie: adresFacturatie,
-            postcode_facturatie: postcodeFacturatie,
-            plaatsnaam_facturatie: plaatsnaamFacturatie,
-            land_facturatie: landFacturatie,
-            email_facturen: emailFacturen,
-            telefoon_kantoor: telefoonKantoor,
-            naam_projectleider: naamProjectleider,
-            telefoon_projectleider: telefoonProjectleider,
+          naam_opdrachtgever: naamOpdrachtgever,
+          omschrijving,
+          adres,
+          postcode,
+          plaatsnaam,
+          land,
+          telefoon,
+          project_type: projectType,
+          opmerking,
 
-            facturatie_gegevens: facturatieGegevens,
-            status: "initializing"
-          }
-        ])
-        .select()
+          bedrijf_naam: bedrijfNaam,
+          postbus,
+          adres_facturatie: adresFacturatie,
+          postcode_facturatie: postcodeFacturatie,
+          plaatsnaam_facturatie: plaatsnaamFacturatie,
+          land_facturatie: landFacturatie,
+          email_facturen: emailFacturen,
+          telefoon_kantoor: telefoonKantoor,
+          naam_projectleider: naamProjectleider,
+          telefoon_projectleider: telefoonProjectleider,
+
+          facturatie_gegevens: facturatieGegevens,
+          opties: options,
+
+          status: "nieuw",
+          workflow_status: "open"
+        })
+        .select("id")
         .single()
 
       if (error) throw error
@@ -123,7 +126,7 @@ export default function NieuweCalculatie() {
         })
       })
 
-      router.push(`/calculaties/${data.id}/initialisatie`)
+      router.push(`/calculaties/${data.id}`)
     } catch (err) {
       setError(err.message)
       setLoading(false)
@@ -150,7 +153,6 @@ export default function NieuweCalculatie() {
 
         <div className="sb-form-two-col">
 
-          {/* LINKER KOLOM */}
           <div className="sb-form-col left">
             <div className="sb-form-field">
               <label>Naam opdrachtgever</label>
@@ -208,12 +210,11 @@ export default function NieuweCalculatie() {
 
             <div className="sb-form-actions">
               <button type="button" onClick={handleStartClick} disabled={loading}>
-                {loading ? "Verwerken..." : "Start calculatie"}
+                Start calculatie
               </button>
             </div>
           </div>
 
-          {/* RECHTER KOLOM */}
           <div className="sb-form-col right">
             <div className="sb-form-field">
               <label>Bedrijfsnaam</label>
