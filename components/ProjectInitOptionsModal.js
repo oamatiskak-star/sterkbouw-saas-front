@@ -25,6 +25,8 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
     risk_report: true
   })
 
+  const [filesUploaded, setFilesUploaded] = useState(false)
+
   const toggle = key =>
     setOptions(prev => ({ ...prev, [key]: !prev[key] }))
 
@@ -42,6 +44,35 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
     </div>
   )
 
+  /* === BUTTON STYLES === */
+  const baseButton = {
+    height: 44,
+    minWidth: 180,
+    padding: "0 16px",
+    fontSize: 14,
+    borderRadius: 6,
+    cursor: "pointer"
+  }
+
+  const primaryButton = {
+    ...baseButton,
+    background: "#2563eb",
+    color: "#fff",
+    border: "1px solid #2563eb"
+  }
+
+  const cancelButton = {
+    ...baseButton,
+    background: "#fff",
+    color: "#111",
+    border: "1px solid #d1d5db"
+  }
+
+  const handleFileUpload = () => {
+    // placeholder – hier komt later Supabase upload
+    setFilesUploaded(true)
+  }
+
   return (
     <div
       style={{
@@ -56,7 +87,7 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
     >
       <div
         style={{
-          width: 640,
+          width: 720,
           background: "#fff",
           borderRadius: 8,
           padding: 24
@@ -100,16 +131,39 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
           <Row checked={options.risk_report} onChange={() => toggle("risk_report")} label="Risico’s" />
         </Section>
 
+        {/* === ACTIEKNOPPEN === */}
         <div
           style={{
             display: "flex",
             justifyContent: "flex-end",
             gap: 12,
-            marginTop: 24
+            marginTop: 32
           }}
         >
-          <button onClick={onCancel}>Annuleren</button>
-          <button onClick={() => onConfirm(options)}>Start</button>
+          <button
+            type="button"
+            style={primaryButton}
+            onClick={handleFileUpload}
+          >
+            Importeer bestanden
+          </button>
+
+          <button
+            type="button"
+            style={cancelButton}
+            onClick={onCancel}
+          >
+            Annuleren
+          </button>
+
+          <button
+            type="button"
+            style={primaryButton}
+            disabled={!filesUploaded}
+            onClick={() => onConfirm(options)}
+          >
+            Start
+          </button>
         </div>
       </div>
     </div>
