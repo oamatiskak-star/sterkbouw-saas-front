@@ -20,6 +20,8 @@ export default function CalculatieDetail() {
   useEffect(() => {
     if (!id) return
 
+    let cancelled = false
+
     async function load() {
       setLoading(true)
 
@@ -28,6 +30,19 @@ export default function CalculatieDetail() {
         .select("*")
         .eq("id", id)
         .single()
+
+      if (cError || !c) {
+        console.error("Fout bij laden calculatie", cError)
+        setLoading(false)
+        return
+      }
+
+      // 🔒 HARD GUARD
+      // Nieuwe calculatie mag NOOIT direct detail tonen
+      if (c.status === "nieuw") {
+        router.replace(`/calculaties/${id}/initialisatie`)
+        return
+      }
 
       const { data: r, error: rError } = await supabase
         .from("calculatie_regels")
@@ -47,10 +62,11 @@ export default function CalculatieDetail() {
         .eq("calculatie_id", id)
         .order("changed_at", { ascending: false })
 
-      // Error handling
-      if (cError || rError || oError || wError) {
-        console.error("Error loading data", cError, rError, oError, wError)
+      if (rError || oError || wError) {
+        console.error("Fout bij laden detaildata", rError, oError, wError)
       }
+
+      if (cancelled) return
 
       setCalculatie(c)
       setRegels(r || [])
@@ -60,9 +76,15 @@ export default function CalculatieDetail() {
     }
 
     load()
-  }, [id])
 
-  if (loading || !calculatie) return <div>Loading...</div>
+    return () => {
+      cancelled = true
+    }
+  }, [id, router])
+
+  if (loading || !calculatie) {
+    return <div>Loading...</div>
+  }
 
   async function updateRegel(regelId, field, value) {
     await supabase
@@ -91,13 +113,13 @@ export default function CalculatieDetail() {
 
   return (
     <>
-      <h1>{calculatie.naam}</h1>
+      <h1>{calculatie.naam_opdrachtgever || "Calculatie"}</h1>
 
       <section style={{ marginBottom: 32 }}>
         <p>Status: <strong>{calculatie.workflow_status}</strong></p>
-        <p>Kostprijs: € {Number(calculatie.kostprijs).toFixed(2)}</p>
-        <p>Verkoopprijs: € {Number(calculatie.verkoopprijs).toFixed(2)}</p>
-        <p>Marge: € {Number(calculatie.marge).toFixed(2)}</p>
+        <p>Kostprijs: € {Number(calculatie.kostprijs || 0).toFixed(2)}</p>
+        <p>Verkoopprijs: € {Number(calculatie.verkoopprijs || 0).toFixed(2)}</p>
+        <p>Marge: € {Number(calculatie.marge || 0).toFixed(2)}</p>
       </section>
 
       <section style={{ marginBottom: 32 }}>
@@ -148,7 +170,7 @@ export default function CalculatieDetail() {
                       style={{ width: 100 }}
                     />
                   </td>
-                  <td>€ {Number(r.totaal).toFixed(2)}</td>
+                  <td>€ {Number(r.totaal || 0).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
