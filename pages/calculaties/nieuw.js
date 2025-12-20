@@ -1,3 +1,5 @@
+throw new Error("IK BEN HIER – NIEUWE CALCULATIE PAGE")
+
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
