@@ -26,8 +26,8 @@ export default function AppLayout({ session, children }) {
     router.pathname.startsWith("/bouwflow")
 
   const Content = (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
-      <aside style={{ width: 260, background: "#111827", color: "#fff" }}>
+    <div className="sb-app">
+      <aside className="sb-sidebar">
         <div style={{ padding: 20, fontWeight: 700 }}>
           Admin Main
         </div>
@@ -53,7 +53,7 @@ export default function AppLayout({ session, children }) {
                   </div>
                 </Link>
 
-                {isActive && menu.children && menu.children.length > 0 && (
+                {isActive && menu.children?.length > 0 && (
                   <div style={{ paddingLeft: 12 }}>
                     {menu.children.map(child => {
                       const childActive = router.pathname === child.route
@@ -81,7 +81,8 @@ export default function AppLayout({ session, children }) {
         </nav>
       </aside>
 
-      <main style={{ flex: 1, padding: 24 }}>
+      {/* HIER ZIT DE FIX */}
+      <main className="sb-main">
         {children}
       </main>
     </div>
