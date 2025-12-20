@@ -24,6 +24,11 @@ async function getNextProjectnummer() {
 export default function NieuweCalculatie() {
   const router = useRouter()
 
+  // 🔴 DEBUG – BEWIJS DAT DEZE PAGINA ECHT RENDERT
+  useEffect(() => {
+    throw new Error("IK BEN HIER – NIEUWE CALCULATIE PAGE")
+  }, [])
+
   /* LINKER KOLOM – PROJECT */
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
@@ -62,7 +67,7 @@ export default function NieuweCalculatie() {
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
-  /* STARTKNOP – ALTIJD OPT-FORM */
+  /* STARTKNOP – ALLEEN MODAL */
   const handleStartClick = () => {
     setError(null)
     setShowOptions(true)
@@ -84,7 +89,6 @@ export default function NieuweCalculatie() {
         .from("calculaties")
         .insert({
           projectnummer,
-
           naam_opdrachtgever: naamOpdrachtgever,
           omschrijving,
           adres,
@@ -94,7 +98,6 @@ export default function NieuweCalculatie() {
           telefoon,
           project_type: projectType,
           opmerking,
-
           bedrijf_naam: bedrijfNaam,
           postbus,
           adres_facturatie: adresFacturatie,
@@ -105,10 +108,8 @@ export default function NieuweCalculatie() {
           telefoon_kantoor: telefoonKantoor,
           naam_projectleider: naamProjectleider,
           telefoon_projectleider: telefoonProjectleider,
-
           facturatie_gegevens: facturatieGegevens,
           opties: options,
-
           status: "nieuw",
           workflow_status: "open"
         })
@@ -138,140 +139,9 @@ export default function NieuweCalculatie() {
       <h1>Nieuwe Calculatie</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <form onSubmit={(e) => e.preventDefault()}>
-
-        <div className="sb-form-field full" style={{ marginBottom: 32 }}>
-          <label className="sb-checkbox">
-            <input
-              type="checkbox"
-              checked={facturatieGegevens}
-              onChange={(e) => setFacturatieGegevens(e.target.checked)}
-            />
-            Facturatiegegevens kopiëren
-          </label>
-        </div>
-
-        <div className="sb-form-two-col">
-
-          <div className="sb-form-col left">
-            <div className="sb-form-field">
-              <label>Naam opdrachtgever</label>
-              <input value={naamOpdrachtgever} onChange={(e) => setNaamOpdrachtgever(e.target.value)} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Omschrijving</label>
-              <input value={omschrijving} onChange={(e) => setOmschrijving(e.target.value)} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Adres</label>
-              <input value={adres} onChange={(e) => setAdres(e.target.value)} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Postcode</label>
-              <input value={postcode} onChange={(e) => setPostcode(e.target.value)} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Plaatsnaam</label>
-              <input value={plaatsnaam} onChange={(e) => setPlaatsnaam(e.target.value)} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Land</label>
-              <select value={land} onChange={(e) => setLand(e.target.value)}>
-                <option>Nederland</option>
-                <option>België</option>
-                <option>Duitsland</option>
-              </select>
-            </div>
-
-            <div className="sb-form-field">
-              <label>Telefoon</label>
-              <input value={telefoon} onChange={(e) => setTelefoon(e.target.value)} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Projecttype</label>
-              <select value={projectType} onChange={(e) => setProjectType(e.target.value)}>
-                <option>Nieuwbouw</option>
-                <option>Utiliteitsbouw</option>
-                <option>Transformatie</option>
-                <option>Renovatie</option>
-              </select>
-            </div>
-
-            <div className="sb-form-field">
-              <label>Opmerking</label>
-              <input value={opmerking} onChange={(e) => setOpmerking(e.target.value)} />
-            </div>
-
-            <div className="sb-form-actions">
-              <button type="button" onClick={handleStartClick} disabled={loading}>
-                Start calculatie
-              </button>
-            </div>
-          </div>
-
-          <div className="sb-form-col right">
-            <div className="sb-form-field">
-              <label>Bedrijfsnaam</label>
-              <input value={bedrijfNaam} onChange={(e) => setBedrijfNaam(e.target.value)} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Postbus</label>
-              <input value={postbus} onChange={(e) => setPostbus(e.target.value)} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Adres</label>
-              <input value={adresFacturatie} onChange={(e) => setAdresFacturatie(e.target.value)} readOnly={facturatieGegevens} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Postcode</label>
-              <input value={postcodeFacturatie} onChange={(e) => setPostcodeFacturatie(e.target.value)} readOnly={facturatieGegevens} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Plaatsnaam</label>
-              <input value={plaatsnaamFacturatie} onChange={(e) => setPlaatsnaamFacturatie(e.target.value)} readOnly={facturatieGegevens} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Land</label>
-              <select value={landFacturatie} onChange={(e) => setLandFacturatie(e.target.value)} disabled={facturatieGegevens}>
-                <option>Nederland</option>
-                <option>België</option>
-                <option>Duitsland</option>
-              </select>
-            </div>
-
-            <div className="sb-form-field">
-              <label>Email facturen</label>
-              <input value={emailFacturen} onChange={(e) => setEmailFacturen(e.target.value)} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Telefoon kantoor</label>
-              <input value={telefoonKantoor} onChange={(e) => setTelefoonKantoor(e.target.value)} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Projectleider</label>
-              <input value={naamProjectleider} onChange={(e) => setNaamProjectleider(e.target.value)} />
-            </div>
-
-            <div className="sb-form-field">
-              <label>Tel. projectleider</label>
-              <input value={telefoonProjectleider} onChange={(e) => setTelefoonProjectleider(e.target.value)} />
-            </div>
-          </div>
-        </div>
-      </form>
+      <button type="button" onClick={handleStartClick}>
+        Start calculatie
+      </button>
 
       {showOptions && (
         <ProjectInitOptionsModal
