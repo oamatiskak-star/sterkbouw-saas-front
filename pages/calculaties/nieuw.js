@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
-import ProjectInitOptionsModal from "../components/ProjectInitOptionsModal"
+import ProjectInitOptionsModal from "../../components/ProjectInitOptionsModal"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
