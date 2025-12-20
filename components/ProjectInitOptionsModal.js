@@ -6,32 +6,26 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
+export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel }) {
   const fileInputRef = useRef(null)
 
-  const [filesUploaded, setFilesUploaded] = useState(false)
-  const [uploadedFiles, setUploadedFiles] = useState([])
+  const [uploadCount, setUploadCount] = useState(0)
   const [uploading, setUploading] = useState(false)
 
   const [options, setOptions] = useState({
     documents: true,
     rename_files: true,
     classify_documents: true,
-
     foundation_check: true,
     nen_meting: true,
     bag_bro_check: true,
     scope_reconstruction: true,
-
     stabu_structure: true,
     default_posts: true,
     quantity_derivation: true,
-
     installations_e: true,
     installations_w: true,
-
     planning: true,
-
     report_pdf: true,
     assumptions_report: true,
     risk_report: true
@@ -40,85 +34,40 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
   const toggle = key =>
     setOptions(prev => ({ ...prev, [key]: !prev[key] }))
 
-  /* =========================
-     STYLING
-  ========================= */
-
-  const baseButton = {
-    height: 44,
-    minWidth: 180,
-    padding: "0 16px",
-    fontSize: 14,
-    borderRadius: 6,
-    cursor: "pointer"
-  }
-
-  const primaryButton = {
-    ...baseButton,
-    background: "#2563eb",
-    color: "#fff",
-    border: "1px solid #2563eb"
-  }
-
-  const cancelButton = {
-    ...baseButton,
-    background: "#fff",
-    color: "#111",
-    border: "1px solid #d1d5db"
-  }
-
-  /* =========================
-     UPLOAD LOGIC
-  ========================= */
-
-  const openFilePicker = () => {
-    fileInputRef.current.click()
-  }
-
-  const handleFileUpload = async e => {
+  async function handleFilesSelected(e) {
     const files = Array.from(e.target.files)
     if (files.length === 0) return
 
     setUploading(true)
 
-    const uploaded = []
-
     for (const file of files) {
-      const path = `uploads/${Date.now()}-${file.name}`
+      const path = `${projectId}/${Date.now()}_${file.name}`
 
-      const { error } = await supabase.storage
-        .from("project_uploads")
-        .upload(path, file)
+      await supabase.storage
+        .from("project-files")
+        .upload(path, file, { upsert: false })
 
-      if (!error) {
-        uploaded.push({
-          name: file.name,
-          path
-        })
-      }
+      await supabase.from("project_files").insert({
+        project_id: projectId,
+        filename: file.name,
+        storage_path: path
+      })
     }
 
-    setUploadedFiles(uploaded)
-    setFilesUploaded(uploaded.length > 0)
+    setUploadCount(prev => prev + files.length)
     setUploading(false)
   }
 
-  /* =========================
-     CONFIRM → START REKENWOLK
-  ========================= */
-
-  const handleStart = () => {
-    if (!filesUploaded) return
-
-    onConfirm({
-      options,
-      files: uploadedFiles
-    })
+  function handleImportClick() {
+    fileInputRef.current?.click()
   }
 
-  /* =========================
-     UI HELPERS
-  ========================= */
+  function handleStart() {
+    onConfirm({
+      options,
+      uploaded_files: uploadCount
+    })
+  }
 
   const Row = ({ checked, onChange, label }) => (
     <label style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
@@ -133,10 +82,6 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
       {children}
     </div>
   )
-
-  /* =========================
-     RENDER
-  ========================= */
 
   return (
     <div
@@ -161,14 +106,6 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
         <h2 style={{ marginTop: 0, marginBottom: 20 }}>
           Project initialisatie
         </h2>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          style={{ display: "none" }}
-          onChange={handleFileUpload}
-        />
 
         <Section title="Document & structuur">
           <Row checked={options.documents} onChange={() => toggle("documents")} label="Document scan" />
@@ -204,44 +141,57 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
           <Row checked={options.risk_report} onChange={() => toggle("risk_report")} label="Risico’s" />
         </Section>
 
-        {/* STATUS */}
-        {uploading && <p>Bestanden uploaden…</p>}
-        {filesUploaded && <p>{uploadedFiles.length} bestanden geüpload</p>}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          hidden
+          onChange={handleFilesSelected}
+        />
 
-        {/* ACTIES */}
         <div
           style={{
             display: "flex",
-            justifyContent: "flex-end",
-            gap: 12,
-            marginTop: 32
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: 24
           }}
         >
-          <button
-            type="button"
-            style={primaryButton}
-            onClick={openFilePicker}
-            disabled={uploading}
-          >
-            Importeer bestanden
-          </button>
+          <div style={{ fontSize: 14 }}>
+            {uploading && "Uploaden..."}
+            {!uploading && uploadCount > 0 && `${uploadCount} bestanden geüpload`}
+            {!uploading && uploadCount === 0 && "Nog geen bestanden geüpload"}
+          </div>
 
-          <button
-            type="button"
-            style={cancelButton}
-            onClick={onCancel}
-          >
-            Annuleren
-          </button>
+          <div style={{ display: "flex", gap: 12 }}>
+            <button
+              style={{ padding: "12px 20px", background: "#2563eb", color: "#fff", borderRadius: 6 }}
+              onClick={handleImportClick}
+            >
+              Importeer bestanden
+            </button>
 
-          <button
-            type="button"
-            style={primaryButton}
-            disabled={!filesUploaded}
-            onClick={handleStart}
-          >
-            Start
-          </button>
+            <button
+              style={{ padding: "12px 20px" }}
+              onClick={onCancel}
+            >
+              Annuleren
+            </button>
+
+            <button
+              disabled={uploadCount === 0}
+              style={{
+                padding: "12px 20px",
+                background: uploadCount === 0 ? "#9ca3af" : "#2563eb",
+                color: "#fff",
+                borderRadius: 6,
+                cursor: uploadCount === 0 ? "not-allowed" : "pointer"
+              }}
+              onClick={handleStart}
+            >
+              Start
+            </button>
+          </div>
         </div>
       </div>
     </div>
