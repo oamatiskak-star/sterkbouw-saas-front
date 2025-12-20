@@ -101,7 +101,7 @@ export default function NieuweCalculatie() {
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
             gap: 40,
-            maxWidth: 1200
+            maxWidth: 1800
           }}
         >
           {/* LINKER KOLOM */}
