@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
+import ProjectInitOptionsModal from "../components/ProjectInitOptionsModal"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -9,14 +10,13 @@ const supabase = createClient(
 
 // Haal volgend projectnummer op
 async function getNextProjectnummer() {
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("calculaties")
     .select("projectnummer")
     .order("projectnummer", { ascending: false })
     .limit(1)
 
-  if (error || !data || data.length === 0) return 1001
-
+  if (!data || data.length === 0) return 1001
   const last = parseInt(data[0].projectnummer, 10)
   return isNaN(last) ? 1001 : last + 1
 }
@@ -24,7 +24,7 @@ async function getNextProjectnummer() {
 export default function NieuweCalculatie() {
   const router = useRouter()
 
-  // LINKER KOLOM – PROJECTADRES
+  /* LINKER KOLOM – PROJECT */
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
   const [adres, setAdres] = useState("")
@@ -35,7 +35,7 @@ export default function NieuweCalculatie() {
   const [projectType, setProjectType] = useState("Nieuwbouw")
   const [opmerking, setOpmerking] = useState("")
 
-  // RECHTER KOLOM – FACTURATIEADRES
+  /* RECHTER KOLOM – FACTURATIE */
   const [bedrijfNaam, setBedrijfNaam] = useState("")
   const [postbus, setPostbus] = useState("")
   const [adresFacturatie, setAdresFacturatie] = useState("")
@@ -48,10 +48,11 @@ export default function NieuweCalculatie() {
   const [telefoonProjectleider, setTelefoonProjectleider] = useState("")
 
   const [facturatieGegevens, setFacturatieGegevens] = useState(false)
+  const [showOptions, setShowOptions] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // Kopieer projectadres → facturatieadres
+  /* Kopieer projectadres → facturatieadres */
   useEffect(() => {
     if (facturatieGegevens) {
       setAdresFacturatie(adres)
@@ -61,10 +62,19 @@ export default function NieuweCalculatie() {
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
+  /* STARTKNOP */
+  const handleStartClick = () => {
+    if (!naamOpdrachtgever.trim()) {
+      setError("Naam opdrachtgever is verplicht")
+      return
+    }
     setError(null)
+    setShowOptions(true)
+  }
+
+  /* BEVESTIG OPT-FORM → PROJECT AANMAKEN + INITIALISEREN */
+  const handleConfirmOptions = async (options) => {
+    setLoading(true)
 
     try {
       const projectnummer = await getNextProjectnummer()
@@ -95,7 +105,8 @@ export default function NieuweCalculatie() {
             naam_projectleider: naamProjectleider,
             telefoon_projectleider: telefoonProjectleider,
 
-            facturatie_gegevens: facturatieGegevens
+            facturatie_gegevens: facturatieGegevens,
+            status: "initializing"
           }
         ])
         .select()
@@ -103,10 +114,18 @@ export default function NieuweCalculatie() {
 
       if (error) throw error
 
-      router.push(`/calculaties/${data.id}`)
+      await fetch("/api/initialize-project", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: data.id,
+          options
+        })
+      })
+
+      router.push(`/calculaties/${data.id}/initialisatie`)
     } catch (err) {
       setError(err.message)
-    } finally {
       setLoading(false)
     }
   }
@@ -116,7 +135,8 @@ export default function NieuweCalculatie() {
       <h1>Nieuwe Calculatie</h1>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => e.preventDefault()}>
+
         <div className="sb-form-field full" style={{ marginBottom: 32 }}>
           <label className="sb-checkbox">
             <input
@@ -171,7 +191,6 @@ export default function NieuweCalculatie() {
               <input value={telefoon} onChange={(e) => setTelefoon(e.target.value)} />
             </div>
 
-            {/* ✅ HIER: PROJECTTYPE TUSSEN TELEFOON EN OPMERKING */}
             <div className="sb-form-field">
               <label>Projecttype</label>
               <select value={projectType} onChange={(e) => setProjectType(e.target.value)}>
@@ -188,7 +207,7 @@ export default function NieuweCalculatie() {
             </div>
 
             <div className="sb-form-actions">
-              <button type="submit" disabled={loading}>
+              <button type="button" onClick={handleStartClick} disabled={loading}>
                 {loading ? "Verwerken..." : "Start calculatie"}
               </button>
             </div>
@@ -250,9 +269,15 @@ export default function NieuweCalculatie() {
               <input value={telefoonProjectleider} onChange={(e) => setTelefoonProjectleider(e.target.value)} />
             </div>
           </div>
-
         </div>
       </form>
+
+      {showOptions && (
+        <ProjectInitOptionsModal
+          onConfirm={handleConfirmOptions}
+          onCancel={() => setShowOptions(false)}
+        />
+      )}
     </>
   )
 }
