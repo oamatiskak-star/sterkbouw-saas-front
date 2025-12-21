@@ -22,17 +22,49 @@ export default function InitialisatieStatus() {
   const router = useRouter()
   const { id } = router.query
 
+  const [projectId, setProjectId] = useState(null)
   const [logs, setLogs] = useState([])
   const [completed, setCompleted] = useState(false)
   const [creating, setCreating] = useState(false)
 
+  /*
+  ====================================
+  PROJECT_ID OPHALEN VIA CALCULATIE
+  ====================================
+  */
+  useEffect(() => {
+    if (!id) return
+
+    const loadProjectId = async () => {
+      const { data, error } = await supabase
+        .from("calculaties")
+        .select("project_id")
+        .eq("id", id)
+        .single()
+
+      if (error || !data?.project_id) {
+        console.error("PROJECT_ID_NOT_FOUND", error)
+        return
+      }
+
+      setProjectId(data.project_id)
+    }
+
+    loadProjectId()
+  }, [id])
+
+  /*
+  ====================================
+  INITIALISATIE STARTEN (1x)
+  ====================================
+  */
   async function startInitialisatie() {
-    if (!id || creating) return
+    if (!projectId || creating) return
     setCreating(true)
 
     try {
       await supabase.from("executor_tasks").insert({
-        project_id: id,
+        project_id: projectId,
         action: "PROJECT_SCAN",
         status: "open",
         assigned_to: "executor",
@@ -46,17 +78,21 @@ export default function InitialisatieStatus() {
 
   useEffect(() => {
     startInitialisatie()
-  }, [id])
+  }, [projectId])
 
+  /*
+  ====================================
+  LOGS POLLEN + REDIRECT
+  ====================================
+  */
   useEffect(() => {
-    if (!id) return
+    if (!projectId) return
 
     const load = async () => {
       const { data } = await supabase
         .from("project_initialization_log")
-        .select("module, status, created_at")
-        .eq("project_id", id)
-        .order("created_at", { ascending: true })
+        .select("module, status, started_at")
+        .eq("project_id", projectId)
 
       const rows = data || []
       setLogs(rows)
@@ -65,11 +101,8 @@ export default function InitialisatieStatus() {
         rows.filter(r => r.status === "done").map(r => r.module)
       )
 
-      // 🔴 HIER ZIT DE ESSENTIËLE FIX
-      if (doneSet.size === STATUS_ORDER.length) {
+      if (STATUS_ORDER.every(m => doneSet.has(m))) {
         setCompleted(true)
-
-        // automatisch door naar uitkomsten
         router.replace(`/calculaties/${id}`)
       }
     }
@@ -77,7 +110,7 @@ export default function InitialisatieStatus() {
     load()
     const interval = setInterval(load, 2000)
     return () => clearInterval(interval)
-  }, [id])
+  }, [projectId, id])
 
   const doneCount = new Set(
     logs.filter(l => l.status === "done").map(l => l.module)
@@ -131,13 +164,12 @@ export default function InitialisatieStatus() {
 
         {logs.map((log, i) => (
           <div key={i} style={{ marginBottom: 6 }}>
-            [{new Date(log.created_at).toLocaleTimeString()}]{" "}
             {log.module} → <strong>{log.status}</strong>
           </div>
         ))}
       </div>
 
-      {/* fallback knop, wordt normaal niet meer bereikt */}
+      {/* fallback, normaal niet zichtbaar */}
       {completed && (
         <div style={{ marginTop: 32 }}>
           <button
