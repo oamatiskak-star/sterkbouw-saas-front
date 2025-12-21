@@ -39,7 +39,7 @@ function Field({ label, children }) {
 export default function NieuweCalculatie() {
   const router = useRouter()
 
-  // PROJECTGEGEVENS
+  // PROJECT
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
   const [adres, setAdres] = useState("")
@@ -62,11 +62,11 @@ export default function NieuweCalculatie() {
   const [naamProjectleider, setNaamProjectleider] = useState("")
   const [telefoonProjectleider, setTelefoonProjectleider] = useState("")
 
-  // FLOW STATE
+  // FLOW
   const [facturatieGegevens, setFacturatieGegevens] = useState(false)
-  const [showOptions, setShowOptions] = useState(false)
   const [creating, setCreating] = useState(false)
   const [projectId, setProjectId] = useState(null)
+  const [showOptions, setShowOptions] = useState(false)
 
   useEffect(() => {
     if (facturatieGegevens) {
@@ -77,8 +77,11 @@ export default function NieuweCalculatie() {
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
-  // === STAP 1: PROJECT ID AANMAKEN ===
+  // ==========================
+  // 1. MAAK PROJECT ID
+  // ==========================
   async function handleCreateProjectId() {
+    if (creating) return
     if (projectId) {
       setShowOptions(true)
       return
@@ -110,7 +113,9 @@ export default function NieuweCalculatie() {
     setShowOptions(true)
   }
 
-  // === STAP 2: NA OPT FORM → CALCULATIE + WORKFLOW ===
+  // ==========================
+  // 2. NA OPT FORM → START FLOW
+  // ==========================
   async function handleConfirmOptions({ options, uploaded_files }) {
     if (!projectId) {
       alert("Project ID ontbreekt")
@@ -165,6 +170,20 @@ export default function NieuweCalculatie() {
   return (
     <>
       <h1>Nieuwe Calculatie</h1>
+
+      {projectId && (
+        <div
+          style={{
+            marginBottom: 16,
+            padding: 12,
+            background: "#eef2ff",
+            borderRadius: 6,
+            fontWeight: 600
+          }}
+        >
+          Project ID aangemaakt: {projectId}
+        </div>
+      )}
 
       <label style={{ display: "flex", gap: 8, marginBottom: 24 }}>
         <input
