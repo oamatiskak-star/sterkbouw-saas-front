@@ -40,7 +40,6 @@ function Field({ label, children }) {
 export default function NieuweCalculatie() {
   const router = useRouter()
 
-  // PROJECT
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
   const [adres, setAdres] = useState("")
@@ -51,7 +50,6 @@ export default function NieuweCalculatie() {
   const [projectType, setProjectType] = useState("Nieuwbouw")
   const [opmerking, setOpmerking] = useState("")
 
-  // FACTURATIE
   const [bedrijfNaam, setBedrijfNaam] = useState("")
   const [postbus, setPostbus] = useState("")
   const [adresFacturatie, setAdresFacturatie] = useState("")
@@ -115,12 +113,12 @@ export default function NieuweCalculatie() {
 
       const projectId = calculatie.id
 
-      const downloadPDF = async calculatieId => {
+      const downloadPDF = async id => {
         try {
-          const res = await fetch(`/api/pdf/calculatie/${calculatieId}`)
+          const res = await fetch(`/api/pdf/calculatie/${id}`)
           if (!res.ok) throw new Error("Fout bij genereren PDF")
           const blob = await res.blob()
-          saveAs(blob, `calculatie_${calculatieId}.pdf`)
+          saveAs(blob, `calculatie_${id}.pdf`)
         } catch (err) {
           console.error("Fout bij PDF-generatie:", err)
         }
@@ -149,14 +147,7 @@ export default function NieuweCalculatie() {
       </label>
 
       <form onSubmit={e => e.preventDefault()}>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1.4fr 1.4fr",
-            gap: 40,
-            maxWidth: 1800
-          }}
-        >
+        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1.4fr", gap: 40, maxWidth: 1800 }}>
           <div>
             <h3>Projectgegevens</h3>
 
@@ -206,11 +197,7 @@ export default function NieuweCalculatie() {
             </Field>
 
             <Field label=" ">
-              <button
-                type="button"
-                style={buttonStyle}
-                onClick={() => setShowOptions(true)}
-              >
+              <button type="button" style={buttonStyle} onClick={() => setShowOptions(true)}>
                 Start calculatie
               </button>
             </Field>
