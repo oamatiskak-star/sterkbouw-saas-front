@@ -7,25 +7,32 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-const STATUS_ORDER = [
-  "PROJECT_SCAN",
-  "REKENWOLK",
-  "STABU",
-  "HOEVEELHEDEN",
-  "INSTALLATIES_E",
-  "INSTALLATIES_W",
-  "PLANNING",
-  "RAPPORTAGE"
-]
-
 export default function InitialisatieStatus() {
   const router = useRouter()
-  const { id: projectId } = router.query
+  const { id } = router.query
 
+  const [projectId, setProjectId] = useState(null)
   const [logs, setLogs] = useState([])
-  const startedRef = useRef(false)
 
-  // 1. Start initialisatie exact één keer
+  const startedRef = useRef(false)
+  const redirectedRef = useRef(false)
+
+  // project_id ophalen via calculatie
+  useEffect(() => {
+    if (!id) return
+
+    supabase
+      .from("calculaties")
+      .select("project_id")
+      .eq("id", id)
+      .single()
+      .then(({ data, error }) => {
+        if (error || !data?.project_id) return
+        setProjectId(data.project_id)
+      })
+  }, [id])
+
+  // initialisatie 1× starten
   useEffect(() => {
     if (!projectId) return
     if (startedRef.current) return
@@ -41,7 +48,7 @@ export default function InitialisatieStatus() {
     })
   }, [projectId])
 
-  // 2. Poll logs + redirect
+  // logs pollen + DIRECT doorsturen zodra er iets klaar is
   useEffect(() => {
     if (!projectId) return
 
@@ -54,45 +61,23 @@ export default function InitialisatieStatus() {
       const rows = data || []
       setLogs(rows)
 
-      const doneSet = new Set(
-        rows.filter(r => r.status === "done").map(r => r.module)
-      )
+      const hasAnyDone = rows.some(r => r.status === "done")
 
-      if (STATUS_ORDER.every(m => doneSet.has(m))) {
-        router.replace(`/calculaties/${projectId}`)
+      if (hasAnyDone && !redirectedRef.current) {
+        redirectedRef.current = true
+        router.replace(`/calculaties/${id}`)
       }
     }
 
     load()
     const interval = setInterval(load, 2000)
     return () => clearInterval(interval)
-  }, [projectId, router])
-
-  const doneCount = new Set(
-    logs.filter(l => l.status === "done").map(l => l.module)
-  ).size
-
-  const progressPct = Math.round(
-    (doneCount / STATUS_ORDER.length) * 100
-  )
+  }, [projectId, id, router])
 
   return (
     <div style={{ maxWidth: 900, margin: "60px auto" }}>
       <h1>Project initialisatie</h1>
       <p>Project wordt geanalyseerd.</p>
-
-      <div style={{ margin: "24px 0" }}>
-        <div style={{ height: 12, background: "#e5e7eb", borderRadius: 6 }}>
-          <div
-            style={{
-              width: `${progressPct}%`,
-              height: "100%",
-              background: "#2563eb"
-            }}
-          />
-        </div>
-        <div style={{ marginTop: 8 }}>Voortgang: {progressPct}%</div>
-      </div>
 
       <div
         style={{
@@ -106,7 +91,8 @@ export default function InitialisatieStatus() {
           overflowY: "auto"
         }}
       >
-        {logs.length === 0 && <div>Wachten op logs…</div>}
+        {logs.length === 0 && <div>Wachten op eerste logregel…</div>}
+
         {logs.map((log, i) => (
           <div key={i}>
             {log.module} → <strong>{log.status}</strong>
