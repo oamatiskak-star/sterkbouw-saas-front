@@ -13,6 +13,8 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
   const [uploading, setUploading] = useState(false)
   const [starting, setStarting] = useState(false)
 
+  const [createdId, setCreatedId] = useState(null)
+
   const [options, setOptions] = useState({
     documents: true,
     rename_files: true,
@@ -74,6 +76,9 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
       return
     }
 
+    // LIVE BEWIJS DAT ID TERUGKOMT
+    setCreatedId(calculatieId)
+
     onConfirm({
       calculatie_id: calculatieId,
       options,
@@ -96,24 +101,42 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
   )
 
   return (
-    <div style={{
-      position: "fixed",
-      inset: 0,
-      background: "rgba(0,0,0,0.45)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 1000
-    }}>
-      <div style={{
-        width: 720,
-        background: "#fff",
-        borderRadius: 8,
-        padding: 24
-      }}>
-        <h2 style={{ marginTop: 0, marginBottom: 20 }}>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000
+      }}
+    >
+      <div
+        style={{
+          width: 720,
+          background: "#fff",
+          borderRadius: 8,
+          padding: 24
+        }}
+      >
+        <h2 style={{ marginTop: 0, marginBottom: 12 }}>
           Project initialisatie
         </h2>
+
+        {createdId && (
+          <div
+            style={{
+              marginBottom: 16,
+              padding: 12,
+              background: "#f1f5f9",
+              borderRadius: 6,
+              fontSize: 14
+            }}
+          >
+            Aangemaakt ID: {createdId}
+          </div>
+        )}
 
         <Section title="Document & structuur">
           <Row checked={options.documents} onChange={() => toggle("documents")} label="Document scan" />
