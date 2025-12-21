@@ -31,10 +31,10 @@ export default function Calculaties() {
     setCreating(true)
 
     const { data, error } = await supabase
-      .from("projects")
+      .from("projecten") // ← HIER ZAT DE FOUT
       .insert({
-        projectnaam: "Nieuw project",
-        status: "nieuw"
+        naam: "Nieuw project",
+        status: "draft"
       })
       .select("id")
       .single()
