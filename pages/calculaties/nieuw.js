@@ -78,9 +78,9 @@ export default function NieuweCalculatie() {
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
   // ==========================
-  // 1. MAAK PROJECT ID
+  // 1. START CALCULATIE (maakt project id indien nodig)
   // ==========================
-  async function handleCreateProjectId() {
+  async function handleStartCalculatie() {
     if (creating) return
     if (projectId) {
       setShowOptions(true)
@@ -248,10 +248,10 @@ export default function NieuweCalculatie() {
               <button
                 type="button"
                 style={buttonStyle}
-                onClick={handleCreateProjectId}
+                onClick={handleStartCalculatie}
                 disabled={creating}
               >
-                Maak project ID
+                Start calculatie
               </button>
             </Field>
           </div>
