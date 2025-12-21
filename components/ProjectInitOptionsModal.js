@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel }) {
+export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
   const fileInputRef = useRef(null)
 
   const [uploadCount, setUploadCount] = useState(0)
@@ -41,17 +41,9 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
     setUploading(true)
 
     for (const file of files) {
-      const path = `${projectId}/${Date.now()}_${file.name}`
-
       await supabase.storage
         .from("project-files")
-        .upload(path, file, { upsert: false })
-
-      await supabase.from("project_files").insert({
-        project_id: projectId,
-        filename: file.name,
-        storage_path: path
-      })
+        .upload(`temp/${Date.now()}_${file.name}`, file, { upsert: false })
     }
 
     setUploadCount(prev => prev + files.length)
@@ -62,23 +54,12 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
     fileInputRef.current?.click()
   }
 
-  async function handleStart() {
+  function handleStart() {
     if (uploadCount === 0) return
-
-    const { data: jobId, error } = await supabase.rpc(
-      "start_project_initialisation",
-      { p_project_id: projectId }
-    )
-
-    if (error) {
-      alert("Starten van calculatie mislukt")
-      return
-    }
 
     onConfirm({
       options,
-      uploaded_files: uploadCount,
-      job_id: jobId
+      uploaded_files: uploadCount
     })
   }
 
@@ -97,25 +78,21 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
   )
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.45)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 1000
-      }}
-    >
-      <div
-        style={{
-          width: 720,
-          background: "#fff",
-          borderRadius: 8,
-          padding: 24
-        }}
-      >
+    <div style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.45)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000
+    }}>
+      <div style={{
+        width: 720,
+        background: "#fff",
+        borderRadius: 8,
+        padding: 24
+      }}>
         <h2 style={{ marginTop: 0, marginBottom: 20 }}>
           Project initialisatie
         </h2>
@@ -162,46 +139,21 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
           onChange={handleFilesSelected}
         />
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginTop: 24
-          }}
-        >
-          <div style={{ fontSize: 14 }}>
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginTop: 24
+        }}>
+          <div>
             {uploading && "Uploaden..."}
             {!uploading && uploadCount > 0 && `${uploadCount} bestanden geüpload`}
             {!uploading && uploadCount === 0 && "Nog geen bestanden geüpload"}
           </div>
 
           <div style={{ display: "flex", gap: 12 }}>
-            <button
-              style={{ padding: "12px 20px", background: "#2563eb", color: "#fff", borderRadius: 6 }}
-              onClick={handleImportClick}
-            >
-              Importeer bestanden
-            </button>
-
-            <button
-              style={{ padding: "12px 20px" }}
-              onClick={onCancel}
-            >
-              Annuleren
-            </button>
-
-            <button
-              disabled={uploadCount === 0}
-              style={{
-                padding: "12px 20px",
-                background: uploadCount === 0 ? "#9ca3af" : "#2563eb",
-                color: "#fff",
-                borderRadius: 6,
-                cursor: uploadCount === 0 ? "not-allowed" : "pointer"
-              }}
-              onClick={handleStart}
-            >
+            <button onClick={handleImportClick}>Importeer bestanden</button>
+            <button onClick={onCancel}>Annuleren</button>
+            <button disabled={uploadCount === 0} onClick={handleStart}>
               Start
             </button>
           </div>
