@@ -39,6 +39,7 @@ function Field({ label, children }) {
 export default function NieuweCalculatie() {
   const router = useRouter()
 
+  // PROJECTGEGEVENS
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
   const [adres, setAdres] = useState("")
@@ -49,6 +50,7 @@ export default function NieuweCalculatie() {
   const [projectType, setProjectType] = useState("Nieuwbouw")
   const [opmerking, setOpmerking] = useState("")
 
+  // FACTURATIE
   const [bedrijfNaam, setBedrijfNaam] = useState("")
   const [postbus, setPostbus] = useState("")
   const [adresFacturatie, setAdresFacturatie] = useState("")
@@ -60,9 +62,11 @@ export default function NieuweCalculatie() {
   const [naamProjectleider, setNaamProjectleider] = useState("")
   const [telefoonProjectleider, setTelefoonProjectleider] = useState("")
 
+  // FLOW STATE
   const [facturatieGegevens, setFacturatieGegevens] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
   const [creating, setCreating] = useState(false)
+  const [projectId, setProjectId] = useState(null)
 
   useEffect(() => {
     if (facturatieGegevens) {
@@ -73,32 +77,51 @@ export default function NieuweCalculatie() {
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
-  async function handleConfirmOptions({ options, uploaded_files }) {
-    if (creating) return
+  // === STAP 1: PROJECT ID AANMAKEN ===
+  async function handleCreateProjectId() {
+    if (projectId) {
+      setShowOptions(true)
+      return
+    }
+
     setCreating(true)
 
+    const { data, error } = await supabase
+      .from("projecten")
+      .insert({
+        naam: omschrijving || naamOpdrachtgever || "Nieuw project",
+        adres,
+        postcode,
+        plaatsnaam,
+        land,
+        status: "draft"
+      })
+      .select("id")
+      .single()
+
+    if (error) {
+      alert(error.message)
+      setCreating(false)
+      return
+    }
+
+    setProjectId(data.id)
+    setCreating(false)
+    setShowOptions(true)
+  }
+
+  // === STAP 2: NA OPT FORM → CALCULATIE + WORKFLOW ===
+  async function handleConfirmOptions({ options, uploaded_files }) {
+    if (!projectId) {
+      alert("Project ID ontbreekt")
+      return
+    }
+
     try {
-      // 1. Project aanmaken
-      const { data: project, error: projectError } = await supabase
-        .from("projecten")
-        .insert({
-          naam: omschrijving || naamOpdrachtgever,
-          adres,
-          postcode,
-          plaatsnaam,
-          land,
-          type: projectType
-        })
-        .select("id")
-        .single()
-
-      if (projectError) throw projectError
-
-      // 2. Calculatie aanmaken met project_id
-      const { data: calculatie, error: calcError } = await supabase
+      const { data: calculatie, error } = await supabase
         .from("calculaties")
         .insert({
-          project_id: project.id,
+          project_id: projectId,
 
           naam_opdrachtgever: naamOpdrachtgever,
           omschrijving,
@@ -127,21 +150,15 @@ export default function NieuweCalculatie() {
         .select("id")
         .single()
 
-      if (calcError) throw calcError
+      if (error) throw error
 
-      // 3. Project initialisatie starten
-      const { error: initError } = await supabase.rpc(
-        "start_project_initialisation",
-        { p_project_id: project.id }
-      )
+      await supabase.rpc("start_project_initialisation", {
+        p_project_id: projectId
+      })
 
-      if (initError) throw initError
-
-      // 4. Door naar statuspagina
       router.push(`/calculaties/${calculatie.id}/initialisatie`)
     } catch (err) {
       alert(err.message)
-      setCreating(false)
     }
   }
 
@@ -209,8 +226,13 @@ export default function NieuweCalculatie() {
             </Field>
 
             <Field label=" ">
-              <button type="button" style={buttonStyle} onClick={() => setShowOptions(true)}>
-                Start calculatie
+              <button
+                type="button"
+                style={buttonStyle}
+                onClick={handleCreateProjectId}
+                disabled={creating}
+              >
+                Maak project ID
               </button>
             </Field>
           </div>
@@ -267,7 +289,7 @@ export default function NieuweCalculatie() {
 
       {showOptions && (
         <ProjectInitOptionsModal
-          projectId={null}
+          projectId={projectId}
           onConfirm={handleConfirmOptions}
           onCancel={() => setShowOptions(false)}
         />
