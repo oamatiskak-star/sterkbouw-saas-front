@@ -25,6 +25,7 @@ export default function CalculatieDetail() {
     async function load() {
       setLoading(true)
 
+      // 1. CALCULATIE IS LEIDEND
       const { data: c, error } = await supabase
         .from("calculaties")
         .select("*")
@@ -37,28 +38,34 @@ export default function CalculatieDetail() {
         return
       }
 
+      if (cancelled) return
+      setCalculatie(c)
+
+      // 2. REGELS (optioneel)
       const { data: r } = await supabase
         .from("calculatie_regels")
         .select("*")
         .eq("calculatie_id", id)
 
+      if (!cancelled) setRegels(r || [])
+
+      // 3. OPSLAGEN (optioneel)
       const { data: o } = await supabase
         .from("calculatie_opslagen")
         .select("*")
         .eq("calculatie_id", id)
         .single()
 
+      if (!cancelled) setOpslagen(o || null)
+
+      // 4. WORKFLOW LOG (optioneel)
       const { data: w } = await supabase
         .from("calculatie_workflow_log")
         .select("*")
         .eq("calculatie_id", id)
 
-      if (cancelled) return
+      if (!cancelled) setWorkflowLog(w || [])
 
-      setCalculatie(c)
-      setRegels(r || [])
-      setOpslagen(o)
-      setWorkflowLog(w || [])
       setLoading(false)
     }
 
@@ -69,8 +76,12 @@ export default function CalculatieDetail() {
     }
   }, [id])
 
-  if (loading || !calculatie) {
+  if (loading) {
     return <div>Loading...</div>
+  }
+
+  if (!calculatie) {
+    return <div>Calculatie niet gevonden</div>
   }
 
   return (
