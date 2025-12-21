@@ -76,12 +76,11 @@ export default function NieuweCalculatie() {
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
-  async function handleConfirmOptions(options) {
+  async function handleConfirmOptions(payload) {
     if (creating) return
     setCreating(true)
 
     try {
-      // 1. Calculatie aanmaken
       const { data: calculatie, error } = await supabase
         .from("calculaties")
         .insert({
@@ -116,29 +115,7 @@ export default function NieuweCalculatie() {
 
       const projectId = calculatie.id
 
-      // 2. PROJECT SCAN TASK
-      await supabase.from("executor_tasks").insert({
-        task_type: "PROJECT_SCAN",
-        status: "open",
-        payload: {
-          project_id: projectId,
-          options
-        }
-      })
-
-      // 3. START REKENWOLK
-      await supabase.from("executor_tasks").insert({
-        task_type: "START_REKENWOLK",
-        status: "waiting",
-        depends_on: "PROJECT_SCAN",
-        payload: {
-          project_id: projectId,
-          options
-        }
-      })
-
-      // 4. PDF automatisch downloaden
-      const downloadPDF = async (calculatieId) => {
+      const downloadPDF = async calculatieId => {
         try {
           const res = await fetch(`/api/pdf/calculatie/${calculatieId}`)
           if (!res.ok) throw new Error("Fout bij genereren PDF")
@@ -151,7 +128,6 @@ export default function NieuweCalculatie() {
 
       await downloadPDF(projectId)
 
-      // 5. Naar statuspagina
       router.push(`/calculaties/${projectId}/initialisatie`)
     } catch (err) {
       alert(err.message)
@@ -181,7 +157,6 @@ export default function NieuweCalculatie() {
             maxWidth: 1800
           }}
         >
-          {/* LINKER KOLOM */}
           <div>
             <h3>Projectgegevens</h3>
 
@@ -241,7 +216,6 @@ export default function NieuweCalculatie() {
             </Field>
           </div>
 
-          {/* RECHTER KOLOM */}
           <div>
             <h3>Facturatiegegevens</h3>
 
