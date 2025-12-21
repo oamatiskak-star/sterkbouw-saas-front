@@ -38,6 +38,11 @@ function Field({ label, children }) {
 
 export default function NieuweCalculatie() {
   const router = useRouter()
+  const { project_id } = router.query
+
+  if (!project_id) {
+    return <div>Project ontbreekt</div>
+  }
 
   // PROJECT
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
@@ -62,10 +67,8 @@ export default function NieuweCalculatie() {
   const [naamProjectleider, setNaamProjectleider] = useState("")
   const [telefoonProjectleider, setTelefoonProjectleider] = useState("")
 
-  // FLOW
   const [facturatieGegevens, setFacturatieGegevens] = useState(false)
   const [creating, setCreating] = useState(false)
-  const [projectId, setProjectId] = useState(null)
   const [showOptions, setShowOptions] = useState(false)
 
   useEffect(() => {
@@ -77,56 +80,18 @@ export default function NieuweCalculatie() {
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
-  // ==========================
-  // 1. START CALCULATIE (maakt project id indien nodig)
-  // ==========================
   async function handleStartCalculatie() {
     if (creating) return
-    if (projectId) {
-      setShowOptions(true)
-      return
-    }
-
     setCreating(true)
-
-    const { data, error } = await supabase
-      .from("projecten")
-      .insert({
-        naam: omschrijving || naamOpdrachtgever || "Nieuw project",
-        adres,
-        postcode,
-        plaatsnaam,
-        land,
-        status: "draft"
-      })
-      .select("id")
-      .single()
-
-    if (error) {
-      alert(error.message)
-      setCreating(false)
-      return
-    }
-
-    setProjectId(data.id)
-    setCreating(false)
     setShowOptions(true)
   }
 
-  // ==========================
-  // 2. NA OPT FORM → START FLOW
-  // ==========================
   async function handleConfirmOptions({ options, uploaded_files }) {
-    if (!projectId) {
-      alert("Project ID ontbreekt")
-      return
-    }
-
     try {
       const { data: calculatie, error } = await supabase
         .from("calculaties")
         .insert({
-          project_id: projectId,
+          project_id,
 
           naam_opdrachtgever: naamOpdrachtgever,
           omschrijving,
@@ -149,8 +114,7 @@ export default function NieuweCalculatie() {
           naam_projectleider: naamProjectleider,
           telefoon_projectleider: telefoonProjectleider,
 
-          status: "initializing",
-          workflow_status: "scan_pending"
+          workflow_status: "initializing"
         })
         .select("id")
         .single()
@@ -158,12 +122,13 @@ export default function NieuweCalculatie() {
       if (error) throw error
 
       await supabase.rpc("start_project_initialisation", {
-        p_project_id: projectId
+        p_project_id: project_id
       })
 
-      router.push(`/calculaties/${calculatie.id}/initialisatie`)
+      router.replace(`/calculaties/${calculatie.id}`)
     } catch (err) {
       alert(err.message)
+      setCreating(false)
     }
   }
 
@@ -171,19 +136,17 @@ export default function NieuweCalculatie() {
     <>
       <h1>Nieuwe Calculatie</h1>
 
-      {projectId && (
-        <div
-          style={{
-            marginBottom: 16,
-            padding: 12,
-            background: "#eef2ff",
-            borderRadius: 6,
-            fontWeight: 600
-          }}
-        >
-          Project ID aangemaakt: {projectId}
-        </div>
-      )}
+      <div
+        style={{
+          marginBottom: 16,
+          padding: 12,
+          background: "#eef2ff",
+          borderRadius: 6,
+          fontWeight: 600
+        }}
+      >
+        Project ID: {project_id}
+      </div>
 
       <label style={{ display: "flex", gap: 8, marginBottom: 24 }}>
         <input
@@ -195,7 +158,7 @@ export default function NieuweCalculatie() {
       </label>
 
       <form onSubmit={e => e.preventDefault()}>
-        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1.4fr", gap: 40, maxWidth: 1800 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1.4fr", gap: 40 }}>
           <div>
             <h3>Projectgegevens</h3>
 
@@ -255,60 +218,12 @@ export default function NieuweCalculatie() {
               </button>
             </Field>
           </div>
-
-          <div>
-            <h3>Facturatiegegevens</h3>
-
-            <Field label="Bedrijfsnaam">
-              <input style={inputStyle} value={bedrijfNaam} onChange={e => setBedrijfNaam(e.target.value)} />
-            </Field>
-
-            <Field label="Postbus">
-              <input style={inputStyle} value={postbus} onChange={e => setPostbus(e.target.value)} />
-            </Field>
-
-            <Field label="Adres">
-              <input style={inputStyle} value={adresFacturatie} onChange={e => setAdresFacturatie(e.target.value)} />
-            </Field>
-
-            <Field label="Postcode">
-              <input style={inputStyle} value={postcodeFacturatie} onChange={e => setPostcodeFacturatie(e.target.value)} />
-            </Field>
-
-            <Field label="Plaatsnaam">
-              <input style={inputStyle} value={plaatsnaamFacturatie} onChange={e => setPlaatsnaamFacturatie(e.target.value)} />
-            </Field>
-
-            <Field label="Land">
-              <select style={inputStyle} value={landFacturatie} onChange={e => setLandFacturatie(e.target.value)}>
-                <option>Nederland</option>
-                <option>België</option>
-                <option>Duitsland</option>
-              </select>
-            </Field>
-
-            <Field label="Email facturen">
-              <input style={inputStyle} value={emailFacturen} onChange={e => setEmailFacturen(e.target.value)} />
-            </Field>
-
-            <Field label="Telefoon kantoor">
-              <input style={inputStyle} value={telefoonKantoor} onChange={e => setTelefoonKantoor(e.target.value)} />
-            </Field>
-
-            <Field label="Projectleider">
-              <input style={inputStyle} value={naamProjectleider} onChange={e => setNaamProjectleider(e.target.value)} />
-            </Field>
-
-            <Field label="Tel. projectleider">
-              <input style={inputStyle} value={telefoonProjectleider} onChange={e => setTelefoonProjectleider(e.target.value)} />
-            </Field>
-          </div>
         </div>
       </form>
 
       {showOptions && (
         <ProjectInitOptionsModal
-          projectId={projectId}
+          projectId={project_id}
           onConfirm={handleConfirmOptions}
           onCancel={() => setShowOptions(false)}
         />
