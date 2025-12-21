@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
@@ -8,7 +9,9 @@ const supabase = createClient(
 )
 
 export default function Calculaties() {
+  const router = useRouter()
   const [rows, setRows] = useState([])
+  const [creating, setCreating] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -22,11 +25,35 @@ export default function Calculaties() {
     load()
   }, [])
 
+  async function handleNieuweCalculatie(e) {
+    e.preventDefault()
+    if (creating) return
+    setCreating(true)
+
+    const { data: project, error } = await supabase
+      .from("projects")
+      .insert({
+        projectnaam: "Nieuw project",
+        status: "nieuw"
+      })
+      .select("id")
+      .single()
+
+    if (error || !project) {
+      alert("Project aanmaken mislukt")
+      setCreating(false)
+      return
+    }
+
+    router.push(`/calculaties/nieuw?project_id=${project.id}`)
+  }
+
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
         <h1>Calculaties</h1>
-        <Link href="/calculaties/nieuw">
+
+        <Link href="/calculaties/nieuw" onClick={handleNieuweCalculatie}>
           Nieuwe calculatie
         </Link>
       </div>
@@ -50,9 +77,9 @@ export default function Calculaties() {
                 </Link>
               </td>
               <td>{r.workflow_status}</td>
-              <td>€ {Number(r.kostprijs).toFixed(2)}</td>
-              <td>€ {Number(r.verkoopprijs).toFixed(2)}</td>
-              <td>€ {Number(r.marge).toFixed(2)}</td>
+              <td>€ {Number(r.kostprijs || 0).toFixed(2)}</td>
+              <td>€ {Number(r.verkoopprijs || 0).toFixed(2)}</td>
+              <td>€ {Number(r.marge || 0).toFixed(2)}</td>
             </tr>
           ))}
         </tbody>
