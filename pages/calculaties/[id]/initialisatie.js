@@ -24,6 +24,54 @@ export default function InitialisatieStatus() {
 
   const [logs, setLogs] = useState([])
   const [completed, setCompleted] = useState(false)
+  const [uploadedFiles, setUploadedFiles] = useState([]) // array met bestanden en status
+  const [creating, setCreating] = useState(false)
+
+  const allFilesUploaded = uploadedFiles.every(f => f.status === "completed")
+
+  async function handleStartCalculatie() {
+    if (creating) return
+    setCreating(true)
+
+    try {
+      const { data: calculatie, error } = await supabase
+        .from("calculaties")
+        .insert({
+          project_id: id,
+          status: "initializing",
+          workflow_status: "scan_pending"
+        })
+        .select("id")
+        .single()
+      if (error) throw error
+
+      const calculatieId = calculatie.id
+
+      await supabase.from("executor_tasks").insert({
+        task_type: "PROJECT_SCAN",
+        status: "open",
+        payload: { project_id: id }
+      })
+
+      await supabase.from("executor_tasks").insert({
+        task_type: "START_REKENWOLK",
+        status: "waiting",
+        depends_on: "PROJECT_SCAN",
+        payload: { project_id: id }
+      })
+
+      router.push(`/calculaties/${calculatieId}/initialisatie`)
+    } catch (err) {
+      alert(err.message)
+      setCreating(false)
+    }
+  }
+
+  useEffect(() => {
+    if (allFilesUploaded && !creating) {
+      handleStartCalculatie()
+    }
+  }, [allFilesUploaded])
 
   useEffect(() => {
     if (!id) return
@@ -59,7 +107,6 @@ export default function InitialisatieStatus() {
       <h1>Project initialisatie</h1>
       <p>Project wordt geanalyseerd. Dit kan enkele minuten duren.</p>
 
-      {/* STATUSBALK */}
       <div style={{ margin: "24px 0" }}>
         <div
           style={{
@@ -83,7 +130,6 @@ export default function InitialisatieStatus() {
         </div>
       </div>
 
-      {/* LIVE LOG */}
       <div
         style={{
           background: "#0f172a",
@@ -101,13 +147,11 @@ export default function InitialisatieStatus() {
         {logs.map((log, i) => (
           <div key={i} style={{ marginBottom: 6 }}>
             [{new Date(log.created_at).toLocaleTimeString()}]{" "}
-            {log.module} →{" "}
-            <strong>{log.status}</strong>
+            {log.module} → <strong>{log.status}</strong>
           </div>
         ))}
       </div>
 
-      {/* KLAAR */}
       {completed && (
         <div style={{ marginTop: 32 }}>
           <button
