@@ -6,12 +6,12 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel }) {
-  if (!projectId) return null
-
+export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
   const fileInputRef = useRef(null)
+
   const [uploadCount, setUploadCount] = useState(0)
   const [uploading, setUploading] = useState(false)
+  const [starting, setStarting] = useState(false)
 
   const [options, setOptions] = useState({
     documents: true,
@@ -44,7 +44,7 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
     for (const file of files) {
       await supabase.storage
         .from("project-files")
-        .upload(`${projectId}/${Date.now()}_${file.name}`, file, { upsert: false })
+        .upload(`temp/${Date.now()}_${file.name}`, file, { upsert: false })
     }
 
     setUploadCount(prev => prev + files.length)
@@ -56,22 +56,28 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
   }
 
   async function handleStart() {
-    if (uploadCount === 0) return
+    if (starting) return
+    if (uploadCount === 0) {
+      alert("Upload eerst bestanden")
+      return
+    }
 
-    const { data: jobId, error } = await supabase.rpc(
-      "start_project_initialisation",
-      { p_project_id: projectId }
+    setStarting(true)
+
+    const { data: calculatieId, error } = await supabase.rpc(
+      "start_project_initialisation"
     )
 
     if (error) {
       alert("Initialisatie starten mislukt")
+      setStarting(false)
       return
     }
 
     onConfirm({
+      calculatie_id: calculatieId,
       options,
-      uploaded_files: uploadCount,
-      job_id: jobId
+      uploaded_files: uploadCount
     })
   }
 
@@ -90,25 +96,21 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
   )
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.45)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 1000
-      }}
-    >
-      <div
-        style={{
-          width: 720,
-          background: "#fff",
-          borderRadius: 8,
-          padding: 24
-        }}
-      >
+    <div style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.45)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000
+    }}>
+      <div style={{
+        width: 720,
+        background: "#fff",
+        borderRadius: 8,
+        padding: 24
+      }}>
         <h2 style={{ marginTop: 0, marginBottom: 20 }}>
           Project initialisatie
         </h2>
@@ -163,9 +165,13 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
           </div>
 
           <div style={{ display: "flex", gap: 12 }}>
-            <button onClick={handleImportClick}>Importeer bestanden</button>
-            <button onClick={onCancel}>Annuleren</button>
-            <button disabled={uploadCount === 0} onClick={handleStart}>
+            <button onClick={handleImportClick}>
+              Importeer bestanden
+            </button>
+            <button onClick={onCancel}>
+              Annuleren
+            </button>
+            <button disabled={uploadCount === 0 || starting} onClick={handleStart}>
               Start
             </button>
           </div>
