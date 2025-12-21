@@ -2,7 +2,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
 import ProjectInitOptionsModal from "../../components/ProjectInitOptionsModal"
-import { saveAs } from "file-saver"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -112,19 +111,6 @@ export default function NieuweCalculatie() {
       if (error) throw error
 
       const projectId = calculatie.id
-
-      const downloadPDF = async id => {
-        try {
-          const res = await fetch(`/api/pdf/calculatie/${id}`)
-          if (!res.ok) throw new Error("Fout bij genereren PDF")
-          const blob = await res.blob()
-          saveAs(blob, `calculatie_${id}.pdf`)
-        } catch (err) {
-          console.error("Fout bij PDF-generatie:", err)
-        }
-      }
-
-      await downloadPDF(projectId)
 
       router.push(`/calculaties/${projectId}/initialisatie`)
     } catch (err) {
