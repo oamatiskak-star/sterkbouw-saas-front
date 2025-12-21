@@ -65,8 +65,12 @@ export default function InitialisatieStatus() {
         rows.filter(r => r.status === "done").map(r => r.module)
       )
 
+      // 🔴 HIER ZIT DE ESSENTIËLE FIX
       if (doneSet.size === STATUS_ORDER.length) {
         setCompleted(true)
+
+        // automatisch door naar uitkomsten
+        router.replace(`/calculaties/${id}`)
       }
     }
 
@@ -133,6 +137,7 @@ export default function InitialisatieStatus() {
         ))}
       </div>
 
+      {/* fallback knop, wordt normaal niet meer bereikt */}
       {completed && (
         <div style={{ marginTop: 32 }}>
           <button
