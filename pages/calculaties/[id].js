@@ -37,15 +37,6 @@ export default function CalculatieDetail() {
         return
       }
 
-      // 🔒 KEIHARDE, CORRECTE GUARD
-      if (
-        c.workflow_status === "scan_pending" ||
-        c.workflow_status === "initializing"
-      ) {
-        router.replace(`/calculaties/${id}/initialisatie`)
-        return
-      }
-
       const { data: r } = await supabase
         .from("calculatie_regels")
         .select("*")
@@ -76,7 +67,7 @@ export default function CalculatieDetail() {
     return () => {
       cancelled = true
     }
-  }, [id, router])
+  }, [id])
 
   if (loading || !calculatie) {
     return <div>Loading...</div>
