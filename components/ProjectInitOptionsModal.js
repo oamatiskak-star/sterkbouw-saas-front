@@ -1,4 +1,5 @@
 import { useState, useRef } from "react"
+import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
@@ -7,6 +8,7 @@ const supabase = createClient(
 )
 
 export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel }) {
+  const router = useRouter()
   const fileInputRef = useRef(null)
 
   const [uploadCount, setUploadCount] = useState(0)
@@ -86,9 +88,12 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
       return
     }
 
-    // BELANGRIJK: UI altijd netjes vrijgeven
+    // UI afronden
     setStarting(false)
-    onConfirm()
+    if (onConfirm) onConfirm()
+
+    // DIRECT DOOR NAAR INITIALISATIE
+    router.push(`/calculaties/${projectId}/initialisatie`)
   }
 
   const Row = ({ checked, onChange, label }) => (
