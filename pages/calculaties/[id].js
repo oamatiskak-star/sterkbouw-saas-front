@@ -37,9 +37,11 @@ export default function CalculatieDetail() {
         return
       }
 
-      // 🔒 HARD GUARD
-      // Nieuwe calculatie mag NOOIT direct detail tonen
-      if (c.status === "nieuw") {
+      // 🔒 JUISTE GUARD OP INITIALISATIE
+      if (
+        c.workflow_status === "scan_pending" ||
+        c.workflow_status === "initializing"
+      ) {
         router.replace(`/calculaties/${id}/initialisatie`)
         return
       }
