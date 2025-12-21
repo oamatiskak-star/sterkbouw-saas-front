@@ -73,7 +73,7 @@ export default function NieuweCalculatie() {
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
-  async function handleConfirmOptions(payload) {
+  async function handleConfirmOptions() {
     if (creating) return
     setCreating(true)
 
@@ -112,9 +112,16 @@ export default function NieuweCalculatie() {
 
       const projectId = calculatie.id
 
+      const { error: startError } = await supabase.rpc(
+        "start_project_initialisation",
+        { p_project_id: projectId }
+      )
+
+      if (startError) throw startError
+
       router.push(`/calculaties/${projectId}/initialisatie`)
     } catch (err) {
-      alert(err.message)
+      alert("Starten van calculatie mislukt")
       setCreating(false)
     }
   }
