@@ -2,15 +2,12 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
 import ProjectInitOptionsModal from "../../components/ProjectInitOptionsModal"
+import { saveAs } from "file-saver"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
-
-/* =========================
-   STYLING
-========================= */
 
 const inputStyle = {
   width: "100%",
@@ -39,10 +36,6 @@ function Field({ label, children }) {
     </div>
   )
 }
-
-/* =========================
-   PAGE
-========================= */
 
 export default function NieuweCalculatie() {
   const router = useRouter()
@@ -82,10 +75,6 @@ export default function NieuweCalculatie() {
       setLandFacturatie(land)
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
-
-  /* =========================
-     START PROJECT
-  ========================= */
 
   async function handleConfirmOptions(options) {
     if (creating) return
@@ -137,7 +126,7 @@ export default function NieuweCalculatie() {
         }
       })
 
-      // 3. START REKENWOLK (wacht op scan)
+      // 3. START REKENWOLK
       await supabase.from("executor_tasks").insert({
         task_type: "START_REKENWOLK",
         status: "waiting",
@@ -148,7 +137,21 @@ export default function NieuweCalculatie() {
         }
       })
 
-      // 4. Door naar statuspagina
+      // 4. PDF automatisch downloaden
+      const downloadPDF = async (calculatieId) => {
+        try {
+          const res = await fetch(`/api/pdf/calculatie/${calculatieId}`)
+          if (!res.ok) throw new Error("Fout bij genereren PDF")
+          const blob = await res.blob()
+          saveAs(blob, `calculatie_${calculatieId}.pdf`)
+        } catch (err) {
+          console.error("Fout bij PDF-generatie:", err)
+        }
+      }
+
+      await downloadPDF(projectId)
+
+      // 5. Naar statuspagina
       router.push(`/calculaties/${projectId}/initialisatie`)
     } catch (err) {
       alert(err.message)
@@ -230,8 +233,8 @@ export default function NieuweCalculatie() {
             <Field label=" ">
               <button
                 type="button"
-                onClick={() => setShowOptions(true)}
                 style={buttonStyle}
+                onClick={() => setShowOptions(true)}
               >
                 Start calculatie
               </button>
