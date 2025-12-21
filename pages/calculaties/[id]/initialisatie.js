@@ -17,7 +17,7 @@ export default function InitialisatieStatus() {
   const startedRef = useRef(false)
   const redirectedRef = useRef(false)
 
-  // project_id ophalen via calculatie
+  // 1. project_id ophalen via calculatie
   useEffect(() => {
     if (!id) return
 
@@ -26,13 +26,14 @@ export default function InitialisatieStatus() {
       .select("project_id")
       .eq("id", id)
       .single()
-      .then(({ data, error }) => {
-        if (error || !data?.project_id) return
-        setProjectId(data.project_id)
+      .then(({ data }) => {
+        if (data?.project_id) {
+          setProjectId(data.project_id)
+        }
       })
   }, [id])
 
-  // initialisatie 1× starten
+  // 2. initialisatie starten (slechts 1×)
   useEffect(() => {
     if (!projectId) return
     if (startedRef.current) return
@@ -48,7 +49,7 @@ export default function InitialisatieStatus() {
     })
   }, [projectId])
 
-  // logs pollen + DIRECT doorsturen zodra er iets klaar is
+  // 3. logs pollen → DIRECT door naar calculatie bij eerste done
   useEffect(() => {
     if (!projectId) return
 
@@ -61,9 +62,9 @@ export default function InitialisatieStatus() {
       const rows = data || []
       setLogs(rows)
 
-      const hasAnyDone = rows.some(r => r.status === "done")
+      const hasDone = rows.some(r => r.status === "done")
 
-      if (hasAnyDone && !redirectedRef.current) {
+      if (hasDone && !redirectedRef.current) {
         redirectedRef.current = true
         router.replace(`/calculaties/${id}`)
       }
@@ -77,7 +78,7 @@ export default function InitialisatieStatus() {
   return (
     <div style={{ maxWidth: 900, margin: "60px auto" }}>
       <h1>Project initialisatie</h1>
-      <p>Project wordt geanalyseerd.</p>
+      <p>Project wordt gestart.</p>
 
       <div
         style={{
@@ -91,7 +92,7 @@ export default function InitialisatieStatus() {
           overflowY: "auto"
         }}
       >
-        {logs.length === 0 && <div>Wachten op eerste logregel…</div>}
+        {logs.length === 0 && <div>Wachten op status…</div>}
 
         {logs.map((log, i) => (
           <div key={i}>
