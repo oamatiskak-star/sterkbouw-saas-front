@@ -55,12 +55,23 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
     fileInputRef.current?.click()
   }
 
-  function handleStart() {
+  async function handleStart() {
     if (uploadCount === 0) return
+
+    const { data: jobId, error } = await supabase.rpc(
+      "start_project_initialisation",
+      { p_project_id: projectId }
+    )
+
+    if (error) {
+      alert("Initialisatie starten mislukt")
+      return
+    }
 
     onConfirm({
       options,
-      uploaded_files: uploadCount
+      uploaded_files: uploadCount,
+      job_id: jobId
     })
   }
 
@@ -79,21 +90,25 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
   )
 
   return (
-    <div style={{
-      position: "fixed",
-      inset: 0,
-      background: "rgba(0,0,0,0.45)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 1000
-    }}>
-      <div style={{
-        width: 720,
-        background: "#fff",
-        borderRadius: 8,
-        padding: 24
-      }}>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000
+      }}
+    >
+      <div
+        style={{
+          width: 720,
+          background: "#fff",
+          borderRadius: 8,
+          padding: 24
+        }}
+      >
         <h2 style={{ marginTop: 0, marginBottom: 20 }}>
           Project initialisatie
         </h2>
