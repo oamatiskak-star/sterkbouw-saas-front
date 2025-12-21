@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
 
@@ -24,8 +24,9 @@ export default function InitialisatieStatus() {
 
   const [projectId, setProjectId] = useState(null)
   const [logs, setLogs] = useState([])
-  const [completed, setCompleted] = useState(false)
-  const [creating, setCreating] = useState(false)
+  const [started, setStarted] = useState(false)
+
+  const startedRef = useRef(false)
 
   /*
   ====================================
@@ -55,29 +56,27 @@ export default function InitialisatieStatus() {
 
   /*
   ====================================
-  INITIALISATIE STARTEN (1x)
+  INITIALISATIE STARTEN (1×)
   ====================================
   */
-  async function startInitialisatie() {
-    if (!projectId || creating) return
-    setCreating(true)
-
-    try {
-      await supabase.from("executor_tasks").insert({
-        project_id: projectId,
-        action: "PROJECT_SCAN",
-        status: "open",
-        assigned_to: "executor",
-        payload: {}
-      })
-    } catch (err) {
-      console.error("INIT_START_FAILED", err.message)
-      setCreating(false)
-    }
-  }
-
   useEffect(() => {
-    startInitialisatie()
+    if (!projectId) return
+    if (startedRef.current) return
+
+    startedRef.current = true
+    setStarted(true)
+
+    supabase.from("executor_tasks").insert({
+      project_id: projectId,
+      action: "PROJECT_SCAN",
+      status: "open",
+      assigned_to: "executor",
+      payload: {}
+    }).then(({ error }) => {
+      if (error) {
+        console.error("INIT_START_FAILED", error)
+      }
+    })
   }, [projectId])
 
   /*
@@ -89,10 +88,15 @@ export default function InitialisatieStatus() {
     if (!projectId) return
 
     const load = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("project_initialization_log")
-        .select("module, status, started_at")
+        .select("module, status")
         .eq("project_id", projectId)
+
+      if (error) {
+        console.error("LOG_LOAD_FAILED", error)
+        return
+      }
 
       const rows = data || []
       setLogs(rows)
@@ -101,8 +105,9 @@ export default function InitialisatieStatus() {
         rows.filter(r => r.status === "done").map(r => r.module)
       )
 
-      if (STATUS_ORDER.every(m => doneSet.has(m))) {
-        setCompleted(true)
+      const allDone = STATUS_ORDER.every(m => doneSet.has(m))
+
+      if (allDone) {
         router.replace(`/calculaties/${id}`)
       }
     }
@@ -110,7 +115,7 @@ export default function InitialisatieStatus() {
     load()
     const interval = setInterval(load, 2000)
     return () => clearInterval(interval)
-  }, [projectId, id])
+  }, [projectId, id, router])
 
   const doneCount = new Set(
     logs.filter(l => l.status === "done").map(l => l.module)
@@ -126,14 +131,7 @@ export default function InitialisatieStatus() {
       <p>Project wordt geanalyseerd. Dit kan enkele minuten duren.</p>
 
       <div style={{ margin: "24px 0" }}>
-        <div
-          style={{
-            height: 12,
-            background: "#e5e7eb",
-            borderRadius: 6,
-            overflow: "hidden"
-          }}
-        >
+        <div style={{ height: 12, background: "#e5e7eb", borderRadius: 6 }}>
           <div
             style={{
               width: `${progressPct}%`,
@@ -163,31 +161,11 @@ export default function InitialisatieStatus() {
         {logs.length === 0 && <div>Wachten op eerste logregel…</div>}
 
         {logs.map((log, i) => (
-          <div key={i} style={{ marginBottom: 6 }}>
+          <div key={i}>
             {log.module} → <strong>{log.status}</strong>
           </div>
         ))}
       </div>
-
-      {/* fallback, normaal niet zichtbaar */}
-      {completed && (
-        <div style={{ marginTop: 32 }}>
-          <button
-            onClick={() => router.push(`/calculaties/${id}`)}
-            style={{
-              padding: "12px 20px",
-              background: "#16a34a",
-              color: "#fff",
-              border: "none",
-              borderRadius: 6,
-              fontWeight: 600,
-              cursor: "pointer"
-            }}
-          >
-            Ga naar calculatie
-          </button>
-        </div>
-      )}
     </div>
   )
 }
