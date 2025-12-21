@@ -1,6 +1,7 @@
 import "../styles/globals.css"
 import "../styles/layout.css"
 import "../styles/kpi.css"
+import "../styles/globals.mobile.css" // mobiele overrides
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/router"
@@ -67,7 +68,7 @@ export default function MyApp({ Component, pageProps }) {
   return (
     <div className="sb-app">
       <AppLayout session={session}>
-        <main className="sb-main">
+        <main className="sb-main" style={{ display: "flex", flexDirection: "column", width: "100%" }}>
           <Component {...pageProps} />
         </main>
       </AppLayout>
