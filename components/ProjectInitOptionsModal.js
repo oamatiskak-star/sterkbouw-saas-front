@@ -86,6 +86,8 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
       return
     }
 
+    // BELANGRIJK: UI altijd netjes vrijgeven
+    setStarting(false)
     onConfirm()
   }
 
@@ -157,7 +159,7 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
             <button onClick={handleImportClick}>Importeer bestanden</button>
             <button onClick={onCancel}>Annuleren</button>
             <button disabled={uploadCount === 0 || starting} onClick={handleStart}>
-              Start
+              {starting ? "Starten…" : "Start"}
             </button>
           </div>
         </div>
