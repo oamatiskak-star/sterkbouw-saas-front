@@ -6,14 +6,12 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
+export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel }) {
   const fileInputRef = useRef(null)
 
   const [uploadCount, setUploadCount] = useState(0)
   const [uploading, setUploading] = useState(false)
   const [starting, setStarting] = useState(false)
-
-  const [createdId, setCreatedId] = useState(null)
 
   const [options, setOptions] = useState({
     documents: true,
@@ -59,6 +57,10 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
 
   async function handleStart() {
     if (starting) return
+    if (!projectId) {
+      alert("Project ontbreekt")
+      return
+    }
     if (uploadCount === 0) {
       alert("Upload eerst bestanden")
       return
@@ -66,24 +68,25 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
 
     setStarting(true)
 
-    const { data: calculatieId, error } = await supabase.rpc(
-      "start_project_initialisation"
-    )
+    const { error } = await supabase.from("executor_tasks").insert({
+      project_id: projectId,
+      action: "PROJECT_SCAN",
+      status: "open",
+      assigned_to: "executor",
+      payload: {
+        options,
+        uploaded_files: uploadCount
+      }
+    })
 
     if (error) {
-      alert("Initialisatie starten mislukt")
+      console.error(error)
+      alert("Initialisatie kon niet worden gestart")
       setStarting(false)
       return
     }
 
-    // LIVE BEWIJS DAT ID TERUGKOMT
-    setCreatedId(calculatieId)
-
-    onConfirm({
-      calculatie_id: calculatieId,
-      options,
-      uploaded_files: uploadCount
-    })
+    onConfirm()
   }
 
   const Row = ({ checked, onChange, label }) => (
@@ -120,23 +123,7 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
           padding: 24
         }}
       >
-        <h2 style={{ marginTop: 0, marginBottom: 12 }}>
-          Project initialisatie
-        </h2>
-
-        {createdId && (
-          <div
-            style={{
-              marginBottom: 16,
-              padding: 12,
-              background: "#f1f5f9",
-              borderRadius: 6,
-              fontSize: 14
-            }}
-          >
-            Aangemaakt ID: {createdId}
-          </div>
-        )}
+        <h2>Project initialisatie</h2>
 
         <Section title="Document & structuur">
           <Row checked={options.documents} onChange={() => toggle("documents")} label="Document scan" />
@@ -149,27 +136,6 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
           <Row checked={options.nen_meting} onChange={() => toggle("nen_meting")} label="NEN-meting" />
           <Row checked={options.bag_bro_check} onChange={() => toggle("bag_bro_check")} label="BAG / BRO analyse" />
           <Row checked={options.scope_reconstruction} onChange={() => toggle("scope_reconstruction")} label="Scope reconstructie" />
-        </Section>
-
-        <Section title="Calculatie">
-          <Row checked={options.stabu_structure} onChange={() => toggle("stabu_structure")} label="STABU structuur" />
-          <Row checked={options.default_posts} onChange={() => toggle("default_posts")} label="Standaard posten" />
-          <Row checked={options.quantity_derivation} onChange={() => toggle("quantity_derivation")} label="Hoeveelheden afleiden" />
-        </Section>
-
-        <Section title="Installaties">
-          <Row checked={options.installations_e} onChange={() => toggle("installations_e")} label="Elektra" />
-          <Row checked={options.installations_w} onChange={() => toggle("installations_w")} label="Werktuigbouw" />
-        </Section>
-
-        <Section title="Planning">
-          <Row checked={options.planning} onChange={() => toggle("planning")} label="Bouwplanning" />
-        </Section>
-
-        <Section title="Rapportage">
-          <Row checked={options.report_pdf} onChange={() => toggle("report_pdf")} label="2jours PDF" />
-          <Row checked={options.assumptions_report} onChange={() => toggle("assumptions_report")} label="Aannames" />
-          <Row checked={options.risk_report} onChange={() => toggle("risk_report")} label="Risico’s" />
         </Section>
 
         <input
@@ -188,12 +154,8 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
           </div>
 
           <div style={{ display: "flex", gap: 12 }}>
-            <button onClick={handleImportClick}>
-              Importeer bestanden
-            </button>
-            <button onClick={onCancel}>
-              Annuleren
-            </button>
+            <button onClick={handleImportClick}>Importeer bestanden</button>
+            <button onClick={onCancel}>Annuleren</button>
             <button disabled={uploadCount === 0 || starting} onClick={handleStart}>
               Start
             </button>
