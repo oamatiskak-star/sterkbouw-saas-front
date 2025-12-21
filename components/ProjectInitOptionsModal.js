@@ -6,9 +6,10 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
-  const fileInputRef = useRef(null)
+export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel }) {
+  if (!projectId) return null
 
+  const fileInputRef = useRef(null)
   const [uploadCount, setUploadCount] = useState(0)
   const [uploading, setUploading] = useState(false)
 
@@ -43,7 +44,7 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
     for (const file of files) {
       await supabase.storage
         .from("project-files")
-        .upload(`temp/${Date.now()}_${file.name}`, file, { upsert: false })
+        .upload(`${projectId}/${Date.now()}_${file.name}`, file, { upsert: false })
     }
 
     setUploadCount(prev => prev + files.length)
@@ -139,11 +140,7 @@ export default function ProjectInitOptionsModal({ onConfirm, onCancel }) {
           onChange={handleFilesSelected}
         />
 
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginTop: 24
-        }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 24 }}>
           <div>
             {uploading && "Uploaden..."}
             {!uploading && uploadCount > 0 && `${uploadCount} bestanden geüpload`}
