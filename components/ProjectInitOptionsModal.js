@@ -62,10 +62,23 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
     fileInputRef.current?.click()
   }
 
-  function handleStart() {
+  async function handleStart() {
+    if (uploadCount === 0) return
+
+    const { data: jobId, error } = await supabase.rpc(
+      "start_project_initialisation",
+      { p_project_id: projectId }
+    )
+
+    if (error) {
+      alert("Starten van calculatie mislukt")
+      return
+    }
+
     onConfirm({
       options,
-      uploaded_files: uploadCount
+      uploaded_files: uploadCount,
+      job_id: jobId
     })
   }
 
