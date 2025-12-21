@@ -24,54 +24,29 @@ export default function InitialisatieStatus() {
 
   const [logs, setLogs] = useState([])
   const [completed, setCompleted] = useState(false)
-  const [uploadedFiles, setUploadedFiles] = useState([]) // array met bestanden en status
   const [creating, setCreating] = useState(false)
 
-  const allFilesUploaded = uploadedFiles.every(f => f.status === "completed")
-
-  async function handleStartCalculatie() {
-    if (creating) return
+  async function startInitialisatie() {
+    if (!id || creating) return
     setCreating(true)
 
     try {
-      const { data: calculatie, error } = await supabase
-        .from("calculaties")
-        .insert({
-          project_id: id,
-          status: "initializing",
-          workflow_status: "scan_pending"
-        })
-        .select("id")
-        .single()
-      if (error) throw error
-
-      const calculatieId = calculatie.id
-
       await supabase.from("executor_tasks").insert({
-        task_type: "PROJECT_SCAN",
+        project_id: id,
+        action: "PROJECT_SCAN",
         status: "open",
-        payload: { project_id: id }
+        assigned_to: "executor",
+        payload: {}
       })
-
-      await supabase.from("executor_tasks").insert({
-        task_type: "START_REKENWOLK",
-        status: "waiting",
-        depends_on: "PROJECT_SCAN",
-        payload: { project_id: id }
-      })
-
-      router.push(`/calculaties/${calculatieId}/initialisatie`)
     } catch (err) {
-      alert(err.message)
+      console.error("INIT_START_FAILED", err.message)
       setCreating(false)
     }
   }
 
   useEffect(() => {
-    if (allFilesUploaded && !creating) {
-      handleStartCalculatie()
-    }
-  }, [allFilesUploaded])
+    startInitialisatie()
+  }, [id])
 
   useEffect(() => {
     if (!id) return
@@ -79,14 +54,18 @@ export default function InitialisatieStatus() {
     const load = async () => {
       const { data } = await supabase
         .from("project_initialization_log")
-        .select("*")
+        .select("module, status, created_at")
         .eq("project_id", id)
         .order("created_at", { ascending: true })
 
-      setLogs(data || [])
+      const rows = data || []
+      setLogs(rows)
 
-      const doneModules = (data || []).filter(l => l.status === "done")
-      if (doneModules.length >= STATUS_ORDER.length) {
+      const doneSet = new Set(
+        rows.filter(r => r.status === "done").map(r => r.module)
+      )
+
+      if (doneSet.size === STATUS_ORDER.length) {
         setCompleted(true)
       }
     }
@@ -96,10 +75,12 @@ export default function InitialisatieStatus() {
     return () => clearInterval(interval)
   }, [id])
 
-  const doneCount = logs.filter(l => l.status === "done").length
-  const progressPct = Math.min(
-    Math.round((doneCount / STATUS_ORDER.length) * 100),
-    100
+  const doneCount = new Set(
+    logs.filter(l => l.status === "done").map(l => l.module)
+  ).size
+
+  const progressPct = Math.round(
+    (doneCount / STATUS_ORDER.length) * 100
   )
 
   return (
