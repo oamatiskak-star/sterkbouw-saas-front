@@ -30,7 +30,7 @@ export default function Calculaties() {
     if (creating) return
     setCreating(true)
 
-    const { data: project, error } = await supabase
+    const { data, error } = await supabase
       .from("projects")
       .insert({
         projectnaam: "Nieuw project",
@@ -39,13 +39,13 @@ export default function Calculaties() {
       .select("id")
       .single()
 
-    if (error || !project) {
+    if (error || !data?.id) {
       alert("Project aanmaken mislukt")
       setCreating(false)
       return
     }
 
-    router.push(`/calculaties/nieuw?project_id=${project.id}`)
+    router.push(`/calculaties/nieuw?project_id=${data.id}`)
   }
 
   return (
@@ -53,7 +53,7 @@ export default function Calculaties() {
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
         <h1>Calculaties</h1>
 
-        <Link href="/calculaties/nieuw" onClick={handleNieuweCalculatie}>
+        <Link href="#" onClick={handleNieuweCalculatie}>
           Nieuwe calculatie
         </Link>
       </div>
