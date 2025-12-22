@@ -25,8 +25,7 @@ export default function Calculaties() {
     load()
   }, [])
 
-  async function handleNieuweCalculatie(e) {
-    e.preventDefault()
+  async function handleNieuweCalculatie() {
     if (creating) return
     setCreating(true)
 
@@ -53,9 +52,18 @@ export default function Calculaties() {
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
         <h1>Calculaties</h1>
 
-        <Link href="#" onClick={handleNieuweCalculatie}>
+        <button
+          onClick={handleNieuweCalculatie}
+          disabled={creating}
+          style={{
+            padding: "10px 16px",
+            borderRadius: 6,
+            border: "none",
+            cursor: "pointer"
+          }}
+        >
           Nieuwe calculatie
-        </Link>
+        </button>
       </div>
 
       <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
@@ -85,20 +93,6 @@ export default function Calculaties() {
             ))}
           </tbody>
         </table>
-      </div>
-
-      <div style={{ marginTop: 12 }}>
-        <button
-          onClick={handleNieuweCalculatie}
-          style={{
-            padding: "10px 16px",
-            borderRadius: 6,
-            border: "none",
-            cursor: "pointer"
-          }}
-        >
-          Nieuwe calculatie
-        </button>
       </div>
     </>
   )
