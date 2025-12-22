@@ -28,7 +28,7 @@ async function uploadFileHard({ file, projectId }) {
   const filePath = `${projectId}/${Date.now()}_${safeName}`
 
   const uploadUrl =
-    `${supabaseUrl}/storage/v1/object/sterkbouw/${filePath}`
+    `${supabaseUrl}/storage/v1/object/STERKBOUW/${filePath}`
 
   const res = await fetch(uploadUrl, {
     method: "PUT",
