@@ -38,7 +38,12 @@ function Field({ label, children }) {
 
 export default function NieuweCalculatie() {
   const router = useRouter()
-  const { project_id } = router.query
+  const { isReady, query } = router
+  const project_id = isReady ? String(query.project_id) : null
+
+  if (!isReady) {
+    return <div>Laden...</div>
+  }
 
   if (!project_id) {
     return <div>Project ontbreekt</div>
@@ -91,7 +96,7 @@ export default function NieuweCalculatie() {
       const { data: calculatie, error } = await supabase
         .from("calculaties")
         .insert({
-          project_id,
+          project_id: project_id,
 
           naam_opdrachtgever: naamOpdrachtgever,
           omschrijving,
