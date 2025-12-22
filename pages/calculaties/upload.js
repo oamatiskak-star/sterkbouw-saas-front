@@ -16,39 +16,34 @@ export default function UploadPagina() {
   const [err, setErr] = useState(null)
 
   async function upload() {
-    setBusy(true); setErr(null)
+    if (!project_id || files.length === 0) return
+    setBusy(true)
+    setErr(null)
 
     try {
-      for (const f of files) {
-        const path = `${project_id}/${Date.now()}_${f.name}`
+      for (const file of files) {
+        const path = `${project_id}/${Date.now()}_${file.name}`
 
-        const r = await fetch("/api/signed-upload", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+        const { error: uploadError } = await supabase.storage
+          .from("sterkcalc")
+          .upload(path, file, {
+            contentType: file.type,
+            upsert: false
+          })
+
+        if (uploadError) throw uploadError
+
+        const { error: dbError } = await supabase
+          .from("project_files")
+          .insert({
+            project_id,
             bucket: "sterkcalc",
             path,
-            contentType: f.type
+            filename: file.name,
+            content_type: file.type
           })
-        })
-        const { signedUrl, token } = await r.json()
 
-        await fetch(signedUrl, {
-          method: "PUT",
-          headers: {
-            "Content-Type": f.type,
-            "x-upsert": "false"
-          },
-          body: f
-        })
-
-        await supabase.from("project_files").insert({
-          project_id,
-          bucket: "sterkcalc",
-          path,
-          filename: f.name,
-          content_type: f.type
-        })
+        if (dbError) throw dbError
       }
 
       await supabase.from("executor_tasks").insert({
@@ -68,9 +63,15 @@ export default function UploadPagina() {
 
   return (
     <>
-      <input type="file" multiple onChange={e => setFiles([...e.target.files])} />
+      <input
+        type="file"
+        multiple
+        onChange={e => setFiles(Array.from(e.target.files))}
+      />
       {err && <p>{err}</p>}
-      <button onClick={upload} disabled={busy}>Upload starten</button>
+      <button onClick={upload} disabled={busy}>
+        Upload starten
+      </button>
     </>
   )
 }
