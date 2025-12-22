@@ -12,34 +12,50 @@ export default function Calculaties() {
   const router = useRouter()
   const [rows, setRows] = useState([])
   const [creating, setCreating] = useState(false)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    async function load() {
-      const { data } = await supabase
-        .from("calculaties")
-        .select("id, naam, workflow_status, kostprijs, verkoopprijs, marge")
-        .order("created_at", { ascending: false })
-
-      setRows(data || [])
-    }
-    load()
+    loadCalculaties()
   }, [])
+
+  async function loadCalculaties() {
+    const { data, error } = await supabase
+      .from("calculaties")
+      .select("id, naam, workflow_status, kostprijs, verkoopprijs, marge")
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      setError(error.message)
+      return
+    }
+
+    setRows(data || [])
+  }
 
   async function handleNieuweCalculatie() {
     if (creating) return
     setCreating(true)
+    setError(null)
 
     const { data, error } = await supabase
       .from("projects")
-      .insert({
-        naam: "Nieuw project",
-        status: "draft"
-      })
+      .insert([
+        {
+          naam: "Nieuw project",
+          status: "draft"
+        }
+      ])
       .select("id")
       .single()
 
-    if (error || !data?.id) {
-      alert("Project aanmaken mislukt")
+    if (error) {
+      setError("Supabase error: " + error.message)
+      setCreating(false)
+      return
+    }
+
+    if (!data || !data.id) {
+      setError("Geen project-id teruggekregen van Supabase")
       setCreating(false)
       return
     }
@@ -49,7 +65,6 @@ export default function Calculaties() {
 
   return (
     <>
-      {/* HEADER */}
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
         <h1>Calculaties</h1>
 
@@ -67,7 +82,12 @@ export default function Calculaties() {
         </button>
       </div>
 
-      {/* FRAME */}
+      {error && (
+        <div style={{ color: "red", marginBottom: 16 }}>
+          {error}
+        </div>
+      )}
+
       <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
         <table width="100%" cellPadding="8">
           <thead>
@@ -97,7 +117,6 @@ export default function Calculaties() {
         </table>
       </div>
 
-      {/* KNOP ONDER HET FRAME */}
       <div style={{ marginTop: 12 }}>
         <button
           onClick={handleNieuweCalculatie}
