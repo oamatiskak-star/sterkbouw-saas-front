@@ -59,28 +59,25 @@ h3 {
    ====================== */
 
 .sb-sidebar {
-  width: 250px;
-  height: 100vh;
-  background: #007bff;
-  color: #007bff;
-  padding: 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  font-size: 14px;
+  width: 260px;
+  background: #2563eb; /* zelfde blauw als knop */
+  border-right: none;
+  padding: 16px;
 }
 
 .sb-sidebar a {
   display: block;
   color: #ffffff;
   text-decoration: none;
-  padding: 10px 0;
+  padding: 10px 12px;
   font-weight: 500;
 }
 
 .sb-sidebar a:hover {
-  color: #0056b3;
+  color: #ffffff;
+  background: none;
 }
+
 
 /* ======================
    DASHBOARD
