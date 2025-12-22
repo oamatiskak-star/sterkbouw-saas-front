@@ -1,5 +1,5 @@
 import { useRouter } from "next/router"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
@@ -9,27 +9,34 @@ const supabase = createClient(
 
 export default function UploadPagina() {
   const router = useRouter()
-  const { project_id } = router.query
+  const [projectId, setProjectId] = useState(null)
 
   const [files, setFiles] = useState([])
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(null)
+
+  // 🔒 PROJECT ID STABILISEREN
+  useEffect(() => {
+    if (!router.isReady) return
+    if (router.query.project_id) {
+      setProjectId(String(router.query.project_id))
+    }
+  }, [router.isReady, router.query.project_id])
+
+  if (!router.isReady) return <div>Laden...</div>
+  if (!projectId) return <div>Project ontbreekt</div>
 
   async function upload() {
     setBusy(true)
     setErr(null)
 
     try {
-      if (!project_id) {
-        throw new Error("Geen project_id in URL")
-      }
-
       if (files.length === 0) {
         throw new Error("Geen bestanden geselecteerd")
       }
 
       for (const file of files) {
-        const path = `${project_id}/${Date.now()}_${file.name}`
+        const path = `${projectId}/${Date.now()}_${file.name}`
 
         const r = await fetch("/api/signed-upload", {
           method: "POST",
@@ -63,7 +70,7 @@ export default function UploadPagina() {
         const { error: insertError } = await supabase
           .from("project_files")
           .insert({
-            project_id,
+            project_id: projectId,
             file_name: file.name,
             storage_path: path,
             status: "uploaded",
@@ -79,7 +86,7 @@ export default function UploadPagina() {
         .from("executor_tasks")
         .insert({
           action: "upload_files",
-          project_id,
+          project_id: projectId,
           status: "open",
           assigned_to: "executor"
         })
@@ -88,7 +95,7 @@ export default function UploadPagina() {
         throw new Error("Executor taak mislukt: " + taskError.message)
       }
 
-      router.push(`/calculaties/nieuw?project_id=${project_id}`)
+      router.push(`/calculaties/nieuw?project_id=${projectId}`)
     } catch (e) {
       setErr(e.message)
     } finally {
