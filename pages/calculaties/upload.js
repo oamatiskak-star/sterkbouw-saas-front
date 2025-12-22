@@ -23,7 +23,7 @@ async function upload() {
 
       console.log("Path voor bestand:", path) // Debugging: controleer bestandspad
 
-      // Gebruik GET in plaats van POST voor signed upload URL
+      // Gebruik GET voor signed upload URL
       const r = await fetch(`/api/signed-upload?project_id=${projectId}&path=${path}&contentType=${file.type}`, {
         method: "GET", // Gebruik GET-methode
       })
@@ -36,6 +36,7 @@ async function upload() {
 
       console.log("Signed URL ontvangen:", signedUrl) // Debugging: controleer signed URL
 
+      // Upload het bestand naar de storage
       const uploadRes = await fetch(signedUrl, {
         method: "PUT",
         headers: {
@@ -49,6 +50,9 @@ async function upload() {
         throw new Error("Upload naar storage mislukt")
       }
 
+      console.log("Bestand succesvol geüpload:", file.name)
+
+      // Voeg bestand toe aan Supabase
       const { error: insertError } = await supabase
         .from("project_files")
         .insert({
@@ -62,8 +66,11 @@ async function upload() {
       if (insertError) {
         throw new Error("DB insert mislukt: " + insertError.message)
       }
+
+      console.log(`Bestand opgeslagen in DB: ${file.name}`)
     }
 
+    // Voeg taak toe voor executor om bestanden te verwerken
     const { error: taskError } = await supabase
       .from("executor_tasks")
       .insert({
@@ -77,9 +84,9 @@ async function upload() {
       throw new Error("Executor taak mislukt: " + taskError.message)
     }
 
-    console.log("Bestanden succesvol geüpload") // Debugging: controleer succes
+    console.log("Bestanden succesvol geüpload en taak aangemaakt") // Debugging: succesbericht
 
-    // Router naar nieuw project
+    // Router naar de nieuw aangemaakte projectpagina
     router.push(`/calculaties/nieuw?project_id=${projectId}`)
   } catch (e) {
     console.error("Fout bij uploaden:", e) // Debugging: log de fout
