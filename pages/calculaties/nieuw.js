@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react"
-import { useRouter } from "next/router"
-import { createClient } from "@supabase/supabase-js"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+);
 
 const inputStyle = {
   width: "100%",
@@ -32,42 +32,39 @@ function Field({ label, children }) {
       <div style={{ fontSize: 13, marginBottom: 6 }}>{label}</div>
       {children}
     </div>
-  )
+  );
 }
 
 export default function NieuweCalculatie() {
-  const router = useRouter()
-  const { isReady, query } = router
+  const router = useRouter();
+  const { isReady, query } = router;
 
-  const [projectId, setProjectId] = useState(null)
-  const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
-  const [omschrijving, setOmschrijving] = useState("")
-  const [adres, setAdres] = useState("")
-  const [postcode, setPostcode] = useState("")
-  const [plaatsnaam, setPlaatsnaam] = useState("")
-  const [land, setLand] = useState("Nederland")
-  const [telefoon, setTelefoon] = useState("")
-  const [projectType, setProjectType] = useState("Nieuwbouw")
-  const [opmerking, setOpmerking] = useState("")
-  const [creating, setCreating] = useState(false)
+  const [projectId, setProjectId] = useState(null);
+  const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("");
+  const [omschrijving, setOmschrijving] = useState("");
+  const [adres, setAdres] = useState("");
+  const [postcode, setPostcode] = useState("");
+  const [plaatsnaam, setPlaatsnaam] = useState("");
+  const [land, setLand] = useState("Nederland");
+  const [telefoon, setTelefoon] = useState("");
+  const [projectType, setProjectType] = useState("Nieuwbouw");
+  const [opmerking, setOpmerking] = useState("");
+  const [creating, setCreating] = useState(false);
 
   // Haal project_id op uit de URL (query)
   useEffect(() => {
     if (!isReady) return;
-    console.log("Query parameters:", query); // Log de queryparameters om te zien of de URL goed geladen is
     if (query.project_id) {
-      setProjectId(String(query.project_id))
+      setProjectId(String(query.project_id));
     }
-  }, [isReady, query.project_id])
+  }, [isReady, query.project_id]);
 
-  // Fallback weergave voor laadtijd en ontbrekend project_id
-  if (!isReady) return <div>Pagina wordt geladen...</div>;
-  if (!projectId) return <div>Project ID ontbreekt. Zorg ervoor dat de URL een project_id bevat.</div>;
+  if (!isReady) return <div>Laden...</div>;
+  if (!projectId) return <div>Project ontbreekt</div>;
 
-  // Start de calculatie en stuur gegevens naar Supabase
   async function handleStartCalculatie() {
-    if (creating) return
-    setCreating(true)
+    if (creating) return;
+    setCreating(true);
 
     try {
       // Direct communiceren met Supabase om calculatie aan te maken
@@ -87,15 +84,15 @@ export default function NieuweCalculatie() {
           workflow_status: "initializing"
         })
         .select("id")
-        .single()
+        .single();
 
-      if (error) throw error
+      if (error) throw error;
 
       // Verplaats naar de nieuw aangemaakte calculatiepagina
-      router.push(`/calculaties/${data.id}`)
+      router.push(`/calculaties/${data.id}`);
     } catch (e) {
-      alert(e.message)
-      setCreating(false)
+      alert(e.message);
+      setCreating(false);
     }
   }
 
@@ -137,14 +134,6 @@ export default function NieuweCalculatie() {
           </select>
         </Field>
 
-        <Field label="Opmerking">
-          <textarea style={inputStyle} value={opmerking} onChange={e => setOpmerking(e.target.value)} />
-        </Field>
-
-        <Field label="Telefoonnummer">
-          <input style={inputStyle} value={telefoon} onChange={e => setTelefoon(e.target.value)} />
-        </Field>
-
         <Field label=" ">
           <button
             type="button"
@@ -157,5 +146,5 @@ export default function NieuweCalculatie() {
         </Field>
       </form>
     </>
-  )
+  );
 }
