@@ -1,97 +1,96 @@
-async function upload() {
-  setBusy(true)
-  setErr(null)
+import { useState } from "react"
+import { useRouter } from "next/router"
 
-  // Controleer of project_id gedefinieerd is voordat we verder gaan
-  if (!projectId) {
-    setErr("Project ID ontbreekt!")
-    setBusy(false)
+export default function UploadPage() {
+  const router = useRouter()
+  const [files, setFiles] = useState([])
+  const [error, setError] = useState(null)
+  const [busy, setBusy] = useState(false)
+
+  // Haal project_id uit de query params van de router
+  const { project_id } = router.query
+
+  // Zorg ervoor dat project_id is opgehaald
+  if (!project_id) {
+    setError("Geen project ID gevonden!")
     return
   }
 
-  console.log("Project ID:", projectId) // Debugging: controleer projectId
+  async function handleUpload() {
+    setBusy(true)
+    setError(null)
 
-  try {
+    // Controleer of er bestanden geselecteerd zijn
     if (files.length === 0) {
-      throw new Error("Geen bestanden geselecteerd")
+      setError("Geen bestanden geselecteerd!")
+      setBusy(false)
+      return
     }
 
-    console.log("Bestanden geselecteerd:", files) // Debugging: controleer geselecteerde bestanden
-
-    for (const file of files) {
-      const path = `${projectId}/${Date.now()}_${file.name}`
-
-      console.log("Path voor bestand:", path) // Debugging: controleer bestandspad
-
-      // Gebruik GET voor signed upload URL
-      const r = await fetch(`/api/signed-upload?project_id=${projectId}&path=${path}&contentType=${file.type}`, {
-        method: "GET", // Gebruik GET-methode
-      })
-
-      if (!r.ok) {
-        throw new Error("Signed upload URL ophalen mislukt")
-      }
-
-      const { signedUrl } = await r.json()
-
-      console.log("Signed URL ontvangen:", signedUrl) // Debugging: controleer signed URL
-
-      // Upload het bestand naar de storage
-      const uploadRes = await fetch(signedUrl, {
-        method: "PUT",
+    try {
+      // Zorg ervoor dat je een GET-aanroep maakt naar een API die de getekende URL ophaalt
+      const response = await fetch(`/api/signed-upload?project_id=${project_id}`, {
+        method: "GET",
         headers: {
-          "Content-Type": file.type,
-          "x-upsert": "false"
-        },
-        body: file
+          "Content-Type": "application/json"
+        }
       })
 
-      if (!uploadRes.ok) {
-        throw new Error("Upload naar storage mislukt")
+      if (!response.ok) {
+        throw new Error("Kan signed URL niet ophalen")
       }
 
-      console.log("Bestand succesvol geüpload:", file.name)
+      const { signedUrl } = await response.json()
 
-      // Voeg bestand toe aan Supabase
-      const { error: insertError } = await supabase
+      for (const file of files) {
+        const uploadRes = await fetch(signedUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": file.type
+          },
+          body: file
+        })
+
+        if (!uploadRes.ok) {
+          throw new Error("Upload naar storage mislukt")
+        }
+      }
+
+      // Na uploaden, koppelen aan de database via Supabase
+      const { data, error } = await supabase
         .from("project_files")
         .insert({
-          project_id: projectId,
-          file_name: file.name,
-          storage_path: path,
+          project_id: project_id,
+          file_name: files[0].name, // We nemen de eerste file als voorbeeld
           status: "uploaded",
           created_at: new Date().toISOString()
         })
 
-      if (insertError) {
-        throw new Error("DB insert mislukt: " + insertError.message)
+      if (error) {
+        throw new Error("Opslaan bestand in database mislukt")
       }
 
-      console.log(`Bestand opgeslagen in DB: ${file.name}`)
+      // Navigeren naar nieuwe pagina na succesvolle upload
+      router.push(`/calculaties/${project_id}`)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setBusy(false)
     }
-
-    // Voeg taak toe voor executor om bestanden te verwerken
-    const { error: taskError } = await supabase
-      .from("executor_tasks")
-      .insert({
-        action: "upload_files",
-        project_id: projectId,
-        status: "open",
-        assigned_to: "executor"
-      })
-
-    if (taskError) {
-      throw new Error("Executor taak mislukt: " + taskError.message)
-    }
-
-    console.log("Bestanden succesvol geüpload en taak aangemaakt") // Debugging: succesbericht
-
-    // Router naar de nieuw aangemaakte projectpagina
-    router.push(`/calculaties/nieuw?project_id=${projectId}`)
-  } catch (e) {
-    console.error("Fout bij uploaden:", e) // Debugging: log de fout
-    setErr(e.message)
-  } finally {
-    setBusy(false)
   }
+
+  return (
+    <div>
+      <h1>Bestanden uploaden</h1>
+      <input
+        type="file"
+        multiple
+        onChange={e => setFiles([...e.target.files])}
+      />
+      {error && <div>{error}</div>}
+      <button onClick={handleUpload} disabled={busy}>
+        {busy ? "Bezig..." : "Uploaden"}
+      </button>
+    </div>
+  )
 }
