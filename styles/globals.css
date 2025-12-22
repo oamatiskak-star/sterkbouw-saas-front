@@ -239,4 +239,17 @@ display: none;
 .sb-form-actions button {
 width: 100%;
 }
+}.calculaties-wrapper {
+position: relative;
+}
+
+.calculaties-frame {
+max-height: 70vh;
+overflow-y: auto;
+}
+
+.nieuwe-calculatie-btn {
+position: absolute;
+bottom: 12px;
+left: 12px;
 }
