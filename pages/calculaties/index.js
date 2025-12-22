@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
-import Link from "next/link"
 import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
+import Link from "next/link"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -14,29 +14,10 @@ export default function Calculaties() {
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState(null)
 
-  // Controleer als de router en project_id beschikbaar zijn
   const { query, isReady } = router
   const projectId = isReady && query.project_id ? query.project_id : null
 
-  useEffect(() => {
-    loadCalculaties()
-  }, [])
-
-  async function loadCalculaties() {
-    const { data, error } = await supabase
-      .from("calculaties")
-      .select("id, naam, workflow_status, kostprijs, verkoopprijs, marge")
-      .order("created_at", { ascending: false })
-
-    if (error) {
-      setError(error.message)
-      return
-    }
-
-    setRows(data || [])
-  }
-
-  // Haal project_id op uit de query en stuur deze door naar de backend
+  // Maak een nieuw project aan en haal het project_id op
   async function handleNieuweCalculatie() {
     if (creating) return
     setCreating(true)
@@ -55,12 +36,30 @@ export default function Calculaties() {
         return
       }
 
-      // Redirect naar de nieuw gemaakte calculatie
+      // Redirect naar de nieuw gemaakte projectpagina
       router.push(`/calculaties/nieuw?project_id=${res.project_id}`)
     } catch (e) {
       setError(e.message)
       setCreating(false)
     }
+  }
+
+  useEffect(() => {
+    loadCalculaties()
+  }, [])
+
+  async function loadCalculaties() {
+    const { data, error } = await supabase
+      .from("calculaties")
+      .select("id, naam, workflow_status, kostprijs, verkoopprijs, marge")
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      setError(error.message)
+      return
+    }
+
+    setRows(data || [])
   }
 
   return (
