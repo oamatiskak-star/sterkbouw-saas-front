@@ -43,7 +43,7 @@ export default function NieuweCalculatie() {
   if (!isReady) return <div>Laden...</div>
   if (!project_id) return <div>Project ontbreekt</div>
 
-  // PROJECT – BESTAAND
+  // PROJECT
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
   const [adres, setAdres] = useState("")
@@ -54,7 +54,7 @@ export default function NieuweCalculatie() {
   const [projectType, setProjectType] = useState("Nieuwbouw")
   const [opmerking, setOpmerking] = useState("")
 
-  // FACTURATIE – BESTAAND
+  // FACTURATIE
   const [bedrijfNaam, setBedrijfNaam] = useState("")
   const [postbus, setPostbus] = useState("")
   const [adresFacturatie, setAdresFacturatie] = useState("")
@@ -69,9 +69,6 @@ export default function NieuweCalculatie() {
   const [facturatieGegevens, setFacturatieGegevens] = useState(false)
   const [creating, setCreating] = useState(false)
 
-  // UPLOAD – TOEGEVOEGD
-  const [files, setFiles] = useState([])
-
   useEffect(() => {
     if (facturatieGegevens) {
       setAdresFacturatie(adres)
@@ -81,44 +78,11 @@ export default function NieuweCalculatie() {
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
-  // UPLOAD FUNCTIE – TOEGEVOEGD
-  async function uploadFiles() {
-    for (const file of files) {
-      const path = `${project_id}/${Date.now()}_${file.name}`
-
-      const { error: uploadError } = await supabase
-        .storage
-        .from("project_files")
-        .upload(path, file)
-
-      if (uploadError) {
-        throw new Error(uploadError.message)
-      }
-
-      const { error: dbError } = await supabase
-        .from("project_files")
-        .insert({
-          project_id,
-          filename: file.name,
-          path
-        })
-
-      if (dbError) {
-        throw new Error(dbError.message)
-      }
-    }
-  }
-
   async function handleStartCalculatie() {
     if (creating) return
     setCreating(true)
 
     try {
-      // UPLOAD EERST – TOEGEVOEGD
-      if (files.length > 0) {
-        await uploadFiles()
-      }
-
       const { data, error } = await supabase
         .from("calculaties")
         .insert({
@@ -168,14 +132,9 @@ export default function NieuweCalculatie() {
         Project ID: {project_id}
       </div>
 
-      {/* UPLOAD VELD – TOEGEVOEGD */}
-      <Field label="Bestanden voor analyse en calculatie (PDF, DWG, XLSX)">
-        <input
-          type="file"
-          multiple
-          onChange={e => setFiles(Array.from(e.target.files))}
-        />
-      </Field>
+      <div style={{ marginBottom: 24, padding: 12, background: "#f8fafc", borderRadius: 6 }}>
+        Bestanden uploaden verloopt via de executor.
+      </div>
 
       <label style={{ display: "flex", gap: 8, marginBottom: 24 }}>
         <input
