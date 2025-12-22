@@ -49,6 +49,7 @@ export default function Calculaties() {
 
   return (
     <>
+      {/* HEADER */}
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
         <h1>Calculaties</h1>
 
@@ -66,6 +67,7 @@ export default function Calculaties() {
         </button>
       </div>
 
+      {/* FRAME */}
       <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
         <table width="100%" cellPadding="8">
           <thead>
@@ -93,6 +95,22 @@ export default function Calculaties() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* KNOP ONDER HET FRAME */}
+      <div style={{ marginTop: 12 }}>
+        <button
+          onClick={handleNieuweCalculatie}
+          disabled={creating}
+          style={{
+            padding: "10px 16px",
+            borderRadius: 6,
+            border: "none",
+            cursor: "pointer"
+          }}
+        >
+          Nieuwe calculatie
+        </button>
       </div>
     </>
   )
