@@ -53,15 +53,18 @@ export default function NieuweCalculatie() {
 
   // Haal project_id op uit de URL (query)
   useEffect(() => {
-    if (!isReady) return
+    if (!isReady) return;
+    console.log("Query parameters:", query); // Log de queryparameters om te zien of de URL goed geladen is
     if (query.project_id) {
       setProjectId(String(query.project_id))
     }
   }, [isReady, query.project_id])
 
-  if (!isReady) return <div>Laden...</div>
-  if (!projectId) return <div>Project ontbreekt</div>
+  // Fallback weergave voor laadtijd en ontbrekend project_id
+  if (!isReady) return <div>Pagina wordt geladen...</div>;
+  if (!projectId) return <div>Project ID ontbreekt. Zorg ervoor dat de URL een project_id bevat.</div>;
 
+  // Start de calculatie en stuur gegevens naar Supabase
   async function handleStartCalculatie() {
     if (creating) return
     setCreating(true)
@@ -132,6 +135,14 @@ export default function NieuweCalculatie() {
             <option>Transformatie</option>
             <option>Renovatie</option>
           </select>
+        </Field>
+
+        <Field label="Opmerking">
+          <textarea style={inputStyle} value={opmerking} onChange={e => setOpmerking(e.target.value)} />
+        </Field>
+
+        <Field label="Telefoonnummer">
+          <input style={inputStyle} value={telefoon} onChange={e => setTelefoon(e.target.value)} />
         </Field>
 
         <Field label=" ">
