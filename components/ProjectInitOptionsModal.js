@@ -8,30 +8,23 @@ const supabase = createClient(
 )
 
 /* ======================
-   HARDE UPLOAD FUNCTIE
-   GEEN SUPABASE CLIENT
-   GEEN STORAGE SDK
+   HARDE UPLOAD ZONDER SDK
    ====================== */
-async function uploadFileHard({ file, projectId }) {
+async function uploadFileHard(file, projectId) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
   if (!file || !projectId) {
     throw new Error("FILE_OF_PROJECT_ID_ONTBREEKT")
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_")
+  const path = `${projectId}/${Date.now()}_${cleanName}`
 
-  if (!supabaseUrl || !anonKey) {
-    throw new Error("SUPABASE_ENV_ONTBREEKT")
-  }
-
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_")
-  const filePath = `${projectId}/${Date.now()}_${safeName}`
-
-  const uploadUrl =
-    `${supabaseUrl}/storage/v1/object/STERKBOUW/${filePath}`
+  const uploadUrl = `${supabaseUrl}/storage/v1/object/sterkbouw/${path}`
 
   const res = await fetch(uploadUrl, {
-    method: "PUT",
+    method: "POST",
     headers: {
       Authorization: `Bearer ${anonKey}`,
       apikey: anonKey,
@@ -41,11 +34,11 @@ async function uploadFileHard({ file, projectId }) {
   })
 
   if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`UPLOAD_FAILED ${res.status}: ${text}`)
+    const txt = await res.text()
+    throw new Error(`UPLOAD_FAILED ${res.status}: ${txt}`)
   }
 
-  return filePath
+  return path
 }
 
 export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel }) {
@@ -79,19 +72,23 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
     setOptions(prev => ({ ...prev, [key]: !prev[key] }))
 
   async function handleFilesSelected(e) {
-    const files = Array.from(e.target.files)
-    if (files.length === 0) return
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) {
+      alert("Geen bestanden geselecteerd")
+      return
+    }
 
     setUploading(true)
+    setUploadCount(files.length)
 
     try {
       for (const file of files) {
-        await uploadFileHard({ file, projectId })
+        await uploadFileHard(file, projectId)
       }
-      setUploadCount(prev => prev + files.length)
     } catch (err) {
-      console.error("UPLOAD_ERROR", err)
+      console.error(err)
       alert(err.message)
+      setUploadCount(0)
     } finally {
       setUploading(false)
     }
@@ -103,8 +100,16 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
 
   async function handleStart() {
     if (starting) return
-    if (!projectId) return alert("Project ontbreekt")
-    if (uploadCount === 0) return alert("Upload eerst bestanden")
+
+    if (!projectId) {
+      alert("Project ontbreekt")
+      return
+    }
+
+    if (uploadCount === 0) {
+      alert("Upload eerst bestanden")
+      return
+    }
 
     setStarting(true)
 
@@ -130,6 +135,7 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
 
     setStarting(false)
     if (onConfirm) onConfirm()
+
     router.push(`/calculaties/${projectId}/initialisatie`)
   }
 
@@ -148,21 +154,25 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
   )
 
   return (
-    <div style={{
-      position: "fixed",
-      inset: 0,
-      background: "rgba(0,0,0,0.45)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 1000
-    }}>
-      <div style={{
-        width: 720,
-        background: "#fff",
-        borderRadius: 8,
-        padding: 24
-      }}>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000
+      }}
+    >
+      <div
+        style={{
+          width: 720,
+          background: "#fff",
+          borderRadius: 8,
+          padding: 24
+        }}
+      >
         <h2>Project initialisatie</h2>
 
         <Section title="Document & structuur">
@@ -189,8 +199,8 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 24 }}>
           <div>
             {uploading && "Uploaden..."}
-            {!uploading && uploadCount > 0 && `${uploadCount} bestanden geüpload`}
-            {!uploading && uploadCount === 0 && "Nog geen bestanden geüpload"}
+            {!uploading && uploadCount > 0 && `${uploadCount} bestanden geselecteerd`}
+            {!uploading && uploadCount === 0 && "Nog geen bestanden"}
           </div>
 
           <div style={{ display: "flex", gap: 12 }}>
