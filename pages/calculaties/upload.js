@@ -10,7 +10,6 @@ const supabase = createClient(
 export default function UploadPagina() {
   const router = useRouter()
   const [projectId, setProjectId] = useState(null)
-
   const [files, setFiles] = useState([])
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(null)
@@ -19,13 +18,14 @@ export default function UploadPagina() {
   useEffect(() => {
     if (!router.isReady) return
     if (router.query.project_id) {
-      setProjectId(String(router.query.project_id))
+      setProjectId(String(router.query.project_id)) // Haal project_id uit de queryparameter
     }
   }, [router.isReady, router.query.project_id])
 
   if (!router.isReady) return <div>Laden...</div>
   if (!projectId) return <div>Project ontbreekt</div>
 
+  // Functie om bestanden te uploaden naar Supabase storage en invoegen in de database
   async function upload() {
     setBusy(true)
     setErr(null)
@@ -35,9 +35,11 @@ export default function UploadPagina() {
         throw new Error("Geen bestanden geselecteerd")
       }
 
+      // Loop door de geselecteerde bestanden
       for (const file of files) {
-        const path = `${projectId}/${Date.now()}_${file.name}`
+        const path = `${projectId}/${Date.now()}_${file.name}` // Bepaal het pad voor de upload
 
+        // Verkrijg een gesigneerde upload URL voor het bestand
         const r = await fetch("/api/signed-upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -54,6 +56,7 @@ export default function UploadPagina() {
 
         const { signedUrl } = await r.json()
 
+        // Upload het bestand naar de Supabase storage met de gesigneerde URL
         const uploadRes = await fetch(signedUrl, {
           method: "PUT",
           headers: {
@@ -67,6 +70,7 @@ export default function UploadPagina() {
           throw new Error("Upload naar storage mislukt")
         }
 
+        // Voeg het bestand toe aan de database in de project_files tabel
         const { error: insertError } = await supabase
           .from("project_files")
           .insert({
@@ -82,6 +86,7 @@ export default function UploadPagina() {
         }
       }
 
+      // Voeg een taak toe aan de executor om de bestanden te verwerken
       const { error: taskError } = await supabase
         .from("executor_tasks")
         .insert({
@@ -95,11 +100,12 @@ export default function UploadPagina() {
         throw new Error("Executor taak mislukt: " + taskError.message)
       }
 
+      // Redirect naar de pagina voor de nieuwe calculatie
       router.push(`/calculaties/nieuw?project_id=${projectId}`)
     } catch (e) {
-      setErr(e.message)
+      setErr(e.message) // Toon eventuele foutmeldingen
     } finally {
-      setBusy(false)
+      setBusy(false) // Zet de busy-status weer uit
     }
   }
 
@@ -111,7 +117,7 @@ export default function UploadPagina() {
         onChange={e => setFiles([...e.target.files])}
       />
 
-      {err && <p>{err}</p>}
+      {err && <p>{err}</p>} {/* Toon eventuele foutmeldingen */}
 
       <button onClick={upload} disabled={busy}>
         Upload starten
