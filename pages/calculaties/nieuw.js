@@ -88,10 +88,7 @@ export default function NieuweCalculatie() {
   async function handleStartCalculatie() {
     if (creating) return
     setCreating(true)
-    setShowOptions(true)
-  }
 
-  async function handleConfirmOptions({ options, uploaded_files }) {
     try {
       const { data: calculatie, error } = await supabase
         .from("calculaties")
@@ -229,7 +226,7 @@ export default function NieuweCalculatie() {
       {showOptions && (
         <ProjectInitOptionsModal
           projectId={project_id}
-          onConfirm={handleConfirmOptions}
+          onConfirm={() => {}}
           onCancel={() => setShowOptions(false)}
         />
       )}
