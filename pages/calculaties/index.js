@@ -39,12 +39,10 @@ export default function Calculaties() {
 
     const { data, error } = await supabase
       .from("projects")
-      .insert([
-        {
-          naam: "Nieuw project",
-          status: "draft"
-        }
-      ])
+      .insert({
+        projectnaam: "Nieuw project",
+        status: "draft"
+      })
       .select("id")
       .single()
 
@@ -54,8 +52,8 @@ export default function Calculaties() {
       return
     }
 
-    if (!data || !data.id) {
-      setError("Geen project-id teruggekregen van Supabase")
+    if (!data?.id) {
+      setError("Geen project-id ontvangen")
       setCreating(false)
       return
     }
