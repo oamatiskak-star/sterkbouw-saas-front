@@ -15,7 +15,7 @@ const inputStyle = {
   boxSizing: "border-box",
   borderRadius: 4,
   border: "1px solid #d1d5db"
-}
+};
 
 const buttonStyle = {
   ...inputStyle,
@@ -24,7 +24,7 @@ const buttonStyle = {
   border: "none",
   fontWeight: 600,
   cursor: "pointer"
-}
+};
 
 function Field({ label, children }) {
   return (
@@ -40,6 +40,9 @@ export default function NieuweCalculatie() {
   const { isReady, query } = router;
 
   const [projectId, setProjectId] = useState(null);
+  const [creatingProject, setCreatingProject] = useState(false);
+  const [creatingCalculatie, setCreatingCalculatie] = useState(false);
+
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("");
   const [omschrijving, setOmschrijving] = useState("");
   const [adres, setAdres] = useState("");
@@ -49,9 +52,7 @@ export default function NieuweCalculatie() {
   const [telefoon, setTelefoon] = useState("");
   const [projectType, setProjectType] = useState("Nieuwbouw");
   const [opmerking, setOpmerking] = useState("");
-  const [creating, setCreating] = useState(false);
 
-  // Haal project_id op uit de URL (query)
   useEffect(() => {
     if (!isReady) return;
     if (query.project_id) {
@@ -59,15 +60,35 @@ export default function NieuweCalculatie() {
     }
   }, [isReady, query.project_id]);
 
-  if (!isReady) return <div>Laden...</div>;
-  if (!projectId) return <div>Project ontbreekt</div>;
-
-  async function handleStartCalculatie() {
-    if (creating) return;
-    setCreating(true);
+  async function handleCreateProject() {
+    if (creatingProject) return;
+    setCreatingProject(true);
 
     try {
-      // Direct communiceren met Supabase om calculatie aan te maken
+      const res = await fetch("/api/executor/create-project", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ naam: "Nieuw project" })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data?.project_id) {
+        throw new Error("Project aanmaken mislukt");
+      }
+
+      setProjectId(data.project_id);
+      router.replace(`/calculaties/nieuw?project_id=${data.project_id}`);
+    } catch (e) {
+      alert(e.message);
+      setCreatingProject(false);
+    }
+  }
+
+  async function handleStartCalculatie() {
+    if (creatingCalculatie || !projectId) return;
+    setCreatingCalculatie(true);
+
+    try {
       const { data, error } = await supabase
         .from("calculaties")
         .insert({
@@ -88,63 +109,72 @@ export default function NieuweCalculatie() {
 
       if (error) throw error;
 
-      // Verplaats naar de nieuw aangemaakte calculatiepagina
       router.push(`/calculaties/${data.id}`);
     } catch (e) {
       alert(e.message);
-      setCreating(false);
+      setCreatingCalculatie(false);
     }
   }
+
+  if (!isReady) return <div>Laden...</div>;
 
   return (
     <>
       <h1>Nieuwe Calculatie</h1>
 
-      <div style={{ marginBottom: 16, padding: 12, background: "#eef2ff", borderRadius: 6, fontWeight: 600 }}>
-        Project ID: {projectId}
-      </div>
-
-      <form onSubmit={e => e.preventDefault()}>
-        <Field label="Naam opdrachtgever">
-          <input style={inputStyle} value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
-        </Field>
-
-        <Field label="Omschrijving">
-          <input style={inputStyle} value={omschrijving} onChange={e => setOmschrijving(e.target.value)} />
-        </Field>
-
-        <Field label="Adres">
-          <input style={inputStyle} value={adres} onChange={e => setAdres(e.target.value)} />
-        </Field>
-
-        <Field label="Postcode">
-          <input style={inputStyle} value={postcode} onChange={e => setPostcode(e.target.value)} />
-        </Field>
-
-        <Field label="Plaatsnaam">
-          <input style={inputStyle} value={plaatsnaam} onChange={e => setPlaatsnaam(e.target.value)} />
-        </Field>
-
-        <Field label="Projecttype">
-          <select style={inputStyle} value={projectType} onChange={e => setProjectType(e.target.value)}>
-            <option>Nieuwbouw</option>
-            <option>Utiliteitsbouw</option>
-            <option>Transformatie</option>
-            <option>Renovatie</option>
-          </select>
-        </Field>
-
-        <Field label=" ">
-          <button
-            type="button"
-            style={buttonStyle}
-            onClick={handleStartCalculatie}
-            disabled={creating}
-          >
-            {creating ? "Bezig..." : "Start calculatie"}
+      {!projectId && (
+        <div style={{ padding: 16, border: "1px solid #e5e7eb", borderRadius: 6 }}>
+          <p>Start een nieuwe calculatie of open een bestaande.</p>
+          <button style={buttonStyle} onClick={handleCreateProject} disabled={creatingProject}>
+            {creatingProject ? "Project wordt aangemaakt..." : "Nieuwe calculatie"}
           </button>
-        </Field>
-      </form>
+        </div>
+      )}
+
+      {projectId && (
+        <>
+          <div style={{ marginBottom: 16, padding: 12, background: "#eef2ff", borderRadius: 6 }}>
+            Project ID: {projectId}
+          </div>
+
+          <form onSubmit={e => e.preventDefault()}>
+            <Field label="Naam opdrachtgever">
+              <input style={inputStyle} value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
+            </Field>
+
+            <Field label="Omschrijving">
+              <input style={inputStyle} value={omschrijving} onChange={e => setOmschrijving(e.target.value)} />
+            </Field>
+
+            <Field label="Adres">
+              <input style={inputStyle} value={adres} onChange={e => setAdres(e.target.value)} />
+            </Field>
+
+            <Field label="Postcode">
+              <input style={inputStyle} value={postcode} onChange={e => setPostcode(e.target.value)} />
+            </Field>
+
+            <Field label="Plaatsnaam">
+              <input style={inputStyle} value={plaatsnaam} onChange={e => setPlaatsnaam(e.target.value)} />
+            </Field>
+
+            <Field label="Projecttype">
+              <select style={inputStyle} value={projectType} onChange={e => setProjectType(e.target.value)}>
+                <option>Nieuwbouw</option>
+                <option>Utiliteitsbouw</option>
+                <option>Transformatie</option>
+                <option>Renovatie</option>
+              </select>
+            </Field>
+
+            <Field label=" ">
+              <button style={buttonStyle} onClick={handleStartCalculatie} disabled={creatingCalculatie}>
+                {creatingCalculatie ? "Bezig..." : "Start calculatie"}
+              </button>
+            </Field>
+          </form>
+        </>
+      )}
     </>
   );
 }
