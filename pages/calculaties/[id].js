@@ -17,6 +17,10 @@ export default function CalculatieDetail() {
   const [workflowLog, setWorkflowLog] = useState([])
   const [loading, setLoading] = useState(true)
 
+  // TOEGEVOEGD
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState(null)
+
   useEffect(() => {
     if (!id) return
 
@@ -76,6 +80,47 @@ export default function CalculatieDetail() {
     }
   }, [id])
 
+  // TOEGEVOEGD: FILE UPLOAD + ANALYSE TRIGGER
+  async function handleFileUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setUploadError(null)
+
+    try {
+      const filePath = `${calculatie.project_id}/${Date.now()}_${file.name}`
+
+      const { error: uploadError } = await supabase.storage
+        .from("project-files") // BELANGRIJK: bucket moet bestaan
+        .upload(filePath, file, { upsert: false })
+
+      if (uploadError) throw uploadError
+
+      const { error: dbError } = await supabase
+        .from("project_files")
+        .insert({
+          project_id: calculatie.project_id,
+          calculatie_id: id,
+          path: filePath,
+          filename: file.name,
+          status: "uploaded"
+        })
+
+      if (dbError) throw dbError
+
+      // trigger her-analyse
+      await supabase.rpc("start_project_initialisation", {
+        p_project_id: calculatie.project_id
+      })
+    } catch (err) {
+      console.error("UPLOAD_FAILED", err)
+      setUploadError(err.message)
+    } finally {
+      setUploading(false)
+    }
+  }
+
   if (loading) {
     return <div>Loading...</div>
   }
@@ -89,10 +134,23 @@ export default function CalculatieDetail() {
       <h1>{calculatie.naam_opdrachtgever || "Calculatie"}</h1>
 
       <p>Status: <strong>{calculatie.workflow_status}</strong></p>
-
       <p>Kostprijs: € {Number(calculatie.kostprijs || 0).toFixed(2)}</p>
       <p>Verkoopprijs: € {Number(calculatie.verkoopprijs || 0).toFixed(2)}</p>
       <p>Marge: € {Number(calculatie.marge || 0).toFixed(2)}</p>
+
+      {/* TOEGEVOEGD: UPLOAD BLOK */}
+      <hr />
+
+      <h3>Bestanden uploaden voor analyse</h3>
+
+      <input
+        type="file"
+        onChange={handleFileUpload}
+        disabled={uploading}
+      />
+
+      {uploading && <p>Uploaden en analyseren...</p>}
+      {uploadError && <p style={{ color: "red" }}>{uploadError}</p>}
     </>
   )
 }
