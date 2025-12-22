@@ -1,50 +1,94 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 export default function IndexPage() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState(null);
+  const [calculaties, setCalculaties] = useState([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // De functie om een nieuw project aan te maken via de API
+  // BESTAANDE FUNCTIE – GEREPAREERD
+  // Deze functie doet nu alleen navigatie
   async function handleNieuweCalculatie() {
     if (creating) return;
     setCreating(true);
     setError(null);
 
     try {
-      // Aanroep naar de executor via een POST request
-      const response = await fetch("/api/executor/create-project", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          naam: "Nieuw project", // Projectnaam kan dynamisch worden
-        }),
-      });
-
-      const data = await response.json();
-
-      console.log("API Response:", data); // Debugging output
-
-      if (!response.ok) {
-        setError(data.error || "Project aanmaken mislukt");
-        setCreating(false);
-        return;
-      }
-
-      // Op basis van het ID dat we ontvangen, sturen we de gebruiker naar de nieuw pagina
-      router.push(`/calculaties/nieuw?project_id=${data.project_id}`);
+      router.push("/calculaties/nieuw");
     } catch (e) {
       setError(e.message);
+    } finally {
       setCreating(false);
     }
   }
 
+  // Ophalen recente calculaties – read only
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadCalculaties() {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("calculaties")
+        .select("id, omschrijving, workflow_status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (!cancelled) {
+        if (error) {
+          setError(error.message);
+        } else {
+          setCalculaties(data || []);
+        }
+        setLoading(false);
+      }
+    }
+
+    loadCalculaties();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <>
-      <h1>Welkom bij de Project Calculator</h1>
+      <h1>Calculaties</h1>
+
+      <div
+        style={{
+          border: "1px solid #e5e7eb",
+          borderRadius: 6,
+          padding: 16,
+          marginBottom: 20
+        }}
+      >
+        <strong>Recente calculaties</strong>
+
+        {loading && <div style={{ marginTop: 8 }}>Laden...</div>}
+
+        {!loading && calculaties.length === 0 && (
+          <div style={{ marginTop: 8 }}>Nog geen calculaties</div>
+        )}
+
+        {!loading && calculaties.length > 0 && (
+          <ul style={{ marginTop: 8, paddingLeft: 16 }}>
+            {calculaties.map(c => (
+              <li key={c.id}>
+                {c.omschrijving || "Zonder omschrijving"} – {c.workflow_status}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       <button
         onClick={handleNieuweCalculatie}
@@ -53,10 +97,13 @@ export default function IndexPage() {
           padding: "10px 16px",
           borderRadius: 6,
           border: "none",
-          cursor: "pointer",
+          cursor: creating ? "not-allowed" : "pointer",
+          background: "#2563eb",
+          color: "#ffffff",
+          fontWeight: 600
         }}
       >
-        Maak een nieuw project aan
+        {creating ? "Bezig..." : "Start calculatie"}
       </button>
 
       {error && (
