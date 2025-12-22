@@ -1,40 +1,81 @@
 import { useRouter } from "next/router"
+import { useState } from "react"
 
 export default function CalculatieUpload() {
   const router = useRouter()
   const { isReady, query } = router
   const project_id = isReady && query.project_id ? String(query.project_id) : null
 
+  const [files, setFiles] = useState([])
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState(null)
+
   if (!isReady) return <div>Laden...</div>
   if (!project_id) return <div>Project ontbreekt</div>
+
+  async function handleUpload() {
+    if (files.length === 0) return
+    setUploading(true)
+    setError(null)
+
+    try {
+      const formData = new FormData()
+      formData.append("project_id", project_id)
+
+      for (const file of files) {
+        formData.append("files", file)
+      }
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData
+      })
+
+      if (!res.ok) {
+        const txt = await res.text()
+        throw new Error(txt)
+      }
+
+      router.back()
+    } catch (e) {
+      setError(e.message)
+      setUploading(false)
+    }
+  }
 
   return (
     <>
       <h1>Bestanden uploaden</h1>
 
-      <div style={{ marginBottom: 16, padding: 12, background: "#eef2ff", borderRadius: 6, fontWeight: 600 }}>
+      <div style={{ marginBottom: 16, fontWeight: 600 }}>
         Project ID: {project_id}
       </div>
 
-      <div style={{ padding: 16, background: "#f8fafc", borderRadius: 6 }}>
-        Uploads worden verwerkt door de executor.<br />
-        Deze pagina wordt in de volgende stap gekoppeld aan het upload-mechanisme.
-      </div>
+      <input
+        type="file"
+        multiple
+        onChange={e => setFiles(Array.from(e.target.files))}
+      />
 
-      <div style={{ marginTop: 24 }}>
+      <div style={{ marginTop: 16 }}>
         <button
-          onClick={() => router.back()}
+          onClick={handleUpload}
+          disabled={uploading}
           style={{
             padding: "10px 16px",
             borderRadius: 6,
-            border: "1px solid #d1d5db",
-            background: "#ffffff",
+            border: "none",
+            background: "#16a34a",
+            color: "#fff",
+            fontWeight: 600,
             cursor: "pointer"
           }}
         >
-          Terug
+          {uploading ? "Uploaden..." : "Uploaden en analyseren"}
         </button>
       </div>
+
+      {error && <div style={{ marginTop: 12, color: "red" }}>{error}</div>}
     </>
   )
 }
