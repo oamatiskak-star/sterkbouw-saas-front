@@ -19,7 +19,7 @@ min-height: 100vh;
 
 .sb-sidebar {
 width: 260px;
-background: 2563EB;
+background: #2563eb;
 border-right: 1px solid #e5e7eb;
 padding: 16px;
 }
@@ -82,6 +82,7 @@ background: #ffffff;
 
 /* ======================
 CALCULATIES FRAME
+ALLEEN DIT TOEGEVOEGD
 ====================== */
 
 .calculaties-wrapper {
@@ -89,52 +90,14 @@ position: relative;
 }
 
 .calculaties-frame {
-background: #ffffff;
-border-radius: 12px;
-padding: 16px;
-border: 1px solid #e5e7eb;
 max-height: 70vh;
 overflow-y: auto;
 }
 
-.calculaties-frame table {
-width: 100%;
-border-collapse: collapse;
-}
-
-.calculaties-frame thead th {
-position: sticky;
-top: 0;
-background: #ffffff;
-z-index: 1;
-font-size: 13px;
-font-weight: 600;
-color: #111827;
-padding-bottom: 12px;
-}
-
-.calculaties-frame tbody td {
-padding: 10px 0;
-font-size: 14px;
-border-bottom: 1px solid #f1f5f9;
-}
-
 .nieuwe-calculatie-btn {
 position: absolute;
-bottom: 16px;
-left: 16px;
-padding: 10px 16px;
-background: #2563eb;
-color: #ffffff;
-border: none;
-border-radius: 6px;
-font-size: 14px;
-font-weight: 600;
-cursor: pointer;
-}
-
-.nieuwe-calculatie-btn:hover {
-background: #1d4ed8;
+bottom: 12px;
+left: 12px;
 }
 
 /* MOBILE */
