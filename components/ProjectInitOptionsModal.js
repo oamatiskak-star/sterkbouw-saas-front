@@ -9,23 +9,32 @@ const supabase = createClient(
 
 /* ======================
    HARDE UPLOAD FUNCTIE
+   GEEN SUPABASE CLIENT
+   GEEN STORAGE SDK
    ====================== */
 async function uploadFileHard({ file, projectId }) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
   if (!file || !projectId) {
     throw new Error("FILE_OF_PROJECT_ID_ONTBREEKT")
   }
 
-  const filePath = `${projectId}/${Date.now()}_${file.name}`
-  const uploadUrl = `${supabaseUrl}/storage/v1/object/sterkbouw/${filePath}`
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !anonKey) {
+    throw new Error("SUPABASE_ENV_ONTBREEKT")
+  }
+
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_")
+  const filePath = `${projectId}/${Date.now()}_${safeName}`
+
+  const uploadUrl =
+    `${supabaseUrl}/storage/v1/object/sterkbouw/${filePath}`
 
   const res = await fetch(uploadUrl, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${supabaseKey}`,
-      apikey: supabaseKey,
+      Authorization: `Bearer ${anonKey}`,
+      apikey: anonKey,
       "Content-Type": file.type || "application/octet-stream"
     },
     body: file
@@ -33,7 +42,7 @@ async function uploadFileHard({ file, projectId }) {
 
   if (!res.ok) {
     const text = await res.text()
-    throw new Error(`UPLOAD_FAILED: ${res.status} ${text}`)
+    throw new Error(`UPLOAD_FAILED ${res.status}: ${text}`)
   }
 
   return filePath
@@ -77,15 +86,11 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
 
     try {
       for (const file of files) {
-        await uploadFileHard({
-          file,
-          projectId
-        })
+        await uploadFileHard({ file, projectId })
       }
-
       setUploadCount(prev => prev + files.length)
     } catch (err) {
-      console.error(err)
+      console.error("UPLOAD_ERROR", err)
       alert(err.message)
     } finally {
       setUploading(false)
@@ -98,27 +103,23 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
 
   async function handleStart() {
     if (starting) return
-    if (!projectId) {
-      alert("Project ontbreekt")
-      return
-    }
-    if (uploadCount === 0) {
-      alert("Upload eerst bestanden")
-      return
-    }
+    if (!projectId) return alert("Project ontbreekt")
+    if (uploadCount === 0) return alert("Upload eerst bestanden")
 
     setStarting(true)
 
-    const { error } = await supabase.from("executor_tasks").insert({
-      project_id: projectId,
-      action: "PROJECT_SCAN",
-      status: "open",
-      assigned_to: "executor",
-      payload: {
-        options,
-        uploaded_files: uploadCount
-      }
-    })
+    const { error } = await supabase
+      .from("executor_tasks")
+      .insert({
+        project_id: projectId,
+        action: "PROJECT_SCAN",
+        status: "open",
+        assigned_to: "executor",
+        payload: {
+          options,
+          uploaded_files: uploadCount
+        }
+      })
 
     if (error) {
       console.error(error)
@@ -129,7 +130,6 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
 
     setStarting(false)
     if (onConfirm) onConfirm()
-
     router.push(`/calculaties/${projectId}/initialisatie`)
   }
 
@@ -148,25 +148,21 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
   )
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.45)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 1000
-      }}
-    >
-      <div
-        style={{
-          width: 720,
-          background: "#fff",
-          borderRadius: 8,
-          padding: 24
-        }}
-      >
+    <div style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.45)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000
+    }}>
+      <div style={{
+        width: 720,
+        background: "#fff",
+        borderRadius: 8,
+        padding: 24
+      }}>
         <h2>Project initialisatie</h2>
 
         <Section title="Document & structuur">
