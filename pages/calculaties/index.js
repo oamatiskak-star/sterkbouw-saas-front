@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
@@ -9,7 +8,6 @@ const supabase = createClient(
 )
 
 export default function Calculaties() {
-  const router = useRouter()
   const [rows, setRows] = useState([])
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState(null)
@@ -28,7 +26,6 @@ export default function Calculaties() {
       setError(error.message)
       return
     }
-
     setRows(data || [])
   }
 
@@ -37,45 +34,51 @@ export default function Calculaties() {
     setCreating(true)
     setError(null)
 
-    const r = await fetch("/api/create-project", {
-      method: "POST"
-    })
+    try {
+      // Dispatch ONLY. Geen project aanmaken hier.
+      const r = await fetch("/api/dispatch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create_project" })
+      })
+      const res = await r.json()
+      if (!r.ok || !res.task_id) {
+        throw new Error(res.error || "Dispatch mislukt")
+      }
 
-    const res = await r.json()
+      const taskId = res.task_id
 
-    if (!r.ok) {
-      setError(res.error || "Project aanmaken mislukt")
+      // Poll executor_tasks tot executor het project_id heeft gezet
+      const poll = async () => {
+        const { data, error } = await supabase
+          .from("executor_tasks")
+          .select("project_id")
+          .eq("id", taskId)
+          .single()
+
+        if (!error && data?.project_id) {
+          window.location.href = `/calculaties/nieuw?project_id=${data.project_id}`
+          return
+        }
+        setTimeout(poll, 1000)
+      }
+      poll()
+    } catch (e) {
+      setError(e.message)
       setCreating(false)
-      return
     }
-
-    router.push(`/calculaties/nieuw?project_id=${res.project_id}`)
   }
 
   return (
     <>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
         <h1>Calculaties</h1>
-
-        <button
-          onClick={handleNieuweCalculatie}
-          disabled={creating}
-          style={{
-            padding: "10px 16px",
-            borderRadius: 6,
-            border: "none",
-            cursor: "pointer"
-          }}
-        >
+        <button onClick={handleNieuweCalculatie} disabled={creating}>
           Nieuwe calculatie
         </button>
       </div>
 
-      {error && (
-        <div style={{ color: "red", marginBottom: 16 }}>
-          {error}
-        </div>
-      )}
+      {error && <div style={{ color: "red", marginBottom: 16 }}>{error}</div>}
 
       <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
         <table width="100%" cellPadding="8">
@@ -91,11 +94,7 @@ export default function Calculaties() {
           <tbody>
             {rows.map(r => (
               <tr key={r.id}>
-                <td>
-                  <Link href={`/calculaties/${r.id}`}>
-                    {r.naam}
-                  </Link>
-                </td>
+                <td><Link href={`/calculaties/${r.id}`}>{r.naam}</Link></td>
                 <td>{r.workflow_status}</td>
                 <td>€ {Number(r.kostprijs || 0).toFixed(2)}</td>
                 <td>€ {Number(r.verkoopprijs || 0).toFixed(2)}</td>
@@ -104,21 +103,6 @@ export default function Calculaties() {
             ))}
           </tbody>
         </table>
-      </div>
-
-      <div style={{ marginTop: 12 }}>
-        <button
-          onClick={handleNieuweCalculatie}
-          disabled={creating}
-          style={{
-            padding: "10px 16px",
-            borderRadius: 6,
-            border: "none",
-            cursor: "pointer"
-          }}
-        >
-          Nieuwe calculatie
-        </button>
       </div>
     </>
   )
