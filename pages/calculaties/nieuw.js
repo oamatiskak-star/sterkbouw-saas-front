@@ -43,7 +43,7 @@ export default function NieuweCalculatie() {
   if (!isReady) return <div>Laden...</div>
   if (!project_id) return <div>Project ontbreekt</div>
 
-  // PROJECT
+  // PROJECT – BESTAAND
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
   const [adres, setAdres] = useState("")
@@ -54,7 +54,7 @@ export default function NieuweCalculatie() {
   const [projectType, setProjectType] = useState("Nieuwbouw")
   const [opmerking, setOpmerking] = useState("")
 
-  // FACTURATIE
+  // FACTURATIE – BESTAAND
   const [bedrijfNaam, setBedrijfNaam] = useState("")
   const [postbus, setPostbus] = useState("")
   const [adresFacturatie, setAdresFacturatie] = useState("")
@@ -66,11 +66,11 @@ export default function NieuweCalculatie() {
   const [naamProjectleider, setNaamProjectleider] = useState("")
   const [telefoonProjectleider, setTelefoonProjectleider] = useState("")
 
-  // UPLOAD
-  const [files, setFiles] = useState([])
-
   const [facturatieGegevens, setFacturatieGegevens] = useState(false)
   const [creating, setCreating] = useState(false)
+
+  // UPLOAD – TOEGEVOEGD
+  const [files, setFiles] = useState([])
 
   useEffect(() => {
     if (facturatieGegevens) {
@@ -81,11 +81,13 @@ export default function NieuweCalculatie() {
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
+  // UPLOAD FUNCTIE – TOEGEVOEGD
   async function uploadFiles() {
     for (const file of files) {
       const path = `${project_id}/${Date.now()}_${file.name}`
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase
+        .storage
         .from("project_files")
         .upload(path, file)
 
@@ -112,6 +114,7 @@ export default function NieuweCalculatie() {
     setCreating(true)
 
     try {
+      // UPLOAD EERST – TOEGEVOEGD
       if (files.length > 0) {
         await uploadFiles()
       }
@@ -165,7 +168,8 @@ export default function NieuweCalculatie() {
         Project ID: {project_id}
       </div>
 
-      <Field label="Bestanden voor analyse (PDF, DWG, XLSX)">
+      {/* UPLOAD VELD – TOEGEVOEGD */}
+      <Field label="Bestanden voor analyse en calculatie (PDF, DWG, XLSX)">
         <input
           type="file"
           multiple
@@ -183,20 +187,67 @@ export default function NieuweCalculatie() {
       </label>
 
       <form onSubmit={e => e.preventDefault()}>
-        <Field label="Naam opdrachtgever">
-          <input style={inputStyle} value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
-        </Field>
+        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1.4fr", gap: 40 }}>
+          <div>
+            <h3>Projectgegevens</h3>
 
-        <Field label=" ">
-          <button
-            type="button"
-            style={buttonStyle}
-            onClick={handleStartCalculatie}
-            disabled={creating}
-          >
-            {creating ? "Bezig..." : "Start calculatie"}
-          </button>
-        </Field>
+            <Field label="Naam opdrachtgever">
+              <input style={inputStyle} value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
+            </Field>
+
+            <Field label="Omschrijving">
+              <input style={inputStyle} value={omschrijving} onChange={e => setOmschrijving(e.target.value)} />
+            </Field>
+
+            <Field label="Adres">
+              <input style={inputStyle} value={adres} onChange={e => setAdres(e.target.value)} />
+            </Field>
+
+            <Field label="Postcode">
+              <input style={inputStyle} value={postcode} onChange={e => setPostcode(e.target.value)} />
+            </Field>
+
+            <Field label="Plaatsnaam">
+              <input style={inputStyle} value={plaatsnaam} onChange={e => setPlaatsnaam(e.target.value)} />
+            </Field>
+
+            <Field label="Land">
+              <select style={inputStyle} value={land} onChange={e => setLand(e.target.value)}>
+                <option>Nederland</option>
+                <option>België</option>
+                <option>Duitsland</option>
+              </select>
+            </Field>
+
+            <Field label="Telefoon">
+              <input style={inputStyle} value={telefoon} onChange={e => setTelefoon(e.target.value)} />
+            </Field>
+
+            <Field label="Projecttype">
+              <select style={inputStyle} value={projectType} onChange={e => setProjectType(e.target.value)}>
+                <option>Nieuwbouw</option>
+                <option>Utiliteitsbouw</option>
+                <option>Transformatie</option>
+                <option>Renovatie</option>
+              </select>
+            </Field>
+
+            <Field label="Opmerking">
+              <input style={inputStyle} value={opmerking} onChange={e => setOpmerking(e.target.value)} />
+            </Field>
+
+            <Field label=" ">
+              <button
+                type="button"
+                style={buttonStyle}
+                onClick={handleStartCalculatie}
+                disabled={creating}
+              >
+                {creating ? "Bezig..." : "Start calculatie"}
+              </button>
+            </Field>
+          </div>
+        </div>
       </form>
     </>
   )
