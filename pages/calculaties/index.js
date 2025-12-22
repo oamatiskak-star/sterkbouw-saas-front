@@ -37,28 +37,19 @@ export default function Calculaties() {
     setCreating(true)
     setError(null)
 
-    const { data, error } = await supabase
-      .from("projects")
-      .insert({
-        projectnaam: "Nieuw project",
-        status: "draft"
-      })
-      .select("id")
-      .single()
+    const r = await fetch("/api/create-project", {
+      method: "POST"
+    })
 
-    if (error) {
-      setError("Supabase error: " + error.message)
+    const res = await r.json()
+
+    if (!r.ok) {
+      setError(res.error || "Project aanmaken mislukt")
       setCreating(false)
       return
     }
 
-    if (!data?.id) {
-      setError("Geen project-id ontvangen")
-      setCreating(false)
-      return
-    }
-
-    router.push(`/calculaties/nieuw?project_id=${data.id}`)
+    router.push(`/calculaties/nieuw?project_id=${res.project_id}`)
   }
 
   return (
