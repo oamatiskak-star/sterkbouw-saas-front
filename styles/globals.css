@@ -61,8 +61,8 @@ h3 {
 .sb-sidebar {
   width: 250px;
   height: 100vh;
-  background: #0f172a;
-  color: #e5e7eb;
+  background: #007bff;
+  color: #ffffff;
   padding: 20px;
   position: fixed;
   top: 0;
@@ -72,14 +72,15 @@ h3 {
 
 .sb-sidebar a {
   display: block;
-  color: #cbd5f5;
+  color: #ffffff;
   text-decoration: none;
-  padding: 8px 0;
+  padding: 10px 0;
   font-weight: 500;
+   display: block;
 }
 
 .sb-sidebar a:hover {
-  color: #ffffff;
+  color: #0056b3;
 }
 
 /* ======================
