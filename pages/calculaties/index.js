@@ -26,6 +26,8 @@ export default function IndexPage() {
 
       const data = await response.json();
 
+      console.log("API Response:", data); // Debugging output
+
       if (!response.ok) {
         setError(data.error || "Project aanmaken mislukt");
         setCreating(false);
