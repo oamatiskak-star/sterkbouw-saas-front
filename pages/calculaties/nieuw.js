@@ -130,6 +130,7 @@ export default function NieuweCalculatie() {
       router.replace(`/calculaties/${calculatie.id}`)
     } catch (err) {
       alert(err.message)
+    } finally {
       setCreating(false)
     }
   }
