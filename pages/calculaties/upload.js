@@ -1,45 +1,66 @@
 import { useRouter } from "next/router"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { createClient } from "@supabase/supabase-js"
 
-export default function CalculatieUpload() {
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
+
+export default function UploadCalculatieBestanden() {
   const router = useRouter()
   const { isReady, query } = router
   const project_id = isReady && query.project_id ? String(query.project_id) : null
 
   const [files, setFiles] = useState([])
-  const [uploading, setUploading] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(false)
 
   if (!isReady) return <div>Laden...</div>
   if (!project_id) return <div>Project ontbreekt</div>
 
-  async function handleUpload() {
-    if (files.length === 0) return
-    setUploading(true)
+  async function startUpload() {
+    if (files.length === 0) {
+      setError("Geen bestanden geselecteerd")
+      return
+    }
+
+    setLoading(true)
     setError(null)
 
     try {
-      const formData = new FormData()
-      formData.append("project_id", project_id)
-
-      for (const file of files) {
-        formData.append("files", file)
+      const payload = {
+        project_id,
+        files: files.map(f => ({
+          name: f.name,
+          size: f.size,
+          type: f.type
+        }))
       }
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData
-      })
+      const { error: taskError } = await supabase
+        .from("executor_tasks")
+        .insert({
+          action: "upload_files",
+          status: "open",
+          payload
+        })
 
-      if (!res.ok) {
-        const txt = await res.text()
-        throw new Error(txt)
+      if (taskError) {
+        throw taskError
       }
 
-      router.back()
+      setSuccess(true)
+
+      setTimeout(() => {
+        router.replace(`/calculaties/nieuw?project_id=${project_id}`)
+      }, 1200)
+
     } catch (e) {
       setError(e.message)
-      setUploading(false)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -47,35 +68,35 @@ export default function CalculatieUpload() {
     <>
       <h1>Bestanden uploaden</h1>
 
-      <div style={{ marginBottom: 16, fontWeight: 600 }}>
-        Project ID: {project_id}
-      </div>
+      <p>Project ID: {project_id}</p>
 
       <input
         type="file"
         multiple
         onChange={e => setFiles(Array.from(e.target.files))}
+        disabled={loading}
       />
 
       <div style={{ marginTop: 16 }}>
         <button
-          onClick={handleUpload}
-          disabled={uploading}
-          style={{
-            padding: "10px 16px",
-            borderRadius: 6,
-            border: "none",
-            background: "#16a34a",
-            color: "#fff",
-            fontWeight: 600,
-            cursor: "pointer"
-          }}
+          onClick={startUpload}
+          disabled={loading}
         >
-          {uploading ? "Uploaden..." : "Uploaden en analyseren"}
+          {loading ? "Upload gestart..." : "Upload starten"}
         </button>
       </div>
 
-      {error && <div style={{ marginTop: 12, color: "red" }}>{error}</div>}
+      {error && (
+        <p style={{ color: "red", marginTop: 12 }}>
+          {error}
+        </p>
+      )}
+
+      {success && (
+        <p style={{ color: "green", marginTop: 12 }}>
+          Upload taak aangemaakt. Executor verwerkt dit.
+        </p>
+      )}
     </>
   )
 }
