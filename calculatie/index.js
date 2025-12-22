@@ -1,87 +1,134 @@
-import { useRouter } from "next/router"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { createClient } from "@supabase/supabase-js";
+import Link from "next/link";
 
-export default function CalculatiesHome() {
-  const router = useRouter()
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
+export default function Calculaties() {
+  const router = useRouter();
+  const [rows, setRows] = useState([]);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState(null);
+
+  const { query, isReady } = router;
+  const projectId = isReady && query.project_id ? query.project_id : null;
+
+  // Maak een nieuw project aan en haal het project_id op
+  async function handleNieuweCalculatie() {
+    if (creating) return;
+    setCreating(true);
+    setError(null);
+
+    try {
+      // Verstuur POST verzoek naar de executor om project aan te maken
+      const response = await fetch("/api/executor/create-project", {
+        method: "POST",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Project aanmaken mislukt");
+        setCreating(false);
+        return;
+      }
+
+      // Redirect naar de nieuw aangemaakte projectpagina met project_id
+      router.push(`/calculaties/nieuw?project_id=${data.project_id}`);
+    } catch (e) {
+      setError(e.message);
+      setCreating(false);
+    }
+  }
+
+  useEffect(() => {
+    loadCalculaties();
+  }, []);
+
+  async function loadCalculaties() {
+    const { data, error } = await supabase
+      .from("calculaties")
+      .select("id, naam, workflow_status, kostprijs, verkoopprijs, marge")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    setRows(data || []);
+  }
 
   return (
-    <div>
-      <h1>Calculaties</h1>
+    <>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
+        <h1>Calculaties</h1>
 
-      <p style={{ marginBottom: 24 }}>
-        Start hier een nieuwe calculatie, upload bestanden of genereer tekeningen.
-      </p>
-
-      <div className="grid">
-        <div className="card">
-          <h3>Nieuwe calculatie</h3>
-          <button onClick={() => router.push("/calculaties/nieuw")}>
-            Start bouwcalculatie
-          </button>
-        </div>
-
-        <div className="card">
-          <h3>Calculatie aanpassen</h3>
-          <button onClick={() => router.push("/calculaties/beheer")}>
-            Open bestaande calculatie
-          </button>
-        </div>
-
-        <div className="card">
-          <h3>Electra calculatie</h3>
-          <button onClick={() => router.push("/calculaties/ew?type=elektra")}>
-            Start E-calculatie
-          </button>
-        </div>
-
-        <div className="card">
-          <h3>Water / Verwarming</h3>
-          <button onClick={() => router.push("/calculaties/ew?type=water")}>
-            Start W-calculatie
-          </button>
-        </div>
-
-        <div className="card">
-          <h3>E & W gecombineerd</h3>
-          <button onClick={() => router.push("/calculaties/ew?type=combined")}>
-            Start E&W calculatie
-          </button>
-        </div>
-
-        <div className="card">
-          <h3>Bestanden uploaden</h3>
-          <button onClick={() => router.push("/uploads")}>
-            Upload tekeningen en documenten
-          </button>
-        </div>
-
-        <div className="card">
-          <h3>BIM bouwtekening</h3>
-          <button onClick={() => router.push("/bim/bouw")}>
-            Genereer bouwtekening
-          </button>
-        </div>
-
-        <div className="card">
-          <h3>BIM installatietekening</h3>
-          <button onClick={() => router.push("/bim/installatie")}>
-            Genereer installatietekening
-          </button>
-        </div>
-
-        <div className="card">
-          <h3>Ontwerp & ontwikkeling</h3>
-          <button onClick={() => router.push("/project-ontwikkeling")}>
-            Start ontwerp module
-          </button>
-        </div>
-
-        <div className="card">
-          <h3>Opmerking voor calculatie</h3>
-          <button onClick={() => router.push("/calculaties/opmerkingen")}>
-            Voeg projectopmerking toe
-          </button>
-        </div>
+        <button
+          onClick={handleNieuweCalculatie}
+          disabled={creating}
+          style={{
+            padding: "10px 16px",
+            borderRadius: 6,
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Nieuwe calculatie
+        </button>
       </div>
-    </div>
-  )
+
+      {error && (
+        <div style={{ color: "red", marginBottom: 16 }}>
+          {error}
+        </div>
+      )}
+
+      <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
+        <table width="100%" cellPadding="8">
+          <thead>
+            <tr>
+              <th>Naam</th>
+              <th>Status</th>
+              <th>Kostprijs</th>
+              <th>Verkoopprijs</th>
+              <th>Marge</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id}>
+                <td>
+                  <Link href={`/calculaties/${r.id}`}>{r.naam}</Link>
+                </td>
+                <td>{r.workflow_status}</td>
+                <td>€ {Number(r.kostprijs || 0).toFixed(2)}</td>
+                <td>€ {Number(r.verkoopprijs || 0).toFixed(2)}</td>
+                <td>€ {Number(r.marge || 0).toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <button
+          onClick={handleNieuweCalculatie}
+          disabled={creating}
+          style={{
+            padding: "10px 16px",
+            borderRadius: 6,
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Nieuwe calculatie
+        </button>
+      </div>
+    </>
+  );
 }
