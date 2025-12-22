@@ -15,53 +15,39 @@ export default function UploadPagina() {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(null)
 
-  // Functie om te controleren of het project_id bestaat
-  async function checkProjectExists(project_id) {
-    const { data, error } = await supabase
-      .from("projects")
-      .select("id")
-      .eq("id", project_id)
-      .single()
-
-    return data ? true : false
-  }
-
   async function upload() {
-    setBusy(true); setErr(null)
+    setBusy(true)
+    setErr(null)
 
     try {
-      // Controleer of er bestanden zijn geselecteerd
+      if (!project_id) {
+        throw new Error("Geen project_id in URL")
+      }
+
       if (files.length === 0) {
-        setErr("Geen bestanden geselecteerd.");
-        return;
+        throw new Error("Geen bestanden geselecteerd")
       }
 
-      // Controleer of het project_id bestaat
-      const projectExists = await checkProjectExists(project_id)
-      if (!projectExists) {
-        setErr("Het opgegeven project bestaat niet.");
-        return
-      }
-
-      // Loop door alle geselecteerde bestanden
       for (const file of files) {
         const path = `${project_id}/${Date.now()}_${file.name}`
 
-        // Verkrijg een gesigneerde upload URL voor het bestand
         const r = await fetch("/api/signed-upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            bucket: "sterkcalc",  // Vervang met je eigen bucket naam als nodig
+            bucket: "sterkcalc",
             path,
             contentType: file.type
           })
         })
 
-        const { signedUrl, token } = await r.json()
+        if (!r.ok) {
+          throw new Error("Signed upload URL ophalen mislukt")
+        }
 
-        // Upload bestand naar de gesigneerde URL
-        await fetch(signedUrl, {
+        const { signedUrl } = await r.json()
+
+        const uploadRes = await fetch(signedUrl, {
           method: "PUT",
           headers: {
             "Content-Type": file.type,
@@ -70,33 +56,38 @@ export default function UploadPagina() {
           body: file
         })
 
-        // Sla bestand op in de Supabase database
-        const { error: insertError } = await supabase.from("project_files").insert({
-          project_id,
-          file_name: file.name,           // Correcte kolomnaam voor bestandnaam
-          storage_path: path,             // Correcte kolomnaam voor opslagpad
-          status: "uploaded",             // Status wordt "uploaded"
-          created_at: new Date().toISOString()  // Voeg de timestamp toe
-        })
+        if (!uploadRes.ok) {
+          throw new Error("Upload naar storage mislukt")
+        }
+
+        const { error: insertError } = await supabase
+          .from("project_files")
+          .insert({
+            project_id,
+            file_name: file.name,
+            storage_path: path,
+            status: "uploaded",
+            created_at: new Date().toISOString()
+          })
 
         if (insertError) {
-          throw new Error("Fout bij het opslaan van bestand: " + insertError.message)
+          throw new Error("DB insert mislukt: " + insertError.message)
         }
       }
 
-      // Voeg een taak toe voor verdere verwerking van de bestanden
-      const { error: taskError } = await supabase.from("executor_tasks").insert({
-        action: "upload_files",
-        project_id,
-        status: "open",
-        assigned_to: "executor"
-      })
+      const { error: taskError } = await supabase
+        .from("executor_tasks")
+        .insert({
+          action: "upload_files",
+          project_id,
+          status: "open",
+          assigned_to: "executor"
+        })
 
       if (taskError) {
-        throw new Error("Fout bij het toevoegen van de executor taak: " + taskError.message)
+        throw new Error("Executor taak mislukt: " + taskError.message)
       }
 
-      // Redirect naar de volgende pagina na upload
       router.push(`/calculaties/nieuw?project_id=${project_id}`)
     } catch (e) {
       setErr(e.message)
@@ -107,9 +98,17 @@ export default function UploadPagina() {
 
   return (
     <>
-      <input type="file" multiple onChange={e => setFiles([...e.target.files])} />
+      <input
+        type="file"
+        multiple
+        onChange={e => setFiles([...e.target.files])}
+      />
+
       {err && <p>{err}</p>}
-      <button onClick={upload} disabled={busy}>Upload starten</button>
+
+      <button onClick={upload} disabled={busy}>
+        Upload starten
+      </button>
     </>
   )
 }
