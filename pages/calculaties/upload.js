@@ -9,75 +9,68 @@ const supabase = createClient(
 
 export default function UploadPagina() {
   const router = useRouter()
-  const { isReady, query } = router
-  const project_id = isReady && query.project_id ? String(query.project_id) : null
+  const { project_id } = router.query
 
   const [files, setFiles] = useState([])
-  const [sending, setSending] = useState(false)
-  const [error, setError] = useState(null)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState(null)
 
-  if (!isReady) return <div>Laden...</div>
-  if (!project_id) return <div>Project ontbreekt</div>
-
-  async function startUpload() {
-    if (files.length === 0) {
-      setError("Geen bestanden geselecteerd")
-      return
-    }
-
-    setSending(true)
-    setError(null)
+  async function upload() {
+    setBusy(true); setErr(null)
 
     try {
-      const payloadFiles = files.map(f => ({
-        filename: f.name,
-        size: f.size,
-        type: f.type
-      }))
+      for (const f of files) {
+        const path = `${project_id}/${Date.now()}_${f.name}`
 
-      const { error } = await supabase
-        .from("executor_tasks")
-        .insert({
-          action: "upload_files",
-          project_id: project_id,
-          payload: {
-            project_id: project_id,
-            files: payloadFiles
+        const r = await fetch("/api/signed-upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            bucket: "sterkcalc",
+            path,
+            contentType: f.type
+          })
+        })
+        const { signedUrl, token } = await r.json()
+
+        await fetch(signedUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": f.type,
+            "x-upsert": "false"
           },
-          status: "open",
-          assigned_to: "executor"
+          body: f
         })
 
-      if (error) throw error
+        await supabase.from("project_files").insert({
+          project_id,
+          bucket: "sterkcalc",
+          path,
+          filename: f.name,
+          content_type: f.type
+        })
+      }
+
+      await supabase.from("executor_tasks").insert({
+        action: "upload_files",
+        project_id,
+        status: "open",
+        assigned_to: "executor"
+      })
 
       router.push(`/calculaties/nieuw?project_id=${project_id}`)
     } catch (e) {
-      setError(e.message)
-      setSending(false)
+      setErr(e.message)
+    } finally {
+      setBusy(false)
     }
   }
 
   return (
     <>
-      <h1>Bestanden uploaden</h1>
-
-      <div style={{ marginBottom: 12 }}>
-        Project ID: {project_id}
-      </div>
-
-      <input
-        type="file"
-        multiple
-        onChange={e => setFiles(Array.from(e.target.files))}
-      />
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <div style={{ marginTop: 16 }}>
-        <button onClick={startUpload} disabled={sending}>
-          {sending ? "Versturen..." : "Upload starten"}
-        </button>
-      </div>
+      <input type="file" multiple onChange={e => setFiles([...e.target.files])} />
+      {err && <p>{err}</p>}
+      <button onClick={upload} disabled={busy}>Upload starten</button>
     </>
   )
 }
