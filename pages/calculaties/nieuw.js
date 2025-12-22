@@ -43,7 +43,6 @@ export default function NieuweCalculatie() {
   if (!isReady) return <div>Laden...</div>
   if (!project_id) return <div>Project ontbreekt</div>
 
-  // PROJECT
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
   const [adres, setAdres] = useState("")
@@ -53,30 +52,7 @@ export default function NieuweCalculatie() {
   const [telefoon, setTelefoon] = useState("")
   const [projectType, setProjectType] = useState("Nieuwbouw")
   const [opmerking, setOpmerking] = useState("")
-
-  // FACTURATIE
-  const [bedrijfNaam, setBedrijfNaam] = useState("")
-  const [postbus, setPostbus] = useState("")
-  const [adresFacturatie, setAdresFacturatie] = useState("")
-  const [postcodeFacturatie, setPostcodeFacturatie] = useState("")
-  const [plaatsnaamFacturatie, setPlaatsnaamFacturatie] = useState("")
-  const [landFacturatie, setLandFacturatie] = useState("Nederland")
-  const [emailFacturen, setEmailFacturen] = useState("")
-  const [telefoonKantoor, setTelefoonKantoor] = useState("")
-  const [naamProjectleider, setNaamProjectleider] = useState("")
-  const [telefoonProjectleider, setTelefoonProjectleider] = useState("")
-
-  const [facturatieGegevens, setFacturatieGegevens] = useState(false)
   const [creating, setCreating] = useState(false)
-
-  useEffect(() => {
-    if (facturatieGegevens) {
-      setAdresFacturatie(adres)
-      setPostcodeFacturatie(postcode)
-      setPlaatsnaamFacturatie(plaatsnaam)
-      setLandFacturatie(land)
-    }
-  }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
   async function handleStartCalculatie() {
     if (creating) return
@@ -96,16 +72,6 @@ export default function NieuweCalculatie() {
           telefoon,
           project_type: projectType,
           opmerking,
-          bedrijf_naam: bedrijfNaam,
-          postbus,
-          adres_facturatie: adresFacturatie,
-          postcode_facturatie: postcodeFacturatie,
-          plaatsnaam_facturatie: plaatsnaamFacturatie,
-          land_facturatie: landFacturatie,
-          email_facturen: emailFacturen,
-          telefoon_kantoor: telefoonKantoor,
-          naam_projectleider: naamProjectleider,
-          telefoon_projectleider: telefoonProjectleider,
           workflow_status: "initializing"
         })
         .select("id")
@@ -132,81 +98,57 @@ export default function NieuweCalculatie() {
         Project ID: {project_id}
       </div>
 
-      <div style={{ marginBottom: 24, padding: 12, background: "#f8fafc", borderRadius: 6 }}>
-        Bestanden uploaden verloopt via de executor.
+      {/* KNOP NAAR UPLOADPAGINA */}
+      <div style={{ marginBottom: 24 }}>
+        <button
+          type="button"
+          style={{ ...buttonStyle, background: "#16a34a" }}
+          onClick={() => router.push(`/calculaties/upload?project_id=${project_id}`)}
+        >
+          Bestanden uploaden
+        </button>
       </div>
 
-      <label style={{ display: "flex", gap: 8, marginBottom: 24 }}>
-        <input
-          type="checkbox"
-          checked={facturatieGegevens}
-          onChange={e => setFacturatieGegevens(e.target.checked)}
-        />
-        Facturatiegegevens kopiëren van projectadres
-      </label>
-
       <form onSubmit={e => e.preventDefault()}>
-        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1.4fr", gap: 40 }}>
-          <div>
-            <h3>Projectgegevens</h3>
+        <Field label="Naam opdrachtgever">
+          <input style={inputStyle} value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
+        </Field>
 
-            <Field label="Naam opdrachtgever">
-              <input style={inputStyle} value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
-            </Field>
+        <Field label="Omschrijving">
+          <input style={inputStyle} value={omschrijving} onChange={e => setOmschrijving(e.target.value)} />
+        </Field>
 
-            <Field label="Omschrijving">
-              <input style={inputStyle} value={omschrijving} onChange={e => setOmschrijving(e.target.value)} />
-            </Field>
+        <Field label="Adres">
+          <input style={inputStyle} value={adres} onChange={e => setAdres(e.target.value)} />
+        </Field>
 
-            <Field label="Adres">
-              <input style={inputStyle} value={adres} onChange={e => setAdres(e.target.value)} />
-            </Field>
+        <Field label="Postcode">
+          <input style={inputStyle} value={postcode} onChange={e => setPostcode(e.target.value)} />
+        </Field>
 
-            <Field label="Postcode">
-              <input style={inputStyle} value={postcode} onChange={e => setPostcode(e.target.value)} />
-            </Field>
+        <Field label="Plaatsnaam">
+          <input style={inputStyle} value={plaatsnaam} onChange={e => setPlaatsnaam(e.target.value)} />
+        </Field>
 
-            <Field label="Plaatsnaam">
-              <input style={inputStyle} value={plaatsnaam} onChange={e => setPlaatsnaam(e.target.value)} />
-            </Field>
+        <Field label="Projecttype">
+          <select style={inputStyle} value={projectType} onChange={e => setProjectType(e.target.value)}>
+            <option>Nieuwbouw</option>
+            <option>Utiliteitsbouw</option>
+            <option>Transformatie</option>
+            <option>Renovatie</option>
+          </select>
+        </Field>
 
-            <Field label="Land">
-              <select style={inputStyle} value={land} onChange={e => setLand(e.target.value)}>
-                <option>Nederland</option>
-                <option>België</option>
-                <option>Duitsland</option>
-              </select>
-            </Field>
-
-            <Field label="Telefoon">
-              <input style={inputStyle} value={telefoon} onChange={e => setTelefoon(e.target.value)} />
-            </Field>
-
-            <Field label="Projecttype">
-              <select style={inputStyle} value={projectType} onChange={e => setProjectType(e.target.value)}>
-                <option>Nieuwbouw</option>
-                <option>Utiliteitsbouw</option>
-                <option>Transformatie</option>
-                <option>Renovatie</option>
-              </select>
-            </Field>
-
-            <Field label="Opmerking">
-              <input style={inputStyle} value={opmerking} onChange={e => setOpmerking(e.target.value)} />
-            </Field>
-
-            <Field label=" ">
-              <button
-                type="button"
-                style={buttonStyle}
-                onClick={handleStartCalculatie}
-                disabled={creating}
-              >
-                {creating ? "Bezig..." : "Start calculatie"}
-              </button>
-            </Field>
-          </div>
-        </div>
+        <Field label=" ">
+          <button
+            type="button"
+            style={buttonStyle}
+            onClick={handleStartCalculatie}
+            disabled={creating}
+          >
+            {creating ? "Bezig..." : "Start calculatie"}
+          </button>
+        </Field>
       </form>
     </>
   )
