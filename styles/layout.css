@@ -1,125 +1,183 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap
+");
 
-* {
-  box-sizing: border-box;
+{
+box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #ffffff;
-  color: #111827;
+margin: 0;
+font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+background: #ffffff;
+color: #111827;
 }
 
 .sb-layout {
-  display: flex;
-  min-height: 100vh;
+display: flex;
+min-height: 100vh;
 }
 
 .sb-sidebar {
-  width: 260px;
-  background: 2563EB; /* Lichte grijze achtergrond, iets lichter dan de huidige */
-  border-right: 1px solid #e5e7eb;
-  padding: 16px;
+width: 260px;
+background: 2563EB;
+border-right: 1px solid #e5e7eb;
+padding: 16px;
 }
 
 .sb-logo {
-  font-weight: 600;
-  margin-bottom: 16px;
+font-weight: 600;
+margin-bottom: 16px;
 }
 
 .sb-group {
-  margin-bottom: 16px;
+margin-bottom: 16px;
 }
 
 .sb-root {
-  display: block;
-  padding: 10px 12px;
-  font-weight: 500;
-  color: #333333; /* Donkerdere tekstkleur voor betere leesbaarheid */
-  text-decoration: none;
-  border-radius: 6px;
-  transition: background-color 0.3s ease; /* Zachte overgang bij hover */
+display: block;
+padding: 10px 12px;
+font-weight: 500;
+color: #333333;
+text-decoration: none;
+border-radius: 6px;
+transition: background-color 0.3s ease;
 }
 
 .sb-root.active {
-  background: #ececf1; /* Lichtgrijze achtergrond wanneer geselecteerd */
+background: #ececf1;
 }
 
 .sb-root:hover {
-  background: #e6e6e6; /* Lichte hover kleur voor root-items */
+background: #e6e6e6;
 }
 
 .sb-submenu {
-  padding-left: 12px;
+padding-left: 12px;
 }
 
 .sb-sub {
-  display: block;
-  padding: 8px 12px;
-  font-size: 14px;
-  color: #6b7280; /* Lichtgrijze kleur voor submenu's */
-  text-decoration: none;
-  border-radius: 6px;
-  transition: background-color 0.3s ease; /* Zachte overgang bij hover */
+display: block;
+padding: 8px 12px;
+font-size: 14px;
+color: #6b7280;
+text-decoration: none;
+border-radius: 6px;
+transition: background-color 0.3s ease;
 }
 
 .sb-sub.active {
-  color: #111827; /* Donkere kleur voor actieve submenu's */
-  background: #f0f0f3; /* Subtiele hover-effect kleur */
+color: #111827;
+background: #f0f0f3;
 }
 
 .sb-sub:hover {
-  background: #e6e6e6; /* Hover-effect voor submenu-items */
+background: #e6e6e6;
 }
 
 .sb-content {
-  flex: 1;
-  padding: 24px;
-  background: #ffffff;
+flex: 1;
+padding: 24px;
+background: #ffffff;
+}
+
+/* ======================
+CALCULATIES FRAME
+====================== */
+
+.calculaties-wrapper {
+position: relative;
+}
+
+.calculaties-frame {
+background: #ffffff;
+border-radius: 12px;
+padding: 16px;
+border: 1px solid #e5e7eb;
+max-height: 70vh;
+overflow-y: auto;
+}
+
+.calculaties-frame table {
+width: 100%;
+border-collapse: collapse;
+}
+
+.calculaties-frame thead th {
+position: sticky;
+top: 0;
+background: #ffffff;
+z-index: 1;
+font-size: 13px;
+font-weight: 600;
+color: #111827;
+padding-bottom: 12px;
+}
+
+.calculaties-frame tbody td {
+padding: 10px 0;
+font-size: 14px;
+border-bottom: 1px solid #f1f5f9;
+}
+
+.nieuwe-calculatie-btn {
+position: absolute;
+bottom: 16px;
+left: 16px;
+padding: 10px 16px;
+background: #2563eb;
+color: #ffffff;
+border: none;
+border-radius: 6px;
+font-size: 14px;
+font-weight: 600;
+cursor: pointer;
+}
+
+.nieuwe-calculatie-btn:hover {
+background: #1d4ed8;
 }
 
 /* MOBILE */
 
 .sb-mobile-trigger {
-  display: none;
+display: none;
 }
 
 @media (max-width: 767px) {
-  .sb-mobile-trigger {
-    display: block;
-    position: fixed;
-    top: 12px;
-    left: 12px;
-    z-index: 1001;
-    background: #f7f7f8;
-    border: 1px solid #e5e7eb;
-    padding: 8px 12px;
-    border-radius: 6px;
-  }
+.sb-mobile-trigger {
+display: block;
+position: fixed;
+top: 12px;
+left: 12px;
+z-index: 1001;
+background: #f7f7f8;
+border: 1px solid #e5e7eb;
+padding: 8px 12px;
+border-radius: 6px;
+}
 
-  .sb-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    transform: translateX(-100%);
-    transition: transform 0.2s ease;
-    z-index: 1002;
-  }
+.sb-sidebar {
+position: fixed;
+top: 0;
+left: 0;
+height: 100%;
+transform: translateX(-100%);
+transition: transform 0.2s ease;
+z-index: 1002;
+}
 
-  .sb-sidebar.open {
-    transform: translateX(0);
-  }
+.sb-sidebar.open {
+transform: translateX(0);
+}
 
-  .sb-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.2);
-    z-index: 1000;
-  }
+.sb-overlay {
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.2);
+z-index: 1000;
+}
 
-  .sb-layout {
-    flex-direction: column;
-  }
+.sb-layout {
+flex-direction: column;
+}
 }
