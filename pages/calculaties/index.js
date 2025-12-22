@@ -58,42 +58,41 @@ export default function Calculaties() {
         </Link>
       </div>
 
-      <div style={{ position: "relative" }}>
-        <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
-          <table width="100%" cellPadding="8">
-            <thead>
-              <tr>
-                <th>Naam</th>
-                <th>Status</th>
-                <th>Kostprijs</th>
-                <th>Verkoopprijs</th>
-                <th>Marge</th>
+      {/* FRAME */}
+      <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
+        <table width="100%" cellPadding="8">
+          <thead>
+            <tr>
+              <th>Naam</th>
+              <th>Status</th>
+              <th>Kostprijs</th>
+              <th>Verkoopprijs</th>
+              <th>Marge</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(r => (
+              <tr key={r.id}>
+                <td>
+                  <Link href={`/calculaties/${r.id}`}>
+                    {r.naam}
+                  </Link>
+                </td>
+                <td>{r.workflow_status}</td>
+                <td>€ {Number(r.kostprijs || 0).toFixed(2)}</td>
+                <td>€ {Number(r.verkoopprijs || 0).toFixed(2)}</td>
+                <td>€ {Number(r.marge || 0).toFixed(2)}</td>
               </tr>
-            </thead>
-            <tbody>
-              {rows.map(r => (
-                <tr key={r.id}>
-                  <td>
-                    <Link href={`/calculaties/${r.id}`}>
-                      {r.naam}
-                    </Link>
-                  </td>
-                  <td>{r.workflow_status}</td>
-                  <td>€ {Number(r.kostprijs || 0).toFixed(2)}</td>
-                  <td>€ {Number(r.verkoopprijs || 0).toFixed(2)}</td>
-                  <td>€ {Number(r.marge || 0).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
+      {/* KNOP ONDER HET FRAME */}
+      <div style={{ marginTop: 12 }}>
         <button
           onClick={handleNieuweCalculatie}
           style={{
-            position: "absolute",
-            bottom: 12,
-            left: 12,
             padding: "10px 16px",
             borderRadius: 6,
             border: "none",
