@@ -99,40 +99,6 @@ export default function NieuweCalculatie() {
     }
   }
 
-  async function handleCreateProject() {
-    if (creating) return;
-    setCreating(true);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/executor/create-project", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          naam: "Nieuw project",
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || "Project aanmaken mislukt");
-        setCreating(false);
-        return;
-      }
-
-      setProjectId(data.project_id); // Update project_id met de response van de backend
-
-      // Redirect naar de nieuw gemaakte projectpagina met project_id
-      router.push(`/calculaties/nieuw?project_id=${data.project_id}`);
-    } catch (e) {
-      setError(`Fout bij de aanvraag: ${e.message}`);
-      setCreating(false);
-    }
-  }
-
   return (
     <>
       <h1>Nieuwe Calculatie</h1>
