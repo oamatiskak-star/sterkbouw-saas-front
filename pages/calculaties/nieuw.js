@@ -38,11 +38,9 @@ function Field({ label, children }) {
 export default function NieuweCalculatie() {
   const router = useRouter()
   const { isReady, query } = router
-  const project_id = isReady && query.project_id ? String(query.project_id) : null
 
-  if (!isReady) return <div>Laden...</div>
-  if (!project_id) return <div>Project ontbreekt</div>
-
+  // ALLE hooks altijd bovenaan
+  const [projectId, setProjectId] = useState(null)
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
   const [adres, setAdres] = useState("")
@@ -54,6 +52,16 @@ export default function NieuweCalculatie() {
   const [opmerking, setOpmerking] = useState("")
   const [creating, setCreating] = useState(false)
 
+  useEffect(() => {
+    if (!isReady) return
+    if (query.project_id) {
+      setProjectId(String(query.project_id))
+    }
+  }, [isReady, query.project_id])
+
+  if (!isReady) return <div>Laden...</div>
+  if (!projectId) return <div>Project ontbreekt</div>
+
   async function handleStartCalculatie() {
     if (creating) return
     setCreating(true)
@@ -62,7 +70,7 @@ export default function NieuweCalculatie() {
       const { data, error } = await supabase
         .from("calculaties")
         .insert({
-          project_id,
+          project_id: projectId,
           naam_opdrachtgever: naamOpdrachtgever,
           omschrijving,
           adres,
@@ -80,7 +88,7 @@ export default function NieuweCalculatie() {
       if (error) throw error
 
       await supabase.rpc("start_project_initialisation", {
-        p_project_id: project_id
+        p_project_id: projectId
       })
 
       router.replace(`/calculaties/${data.id}`)
@@ -95,15 +103,14 @@ export default function NieuweCalculatie() {
       <h1>Nieuwe Calculatie</h1>
 
       <div style={{ marginBottom: 16, padding: 12, background: "#eef2ff", borderRadius: 6, fontWeight: 600 }}>
-        Project ID: {project_id}
+        Project ID: {projectId}
       </div>
 
-      {/* KNOP NAAR UPLOADPAGINA */}
       <div style={{ marginBottom: 24 }}>
         <button
           type="button"
           style={{ ...buttonStyle, background: "#16a34a" }}
-          onClick={() => router.push(`/calculaties/upload?project_id=${project_id}`)}
+          onClick={() => router.push(`/calculaties/upload?project_id=${projectId}`)}
         >
           Bestanden uploaden
         </button>
