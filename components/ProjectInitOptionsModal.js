@@ -31,7 +31,7 @@ async function uploadFileHard({ file, projectId }) {
     `${supabaseUrl}/storage/v1/object/sterkbouw/${filePath}`
 
   const res = await fetch(uploadUrl, {
-    method: "POST",
+    method: "PUT",
     headers: {
       Authorization: `Bearer ${anonKey}`,
       apikey: anonKey,
