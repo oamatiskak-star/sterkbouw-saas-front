@@ -1,32 +1,27 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useRouter } from "next/router"
-import { createClient } from "@supabase/supabase-js"
-import Link from "next/link"
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
-
-export default function Calculaties() {
-  const router = useRouter()
-  const [rows, setRows] = useState([])
+export default function IndexPage() {
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState(null)
+  const router = useRouter()
 
-  const { query, isReady } = router
-  const projectId = isReady && query.project_id ? query.project_id : null
-
-  // Maak een nieuw project aan en haal het project_id op via de executor
+  // Haal project_id op van de backend via de executor
   async function handleNieuweCalculatie() {
     if (creating) return
     setCreating(true)
     setError(null)
 
     try {
-      // 1. Vraag een nieuw project_id aan via de executor
+      // Verstuur POST-aanroep naar de executor backend om een nieuw project aan te maken
       const response = await fetch("/api/executor/create-project", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          naam: "Nieuw project", // Naam van het project kan worden aangepast
+        })
       })
 
       const data = await response.json()
@@ -37,7 +32,7 @@ export default function Calculaties() {
         return
       }
 
-      // 2. Redirect naar de nieuw gemaakte projectpagina, met het project_id in de URL
+      // Redirect naar de nieuw gemaakte projectpagina met het project_id
       router.push(`/calculaties/nieuw?project_id=${data.project_id}`)
     } catch (e) {
       setError(e.message)
@@ -45,93 +40,28 @@ export default function Calculaties() {
     }
   }
 
-  // Laad alle calculaties
-  useEffect(() => {
-    loadCalculaties()
-  }, [])
-
-  async function loadCalculaties() {
-    const { data, error } = await supabase
-      .from("calculaties")
-      .select("id, naam, workflow_status, kostprijs, verkoopprijs, marge")
-      .order("created_at", { ascending: false })
-
-    if (error) {
-      setError(error.message)
-      return
-    }
-
-    setRows(data || [])
-  }
-
   return (
     <>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
-        <h1>Calculaties</h1>
+      <h1>Welkom bij de Project Calculator</h1>
 
-        <button
-          onClick={handleNieuweCalculatie}
-          disabled={creating}
-          style={{
-            padding: "10px 16px",
-            borderRadius: 6,
-            border: "none",
-            cursor: "pointer"
-          }}
-        >
-          Nieuwe calculatie
-        </button>
-      </div>
+      <button
+        onClick={handleNieuweCalculatie}
+        disabled={creating}
+        style={{
+          padding: "10px 16px",
+          borderRadius: 6,
+          border: "none",
+          cursor: "pointer"
+        }}
+      >
+        Maak een nieuw project aan
+      </button>
 
       {error && (
-        <div style={{ color: "red", marginBottom: 16 }}>
+        <div style={{ color: "red", marginTop: 16 }}>
           {error}
         </div>
       )}
-
-      <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
-        <table width="100%" cellPadding="8">
-          <thead>
-            <tr>
-              <th>Naam</th>
-              <th>Status</th>
-              <th>Kostprijs</th>
-              <th>Verkoopprijs</th>
-              <th>Marge</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(r => (
-              <tr key={r.id}>
-                <td>
-                  <Link href={`/calculaties/${r.id}`}>
-                    {r.naam}
-                  </Link>
-                </td>
-                <td>{r.workflow_status}</td>
-                <td>€ {Number(r.kostprijs || 0).toFixed(2)}</td>
-                <td>€ {Number(r.verkoopprijs || 0).toFixed(2)}</td>
-                <td>€ {Number(r.marge || 0).toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div style={{ marginTop: 12 }}>
-        <button
-          onClick={handleNieuweCalculatie}
-          disabled={creating}
-          style={{
-            padding: "10px 16px",
-            borderRadius: 6,
-            border: "none",
-            cursor: "pointer"
-          }}
-        >
-          Nieuwe calculatie
-        </button>
-      </div>
     </>
   )
 }
