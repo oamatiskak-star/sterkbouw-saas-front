@@ -15,6 +15,17 @@ export default function UploadPagina() {
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState(null)
 
+  // Functie om te controleren of het project_id bestaat
+  async function checkProjectExists(project_id) {
+    const { data, error } = await supabase
+      .from("projects")
+      .select("id")
+      .eq("id", project_id)
+      .single()
+
+    return data ? true : false
+  }
+
   async function upload() {
     setBusy(true); setErr(null)
 
@@ -23,6 +34,13 @@ export default function UploadPagina() {
       if (files.length === 0) {
         setErr("Geen bestanden geselecteerd.");
         return;
+      }
+
+      // Controleer of het project_id bestaat
+      const projectExists = await checkProjectExists(project_id)
+      if (!projectExists) {
+        setErr("Het opgegeven project bestaat niet.");
+        return
       }
 
       // Loop door alle geselecteerde bestanden
