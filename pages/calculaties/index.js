@@ -17,33 +17,35 @@ export default function Calculaties() {
   const { query, isReady } = router
   const projectId = isReady && query.project_id ? query.project_id : null
 
-  // Maak een nieuw project aan en haal het project_id op
+  // Maak een nieuw project aan en haal het project_id op via de executor
   async function handleNieuweCalculatie() {
     if (creating) return
     setCreating(true)
     setError(null)
 
     try {
-      const response = await fetch("/api/create-project", {
-        method: "POST"
+      // 1. Vraag een nieuw project_id aan via de executor
+      const response = await fetch("/api/executor/create-project", {
+        method: "POST",
       })
 
-      const res = await response.json()
+      const data = await response.json()
 
       if (!response.ok) {
-        setError(res.error || "Project aanmaken mislukt")
+        setError(data.error || "Project aanmaken mislukt")
         setCreating(false)
         return
       }
 
-      // Redirect naar de nieuw gemaakte projectpagina
-      router.push(`/calculaties/nieuw?project_id=${res.project_id}`)
+      // 2. Redirect naar de nieuw gemaakte projectpagina, met het project_id in de URL
+      router.push(`/calculaties/nieuw?project_id=${data.project_id}`)
     } catch (e) {
       setError(e.message)
       setCreating(false)
     }
   }
 
+  // Laad alle calculaties
   useEffect(() => {
     loadCalculaties()
   }, [])
