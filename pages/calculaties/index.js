@@ -31,7 +31,7 @@ export default function Calculaties() {
     setCreating(true)
 
     const { data, error } = await supabase
-      .from("projecten")
+      .from("projects")
       .insert({
         naam: "Nieuw project",
         status: "draft"
@@ -58,7 +58,6 @@ export default function Calculaties() {
         </Link>
       </div>
 
-      {/* FRAME */}
       <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
         <table width="100%" cellPadding="8">
           <thead>
@@ -88,7 +87,6 @@ export default function Calculaties() {
         </table>
       </div>
 
-      {/* KNOP ONDER HET FRAME */}
       <div style={{ marginTop: 12 }}>
         <button
           onClick={handleNieuweCalculatie}
