@@ -17,7 +17,6 @@ export default function CalculatieDetail() {
   const [workflowLog, setWorkflowLog] = useState([])
   const [loading, setLoading] = useState(true)
 
-  // TOEGEVOEGD
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState(null)
 
@@ -29,7 +28,6 @@ export default function CalculatieDetail() {
     async function load() {
       setLoading(true)
 
-      // 1. CALCULATIE IS LEIDEND
       const { data: c, error } = await supabase
         .from("calculaties")
         .select("*")
@@ -45,7 +43,6 @@ export default function CalculatieDetail() {
       if (cancelled) return
       setCalculatie(c)
 
-      // 2. REGELS (optioneel)
       const { data: r } = await supabase
         .from("calculatie_regels")
         .select("*")
@@ -53,7 +50,6 @@ export default function CalculatieDetail() {
 
       if (!cancelled) setRegels(r || [])
 
-      // 3. OPSLAGEN (optioneel)
       const { data: o } = await supabase
         .from("calculatie_opslagen")
         .select("*")
@@ -62,7 +58,6 @@ export default function CalculatieDetail() {
 
       if (!cancelled) setOpslagen(o || null)
 
-      // 4. WORKFLOW LOG (optioneel)
       const { data: w } = await supabase
         .from("calculatie_workflow_log")
         .select("*")
@@ -74,83 +69,35 @@ export default function CalculatieDetail() {
     }
 
     load()
-
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [id])
 
-  // TOEGEVOEGD: FILE UPLOAD + ANALYSE TRIGGER
-  async function handleFileUpload(e) {
+  // FRONTEND DOET GEEN UPLOAD MEER
+  // ALLEEN TASK AANMAKEN VOOR EXECUTOR
+  async function handleFileSelect(e) {
     const file = e.target.files?.[0]
-    if (!file) return
+    if (!file || !calculatie) return
 
     setUploading(true)
     setUploadError(null)
 
     try {
-      const filePath = `${calculatie.project_id}/${Date.now()}_${file.name}`
-
-      const { error: uploadError } = await supabase.storage
-        .from("project-files") // BELANGRIJK: bucket moet bestaan
-        .upload(filePath, file, { upsert: false })
-
-      if (uploadError) throw uploadError
-
-      const { error: dbError } = await supabase
-        .from("sterkcalc")
+      const { error } = await supabase
+        .from("tasks")
         .insert({
-          project_id: calculatie.project_id,
-          calculatie_id: id,
-          path: filePath,
-          filename: file.name,
-          status: "uploaded"
+          action: "upload_files",
+          status: "open",
+          assigned_to: "executor",
+          payload: {
+            bucket: "sterkcalc",
+            project_id: calculatie.project_id,
+            calculatie_id: id,
+            filename: file.name,
+            mime_type: file.type
+            // daadwerkelijke file-afhandeling gebeurt in executor
+          }
         })
 
-      if (dbError) throw dbError
-
-      // trigger her-analyse
-      await supabase.rpc("start_project_initialisation", {
-        p_project_id: calculatie.project_id
-      })
+      if (error) throw error
     } catch (err) {
-      console.error("UPLOAD_FAILED", err)
-      setUploadError(err.message)
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  if (loading) {
-    return <div>Loading...</div>
-  }
-
-  if (!calculatie) {
-    return <div>Calculatie niet gevonden</div>
-  }
-
-  return (
-    <>
-      <h1>{calculatie.naam_opdrachtgever || "Calculatie"}</h1>
-
-      <p>Status: <strong>{calculatie.workflow_status}</strong></p>
-      <p>Kostprijs: € {Number(calculatie.kostprijs || 0).toFixed(2)}</p>
-      <p>Verkoopprijs: € {Number(calculatie.verkoopprijs || 0).toFixed(2)}</p>
-      <p>Marge: € {Number(calculatie.marge || 0).toFixed(2)}</p>
-
-      {/* TOEGEVOEGD: UPLOAD BLOK */}
-      <hr />
-
-      <h3>Bestanden uploaden voor analyse</h3>
-
-      <input
-        type="file"
-        onChange={handleFileUpload}
-        disabled={uploading}
-      />
-
-      {uploading && <p>Uploaden en analyseren...</p>}
-      {uploadError && <p style={{ color: "red" }}>{uploadError}</p>}
-    </>
-  )
-}
+      cons
