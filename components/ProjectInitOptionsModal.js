@@ -45,7 +45,7 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
 
     for (const file of files) {
       await supabase.storage
-        .from("project-files")
+        .from("sterkbouw")
         .upload(`temp/${Date.now()}_${file.name}`, file, { upsert: false })
     }
 
@@ -88,11 +88,9 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
       return
     }
 
-    // UI afronden
     setStarting(false)
     if (onConfirm) onConfirm()
 
-    // DIRECT DOOR NAAR INITIALISATIE
     router.push(`/calculaties/${projectId}/initialisatie`)
   }
 
