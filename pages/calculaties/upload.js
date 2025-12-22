@@ -9,15 +9,21 @@ async function upload() {
     return
   }
 
+  console.log("Project ID:", projectId) // Debugging: controleer projectId
+
   try {
     if (files.length === 0) {
       throw new Error("Geen bestanden geselecteerd")
     }
 
+    console.log("Bestanden geselecteerd:", files) // Debugging: controleer geselecteerde bestanden
+
     for (const file of files) {
       const path = `${projectId}/${Date.now()}_${file.name}`
 
-      // Gebruik GET in plaats van POST
+      console.log("Path voor bestand:", path) // Debugging: controleer bestandspad
+
+      // Gebruik GET in plaats van POST voor signed upload URL
       const r = await fetch(`/api/signed-upload?project_id=${projectId}&path=${path}&contentType=${file.type}`, {
         method: "GET", // Gebruik GET-methode
       })
@@ -27,6 +33,8 @@ async function upload() {
       }
 
       const { signedUrl } = await r.json()
+
+      console.log("Signed URL ontvangen:", signedUrl) // Debugging: controleer signed URL
 
       const uploadRes = await fetch(signedUrl, {
         method: "PUT",
@@ -69,8 +77,12 @@ async function upload() {
       throw new Error("Executor taak mislukt: " + taskError.message)
     }
 
+    console.log("Bestanden succesvol geüpload") // Debugging: controleer succes
+
+    // Router naar nieuw project
     router.push(`/calculaties/nieuw?project_id=${projectId}`)
   } catch (e) {
+    console.error("Fout bij uploaden:", e) // Debugging: log de fout
     setErr(e.message)
   } finally {
     setBusy(false)
