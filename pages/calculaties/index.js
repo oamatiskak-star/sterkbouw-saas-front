@@ -31,7 +31,7 @@ export default function Calculaties() {
     setCreating(true)
 
     const { data, error } = await supabase
-      .from("projecten") // ← HIER ZAT DE FOUT
+      .from("projecten")
       .insert({
         naam: "Nieuw project",
         status: "draft"
@@ -58,32 +58,51 @@ export default function Calculaties() {
         </Link>
       </div>
 
-      <table width="100%" cellPadding="8">
-        <thead>
-          <tr>
-            <th>Naam</th>
-            <th>Status</th>
-            <th>Kostprijs</th>
-            <th>Verkoopprijs</th>
-            <th>Marge</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(r => (
-            <tr key={r.id}>
-              <td>
-                <Link href={`/calculaties/${r.id}`}>
-                  {r.naam}
-                </Link>
-              </td>
-              <td>{r.workflow_status}</td>
-              <td>€ {Number(r.kostprijs || 0).toFixed(2)}</td>
-              <td>€ {Number(r.verkoopprijs || 0).toFixed(2)}</td>
-              <td>€ {Number(r.marge || 0).toFixed(2)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div style={{ position: "relative" }}>
+        <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
+          <table width="100%" cellPadding="8">
+            <thead>
+              <tr>
+                <th>Naam</th>
+                <th>Status</th>
+                <th>Kostprijs</th>
+                <th>Verkoopprijs</th>
+                <th>Marge</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(r => (
+                <tr key={r.id}>
+                  <td>
+                    <Link href={`/calculaties/${r.id}`}>
+                      {r.naam}
+                    </Link>
+                  </td>
+                  <td>{r.workflow_status}</td>
+                  <td>€ {Number(r.kostprijs || 0).toFixed(2)}</td>
+                  <td>€ {Number(r.verkoopprijs || 0).toFixed(2)}</td>
+                  <td>€ {Number(r.marge || 0).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <button
+          onClick={handleNieuweCalculatie}
+          style={{
+            position: "absolute",
+            bottom: 12,
+            left: 12,
+            padding: "10px 16px",
+            borderRadius: 6,
+            border: "none",
+            cursor: "pointer"
+          }}
+        >
+          Nieuwe calculatie
+        </button>
+      </div>
     </>
   )
 }
