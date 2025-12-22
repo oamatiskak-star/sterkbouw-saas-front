@@ -39,7 +39,6 @@ export default function NieuweCalculatie() {
   const router = useRouter()
   const { isReady, query } = router
 
-  // ALLE hooks altijd bovenaan
   const [projectId, setProjectId] = useState(null)
   const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("")
   const [omschrijving, setOmschrijving] = useState("")
