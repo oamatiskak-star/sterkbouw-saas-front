@@ -7,6 +7,38 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
+/* ======================
+   HARDE UPLOAD FUNCTIE
+   ====================== */
+async function uploadFileHard({ file, projectId }) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!file || !projectId) {
+    throw new Error("FILE_OF_PROJECT_ID_ONTBREEKT")
+  }
+
+  const filePath = `${projectId}/${Date.now()}_${file.name}`
+  const uploadUrl = `${supabaseUrl}/storage/v1/object/sterkbouw/${filePath}`
+
+  const res = await fetch(uploadUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${supabaseKey}`,
+      apikey: supabaseKey,
+      "Content-Type": file.type || "application/octet-stream"
+    },
+    body: file
+  })
+
+  if (!res.ok) {
+    const text = await res.text()
+    throw new Error(`UPLOAD_FAILED: ${res.status} ${text}`)
+  }
+
+  return filePath
+}
+
 export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel }) {
   const router = useRouter()
   const fileInputRef = useRef(null)
@@ -43,14 +75,21 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
 
     setUploading(true)
 
-    for (const file of files) {
-      await supabase.storage
-        .from("sterkbouw")
-        .upload(`temp/${Date.now()}_${file.name}`, file, { upsert: false })
-    }
+    try {
+      for (const file of files) {
+        await uploadFileHard({
+          file,
+          projectId
+        })
+      }
 
-    setUploadCount(prev => prev + files.length)
-    setUploading(false)
+      setUploadCount(prev => prev + files.length)
+    } catch (err) {
+      console.error(err)
+      alert(err.message)
+    } finally {
+      setUploading(false)
+    }
   }
 
   function handleImportClick() {
