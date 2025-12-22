@@ -66,6 +66,9 @@ export default function NieuweCalculatie() {
   const [naamProjectleider, setNaamProjectleider] = useState("")
   const [telefoonProjectleider, setTelefoonProjectleider] = useState("")
 
+  // UPLOAD
+  const [files, setFiles] = useState([])
+
   const [facturatieGegevens, setFacturatieGegevens] = useState(false)
   const [creating, setCreating] = useState(false)
 
@@ -78,64 +81,78 @@ export default function NieuweCalculatie() {
     }
   }, [facturatieGegevens, adres, postcode, plaatsnaam, land])
 
+  async function uploadFiles() {
+    for (const file of files) {
+      const path = `${project_id}/${Date.now()}_${file.name}`
+
+      const { error: uploadError } = await supabase.storage
+        .from("project_files")
+        .upload(path, file)
+
+      if (uploadError) {
+        throw new Error(uploadError.message)
+      }
+
+      const { error: dbError } = await supabase
+        .from("project_files")
+        .insert({
+          project_id,
+          filename: file.name,
+          path
+        })
+
+      if (dbError) {
+        throw new Error(dbError.message)
+      }
+    }
+  }
+
   async function handleStartCalculatie() {
     if (creating) return
     setCreating(true)
 
     try {
+      if (files.length > 0) {
+        await uploadFiles()
+      }
+
       const { data, error } = await supabase
         .from("calculaties")
-        .insert([
-          {
-            project_id: project_id,
-
-            naam_opdrachtgever: naamOpdrachtgever,
-            omschrijving,
-            adres,
-            postcode,
-            plaatsnaam,
-            land,
-            telefoon,
-            project_type: projectType,
-            opmerking,
-
-            bedrijf_naam: bedrijfNaam,
-            postbus,
-            adres_facturatie: adresFacturatie,
-            postcode_facturatie: postcodeFacturatie,
-            plaatsnaam_facturatie: plaatsnaamFacturatie,
-            land_facturatie: landFacturatie,
-            email_facturen: emailFacturen,
-            telefoon_kantoor: telefoonKantoor,
-            naam_projectleider: naamProjectleider,
-            telefoon_projectleider: telefoonProjectleider,
-
-            workflow_status: "initializing"
-          }
-        ])
+        .insert({
+          project_id,
+          naam_opdrachtgever: naamOpdrachtgever,
+          omschrijving,
+          adres,
+          postcode,
+          plaatsnaam,
+          land,
+          telefoon,
+          project_type: projectType,
+          opmerking,
+          bedrijf_naam: bedrijfNaam,
+          postbus,
+          adres_facturatie: adresFacturatie,
+          postcode_facturatie: postcodeFacturatie,
+          plaatsnaam_facturatie: plaatsnaamFacturatie,
+          land_facturatie: landFacturatie,
+          email_facturen: emailFacturen,
+          telefoon_kantoor: telefoonKantoor,
+          naam_projectleider: naamProjectleider,
+          telefoon_projectleider: telefoonProjectleider,
+          workflow_status: "initializing"
+        })
         .select("id")
+        .single()
 
-      if (error) {
-        alert("Insert fout: " + error.message)
-        setCreating(false)
-        return
-      }
-
-      if (!data || !data[0]?.id) {
-        alert("Calculatie aangemaakt maar geen ID ontvangen")
-        setCreating(false)
-        return
-      }
-
-      const calculatieId = data[0].id
+      if (error) throw error
 
       await supabase.rpc("start_project_initialisation", {
         p_project_id: project_id
       })
 
-      router.replace(`/calculaties/${calculatieId}`)
+      router.replace(`/calculaties/${data.id}`)
     } catch (e) {
-      alert("Onverwachte fout: " + e.message)
+      alert(e.message)
       setCreating(false)
     }
   }
@@ -144,17 +161,17 @@ export default function NieuweCalculatie() {
     <>
       <h1>Nieuwe Calculatie</h1>
 
-      <div
-        style={{
-          marginBottom: 16,
-          padding: 12,
-          background: "#eef2ff",
-          borderRadius: 6,
-          fontWeight: 600
-        }}
-      >
+      <div style={{ marginBottom: 16, padding: 12, background: "#eef2ff", borderRadius: 6, fontWeight: 600 }}>
         Project ID: {project_id}
       </div>
+
+      <Field label="Bestanden voor analyse (PDF, DWG, XLSX)">
+        <input
+          type="file"
+          multiple
+          onChange={e => setFiles(Array.from(e.target.files))}
+        />
+      </Field>
 
       <label style={{ display: "flex", gap: 8, marginBottom: 24 }}>
         <input
@@ -166,67 +183,20 @@ export default function NieuweCalculatie() {
       </label>
 
       <form onSubmit={e => e.preventDefault()}>
-        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1.4fr", gap: 40 }}>
-          <div>
-            <h3>Projectgegevens</h3>
+        <Field label="Naam opdrachtgever">
+          <input style={inputStyle} value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
+        </Field>
 
-            <Field label="Naam opdrachtgever">
-              <input style={inputStyle} value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
-            </Field>
-
-            <Field label="Omschrijving">
-              <input style={inputStyle} value={omschrijving} onChange={e => setOmschrijving(e.target.value)} />
-            </Field>
-
-            <Field label="Adres">
-              <input style={inputStyle} value={adres} onChange={e => setAdres(e.target.value)} />
-            </Field>
-
-            <Field label="Postcode">
-              <input style={inputStyle} value={postcode} onChange={e => setPostcode(e.target.value)} />
-            </Field>
-
-            <Field label="Plaatsnaam">
-              <input style={inputStyle} value={plaatsnaam} onChange={e => setPlaatsnaam(e.target.value)} />
-            </Field>
-
-            <Field label="Land">
-              <select style={inputStyle} value={land} onChange={e => setLand(e.target.value)}>
-                <option>Nederland</option>
-                <option>België</option>
-                <option>Duitsland</option>
-              </select>
-            </Field>
-
-            <Field label="Telefoon">
-              <input style={inputStyle} value={telefoon} onChange={e => setTelefoon(e.target.value)} />
-            </Field>
-
-            <Field label="Projecttype">
-              <select style={inputStyle} value={projectType} onChange={e => setProjectType(e.target.value)}>
-                <option>Nieuwbouw</option>
-                <option>Utiliteitsbouw</option>
-                <option>Transformatie</option>
-                <option>Renovatie</option>
-              </select>
-            </Field>
-
-            <Field label="Opmerking">
-              <input style={inputStyle} value={opmerking} onChange={e => setOpmerking(e.target.value)} />
-            </Field>
-
-            <Field label=" ">
-              <button
-                type="button"
-                style={buttonStyle}
-                onClick={handleStartCalculatie}
-                disabled={creating}
-              >
-                {creating ? "Bezig..." : "Start calculatie"}
-              </button>
-            </Field>
-          </div>
-        </div>
+        <Field label=" ">
+          <button
+            type="button"
+            style={buttonStyle}
+            onClick={handleStartCalculatie}
+            disabled={creating}
+          >
+            {creating ? "Bezig..." : "Start calculatie"}
+          </button>
+        </Field>
       </form>
     </>
   )
