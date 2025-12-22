@@ -1,42 +1,42 @@
-import { useState } from "react"
-import { useRouter } from "next/router"
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function IndexPage() {
-  const [creating, setCreating] = useState(false)
-  const [error, setError] = useState(null)
-  const router = useRouter()
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState(null);
+  const router = useRouter();
 
-  // Haal project_id op van de backend via de executor
+  // De functie om een nieuw project aan te maken via de API
   async function handleNieuweCalculatie() {
-    if (creating) return
-    setCreating(true)
-    setError(null)
+    if (creating) return;
+    setCreating(true);
+    setError(null);
 
     try {
-      // Verstuur POST-aanroep naar de executor backend om een nieuw project aan te maken
+      // Aanroep naar de executor via een POST request
       const response = await fetch("/api/executor/create-project", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          naam: "Nieuw project", // Naam van het project kan worden aangepast
-        })
-      })
+          naam: "Nieuw project", // Projectnaam kan dynamisch worden
+        }),
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Project aanmaken mislukt")
-        setCreating(false)
-        return
+        setError(data.error || "Project aanmaken mislukt");
+        setCreating(false);
+        return;
       }
 
-      // Redirect naar de nieuw gemaakte projectpagina met het project_id
-      router.push(`/calculaties/nieuw?project_id=${data.project_id}`)
+      // Op basis van het ID dat we ontvangen, sturen we de gebruiker naar de nieuw pagina
+      router.push(`/calculaties/nieuw?project_id=${data.project_id}`);
     } catch (e) {
-      setError(e.message)
-      setCreating(false)
+      setError(e.message);
+      setCreating(false);
     }
   }
 
@@ -51,7 +51,7 @@ export default function IndexPage() {
           padding: "10px 16px",
           borderRadius: 6,
           border: "none",
-          cursor: "pointer"
+          cursor: "pointer",
         }}
       >
         Maak een nieuw project aan
@@ -63,5 +63,5 @@ export default function IndexPage() {
         </div>
       )}
     </>
-  )
+  );
 }
