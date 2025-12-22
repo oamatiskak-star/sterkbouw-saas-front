@@ -16,43 +16,69 @@ export default function UploadPagina() {
   const [err, setErr] = useState(null)
 
   async function upload() {
-    if (!project_id || files.length === 0) return
-    setBusy(true)
-    setErr(null)
+    setBusy(true); setErr(null)
 
     try {
+      // Controleer of er bestanden zijn geselecteerd
+      if (files.length === 0) {
+        setErr("Geen bestanden geselecteerd.");
+        return;
+      }
+
+      // Loop door alle geselecteerde bestanden
       for (const file of files) {
         const path = `${project_id}/${Date.now()}_${file.name}`
 
-        const { error: uploadError } = await supabase.storage
-          .from("sterkcalc")
-          .upload(path, file, {
-            contentType: file.type,
-            upsert: false
-          })
-
-        if (uploadError) throw uploadError
-
-        const { error: dbError } = await supabase
-          .from("project_files")
-          .insert({
-            project_id,
-            bucket: "sterkcalc",
+        // Verkrijg een gesigneerde upload URL voor het bestand
+        const r = await fetch("/api/signed-upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            bucket: "sterkcalc",  // Vervang met je eigen bucket naam als nodig
             path,
-            filename: file.name,
-            content_type: file.type
+            contentType: file.type
           })
+        })
 
-        if (dbError) throw dbError
+        const { signedUrl, token } = await r.json()
+
+        // Upload bestand naar de gesigneerde URL
+        await fetch(signedUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": file.type,
+            "x-upsert": "false"
+          },
+          body: file
+        })
+
+        // Sla bestand op in de Supabase database
+        const { error: insertError } = await supabase.from("project_files").insert({
+          project_id,
+          file_name: file.name,           // Correcte kolomnaam voor bestandnaam
+          storage_path: path,             // Correcte kolomnaam voor opslagpad
+          status: "uploaded",             // Status wordt "uploaded"
+          created_at: new Date().toISOString()  // Voeg de timestamp toe
+        })
+
+        if (insertError) {
+          throw new Error("Fout bij het opslaan van bestand: " + insertError.message)
+        }
       }
 
-      await supabase.from("executor_tasks").insert({
+      // Voeg een taak toe voor verdere verwerking van de bestanden
+      const { error: taskError } = await supabase.from("executor_tasks").insert({
         action: "upload_files",
         project_id,
         status: "open",
         assigned_to: "executor"
       })
 
+      if (taskError) {
+        throw new Error("Fout bij het toevoegen van de executor taak: " + taskError.message)
+      }
+
+      // Redirect naar de volgende pagina na upload
       router.push(`/calculaties/nieuw?project_id=${project_id}`)
     } catch (e) {
       setErr(e.message)
@@ -63,15 +89,9 @@ export default function UploadPagina() {
 
   return (
     <>
-      <input
-        type="file"
-        multiple
-        onChange={e => setFiles(Array.from(e.target.files))}
-      />
+      <input type="file" multiple onChange={e => setFiles([...e.target.files])} />
       {err && <p>{err}</p>}
-      <button onClick={upload} disabled={busy}>
-        Upload starten
-      </button>
+      <button onClick={upload} disabled={busy}>Upload starten</button>
     </>
   )
 }
