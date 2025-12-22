@@ -18,7 +18,7 @@ body {
 
 .sb-sidebar {
   width: 260px;
-  background: #f7f7f7; /* Lichte grijze achtergrond, iets lichter dan de huidige */
+  background: 2563EB; /* Lichte grijze achtergrond, iets lichter dan de huidige */
   border-right: 1px solid #e5e7eb;
   padding: 16px;
 }
