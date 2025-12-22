@@ -98,7 +98,7 @@ export default function CalculatieDetail() {
       if (uploadError) throw uploadError
 
       const { error: dbError } = await supabase
-        .from("project_files")
+        .from("sterkcalc")
         .insert({
           project_id: calculatie.project_id,
           calculatie_id: id,
