@@ -17,6 +17,7 @@ export default function NieuweCalculatie() {
   const [projectId, setProjectId] = useState(null)
   const [uploaded, setUploaded] = useState(false)
   const [analysisStatus, setAnalysisStatus] = useState(null)
+  const [analysisLog, setAnalysisLog] = useState([])
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState(null)
 
@@ -36,11 +37,6 @@ export default function NieuweCalculatie() {
     setForm(prev => ({ ...prev, [key]: value }))
   }
 
-  /*
-  ===============================
-  PROJECT AANMAKEN
-  ===============================
-  */
   async function handleCreateProject() {
     if (creating) return
     setCreating(true)
@@ -54,7 +50,6 @@ export default function NieuweCalculatie() {
       })
 
       if (!res.ok) throw new Error(await res.text())
-
       const data = await res.json()
       setProjectId(data.project_id)
     } catch (e) {
@@ -64,28 +59,16 @@ export default function NieuweCalculatie() {
     }
   }
 
-  /*
-  ===============================
-  PROJECT OPHALEN
-  ===============================
-  */
   function handlePickProject() {
     const id = prompt("Plak project_id")
     if (!id) return
     setProjectId(id)
   }
 
-  /*
-  ===============================
-  UPLOAD BESTANDEN
-  Upload = start workflow
-  ===============================
-  */
   async function handleUpload(e) {
     const files = Array.from(e.target.files)
     if (!files.length || !projectId) return
 
-    // BELANGRIJK: frontend blokkeert nooit
     setUploaded(true)
     setError(null)
 
@@ -100,37 +83,28 @@ export default function NieuweCalculatie() {
       })
 
       if (!res.ok) {
-        const msg = await res.text()
-        console.error("UPLOAD_ERROR", msg)
-        setError(msg)
+        setError(await res.text())
       }
     } catch (err) {
-      console.error("UPLOAD_FATAL", err.message)
       setError(err.message)
     }
   }
 
-  /*
-  ===============================
-  STATUS POLL
-  ===============================
-  */
   useEffect(() => {
     if (!projectId || !uploaded) return
 
     const interval = setInterval(async () => {
-      // 1. Project status
       const { data: project } = await supabase
         .from("projects")
-        .select("analysis_status")
+        .select("analysis_status, analysis_log")
         .eq("id", projectId)
         .single()
 
-      if (project?.analysis_status) {
+      if (project) {
         setAnalysisStatus(project.analysis_status)
+        setAnalysisLog(project.analysis_log || [])
       }
 
-      // 2. Bestaat er al een calculatie?
       const { data: calc } = await supabase
         .from("calculaties")
         .select("id")
@@ -190,6 +164,19 @@ export default function NieuweCalculatie() {
           ? "wachten op upload"
           : analysisStatus || "analyseren"}
       </div>
+
+      {analysisLog.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          <strong>Analyseert bestanden:</strong>
+          <ul>
+            {analysisLog.map((f, i) => (
+              <li key={i}>
+                {f.file} – {f.status}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {error && <pre>{error}</pre>}
     </div>
