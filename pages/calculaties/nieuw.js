@@ -72,7 +72,7 @@ export default function NieuweCalculatie() {
 
   /* ===============================
      KNOP 4 – UPLOAD BESTANDEN
-     (start analyse automatisch)
+     Executor start analyse automatisch
      =============================== */
   async function handleUpload(e) {
     const files = Array.from(e.target.files)
@@ -80,10 +80,7 @@ export default function NieuweCalculatie() {
 
     const fd = new FormData()
     fd.append("project_id", projectId)
-
-    files.forEach(file => {
-      fd.append("files", file)
-    })
+    files.forEach(file => fd.append("files", file))
 
     const res = await fetch(`${EXECUTOR_URL}/upload-files`, {
       method: "POST",
@@ -105,13 +102,13 @@ export default function NieuweCalculatie() {
     if (!projectId) return
 
     const i = setInterval(async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("projects")
         .select("analysis_status")
         .eq("id", projectId)
         .single()
 
-      if (data) {
+      if (!error && data) {
         setAnalysisStatus(data.analysis_status)
       }
     }, 3000)
@@ -134,7 +131,7 @@ export default function NieuweCalculatie() {
       .select("id")
       .single()
 
-    if (!error) {
+    if (!error && data?.id) {
       router.push(`/uitslag/${data.id}`)
     }
   }
@@ -182,7 +179,9 @@ export default function NieuweCalculatie() {
       <button
         onClick={handleCalculeren}
         disabled={analysisStatus !== "completed"}
-        style={{ background: analysisStatus === "completed" ? "#16a34a" : "#ccc" }}
+        style={{
+          background: analysisStatus === "completed" ? "#16a34a" : "#ccc"
+        }}
       >
         Calculeren
       </button>
