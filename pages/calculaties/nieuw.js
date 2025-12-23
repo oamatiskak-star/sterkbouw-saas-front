@@ -18,6 +18,7 @@ export default function NieuweCalculatie() {
   const [analysisStatus, setAnalysisStatus] = useState(null)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState(null)
+  const [uploaded, setUploaded] = useState(false)
 
   const [form, setForm] = useState({
     naam: "",
@@ -35,9 +36,11 @@ export default function NieuweCalculatie() {
     setForm(prev => ({ ...prev, [key]: value }))
   }
 
-  /* ===============================
-     KNOP 2 – PROJECT AANMAKEN
-     =============================== */
+  /*
+  ===============================
+  PROJECT AANMAKEN
+  ===============================
+  */
   async function handleCreateProject() {
     if (creating) return
     setCreating(true)
@@ -51,8 +54,8 @@ export default function NieuweCalculatie() {
       })
 
       if (!res.ok) throw new Error(await res.text())
-
       const data = await res.json()
+
       setProjectId(data.project_id)
     } catch (e) {
       setError(e.message)
@@ -61,26 +64,29 @@ export default function NieuweCalculatie() {
     }
   }
 
-  /* ===============================
-     KNOP 3 – PROJECT OPHALEN
-     =============================== */
-  async function handlePickProject() {
+  /*
+  ===============================
+  PROJECT OPHALEN
+  ===============================
+  */
+  function handlePickProject() {
     const id = prompt("Plak project_id")
-    if (!id) return
-    setProjectId(id)
+    if (id) setProjectId(id)
   }
 
-  /* ===============================
-     KNOP 4 – UPLOAD BESTANDEN
-     Executor start analyse automatisch
-     =============================== */
+  /*
+  ===============================
+  UPLOAD BESTANDEN
+  START AUTOMATISCH ANALYSE + CALCULATIE
+  ===============================
+  */
   async function handleUpload(e) {
     const files = Array.from(e.target.files)
     if (!files.length || !projectId) return
 
     const fd = new FormData()
     fd.append("project_id", projectId)
-    files.forEach(file => fd.append("files", file))
+    files.forEach(f => fd.append("files", f))
 
     const res = await fetch(`${EXECUTOR_URL}/upload-files`, {
       method: "POST",
@@ -92,49 +98,47 @@ export default function NieuweCalculatie() {
       return
     }
 
+    setUploaded(true)
     setError(null)
   }
 
-  /* ===============================
-     STATUS POLL (alleen lezen)
-     =============================== */
+  /*
+  ===============================
+  STATUS + CALCULATIE POLL
+  ===============================
+  */
   useEffect(() => {
-    if (!projectId) return
+    if (!projectId || !uploaded) return
 
-    const i = setInterval(async () => {
-      const { data, error } = await supabase
+    const interval = setInterval(async () => {
+      // 1. status lezen
+      const { data: project } = await supabase
         .from("projects")
         .select("analysis_status")
         .eq("id", projectId)
         .single()
 
-      if (!error && data) {
-        setAnalysisStatus(data.analysis_status)
+      if (project) {
+        setAnalysisStatus(project.analysis_status)
+      }
+
+      // 2. zodra er een calculatie is → redirect
+      const { data: calc } = await supabase
+        .from("calculaties")
+        .select("id")
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (calc?.id) {
+        clearInterval(interval)
+        router.push(`/uitslag/${calc.id}`)
       }
     }, 3000)
 
-    return () => clearInterval(i)
-  }, [projectId])
-
-  /* ===============================
-     KNOP 6 – CALCULEREN → PDF
-     =============================== */
-  async function handleCalculeren() {
-    if (analysisStatus !== "completed") return
-
-    const { data, error } = await supabase
-      .from("calculaties")
-      .insert({
-        project_id: projectId,
-        workflow_status: "initializing"
-      })
-      .select("id")
-      .single()
-
-    if (!error && data?.id) {
-      router.push(`/uitslag/${data.id}`)
-    }
-  }
+    return () => clearInterval(interval)
+  }, [projectId, uploaded])
 
   if (!isReady) return null
 
@@ -173,18 +177,11 @@ export default function NieuweCalculatie() {
       />
 
       <div style={{ marginTop: 16 }}>
-        Analyse status: {analysisStatus || "wachten"}
+        Status:{" "}
+        {!uploaded
+          ? "wachten op upload"
+          : analysisStatus || "analyseren"}
       </div>
-
-      <button
-        onClick={handleCalculeren}
-        disabled={analysisStatus !== "completed"}
-        style={{
-          background: analysisStatus === "completed" ? "#16a34a" : "#ccc"
-        }}
-      >
-        Calculeren
-      </button>
 
       {error && <pre>{error}</pre>}
     </div>
