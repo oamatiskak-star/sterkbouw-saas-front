@@ -137,7 +137,7 @@ export default function NieuweCalculatie() {
   }, [projectId])
 
   /* ===============================
-     KNOP 6 – CALCULEREN
+     KNOP 6 – CALCULEREN EN REDIRECT
      =============================== */
   async function handleCalculeren() {
     if (analysisStatus !== "completed") return
@@ -152,7 +152,8 @@ export default function NieuweCalculatie() {
       .single()
 
     if (!error) {
-      router.push(`/calculaties/${data.id}`)
+      // Zodra de calculatie is toegevoegd, doe een redirect naar de uitslagpagina
+      router.push(`/uitslag/${data.id}`) // Pas de route aan naar de uitslagpagina waar je de PDF genereert
     }
   }
 
