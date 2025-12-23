@@ -82,13 +82,17 @@ export default function NieuweCalculatie() {
     fd.append("file", file)
     fd.append("project_id", projectId)
 
-    const res = await fetch("/api/upload", {
+    const res = await fetch("/api/executor/upload-file", { // Aangepaste backend route
       method: "POST",
       body: fd
     })
 
     if (res.ok) {
       setFilesUploaded(true)
+      setError(null) // Reset error status after successful upload
+    } else {
+      const errorData = await res.json()
+      setError(`Fout bij uploaden: ${errorData.error || "Onbekende fout"}`)
     }
   }
 
