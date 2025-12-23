@@ -1,225 +1,205 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { createClient } from "@supabase/supabase-js";
+import { useState, useEffect } from "react"
+import { useRouter } from "next/router"
+import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
-
-const inputStyle = {
-  width: "100%",
-  height: 44,
-  padding: "8px 12px",
-  fontSize: 14,
-  boxSizing: "border-box",
-  borderRadius: 4,
-  border: "1px solid #d1d5db"
-};
-
-const buttonStyle = {
-  ...inputStyle,
-  background: "#2563eb",
-  color: "#ffffff",
-  border: "none",
-  fontWeight: 600,
-  cursor: "pointer"
-};
-
-function Field({ label, children }) {
-  return (
-    <div style={{ marginBottom: 18 }}>
-      <div style={{ fontSize: 13, marginBottom: 6 }}>{label}</div>
-      {children}
-    </div>
-  );
-}
+)
 
 export default function NieuweCalculatie() {
-  const router = useRouter();
-  const { isReady, query } = router;
+  const router = useRouter()
+  const { isReady } = router
 
-  const [projectId, setProjectId] = useState(null);
-  const [creatingProject, setCreatingProject] = useState(false);
-  const [creatingCalculatie, setCreatingCalculatie] = useState(false);
+  const [projectId, setProjectId] = useState(null)
+  const [filesUploaded, setFilesUploaded] = useState(false)
+  const [analysisStatus, setAnalysisStatus] = useState(null)
+  const [creating, setCreating] = useState(false)
+  const [error, setError] = useState(null)
 
-  const [files, setFiles] = useState([]);
-  const [filesUploaded, setFilesUploaded] = useState(false);
-  const [analysisStatus, setAnalysisStatus] = useState(null);
-  const [analysisRunning, setAnalysisRunning] = useState(false);
+  const [form, setForm] = useState({
+    naam: "",
+    naam_opdrachtgever: "",
+    adres: "",
+    postcode: "",
+    plaatsnaam: "",
+    land: "Nederland",
+    telefoon: "",
+    project_type: "Nieuwbouw",
+    opmerking: ""
+  })
 
-  const [naamOpdrachtgever, setNaamOpdrachtgever] = useState("");
-  const [omschrijving, setOmschrijving] = useState("");
-  const [adres, setAdres] = useState("");
-  const [postcode, setPostcode] = useState("");
-  const [plaatsnaam, setPlaatsnaam] = useState("");
-  const [land, setLand] = useState("Nederland");
-  const [telefoon, setTelefoon] = useState("");
-  const [projectType, setProjectType] = useState("Nieuwbouw");
-  const [opmerking, setOpmerking] = useState("");
+  function updateField(key, value) {
+    setForm(prev => ({ ...prev, [key]: value }))
+  }
 
-  useEffect(() => {
-    if (!isReady) return;
-    if (query.project_id) {
-      setProjectId(String(query.project_id));
-    }
-  }, [isReady, query.project_id]);
-
+  /* ===============================
+     KNOP 2 – PROJECT AANMAKEN
+     =============================== */
   async function handleCreateProject() {
-    if (creatingProject) return;
-    setCreatingProject(true);
+    if (creating) return
+    setCreating(true)
+    setError(null)
 
     try {
-      const res = await fetch("/api/executor/create-project", {
+      const res = await fetch("/api/projecten", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          naam: omschrijving || "Nieuw project",
-          naam_opdrachtgever: naamOpdrachtgever,
-          adres,
-          postcode,
-          plaatsnaam,
-          land,
-          telefoon,
-          project_type: projectType,
-          opmerking
-        })
-      });
+        body: JSON.stringify(form)
+      })
 
-      const data = await res.json();
-      if (!res.ok || !data?.project_id) {
-        throw new Error("Project aanmaken mislukt");
+      if (!res.ok) {
+        const t = await res.text()
+        throw new Error(t)
       }
 
-      setProjectId(data.project_id);
-      router.replace(`/calculaties/nieuw?project_id=${data.project_id}`);
+      const data = await res.json()
+      setProjectId(data.project_id)
     } catch (e) {
-      alert(e.message);
-      setCreatingProject(false);
+      setError(e.message)
+    } finally {
+      setCreating(false)
     }
   }
 
-  async function handleUploadFiles(e) {
-    const selected = Array.from(e.target.files || []);
-    if (!selected.length || !projectId) return;
-
-    setFiles(selected);
-
-    for (const file of selected) {
-      await supabase.storage
-        .from("project-files")
-        .upload(`${projectId}/${file.name}`, file, {
-          upsert: true
-        });
-    }
-
-    setFilesUploaded(true);
+  /* ===============================
+     KNOP 3 – PROJECT OPHALEN
+     =============================== */
+  async function handlePickProject() {
+    const id = prompt("Plak project_id")
+    if (!id) return
+    setProjectId(id)
   }
 
+  /* ===============================
+     KNOP 4 – UPLOAD BESTANDEN
+     =============================== */
+  async function handleUpload(e) {
+    const file = e.target.files[0]
+    if (!file || !projectId) return
+
+    const fd = new FormData()
+    fd.append("file", file)
+    fd.append("project_id", projectId)
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: fd
+    })
+
+    if (res.ok) {
+      setFilesUploaded(true)
+    }
+  }
+
+  /* ===============================
+     KNOP 5 – START ANALYSE
+     =============================== */
   async function handleStartAnalyse() {
-    if (!filesUploaded || analysisRunning) return;
-    setAnalysisRunning(true);
-    setAnalysisStatus("running");
+    if (!filesUploaded || !projectId) return
 
-    try {
-      const res = await fetch("/api/executor/start-analysis", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ project_id: projectId })
-      });
+    await fetch("/api/workflow/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        workflow_key: "analysis",
+        project_id: projectId
+      })
+    })
 
-      if (!res.ok) throw new Error("Analyse starten mislukt");
+    setAnalysisStatus("running")
+  }
 
-      setAnalysisStatus("completed");
-    } catch (e) {
-      alert(e.message);
-      setAnalysisRunning(false);
+  /* ===============================
+     STATUS POLL (alleen lezen)
+     =============================== */
+  useEffect(() => {
+    if (!projectId) return
+
+    const i = setInterval(async () => {
+      const { data } = await supabase
+        .from("projects")
+        .select("files_uploaded, analysis_status")
+        .eq("id", projectId)
+        .single()
+
+      if (data) {
+        setFilesUploaded(!!data.files_uploaded)
+        setAnalysisStatus(data.analysis_status)
+      }
+    }, 3000)
+
+    return () => clearInterval(i)
+  }, [projectId])
+
+  /* ===============================
+     KNOP 6 – CALCULEREN
+     =============================== */
+  async function handleCalculeren() {
+    if (analysisStatus !== "completed") return
+
+    const { data, error } = await supabase
+      .from("calculaties")
+      .insert({
+        project_id: projectId,
+        workflow_status: "initializing"
+      })
+      .select("id")
+      .single()
+
+    if (!error) {
+      router.push(`/calculaties/${data.id}`)
     }
   }
 
-  async function handleStartCalculatie() {
-    if (creatingCalculatie || analysisStatus !== "completed") return;
-    setCreatingCalculatie(true);
-
-    try {
-      const { data, error } = await supabase
-        .from("calculaties")
-        .insert({
-          project_id: projectId,
-          naam_opdrachtgever: naamOpdrachtgever,
-          omschrijving,
-          adres,
-          postcode,
-          plaatsnaam,
-          land,
-          telefoon,
-          project_type: projectType,
-          opmerking,
-          workflow_status: "initializing"
-        })
-        .select("id")
-        .single();
-
-      if (error) throw error;
-
-      router.push(`/calculaties/${data.id}`);
-    } catch (e) {
-      alert(e.message);
-      setCreatingCalculatie(false);
-    }
-  }
-
-  if (!isReady) return <div>Laden...</div>;
+  if (!isReady) return null
 
   return (
-    <>
-      <h1>Nieuwe Calculatie</h1>
+    <div style={{ maxWidth: 720 }}>
+      <h1>Nieuwe calculatie</h1>
 
-      <form onSubmit={e => e.preventDefault()}>
-        <Field label="Naam opdrachtgever">
-          <input style={inputStyle} value={naamOpdrachtgever} onChange={e => setNaamOpdrachtgever(e.target.value)} />
-        </Field>
+      <h3>NAW gegevens</h3>
+      {Object.keys(form).map(k => (
+        <input
+          key={k}
+          placeholder={k}
+          value={form[k]}
+          onChange={e => updateField(k, e.target.value)}
+          style={{ display: "block", marginBottom: 8, width: "100%" }}
+        />
+      ))}
 
-        <Field label="Omschrijving">
-          <input style={inputStyle} value={omschrijving} onChange={e => setOmschrijving(e.target.value)} />
-        </Field>
+      <hr />
 
-        <Field label="Adres">
-          <input style={inputStyle} value={adres} onChange={e => setAdres(e.target.value)} />
-        </Field>
+      <button onClick={handleCreateProject} disabled={!!projectId || creating}>
+        Project aanmaken
+      </button>
 
-        <Field label="Postcode">
-          <input style={inputStyle} value={postcode} onChange={e => setPostcode(e.target.value)} />
-        </Field>
+      <button onClick={handlePickProject} disabled={!!projectId}>
+        Project ophalen
+      </button>
 
-        <Field label="Plaatsnaam">
-          <input style={inputStyle} value={plaatsnaam} onChange={e => setPlaatsnaam(e.target.value)} />
-        </Field>
+      <hr />
 
-        <Field label="Projecttype">
-          <select style={inputStyle} value={projectType} onChange={e => setProjectType(e.target.value)}>
-            <option>Nieuwbouw</option>
-            <option>Utiliteitsbouw</option>
-            <option>Transformatie</option>
-            <option>Renovatie</option>
-          </select>
-        </Field>
+      <input type="file" onChange={handleUpload} disabled={!projectId} />
 
-        {!projectId && (
-          <button style={buttonStyle} onClick={handleCreateProject} disabled={creatingProject}>
-            {creatingProject ? "Project wordt aangemaakt..." : "Project aanmaken"}
-          </button>
-        )}
-      </form>
+      <button
+        onClick={handleStartAnalyse}
+        disabled={!filesUploaded}
+        style={{ background: filesUploaded ? "#2563eb" : "#ccc" }}
+      >
+        Start Analyse
+      </button>
 
-      {projectId && (
-        <>
-          <hr />
+      <button
+        onClick={handleCalculeren}
+        disabled={analysisStatus !== "completed"}
+        style={{ background: analysisStatus === "completed" ? "#16a34a" : "#ccc" }}
+      >
+        Calculeren
+      </button>
 
-          <h3>Bestanden uploaden</h3>
-          <input type="file" multiple onChange={handleUploadFiles} />
-
-          <button
-            style={{ ...buttonStyle, marginTop: 12, opacity: filesUploaded ? 1 : 0.4 }}
-            disabled={!filesUploaded || analysisRunning}
-            onClick={handleStar
+      {error && <pre>{error}</pre>}
+    </div>
+  )
+}
