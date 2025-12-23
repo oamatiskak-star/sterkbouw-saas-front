@@ -15,10 +15,10 @@ export default function NieuweCalculatie() {
   const { isReady } = router
 
   const [projectId, setProjectId] = useState(null)
+  const [uploaded, setUploaded] = useState(false)
   const [analysisStatus, setAnalysisStatus] = useState(null)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState(null)
-  const [uploaded, setUploaded] = useState(false)
 
   const [form, setForm] = useState({
     naam: "",
@@ -54,8 +54,8 @@ export default function NieuweCalculatie() {
       })
 
       if (!res.ok) throw new Error(await res.text())
-      const data = await res.json()
 
+      const data = await res.json()
       setProjectId(data.project_id)
     } catch (e) {
       setError(e.message)
@@ -71,58 +71,66 @@ export default function NieuweCalculatie() {
   */
   function handlePickProject() {
     const id = prompt("Plak project_id")
-    if (id) setProjectId(id)
+    if (!id) return
+    setProjectId(id)
   }
 
   /*
   ===============================
   UPLOAD BESTANDEN
-  START AUTOMATISCH ANALYSE + CALCULATIE
+  Upload = start workflow
   ===============================
   */
   async function handleUpload(e) {
     const files = Array.from(e.target.files)
     if (!files.length || !projectId) return
 
-    const fd = new FormData()
-    fd.append("project_id", projectId)
-    files.forEach(f => fd.append("files", f))
-
-    const res = await fetch(`${EXECUTOR_URL}/upload-files`, {
-      method: "POST",
-      body: fd
-    })
-
-    if (!res.ok) {
-      setError(await res.text())
-      return
-    }
-
+    // BELANGRIJK: frontend blokkeert nooit
     setUploaded(true)
     setError(null)
+
+    const fd = new FormData()
+    fd.append("project_id", projectId)
+    files.forEach(file => fd.append("files", file))
+
+    try {
+      const res = await fetch(`${EXECUTOR_URL}/upload-files`, {
+        method: "POST",
+        body: fd
+      })
+
+      if (!res.ok) {
+        const msg = await res.text()
+        console.error("UPLOAD_ERROR", msg)
+        setError(msg)
+      }
+    } catch (err) {
+      console.error("UPLOAD_FATAL", err.message)
+      setError(err.message)
+    }
   }
 
   /*
   ===============================
-  STATUS + CALCULATIE POLL
+  STATUS POLL
   ===============================
   */
   useEffect(() => {
     if (!projectId || !uploaded) return
 
     const interval = setInterval(async () => {
-      // 1. status lezen
+      // 1. Project status
       const { data: project } = await supabase
         .from("projects")
         .select("analysis_status")
         .eq("id", projectId)
         .single()
 
-      if (project) {
+      if (project?.analysis_status) {
         setAnalysisStatus(project.analysis_status)
       }
 
-      // 2. zodra er een calculatie is → redirect
+      // 2. Bestaat er al een calculatie?
       const { data: calc } = await supabase
         .from("calculaties")
         .select("id")
