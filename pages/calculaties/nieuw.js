@@ -42,12 +42,13 @@ export default function NieuweCalculatie() {
     setError(null)
 
     try {
-      const res = await fetch("/api/projecten", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
-      })
+      const EXECUTOR_URL =
+  "https://sterkbouw-saas-executor-production.up.railway.app"
 
+const res = await fetch(`${EXECUTOR_URL}/upload-files`, {
+  method: "POST",
+  body: fd
+})
       if (!res.ok) throw new Error(await res.text())
 
       const data = await res.json()
