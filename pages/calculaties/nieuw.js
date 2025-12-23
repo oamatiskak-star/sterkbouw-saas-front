@@ -29,7 +29,7 @@ export default function NieuweCalculatie() {
     plaatsnaam: "",
     land: "Nederland",
     telefoon: "",
-    project_type: "Nieuwbouw",
+    project_type: "nieuwbouw", // FIX: altijd lowercase
     opmerking: ""
   })
 
@@ -96,24 +96,24 @@ export default function NieuweCalculatie() {
     const interval = setInterval(async () => {
       const { data: project } = await supabase
         .from("projects")
-        .select("analysis_status, analysis_log")
+        .select("analysis_status")
         .eq("id", projectId)
         .single()
 
       if (project) {
         setAnalysisStatus(project.analysis_status)
-        setAnalysisLog(project.analysis_log || [])
       }
 
       const { data: calc } = await supabase
         .from("calculaties")
-        .select("id")
+        .select("id, workflow_status")
         .eq("project_id", projectId)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle()
 
-      if (calc?.id) {
+      // FIX: alleen redirect als calculatie echt klaar is
+      if (calc?.id && calc.workflow_status === "done") {
         clearInterval(interval)
         router.push(`/uitslag/${calc.id}`)
       }
@@ -164,19 +164,6 @@ export default function NieuweCalculatie() {
           ? "wachten op upload"
           : analysisStatus || "analyseren"}
       </div>
-
-      {analysisLog.length > 0 && (
-        <div style={{ marginTop: 12 }}>
-          <strong>Analyseert bestanden:</strong>
-          <ul>
-            {analysisLog.map((f, i) => (
-              <li key={i}>
-                {f.file} – {f.status}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
 
       {error && <pre>{error}</pre>}
     </div>
