@@ -10,14 +10,34 @@ const supabase = createClient(
 const EXECUTOR_URL =
   "https://sterkbouw-saas-executor-production.up.railway.app"
 
+const styles = {
+  wrap: { maxWidth: 640, margin: "0 auto", padding: 24 },
+  grid: { display: "grid", gap: 12 },
+  label: { fontSize: 13 },
+  input: {
+    width: "100%",
+    padding: 10,
+    borderRadius: 6,
+    border: "1px solid #d1d5db",
+    fontSize: 14
+  },
+  button: {
+    width: "100%",
+    padding: 12,
+    borderRadius: 6,
+    border: "none",
+    background: "#2563eb",
+    color: "#fff",
+    fontSize: 14,
+    cursor: "pointer"
+  }
+}
+
 export default function NieuweCalculatie() {
   const router = useRouter()
-  const { isReady } = router
-
   const [projectId, setProjectId] = useState(null)
   const [uploaded, setUploaded] = useState(false)
   const [analysisStatus, setAnalysisStatus] = useState(null)
-  const [analysisLog, setAnalysisLog] = useState([])
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState(null)
 
@@ -29,26 +49,24 @@ export default function NieuweCalculatie() {
     plaatsnaam: "",
     land: "Nederland",
     telefoon: "",
-    project_type: "nieuwbouw", // FIX: altijd lowercase
+    project_type: "nieuwbouw",
     opmerking: ""
   })
 
-  function updateField(key, value) {
-    setForm(prev => ({ ...prev, [key]: value }))
+  function updateField(k, v) {
+    setForm(p => ({ ...p, [k]: v }))
   }
 
   async function handleCreateProject() {
     if (creating) return
     setCreating(true)
     setError(null)
-
     try {
       const res = await fetch("/api/projecten", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)
       })
-
       if (!res.ok) throw new Error(await res.text())
       const data = await res.json()
       setProjectId(data.project_id)
@@ -59,32 +77,22 @@ export default function NieuweCalculatie() {
     }
   }
 
-  function handlePickProject() {
-    const id = prompt("Plak project_id")
-    if (!id) return
-    setProjectId(id)
-  }
-
   async function handleUpload(e) {
     const files = Array.from(e.target.files)
     if (!files.length || !projectId) return
-
     setUploaded(true)
     setError(null)
 
     const fd = new FormData()
     fd.append("project_id", projectId)
-    files.forEach(file => fd.append("files", file))
+    files.forEach(f => fd.append("files", f))
 
     try {
       const res = await fetch(`${EXECUTOR_URL}/upload-files`, {
         method: "POST",
         body: fd
       })
-
-      if (!res.ok) {
-        setError(await res.text())
-      }
+      if (!res.ok) setError(await res.text())
     } catch (err) {
       setError(err.message)
     }
@@ -92,17 +100,13 @@ export default function NieuweCalculatie() {
 
   useEffect(() => {
     if (!projectId || !uploaded) return
-
-    const interval = setInterval(async () => {
+    const t = setInterval(async () => {
       const { data: project } = await supabase
         .from("projects")
         .select("analysis_status")
         .eq("id", projectId)
         .single()
-
-      if (project) {
-        setAnalysisStatus(project.analysis_status)
-      }
+      if (project) setAnalysisStatus(project.analysis_status)
 
       const { data: calc } = await supabase
         .from("calculaties")
@@ -112,60 +116,63 @@ export default function NieuweCalculatie() {
         .limit(1)
         .maybeSingle()
 
-      // FIX: alleen redirect als calculatie echt klaar is
       if (calc?.id && calc.workflow_status === "done") {
-        clearInterval(interval)
+        clearInterval(t)
         router.push(`/uitslag/${calc.id}`)
       }
     }, 3000)
-
-    return () => clearInterval(interval)
+    return () => clearInterval(t)
   }, [projectId, uploaded])
 
-  if (!isReady) return null
-
   return (
-    <div style={{ maxWidth: 720 }}>
+    <div style={styles.wrap}>
       <h1>Nieuwe calculatie</h1>
 
-      <h3>NAW gegevens</h3>
-      {Object.keys(form).map(k => (
-        <input
-          key={k}
-          placeholder={k}
-          value={form[k]}
-          onChange={e => updateField(k, e.target.value)}
-          style={{ display: "block", marginBottom: 8, width: "100%" }}
-        />
-      ))}
-
-      <hr />
-
-      <button onClick={handleCreateProject} disabled={!!projectId || creating}>
-        Project aanmaken
-      </button>
-
-      <button onClick={handlePickProject} disabled={!!projectId}>
-        Project ophalen
-      </button>
-
-      <hr />
-
-      <input
-        type="file"
-        multiple
-        onChange={handleUpload}
-        disabled={!projectId}
-      />
-
-      <div style={{ marginTop: 16 }}>
-        Status:{" "}
-        {!uploaded
-          ? "wachten op upload"
-          : analysisStatus || "analyseren"}
+      <div style={styles.grid}>
+        {Object.keys(form).map(k => {
+          if (k === "project_type") {
+            return (
+              <div key={k}>
+                <label style={styles.label}>Projecttype</label>
+                <select
+                  value={form.project_type}
+                  onChange={e => updateField("project_type", e.target.value)}
+                  style={styles.input}
+                >
+                  <option value="nieuwbouw">Nieuwbouw</option>
+                  <option value="transformatie">Transformatie</option>
+                </select>
+              </div>
+            )
+          }
+          return (
+            <div key={k}>
+              <label style={styles.label}>{k}</label>
+              <input
+                value={form[k]}
+                onChange={e => updateField(k, e.target.value)}
+                style={styles.input}
+              />
+            </div>
+          )
+        })}
       </div>
 
-      {error && <pre>{error}</pre>}
+      <div style={{ marginTop: 16 }}>
+        <button style={styles.button} onClick={handleCreateProject} disabled={creating || !!projectId}>
+          Project aanmaken
+        </button>
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <input type="file" multiple onChange={handleUpload} disabled={!projectId} style={{ width: "100%" }} />
+      </div>
+
+      <div style={{ marginTop: 12, fontSize: 13 }}>
+        Status: {!uploaded ? "wachten op upload" : analysisStatus || "analyseren"}
+      </div>
+
+      {error && <pre style={{ marginTop: 12, color: "red", fontSize: 12 }}>{error}</pre>}
     </div>
   )
 }
