@@ -11,7 +11,13 @@ const EXECUTOR_URL =
   "https://sterkbouw-saas-executor-production.up.railway.app"
 
 const styles = {
-  wrap: { maxWidth: 640, margin: "0 auto", padding: 24 },
+  wrap: { maxWidth: 1200, margin: "0 auto", padding: 24 },
+  layout: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 24,
+    alignItems: "stretch"
+  },
   grid: { display: "grid", gap: 12 },
   label: { fontSize: 13 },
   input: {
@@ -30,16 +36,26 @@ const styles = {
     color: "#fff",
     fontSize: 14,
     cursor: "pointer"
+  },
+  preview: {
+    border: "1px solid #d1d5db",
+    borderRadius: 6,
+    height: "100%",
+    minHeight: 500
   }
 }
 
 export default function NieuweCalculatie() {
   const router = useRouter()
+
   const [projectId, setProjectId] = useState(null)
   const [uploaded, setUploaded] = useState(false)
   const [analysisStatus, setAnalysisStatus] = useState(null)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState(null)
+
+  const [calculatieId, setCalculatieId] = useState(null)
+  const [pdfUrl, setPdfUrl] = useState(null)
 
   const [form, setForm] = useState({
     naam: "",
@@ -61,12 +77,14 @@ export default function NieuweCalculatie() {
     if (creating) return
     setCreating(true)
     setError(null)
+
     try {
       const res = await fetch("/api/projecten", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)
       })
+
       if (!res.ok) throw new Error(await res.text())
       const data = await res.json()
       setProjectId(data.project_id)
@@ -80,6 +98,7 @@ export default function NieuweCalculatie() {
   async function handleUpload(e) {
     const files = Array.from(e.target.files)
     if (!files.length || !projectId) return
+
     setUploaded(true)
     setError(null)
 
@@ -100,12 +119,14 @@ export default function NieuweCalculatie() {
 
   useEffect(() => {
     if (!projectId || !uploaded) return
+
     const t = setInterval(async () => {
       const { data: project } = await supabase
         .from("projects")
         .select("analysis_status")
         .eq("id", projectId)
         .single()
+
       if (project) setAnalysisStatus(project.analysis_status)
 
       const { data: calc } = await supabase
@@ -116,11 +137,26 @@ export default function NieuweCalculatie() {
         .limit(1)
         .maybeSingle()
 
-      if (calc?.id && calc.workflow_status === "done") {
-        clearInterval(t)
-        router.push(`/uitslag/${calc.id}`)
+      if (calc?.id) {
+        setCalculatieId(calc.id)
+
+        const { data: signed } = await supabase.storage
+          .from("sterkcalc")
+          .createSignedUrl(
+            `${projectId}/calculatie_2jours.pdf`,
+            3600
+          )
+
+        if (signed?.signedUrl) {
+          setPdfUrl(signed.signedUrl)
+        }
+
+        if (calc.workflow_status === "done") {
+          clearInterval(t)
+        }
       }
     }, 3000)
+
     return () => clearInterval(t)
   }, [projectId, uploaded])
 
@@ -128,51 +164,125 @@ export default function NieuweCalculatie() {
     <div style={styles.wrap}>
       <h1>Nieuwe calculatie</h1>
 
-      <div style={styles.grid}>
-        {Object.keys(form).map(k => {
-          if (k === "project_type") {
-            return (
-              <div key={k}>
-                <label style={styles.label}>Projecttype</label>
-                <select
-                  value={form.project_type}
-                  onChange={e => updateField("project_type", e.target.value)}
-                  style={styles.input}
-                >
-                  <option value="nieuwbouw">Nieuwbouw</option>
-                  <option value="transformatie">Transformatie</option>
-                </select>
-              </div>
-            )
-          }
-          return (
-            <div key={k}>
-              <label style={styles.label}>{k}</label>
-              <input
-                value={form[k]}
-                onChange={e => updateField(k, e.target.value)}
-                style={styles.input}
-              />
+      <div style={styles.layout}>
+        {/* LINKS – NAW + ACTIES */}
+        <div>
+          <div style={styles.grid}>
+            {Object.keys(form).map(k => {
+              if (k === "project_type") {
+                return (
+                  <div key={k}>
+                    <label style={styles.label}>Projecttype</label>
+                    <select
+                      value={form.project_type}
+                      onChange={e =>
+                        updateField("project_type", e.target.value)
+                      }
+                      style={styles.input}
+                    >
+                      <option value="nieuwbouw">Nieuwbouw</option>
+                      <option value="transformatie">Transformatie</option>
+                    </select>
+                  </div>
+                )
+              }
+
+              return (
+                <div key={k}>
+                  <label style={styles.label}>{k}</label>
+                  <input
+                    value={form[k]}
+                    onChange={e => updateField(k, e.target.value)}
+                    style={styles.input}
+                  />
+                </div>
+              )
+            })}
+          </div>
+
+          <div style={{ marginTop: 16 }}>
+            <button
+              style={styles.button}
+              onClick={handleCreateProject}
+              disabled={creating || !!projectId}
+            >
+              Project aanmaken
+            </button>
+          </div>
+
+          <div style={{ marginTop: 12 }}>
+            <input
+              type="file"
+              multiple
+              onChange={handleUpload}
+              disabled={!projectId}
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          {pdfUrl && (
+            <div style={{ marginTop: 12 }}>
+              <a
+                href={pdfUrl}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: "block",
+                  textAlign: "center",
+                  padding: 12,
+                  background: "#2563eb",
+                  color: "#fff",
+                  borderRadius: 6,
+                  textDecoration: "none"
+                }}
+              >
+                Download 2jours calculatie
+              </a>
             </div>
-          )
-        })}
-      </div>
+          )}
 
-      <div style={{ marginTop: 16 }}>
-        <button style={styles.button} onClick={handleCreateProject} disabled={creating || !!projectId}>
-          Project aanmaken
-        </button>
-      </div>
+          <div style={{ marginTop: 12, fontSize: 13 }}>
+            Status:{" "}
+            {!uploaded ? "wachten op upload" : analysisStatus || "analyseren"}
+          </div>
 
-      <div style={{ marginTop: 12 }}>
-        <input type="file" multiple onChange={handleUpload} disabled={!projectId} style={{ width: "100%" }} />
-      </div>
+          {error && (
+            <pre
+              style={{
+                marginTop: 12,
+                color: "red",
+                fontSize: 12
+              }}
+            >
+              {error}
+            </pre>
+          )}
+        </div>
 
-      <div style={{ marginTop: 12, fontSize: 13 }}>
-        Status: {!uploaded ? "wachten op upload" : analysisStatus || "analyseren"}
+        {/* RECHTS – PDF PREVIEW */}
+        <div>
+          {pdfUrl ? (
+            <iframe
+              title="2jours preview"
+              src={pdfUrl}
+              style={styles.preview}
+            />
+          ) : (
+            <div
+              style={{
+                ...styles.preview,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 13,
+                color: "#6b7280"
+              }}
+            >
+              Nog geen calculatie beschikbaar
+            </div>
+          )}
+        </div>
       </div>
-
-      {error && <pre style={{ marginTop: 12, color: "red", fontSize: 12 }}>{error}</pre>}
     </div>
   )
 }
