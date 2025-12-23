@@ -1,0 +1,44 @@
+name: Hourly Frontend Backup
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout frontend repo
+        uses: actions/checkout@v4
+
+      - name: Set timestamp
+        run: |
+          echo "TS=$(date -u +'%Y-%m-%d-%H')" >> $GITHUB_ENV
+
+      - name: Prepare backup folder
+        run: |
+          mkdir -p backup/front
+          git archive --format=tar.gz -o backup/front/front_${TS}.tar.gz HEAD
+
+      - name: Checkout backup repository
+        uses: actions/checkout@v4
+        with:
+          repository: oamatiskak-star/sterkcalc-backups
+          path: backups
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Copy frontend backup
+        run: |
+          mkdir -p backups/github/front
+          cp backup/front/front_${TS}.tar.gz backups/github/front/
+
+      - name: Commit and push backup
+        run: |
+          cd backups
+          git config user.name "SterkCalc Backup Bot"
+          git config user.email "backup@sterkcalc"
+          git add .
+          git commit -m "frontend backup ${TS}" || echo "no changes"
+          git push
