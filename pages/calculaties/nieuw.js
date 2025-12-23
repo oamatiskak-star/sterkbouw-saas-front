@@ -48,10 +48,7 @@ export default function NieuweCalculatie() {
         body: JSON.stringify(form)
       })
 
-      if (!res.ok) {
-        const t = await res.text()
-        throw new Error(t)
-      }
+      if (!res.ok) throw new Error(await res.text())
 
       const data = await res.json()
       setProjectId(data.project_id)
@@ -73,45 +70,30 @@ export default function NieuweCalculatie() {
 
   /* ===============================
      KNOP 4 – UPLOAD BESTANDEN
+     (start automatisch analyse)
      =============================== */
   async function handleUpload(e) {
-    const file = e.target.files[0]
-    if (!file || !projectId) return
+    const files = Array.from(e.target.files)
+    if (!files.length || !projectId) return
 
     const fd = new FormData()
-    fd.append("file", file)
     fd.append("project_id", projectId)
 
-    const res = await fetch("/api/executor/upload-file", { // Aangepaste backend route
+    files.forEach(file => {
+      fd.append("files", file)
+    })
+
+    const res = await fetch("/api/executor/upload-file", {
       method: "POST",
       body: fd
     })
 
-    if (res.ok) {
-      setFilesUploaded(true)
-      setError(null) // Reset error status after successful upload
-    } else {
-      const errorData = await res.json()
-      setError(`Fout bij uploaden: ${errorData.error || "Onbekende fout"}`)
+    if (!res.ok) {
+      setError(await res.text())
+      return
     }
-  }
 
-  /* ===============================
-     KNOP 5 – START ANALYSE
-     =============================== */
-  async function handleStartAnalyse() {
-    if (!filesUploaded || !projectId) return
-
-    await fetch("/api/workflow/run", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        workflow_key: "analysis",
-        project_id: projectId
-      })
-    })
-
-    setAnalysisStatus("running")
+    setError(null)
   }
 
   /* ===============================
@@ -137,7 +119,7 @@ export default function NieuweCalculatie() {
   }, [projectId])
 
   /* ===============================
-     KNOP 6 – CALCULEREN EN REDIRECT
+     KNOP 6 – CALCULEREN → PDF
      =============================== */
   async function handleCalculeren() {
     if (analysisStatus !== "completed") return
@@ -152,8 +134,7 @@ export default function NieuweCalculatie() {
       .single()
 
     if (!error) {
-      // Zodra de calculatie is toegevoegd, doe een redirect naar de uitslagpagina
-      router.push(`/uitslag/${data.id}`) // Pas de route aan naar de uitslagpagina waar je de PDF genereert
+      router.push(`/uitslag/${data.id}`)
     }
   }
 
@@ -186,15 +167,16 @@ export default function NieuweCalculatie() {
 
       <hr />
 
-      <input type="file" onChange={handleUpload} disabled={!projectId} />
+      <input
+        type="file"
+        multiple
+        onChange={handleUpload}
+        disabled={!projectId}
+      />
 
-      <button
-        onClick={handleStartAnalyse}
-        disabled={!filesUploaded}
-        style={{ background: filesUploaded ? "#2563eb" : "#ccc" }}
-      >
-        Start Analyse
-      </button>
+      <div style={{ marginTop: 16 }}>
+        Analyse status: {analysisStatus || "wachten"}
+      </div>
 
       <button
         onClick={handleCalculeren}
