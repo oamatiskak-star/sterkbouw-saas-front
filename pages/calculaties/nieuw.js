@@ -7,12 +7,14 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
+const EXECUTOR_URL =
+  "https://sterkbouw-saas-executor-production.up.railway.app"
+
 export default function NieuweCalculatie() {
   const router = useRouter()
   const { isReady } = router
 
   const [projectId, setProjectId] = useState(null)
-  const [filesUploaded, setFilesUploaded] = useState(false)
   const [analysisStatus, setAnalysisStatus] = useState(null)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState(null)
@@ -42,13 +44,12 @@ export default function NieuweCalculatie() {
     setError(null)
 
     try {
-      const EXECUTOR_URL =
-  "https://sterkbouw-saas-executor-production.up.railway.app"
+      const res = await fetch("/api/projecten", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      })
 
-const res = await fetch(`${EXECUTOR_URL}/upload-files`, {
-  method: "POST",
-  body: fd
-})
       if (!res.ok) throw new Error(await res.text())
 
       const data = await res.json()
@@ -71,7 +72,7 @@ const res = await fetch(`${EXECUTOR_URL}/upload-files`, {
 
   /* ===============================
      KNOP 4 – UPLOAD BESTANDEN
-     (start automatisch analyse)
+     (start analyse automatisch)
      =============================== */
   async function handleUpload(e) {
     const files = Array.from(e.target.files)
@@ -84,7 +85,7 @@ const res = await fetch(`${EXECUTOR_URL}/upload-files`, {
       fd.append("files", file)
     })
 
-    const res = await fetch("/api/executor/upload-file", {
+    const res = await fetch(`${EXECUTOR_URL}/upload-files`, {
       method: "POST",
       body: fd
     })
@@ -106,12 +107,11 @@ const res = await fetch(`${EXECUTOR_URL}/upload-files`, {
     const i = setInterval(async () => {
       const { data } = await supabase
         .from("projects")
-        .select("files_uploaded, analysis_status")
+        .select("analysis_status")
         .eq("id", projectId)
         .single()
 
       if (data) {
-        setFilesUploaded(!!data.files_uploaded)
         setAnalysisStatus(data.analysis_status)
       }
     }, 3000)
