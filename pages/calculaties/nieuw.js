@@ -14,7 +14,7 @@ const styles = {
   wrap: { maxWidth: 1200, margin: "0 auto", padding: 24 },
   layout: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
+    gridTemplateColumns: "1fr 420px",
     gap: 24,
     alignItems: "stretch"
   },
@@ -37,11 +37,19 @@ const styles = {
     fontSize: 14,
     cursor: "pointer"
   },
-  preview: {
+  previewWrapper: {
+    width: 420,
+    height: 595,
     border: "1px solid #d1d5db",
     borderRadius: 6,
+    overflow: "hidden",
+    background: "#111"
+  },
+  previewFrame: {
+    width: "100%",
     height: "100%",
-    minHeight: 500
+    border: "none",
+    background: "#fff"
   }
 }
 
@@ -54,7 +62,6 @@ export default function NieuweCalculatie() {
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState(null)
 
-  const [calculatieId, setCalculatieId] = useState(null)
   const [pdfUrl, setPdfUrl] = useState(null)
 
   const [form, setForm] = useState({
@@ -129,17 +136,7 @@ export default function NieuweCalculatie() {
 
       if (project) setAnalysisStatus(project.analysis_status)
 
-      const { data: calc } = await supabase
-        .from("calculaties")
-        .select("id, workflow_status")
-        .eq("project_id", projectId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-      if (calc?.id) {
-        setCalculatieId(calc.id)
-
+      if (!pdfUrl) {
         const { data: signed } = await supabase.storage
           .from("sterkcalc")
           .createSignedUrl(
@@ -150,22 +147,18 @@ export default function NieuweCalculatie() {
         if (signed?.signedUrl) {
           setPdfUrl(signed.signedUrl)
         }
-
-        if (calc.workflow_status === "done") {
-          clearInterval(t)
-        }
       }
     }, 3000)
 
     return () => clearInterval(t)
-  }, [projectId, uploaded])
+  }, [projectId, uploaded, pdfUrl])
 
   return (
     <div style={styles.wrap}>
       <h1>Nieuwe calculatie</h1>
 
       <div style={styles.layout}>
-        {/* LINKS – NAW + ACTIES */}
+        {/* LINKS */}
         <div>
           <div style={styles.grid}>
             {Object.keys(form).map(k => {
@@ -247,38 +240,29 @@ export default function NieuweCalculatie() {
           </div>
 
           {error && (
-            <pre
-              style={{
-                marginTop: 12,
-                color: "red",
-                fontSize: 12
-              }}
-            >
+            <pre style={{ marginTop: 12, color: "red", fontSize: 12 }}>
               {error}
             </pre>
           )}
         </div>
 
-        {/* RECHTS – PDF PREVIEW */}
-        <div>
+        {/* RECHTS – VASTE A4 PREVIEW */}
+        <div style={styles.previewWrapper}>
           {pdfUrl ? (
             <iframe
               title="2jours preview"
               src={pdfUrl}
-              style={styles.preview}
+              style={styles.previewFrame}
             />
           ) : (
             <div
               style={{
-                ...styles.preview,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                color: "#9ca3af",
                 fontSize: 13,
-                color: "#6b7280"
+                padding: 16
               }}
             >
-              Nog geen calculatie beschikbaar
+              Nog geen calculatie
             </div>
           )}
         </div>
