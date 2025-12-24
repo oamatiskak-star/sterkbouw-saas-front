@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/router"
 import { createClient } from "@supabase/supabase-js"
 
@@ -56,6 +56,13 @@ const styles = {
 export default function NieuweCalculatie() {
   const router = useRouter()
 
+  // ===== GUARDS =====
+  const createProjectGuardRef = useRef(false)
+  const uploadGuardRef = useRef(false)
+  const intervalRunningRef = useRef(false)
+  const intervalTickGuardRef = useRef(false)
+  const signedUrlGuardRef = useRef(false)
+
   const [projectId, setProjectId] = useState(null)
   const [uploaded, setUploaded] = useState(false)
   const [analysisStatus, setAnalysisStatus] = useState(null)
@@ -82,13 +89,43 @@ export default function NieuweCalculatie() {
   })
 
   const basisCorrecties = {
-    nieuwbouw: { ak_pct: 0.08, abk_pct: 0.04, w_pct: 0.06, r_pct: 0.05, normuren_factor: 1.1, materiaal_index: 1.0 },
-    transformatie: { ak_pct: 0.08, abk_pct: 0.04, w_pct: 0.06, r_pct: 0.05, normuren_factor: 1.0, materiaal_index: 1.0 },
-    renovatie: { ak_pct: 0.07, abk_pct: 0.03, w_pct: 0.05, r_pct: 0.04, normuren_factor: 1.0, materiaal_index: 1.0 },
-    verduurzaming: { ak_pct: 0.06, abk_pct: 0.02, w_pct: 0.04, r_pct: 0.03, normuren_factor: 1.0, materiaal_index: 1.0 }
+    nieuwbouw: {
+      ak_pct: 0.08,
+      abk_pct: 0.04,
+      w_pct: 0.06,
+      r_pct: 0.05,
+      normuren_factor: 1.1,
+      materiaal_index: 1.0
+    },
+    transformatie: {
+      ak_pct: 0.08,
+      abk_pct: 0.04,
+      w_pct: 0.06,
+      r_pct: 0.05,
+      normuren_factor: 1.0,
+      materiaal_index: 1.0
+    },
+    renovatie: {
+      ak_pct: 0.07,
+      abk_pct: 0.03,
+      w_pct: 0.05,
+      r_pct: 0.04,
+      normuren_factor: 1.0,
+      materiaal_index: 1.0
+    },
+    verduurzaming: {
+      ak_pct: 0.06,
+      abk_pct: 0.02,
+      w_pct: 0.04,
+      r_pct: 0.03,
+      normuren_factor: 1.0,
+      materiaal_index: 1.0
+    }
   }
 
-  const [correcties, setCorrecties] = useState({ ...basisCorrecties.nieuwbouw })
+  const [correcties, setCorrecties] = useState({
+    ...basisCorrecties.nieuwbouw
+  })
 
   const [uurlonen, setUurlonen] = useState([
     { discipline: "timmerman", uurloon: 52 },
@@ -97,9 +134,6 @@ export default function NieuweCalculatie() {
     { discipline: "stucadoor", uurloon: 48 },
     { discipline: "schilder", uurloon: 45 }
   ])
-
-  // GUARDS toegevoegd zodat GoTrue slechts 1x per interval wordt aangeroepen
-  let guardIntervalActive = false
 
   function updateField(k, v) {
     setForm(p => {
@@ -176,7 +210,9 @@ export default function NieuweCalculatie() {
   }
 
   async function handleCreateProject() {
-    if (creating) return
+    if (createProjectGuardRef.current) return
+    createProjectGuardRef.current = true
+
     setCreating(true)
     setError(null)
 
@@ -197,13 +233,18 @@ export default function NieuweCalculatie() {
       setError(e.message)
     } finally {
       setCreating(false)
+      createProjectGuardRef.current = false
     }
   }
 
   async function handleUpload(e) {
-    const files = Array.from(e.target.files)
-    if (!files.length || !projectId) return
+    if (uploadGuardRef.current) return
+    if (!projectId) return
 
+    const files = Array.from(e.target.files)
+    if (!files.length) return
+
+    uploadGuardRef.current = true
     setUploaded(true)
     setError(null)
 
@@ -219,63 +260,74 @@ export default function NieuweCalculatie() {
       if (!res.ok) setError(await res.text())
     } catch (err) {
       setError(err.message)
+    } finally {
+      uploadGuardRef.current = false
     }
   }
 
   useEffect(() => {
-    if (!projectId || !uploaded || guardIntervalActive) return
+    if (!projectId || !uploaded) return
+    if (intervalRunningRef.current) return
 
-    guardIntervalActive = true
+    intervalRunningRef.current = true
 
     const t = setInterval(async () => {
-      const { data: project } = await supabase
-        .from("projects")
-        .select("analysis_status")
-        .eq("id", projectId)
-        .single()
+      if (intervalTickGuardRef.current) return
+      intervalTickGuardRef.current = true
 
-      if (project) setAnalysisStatus(project.analysis_status)
+      try {
+        const { data: project } = await supabase
+          .from("projects")
+          .select("analysis_status")
+          .eq("id", projectId)
+          .single()
 
-      const { data: task } = await supabase
-        .from("executor_tasks")
-        .select("action")
-        .eq("project_id", projectId)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle()
+        if (project) setAnalysisStatus(project.analysis_status)
 
-      if (task) {
-        let fase = "Bezig"
-        if (task.action === "project_scan") fase = "Bestanden scannen"
-        if (task.action === "generate_stabu") fase = "STABU samenstellen"
-        if (task.action === "start_rekenwolk") fase = "Calculatie uitvoeren"
-        setProcessStatus({ fase, actie: task.action })
-      }
+        const { data: task } = await supabase
+          .from("executor_tasks")
+          .select("action")
+          .eq("project_id", projectId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle()
 
-      const { data: files } = await supabase.storage
-        .from("sterkcalc")
-        .list(projectId)
+        if (task) {
+          let fase = "Bezig"
+          if (task.action === "project_scan") fase = "Bestanden scannen"
+          if (task.action === "generate_stabu") fase = "STABU samenstellen"
+          if (task.action === "start_rekenwolk") fase = "Calculatie uitvoeren"
+          setProcessStatus({ fase, actie: task.action })
+        }
 
-      if (files) {
-        setFilesStatus(files.map(f => f.name))
-      }
-
-      if (!pdfUrl) {
-        const { data: signed } = await supabase.storage
+        const { data: files } = await supabase.storage
           .from("sterkcalc")
-          .createSignedUrl(
-            `${projectId}/calculatie_2jours.pdf`,
-            3600
-          )
-        if (signed?.signedUrl) setPdfUrl(signed.signedUrl)
+          .list(projectId)
+
+        if (files) setFilesStatus(files.map(f => f.name))
+
+        if (!signedUrlGuardRef.current) {
+          const { data: signed } = await supabase.storage
+            .from("sterkcalc")
+            .createSignedUrl(
+              `${projectId}/calculatie_2jours.pdf`,
+              3600
+            )
+          if (signed?.signedUrl) {
+            signedUrlGuardRef.current = true
+            setPdfUrl(signed.signedUrl)
+          }
+        }
+      } finally {
+        intervalTickGuardRef.current = false
       }
     }, 3000)
 
     return () => {
       clearInterval(t)
-      guardIntervalActive = false
+      intervalRunningRef.current = false
     }
-  }, [projectId, uploaded, pdfUrl])
+  }, [projectId, uploaded])
 
   const s = berekenIndicatie()
 
@@ -285,7 +337,6 @@ export default function NieuweCalculatie() {
 
       <div style={styles.layout}>
         <div>
-          {/* FORMULIER */}
           <div style={styles.grid}>
             {Object.keys(form).map(k =>
               k === "project_type" ? (
@@ -317,7 +368,6 @@ export default function NieuweCalculatie() {
             )}
           </div>
 
-          {/* CORRECTIES */}
           <div style={{ marginTop: 24 }}>
             <h3>Correcties</h3>
             {Object.entries(correcties).map(([k]) => (
@@ -336,7 +386,6 @@ export default function NieuweCalculatie() {
             ))}
           </div>
 
-          {/* UURLONEN */}
           <div style={{ marginTop: 24 }}>
             <h3>Uurlonen per discipline</h3>
             {uurlonen.map((u, i) => (
@@ -354,7 +403,6 @@ export default function NieuweCalculatie() {
             ))}
           </div>
 
-          {/* INDICATIE */}
           <div style={{ marginTop: 24 }}>
             <h3>Indicatieve projectsamenvatting</h3>
             <div style={{ fontSize: 13 }}>
@@ -381,7 +429,6 @@ export default function NieuweCalculatie() {
             />
           </div>
 
-          {/* STATUS */}
           <div style={{ marginTop: 12, fontSize: 13 }}>
             Fase: {processStatus.fase}
           </div>
