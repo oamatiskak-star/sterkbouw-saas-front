@@ -1,11 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/router"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 const EXECUTOR_URL =
   "https://sterkbouw-saas-executor-production.up.railway.app"
@@ -57,11 +52,10 @@ export default function NieuweCalculatie() {
   const router = useRouter()
 
   // ===== GUARDS =====
-  const createProjectGuardRef = useRef(false)
-  const uploadGuardRef = useRef(false)
-  const intervalRunningRef = useRef(false)
-  const intervalTickGuardRef = useRef(false)
-  const signedUrlGuardRef = useRef(false)
+  const createProjectGuard = useRef(false)
+  const uploadGuard = useRef(false)
+  const statusCheckCount = useRef(0)
+  const signedUrlTried = useRef(false)
 
   const [projectId, setProjectId] = useState(null)
   const [uploaded, setUploaded] = useState(false)
@@ -145,73 +139,9 @@ export default function NieuweCalculatie() {
     })
   }
 
-  function updateCorrectie(k, v) {
-    setCorrecties(p => ({ ...p, [k]: v }))
-  }
-
-  function updateUurloon(i, v) {
-    const copy = [...uurlonen]
-    copy[i].uurloon = v
-    setUurlonen(copy)
-  }
-
-  function berekenIndicatie() {
-    const gemiddeldUurloon =
-      uurlonen.reduce((s, u) => s + u.uurloon, 0) / uurlonen.length
-
-    const basisArbeid =
-      100 * gemiddeldUurloon * correcties.normuren_factor
-
-    const basisMateriaal =
-      250 * correcties.materiaal_index
-
-    const subtotaal = basisArbeid + basisMateriaal
-
-    const ak = subtotaal * correcties.ak_pct
-    const abk = subtotaal * correcties.abk_pct
-    const w = subtotaal * correcties.w_pct
-    const r = subtotaal * correcties.r_pct
-
-    return {
-      basisArbeid,
-      basisMateriaal,
-      subtotaal,
-      ak,
-      abk,
-      w,
-      r,
-      totaal: subtotaal + ak + abk + w + r
-    }
-  }
-
-  async function saveCorrecties(pid) {
-    if (!pid) return
-    await supabase.from("calculatie_correcties").upsert({
-      project_id: pid,
-      projecttype: form.project_type,
-      ak_pct: correcties.ak_pct,
-      abk_pct: correcties.abk_pct,
-      w_pct: correcties.w_pct,
-      r_pct: correcties.r_pct,
-      normuren_factor: correcties.normuren_factor,
-      materiaal_index: correcties.materiaal_index
-    })
-  }
-
-  async function saveUurlonen(pid) {
-    if (!pid) return
-    for (const row of uurlonen) {
-      await supabase.from("calculatie_uurloon_overrides").upsert({
-        project_id: pid,
-        discipline: row.discipline,
-        uurloon: row.uurloon
-      })
-    }
-  }
-
   async function handleCreateProject() {
-    if (createProjectGuardRef.current) return
-    createProjectGuardRef.current = true
+    if (createProjectGuard.current) return
+    createProjectGuard.current = true
 
     setCreating(true)
     setError(null)
@@ -225,28 +155,22 @@ export default function NieuweCalculatie() {
 
       if (!res.ok) throw new Error(await res.text())
       const data = await res.json()
-
       setProjectId(data.project_id)
-      await saveCorrecties(data.project_id)
-      await saveUurlonen(data.project_id)
     } catch (e) {
       setError(e.message)
     } finally {
       setCreating(false)
-      createProjectGuardRef.current = false
+      createProjectGuard.current = false
     }
   }
 
   async function handleUpload(e) {
-    if (uploadGuardRef.current) return
-    if (!projectId) return
-
+    if (uploadGuard.current || !projectId) return
     const files = Array.from(e.target.files)
     if (!files.length) return
 
-    uploadGuardRef.current = true
+    uploadGuard.current = true
     setUploaded(true)
-    setError(null)
 
     const fd = new FormData()
     fd.append("project_id", projectId)
@@ -257,79 +181,56 @@ export default function NieuweCalculatie() {
         method: "POST",
         body: fd
       })
-      if (!res.ok) setError(await res.text())
-    } catch (err) {
-      setError(err.message)
+      if (!res.ok) throw new Error(await res.text())
+    } catch (e) {
+      setError(e.message)
     } finally {
-      uploadGuardRef.current = false
+      uploadGuard.current = false
     }
   }
 
   useEffect(() => {
     if (!projectId || !uploaded) return
-    if (intervalRunningRef.current) return
+    if (statusCheckCount.current >= 2) return
 
-    intervalRunningRef.current = true
+    async function checkOnce() {
+      statusCheckCount.current++
 
-    const t = setInterval(async () => {
-      if (intervalTickGuardRef.current) return
-      intervalTickGuardRef.current = true
+      const { data: project } = await supabase
+        .from("projects")
+        .select("analysis_status")
+        .eq("id", projectId)
+        .maybeSingle()
 
-      try {
-        const { data: project } = await supabase
-          .from("projects")
-          .select("analysis_status")
-          .eq("id", projectId)
-          .single()
-
-        if (project) setAnalysisStatus(project.analysis_status)
-
-        const { data: task } = await supabase
-          .from("executor_tasks")
-          .select("action")
-          .eq("project_id", projectId)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle()
-
-        if (task) {
-          let fase = "Bezig"
-          if (task.action === "project_scan") fase = "Bestanden scannen"
-          if (task.action === "generate_stabu") fase = "STABU samenstellen"
-          if (task.action === "start_rekenwolk") fase = "Calculatie uitvoeren"
-          setProcessStatus({ fase, actie: task.action })
-        }
-
-        const { data: files } = await supabase.storage
-          .from("sterkcalc")
-          .list(projectId)
-
-        if (files) setFilesStatus(files.map(f => f.name))
-
-        if (!signedUrlGuardRef.current) {
-          const { data: signed } = await supabase.storage
-            .from("sterkcalc")
-            .createSignedUrl(
-              `${projectId}/calculatie_2jours.pdf`,
-              3600
-            )
-          if (signed?.signedUrl) {
-            signedUrlGuardRef.current = true
-            setPdfUrl(signed.signedUrl)
-          }
-        }
-      } finally {
-        intervalTickGuardRef.current = false
+      if (project?.analysis_status) {
+        setAnalysisStatus(project.analysis_status)
       }
-    }, 3000)
 
-    return () => {
-      clearInterval(t)
-      intervalRunningRef.current = false
+      if (
+        project?.analysis_status === "completed" &&
+        !signedUrlTried.current
+      ) {
+        signedUrlTried.current = true
+
+        const { data: signed } = await supabase.storage
+          .from("sterkcalc")
+          .createSignedUrl(
+            `${projectId}/calculatie_2jours.pdf`,
+            3600
+          )
+
+        if (signed?.signedUrl) {
+          setPdfUrl(signed.signedUrl)
+        }
+      }
+
+      if (project?.analysis_status !== "completed") {
+        setTimeout(checkOnce, 1500)
+      }
     }
-  }, [projectId, uploaded])
 
-  const s = berekenIndicatie()
+    checkOnce()
+  }, [projectId, uploaded])
 
   return (
     <div style={styles.wrap}>
@@ -338,76 +239,16 @@ export default function NieuweCalculatie() {
       <div style={styles.layout}>
         <div>
           <div style={styles.grid}>
-            {Object.keys(form).map(k =>
-              k === "project_type" ? (
-                <div key={k}>
-                  <label style={styles.label}>Projecttype</label>
-                  <select
-                    value={form.project_type}
-                    onChange={e =>
-                      updateField("project_type", e.target.value)
-                    }
-                    style={styles.input}
-                  >
-                    <option value="nieuwbouw">Nieuwbouw</option>
-                    <option value="transformatie">Transformatie</option>
-                    <option value="renovatie">Renovatie</option>
-                    <option value="verduurzaming">Verduurzaming</option>
-                  </select>
-                </div>
-              ) : (
-                <div key={k}>
-                  <label style={styles.label}>{k}</label>
-                  <input
-                    value={form[k]}
-                    onChange={e => updateField(k, e.target.value)}
-                    style={styles.input}
-                  />
-                </div>
-              )
-            )}
-          </div>
-
-          <div style={{ marginTop: 24 }}>
-            <h3>Correcties</h3>
-            {Object.entries(correcties).map(([k]) => (
+            {Object.keys(form).map(k => (
               <div key={k}>
                 <label style={styles.label}>{k}</label>
                 <input
-                  type="number"
-                  value={correcties[k]}
-                  step="0.01"
-                  onChange={e =>
-                    updateCorrectie(k, Number(e.target.value))
-                  }
+                  value={form[k]}
+                  onChange={e => updateField(k, e.target.value)}
                   style={styles.input}
                 />
               </div>
             ))}
-          </div>
-
-          <div style={{ marginTop: 24 }}>
-            <h3>Uurlonen per discipline</h3>
-            {uurlonen.map((u, i) => (
-              <div key={u.discipline}>
-                <label style={styles.label}>{u.discipline}</label>
-                <input
-                  type="number"
-                  value={u.uurloon}
-                  onChange={e =>
-                    updateUurloon(i, Number(e.target.value))
-                  }
-                  style={styles.input}
-                />
-              </div>
-            ))}
-          </div>
-
-          <div style={{ marginTop: 24 }}>
-            <h3>Indicatieve projectsamenvatting</h3>
-            <div style={{ fontSize: 13 }}>
-              Indicatief totaal: € {s.totaal.toFixed(0)}
-            </div>
           </div>
 
           <div style={{ marginTop: 16 }}>
@@ -428,19 +269,6 @@ export default function NieuweCalculatie() {
               disabled={!projectId}
             />
           </div>
-
-          <div style={{ marginTop: 12, fontSize: 13 }}>
-            Fase: {processStatus.fase}
-          </div>
-
-          {filesStatus.length > 0 && (
-            <div style={{ fontSize: 12 }}>
-              <strong>Bestanden</strong>
-              {filesStatus.map(f => (
-                <div key={f}>{f}</div>
-              ))}
-            </div>
-          )}
 
           {pdfUrl && (
             <div style={{ marginTop: 12 }}>
