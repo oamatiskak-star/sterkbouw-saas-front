@@ -98,6 +98,9 @@ export default function NieuweCalculatie() {
     { discipline: "schilder", uurloon: 45 }
   ])
 
+  // GUARDS toegevoegd zodat GoTrue slechts 1x per interval wordt aangeroepen
+  let guardIntervalActive = false
+
   function updateField(k, v) {
     setForm(p => {
       const updated = { ...p, [k]: v }
@@ -220,7 +223,9 @@ export default function NieuweCalculatie() {
   }
 
   useEffect(() => {
-    if (!projectId || !uploaded) return
+    if (!projectId || !uploaded || guardIntervalActive) return
+
+    guardIntervalActive = true
 
     const t = setInterval(async () => {
       const { data: project } = await supabase
@@ -266,7 +271,10 @@ export default function NieuweCalculatie() {
       }
     }, 3000)
 
-    return () => clearInterval(t)
+    return () => {
+      clearInterval(t)
+      guardIntervalActive = false
+    }
   }, [projectId, uploaded, pdfUrl])
 
   const s = berekenIndicatie()
