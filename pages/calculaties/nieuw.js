@@ -106,6 +106,35 @@ export default function NieuweCalculatie() {
     setUurlonen(copy)
   }
 
+  function berekenIndicatie() {
+    const gemiddeldUurloon =
+      uurlonen.reduce((s, u) => s + u.uurloon, 0) / uurlonen.length
+
+    const basisArbeid =
+      100 * gemiddeldUurloon * correcties.normuren_factor
+
+    const basisMateriaal =
+      250 * correcties.materiaal_index
+
+    const subtotaal = basisArbeid + basisMateriaal
+
+    const ak = subtotaal * correcties.ak_pct
+    const abk = subtotaal * correcties.abk_pct
+    const w = subtotaal * correcties.w_pct
+    const r = subtotaal * correcties.r_pct
+
+    return {
+      basisArbeid,
+      basisMateriaal,
+      subtotaal,
+      ak,
+      abk,
+      w,
+      r,
+      totaal: subtotaal + ak + abk + w + r
+    }
+  }
+
   async function saveCorrecties(pid) {
     if (!pid) return
 
@@ -125,8 +154,6 @@ export default function NieuweCalculatie() {
     if (!pid) return
 
     for (const row of uurlonen) {
-      if (!row.uurloon) continue
-
       await supabase
         .from("calculatie_uurloon_overrides")
         .upsert({
@@ -153,7 +180,6 @@ export default function NieuweCalculatie() {
       const data = await res.json()
 
       setProjectId(data.project_id)
-
       await saveCorrecties(data.project_id)
       await saveUurlonen(data.project_id)
     } catch (e) {
@@ -205,14 +231,14 @@ export default function NieuweCalculatie() {
             3600
           )
 
-        if (signed?.signedUrl) {
-          setPdfUrl(signed.signedUrl)
-        }
+        if (signed?.signedUrl) setPdfUrl(signed.signedUrl)
       }
     }, 3000)
 
     return () => clearInterval(t)
   }, [projectId, uploaded, pdfUrl])
+
+  const s = berekenIndicatie()
 
   return (
     <div style={styles.wrap}>
@@ -249,7 +275,6 @@ export default function NieuweCalculatie() {
             )}
           </div>
 
-          {/* CORRECTIES */}
           <div style={{ marginTop: 24 }}>
             <h3>Correcties</h3>
             {[
@@ -275,7 +300,6 @@ export default function NieuweCalculatie() {
             ))}
           </div>
 
-          {/* UURLONEN */}
           <div style={{ marginTop: 24 }}>
             <h3>Uurlonen per discipline</h3>
             {uurlonen.map((u, i) => (
@@ -291,6 +315,22 @@ export default function NieuweCalculatie() {
                 />
               </div>
             ))}
+          </div>
+
+          <div style={{ marginTop: 24 }}>
+            <h3>Indicatieve projectsamenvatting</h3>
+            <div style={{ fontSize: 13, lineHeight: 1.6 }}>
+              <div>Arbeid: € {s.basisArbeid.toFixed(0)}</div>
+              <div>Materiaal: € {s.basisMateriaal.toFixed(0)}</div>
+              <div>Subtotaal: € {s.subtotaal.toFixed(0)}</div>
+              <div>AK: € {s.ak.toFixed(0)}</div>
+              <div>ABK: € {s.abk.toFixed(0)}</div>
+              <div>Winst: € {s.w.toFixed(0)}</div>
+              <div>Risico: € {s.r.toFixed(0)}</div>
+              <strong>
+                Indicatief totaal: € {s.totaal.toFixed(0)}
+              </strong>
+            </div>
           </div>
 
           <div style={{ marginTop: 16 }}>
