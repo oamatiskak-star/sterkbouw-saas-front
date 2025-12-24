@@ -1,9 +1,9 @@
 import "../styles/globals.css"
 import "../styles/layout.css"
 import "../styles/kpi.css"
-import "../styles/globals.mobile.css" // mobiele overrides
+import "../styles/globals.mobile.css"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/router"
 
 import AppLayout from "../layouts/AppLayout"
@@ -12,51 +12,83 @@ import { getSession } from "../lib/auth"
 
 export default function MyApp({ Component, pageProps }) {
   const router = useRouter()
-  const [loading, setLoading] = useState(true)
-  const [session, setSession] = useState(null)
 
+  // ======================
+  // GUARDS
+  // ======================
+  const sessionCheckedRef = useRef(false)
+  const redirectingRef = useRef(false)
+
+  // ======================
+  // STATE
+  // ======================
+  const [session, setSession] = useState(null)
+  const [booting, setBooting] = useState(true)
+
+  // ======================
+  // CONFIG
+  // ======================
   const authPages = ["/", "/login"]
   const isAuthPage = authPages.includes(router.pathname)
 
+  // ======================
+  // INIT SESSION – EXACT 1x
+  // ======================
   useEffect(() => {
-    let mounted = true
+    if (sessionCheckedRef.current) return
+    sessionCheckedRef.current = true
 
-    async function checkSession() {
+    let alive = true
+
+    async function initSession() {
       try {
         const s = await getSession()
-        if (!mounted) return
+        if (!alive) return
 
         setSession(s || null)
 
-        if (!s && !isAuthPage) {
+        // ---- redirects alleen hier ----
+        if (!s && !isAuthPage && !redirectingRef.current) {
+          redirectingRef.current = true
           router.replace("/login")
           return
         }
 
-        if (s && isAuthPage) {
+        if (s && isAuthPage && !redirectingRef.current) {
+          redirectingRef.current = true
           router.replace("/dashboard")
           return
         }
-      } catch (err) {
-        if (!mounted) return
+      } catch (_) {
+        if (!alive) return
         setSession(null)
-        if (!isAuthPage) {
+
+        if (!isAuthPage && !redirectingRef.current) {
+          redirectingRef.current = true
           router.replace("/login")
         }
       } finally {
-        if (mounted) setLoading(false)
+        if (alive) setBooting(false)
       }
     }
 
-    checkSession()
+    initSession()
 
     return () => {
-      mounted = false
+      alive = false
     }
-  }, [router.pathname])
+  }, []) // ⬅️ BELANGRIJK: GEEN router.pathname
 
-  if (loading) return null
+  // ======================
+  // LOADING GATE
+  // ======================
+  if (booting) {
+    return null
+  }
 
+  // ======================
+  // AUTH PAGES
+  // ======================
   if (isAuthPage) {
     return (
       <AuthLayout>
@@ -65,10 +97,20 @@ export default function MyApp({ Component, pageProps }) {
     )
   }
 
+  // ======================
+  // APP PAGES
+  // ======================
   return (
     <div className="sb-app">
       <AppLayout session={session}>
-        <main className="sb-main" style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+        <main
+          className="sb-main"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%"
+          }}
+        >
           <Component {...pageProps} />
         </main>
       </AppLayout>
