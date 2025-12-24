@@ -84,6 +84,14 @@ export default function NieuweCalculatie() {
     materiaal_index: 1.0
   })
 
+  const [uurlonen, setUurlonen] = useState([
+    { discipline: "timmerman", uurloon: 52 },
+    { discipline: "installateur", uurloon: 60 },
+    { discipline: "elektricien", uurloon: 60 },
+    { discipline: "stucadoor", uurloon: 48 },
+    { discipline: "schilder", uurloon: 45 }
+  ])
+
   function updateField(k, v) {
     setForm(p => ({ ...p, [k]: v }))
   }
@@ -92,21 +100,41 @@ export default function NieuweCalculatie() {
     setCorrecties(p => ({ ...p, [k]: v }))
   }
 
+  function updateUurloon(i, v) {
+    const copy = [...uurlonen]
+    copy[i].uurloon = v
+    setUurlonen(copy)
+  }
+
   async function saveCorrecties(pid) {
     if (!pid) return
 
-    await supabase
-      .from("calculatie_correcties")
-      .upsert({
-        project_id: pid,
-        projecttype: form.project_type,
-        ak_pct: correcties.ak_pct,
-        abk_pct: correcties.abk_pct,
-        w_pct: correcties.w_pct,
-        r_pct: correcties.r_pct,
-        normuren_factor: correcties.normuren_factor,
-        materiaal_index: correcties.materiaal_index
-      })
+    await supabase.from("calculatie_correcties").upsert({
+      project_id: pid,
+      projecttype: form.project_type,
+      ak_pct: correcties.ak_pct,
+      abk_pct: correcties.abk_pct,
+      w_pct: correcties.w_pct,
+      r_pct: correcties.r_pct,
+      normuren_factor: correcties.normuren_factor,
+      materiaal_index: correcties.materiaal_index
+    })
+  }
+
+  async function saveUurlonen(pid) {
+    if (!pid) return
+
+    for (const row of uurlonen) {
+      if (!row.uurloon) continue
+
+      await supabase
+        .from("calculatie_uurloon_overrides")
+        .upsert({
+          project_id: pid,
+          discipline: row.discipline,
+          uurloon: row.uurloon
+        })
+    }
   }
 
   async function handleCreateProject() {
@@ -126,8 +154,8 @@ export default function NieuweCalculatie() {
 
       setProjectId(data.project_id)
 
-      // Correcties direct koppelen aan project
       await saveCorrecties(data.project_id)
+      await saveUurlonen(data.project_id)
     } catch (e) {
       setError(e.message)
     } finally {
@@ -191,29 +219,24 @@ export default function NieuweCalculatie() {
       <h1>Nieuwe calculatie</h1>
 
       <div style={styles.layout}>
-        {/* LINKS */}
         <div>
           <div style={styles.grid}>
-            {Object.keys(form).map(k => {
-              if (k === "project_type") {
-                return (
-                  <div key={k}>
-                    <label style={styles.label}>Projecttype</label>
-                    <select
-                      value={form.project_type}
-                      onChange={e =>
-                        updateField("project_type", e.target.value)
-                      }
-                      style={styles.input}
-                    >
-                      <option value="nieuwbouw">Nieuwbouw</option>
-                      <option value="transformatie">Transformatie</option>
-                    </select>
-                  </div>
-                )
-              }
-
-              return (
+            {Object.keys(form).map(k =>
+              k === "project_type" ? (
+                <div key={k}>
+                  <label style={styles.label}>Projecttype</label>
+                  <select
+                    value={form.project_type}
+                    onChange={e =>
+                      updateField("project_type", e.target.value)
+                    }
+                    style={styles.input}
+                  >
+                    <option value="nieuwbouw">Nieuwbouw</option>
+                    <option value="transformatie">Transformatie</option>
+                  </select>
+                </div>
+              ) : (
                 <div key={k}>
                   <label style={styles.label}>{k}</label>
                   <input
@@ -223,13 +246,12 @@ export default function NieuweCalculatie() {
                   />
                 </div>
               )
-            })}
+            )}
           </div>
 
           {/* CORRECTIES */}
           <div style={{ marginTop: 24 }}>
             <h3>Correcties</h3>
-
             {[
               ["AK (%)", "ak_pct"],
               ["ABK (%)", "abk_pct"],
@@ -246,6 +268,24 @@ export default function NieuweCalculatie() {
                   value={correcties[key]}
                   onChange={e =>
                     updateCorrectie(key, Number(e.target.value))
+                  }
+                  style={styles.input}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* UURLONEN */}
+          <div style={{ marginTop: 24 }}>
+            <h3>Uurlonen per discipline</h3>
+            {uurlonen.map((u, i) => (
+              <div key={u.discipline}>
+                <label style={styles.label}>{u.discipline}</label>
+                <input
+                  type="number"
+                  value={u.uurloon}
+                  onChange={e =>
+                    updateUurloon(i, Number(e.target.value))
                   }
                   style={styles.input}
                 />
@@ -306,7 +346,6 @@ export default function NieuweCalculatie() {
           )}
         </div>
 
-        {/* RECHTS – PREVIEW */}
         <div style={styles.previewWrapper}>
           {pdfUrl ? (
             <iframe
