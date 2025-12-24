@@ -63,6 +63,13 @@ export default function NieuweCalculatie() {
   const [error, setError] = useState(null)
   const [pdfUrl, setPdfUrl] = useState(null)
 
+  // LIVE STATUS
+  const [processStatus, setProcessStatus] = useState({
+    fase: "wachten",
+    actie: null
+  })
+  const [filesStatus, setFilesStatus] = useState([])
+
   const [form, setForm] = useState({
     naam: "",
     naam_opdrachtgever: "",
@@ -137,7 +144,6 @@ export default function NieuweCalculatie() {
 
   async function saveCorrecties(pid) {
     if (!pid) return
-
     await supabase.from("calculatie_correcties").upsert({
       project_id: pid,
       projecttype: form.project_type,
@@ -152,15 +158,12 @@ export default function NieuweCalculatie() {
 
   async function saveUurlonen(pid) {
     if (!pid) return
-
     for (const row of uurlonen) {
-      await supabase
-        .from("calculatie_uurloon_overrides")
-        .upsert({
-          project_id: pid,
-          discipline: row.discipline,
-          uurloon: row.uurloon
-        })
+      await supabase.from("calculatie_uurloon_overrides").upsert({
+        project_id: pid,
+        discipline: row.discipline,
+        uurloon: row.uurloon
+      })
     }
   }
 
@@ -223,6 +226,30 @@ export default function NieuweCalculatie() {
 
       if (project) setAnalysisStatus(project.analysis_status)
 
+      const { data: task } = await supabase
+        .from("executor_tasks")
+        .select("action")
+        .eq("project_id", projectId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (task) {
+        let fase = "Bezig"
+        if (task.action === "project_scan") fase = "Bestanden scannen"
+        if (task.action === "generate_stabu") fase = "STABU samenstellen"
+        if (task.action === "start_rekenwolk") fase = "Calculatie uitvoeren"
+        setProcessStatus({ fase, actie: task.action })
+      }
+
+      const { data: files } = await supabase.storage
+        .from("sterkcalc")
+        .list(projectId)
+
+      if (files) {
+        setFilesStatus(files.map(f => f.name))
+      }
+
       if (!pdfUrl) {
         const { data: signed } = await supabase.storage
           .from("sterkcalc")
@@ -230,7 +257,6 @@ export default function NieuweCalculatie() {
             `${projectId}/calculatie_2jours.pdf`,
             3600
           )
-
         if (signed?.signedUrl) setPdfUrl(signed.signedUrl)
       }
     }, 3000)
@@ -246,6 +272,7 @@ export default function NieuweCalculatie() {
 
       <div style={styles.layout}>
         <div>
+          {/* FORMULIER */}
           <div style={styles.grid}>
             {Object.keys(form).map(k =>
               k === "project_type" ? (
@@ -275,24 +302,18 @@ export default function NieuweCalculatie() {
             )}
           </div>
 
+          {/* CORRECTIES */}
           <div style={{ marginTop: 24 }}>
             <h3>Correcties</h3>
-            {[
-              ["AK (%)", "ak_pct"],
-              ["ABK (%)", "abk_pct"],
-              ["Winst (%)", "w_pct"],
-              ["Risico (%)", "r_pct"],
-              ["Normurenfactor", "normuren_factor"],
-              ["Materiaalindex", "materiaal_index"]
-            ].map(([label, key]) => (
-              <div key={key}>
-                <label style={styles.label}>{label}</label>
+            {Object.entries(correcties).map(([k]) => (
+              <div key={k}>
+                <label style={styles.label}>{k}</label>
                 <input
                   type="number"
+                  value={correcties[k]}
                   step="0.01"
-                  value={correcties[key]}
                   onChange={e =>
-                    updateCorrectie(key, Number(e.target.value))
+                    updateCorrectie(k, Number(e.target.value))
                   }
                   style={styles.input}
                 />
@@ -300,6 +321,7 @@ export default function NieuweCalculatie() {
             ))}
           </div>
 
+          {/* UURLONEN */}
           <div style={{ marginTop: 24 }}>
             <h3>Uurlonen per discipline</h3>
             {uurlonen.map((u, i) => (
@@ -317,19 +339,11 @@ export default function NieuweCalculatie() {
             ))}
           </div>
 
+          {/* INDICATIE */}
           <div style={{ marginTop: 24 }}>
             <h3>Indicatieve projectsamenvatting</h3>
-            <div style={{ fontSize: 13, lineHeight: 1.6 }}>
-              <div>Arbeid: € {s.basisArbeid.toFixed(0)}</div>
-              <div>Materiaal: € {s.basisMateriaal.toFixed(0)}</div>
-              <div>Subtotaal: € {s.subtotaal.toFixed(0)}</div>
-              <div>AK: € {s.ak.toFixed(0)}</div>
-              <div>ABK: € {s.abk.toFixed(0)}</div>
-              <div>Winst: € {s.w.toFixed(0)}</div>
-              <div>Risico: € {s.r.toFixed(0)}</div>
-              <strong>
-                Indicatief totaal: € {s.totaal.toFixed(0)}
-              </strong>
+            <div style={{ fontSize: 13 }}>
+              Indicatief totaal: € {s.totaal.toFixed(0)}
             </div>
           </div>
 
@@ -349,9 +363,22 @@ export default function NieuweCalculatie() {
               multiple
               onChange={handleUpload}
               disabled={!projectId}
-              style={{ width: "100%" }}
             />
           </div>
+
+          {/* STATUS */}
+          <div style={{ marginTop: 12, fontSize: 13 }}>
+            Fase: {processStatus.fase}
+          </div>
+
+          {filesStatus.length > 0 && (
+            <div style={{ fontSize: 12 }}>
+              <strong>Bestanden</strong>
+              {filesStatus.map(f => (
+                <div key={f}>{f}</div>
+              ))}
+            </div>
+          )}
 
           {pdfUrl && (
             <div style={{ marginTop: 12 }}>
@@ -373,11 +400,6 @@ export default function NieuweCalculatie() {
               </a>
             </div>
           )}
-
-          <div style={{ marginTop: 12, fontSize: 13 }}>
-            Status:{" "}
-            {!uploaded ? "wachten op upload" : analysisStatus || "analyseren"}
-          </div>
 
           {error && (
             <pre style={{ marginTop: 12, color: "red", fontSize: 12 }}>
