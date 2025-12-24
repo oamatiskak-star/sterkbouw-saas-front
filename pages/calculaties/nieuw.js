@@ -61,7 +61,6 @@ export default function NieuweCalculatie() {
   const [analysisStatus, setAnalysisStatus] = useState(null)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState(null)
-
   const [pdfUrl, setPdfUrl] = useState(null)
 
   const [form, setForm] = useState({
@@ -76,8 +75,38 @@ export default function NieuweCalculatie() {
     opmerking: ""
   })
 
+  const [correcties, setCorrecties] = useState({
+    ak_pct: 0.08,
+    abk_pct: 0.04,
+    w_pct: 0.06,
+    r_pct: 0.05,
+    normuren_factor: 1.1,
+    materiaal_index: 1.0
+  })
+
   function updateField(k, v) {
     setForm(p => ({ ...p, [k]: v }))
+  }
+
+  function updateCorrectie(k, v) {
+    setCorrecties(p => ({ ...p, [k]: v }))
+  }
+
+  async function saveCorrecties(pid) {
+    if (!pid) return
+
+    await supabase
+      .from("calculatie_correcties")
+      .upsert({
+        project_id: pid,
+        projecttype: form.project_type,
+        ak_pct: correcties.ak_pct,
+        abk_pct: correcties.abk_pct,
+        w_pct: correcties.w_pct,
+        r_pct: correcties.r_pct,
+        normuren_factor: correcties.normuren_factor,
+        materiaal_index: correcties.materiaal_index
+      })
   }
 
   async function handleCreateProject() {
@@ -94,7 +123,11 @@ export default function NieuweCalculatie() {
 
       if (!res.ok) throw new Error(await res.text())
       const data = await res.json()
+
       setProjectId(data.project_id)
+
+      // Correcties direct koppelen aan project
+      await saveCorrecties(data.project_id)
     } catch (e) {
       setError(e.message)
     } finally {
@@ -193,6 +226,33 @@ export default function NieuweCalculatie() {
             })}
           </div>
 
+          {/* CORRECTIES */}
+          <div style={{ marginTop: 24 }}>
+            <h3>Correcties</h3>
+
+            {[
+              ["AK (%)", "ak_pct"],
+              ["ABK (%)", "abk_pct"],
+              ["Winst (%)", "w_pct"],
+              ["Risico (%)", "r_pct"],
+              ["Normurenfactor", "normuren_factor"],
+              ["Materiaalindex", "materiaal_index"]
+            ].map(([label, key]) => (
+              <div key={key}>
+                <label style={styles.label}>{label}</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={correcties[key]}
+                  onChange={e =>
+                    updateCorrectie(key, Number(e.target.value))
+                  }
+                  style={styles.input}
+                />
+              </div>
+            ))}
+          </div>
+
           <div style={{ marginTop: 16 }}>
             <button
               style={styles.button}
@@ -246,7 +306,7 @@ export default function NieuweCalculatie() {
           )}
         </div>
 
-        {/* RECHTS – VASTE A4 PREVIEW */}
+        {/* RECHTS – PREVIEW */}
         <div style={styles.previewWrapper}>
           {pdfUrl ? (
             <iframe
@@ -255,13 +315,7 @@ export default function NieuweCalculatie() {
               style={styles.previewFrame}
             />
           ) : (
-            <div
-              style={{
-                color: "#9ca3af",
-                fontSize: 13,
-                padding: 16
-              }}
-            >
+            <div style={{ color: "#9ca3af", fontSize: 13, padding: 16 }}>
               Nog geen calculatie
             </div>
           )}
