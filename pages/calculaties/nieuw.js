@@ -63,7 +63,6 @@ export default function NieuweCalculatie() {
   const [error, setError] = useState(null)
   const [pdfUrl, setPdfUrl] = useState(null)
 
-  // LIVE STATUS
   const [processStatus, setProcessStatus] = useState({
     fase: "wachten",
     actie: null
@@ -82,14 +81,14 @@ export default function NieuweCalculatie() {
     opmerking: ""
   })
 
-  const [correcties, setCorrecties] = useState({
-    ak_pct: 0.08,
-    abk_pct: 0.04,
-    w_pct: 0.06,
-    r_pct: 0.05,
-    normuren_factor: 1.1,
-    materiaal_index: 1.0
-  })
+  const basisCorrecties = {
+    nieuwbouw: { ak_pct: 0.08, abk_pct: 0.04, w_pct: 0.06, r_pct: 0.05, normuren_factor: 1.1, materiaal_index: 1.0 },
+    transformatie: { ak_pct: 0.08, abk_pct: 0.04, w_pct: 0.06, r_pct: 0.05, normuren_factor: 1.0, materiaal_index: 1.0 },
+    renovatie: { ak_pct: 0.07, abk_pct: 0.03, w_pct: 0.05, r_pct: 0.04, normuren_factor: 1.0, materiaal_index: 1.0 },
+    verduurzaming: { ak_pct: 0.06, abk_pct: 0.02, w_pct: 0.04, r_pct: 0.03, normuren_factor: 1.0, materiaal_index: 1.0 }
+  }
+
+  const [correcties, setCorrecties] = useState({ ...basisCorrecties.nieuwbouw })
 
   const [uurlonen, setUurlonen] = useState([
     { discipline: "timmerman", uurloon: 52 },
@@ -100,7 +99,13 @@ export default function NieuweCalculatie() {
   ])
 
   function updateField(k, v) {
-    setForm(p => ({ ...p, [k]: v }))
+    setForm(p => {
+      const updated = { ...p, [k]: v }
+      if (k === "project_type" && basisCorrecties[v]) {
+        setCorrecties({ ...basisCorrecties[v] })
+      }
+      return updated
+    })
   }
 
   function updateCorrectie(k, v) {
@@ -287,6 +292,8 @@ export default function NieuweCalculatie() {
                   >
                     <option value="nieuwbouw">Nieuwbouw</option>
                     <option value="transformatie">Transformatie</option>
+                    <option value="renovatie">Renovatie</option>
+                    <option value="verduurzaming">Verduurzaming</option>
                   </select>
                 </div>
               ) : (
