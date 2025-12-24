@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js"
 
+// Gebruik altijd de service role key voor backend
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -19,7 +20,7 @@ export default async function handler(req, res) {
   try {
     const { signedURL, error } = await supabase.storage
       .from("sterkcalc")
-      .createSignedUrl(`${projectId}/${fileName}`, 3600)
+      .createSignedUrl(`${projectId}/${fileName}`, 3600) // 1 uur geldig
 
     if (error) throw error
 
