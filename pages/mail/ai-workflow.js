@@ -1,29 +1,40 @@
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
+import { useEffect, useState, useRef } from "react"
 import axios from "axios"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function AIWorkflowMail() {
   const [mails, setMails] = useState([])
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState(false)
 
-  // Laad alle mails
+  const loadedRef = useRef(false)
+
+  // Laad alle mails – exact 1×
   useEffect(() => {
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
+
     async function load() {
       setLoading(true)
+
       const { data } = await supabase
         .from("project_mail")
         .select("*")
         .order("created_at", { ascending: false })
-      setMails(data || [])
-      setLoading(false)
+
+      if (!cancelled) {
+        setMails(data || [])
+        setLoading(false)
+      }
     }
+
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   // Scan en verwerk mails
@@ -31,11 +42,10 @@ export default function AIWorkflowMail() {
     if (processing) return
     setProcessing(true)
 
-    for (let mail of mails) {
+    for (const mail of mails) {
       if (mail.verwerkt) continue
 
       try {
-        // AI analyse van onderwerp + bericht
         const response = await axios.post("/api/ai/mail-analyse", {
           onderwerp: mail.onderwerp,
           bericht: mail.bericht,
@@ -44,8 +54,7 @@ export default function AIWorkflowMail() {
 
         const acties = response.data.acties || []
 
-        // Verwerk acties in calculatie / inkoop / contracten
-        for (let a of acties) {
+        for (const a of acties) {
           switch (a.type) {
             case "calculatie_regel":
               await supabase.from("calculatie_regels").insert({
@@ -89,7 +98,6 @@ export default function AIWorkflowMail() {
           }
         }
 
-        // Markeer mail als verwerkt
         await supabase
           .from("project_mail")
           .update({ verwerkt: true })
@@ -101,8 +109,12 @@ export default function AIWorkflowMail() {
     }
 
     setProcessing(false)
-    // refresh mails
-    const { data } = await supabase.from("project_mail").select("*").order("created_at", { ascending: false })
+
+    const { data } = await supabase
+      .from("project_mail")
+      .select("*")
+      .order("created_at", { ascending: false })
+
     setMails(data || [])
   }
 
@@ -118,7 +130,9 @@ export default function AIWorkflowMail() {
 
       <section style={{ marginTop: 24 }}>
         <h2>Inbox</h2>
+
         {mails.length === 0 && <p>Geen mails aanwezig.</p>}
+
         {mails.length > 0 && (
           <table width="100%" cellPadding="8">
             <thead>
