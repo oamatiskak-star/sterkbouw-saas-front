@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 const STATUSSEN = [
   "concept",
@@ -24,13 +19,19 @@ export default function KoperStatus() {
   const [nieuweStatus, setNieuweStatus] = useState("")
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
     if (!id) return
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
 
     async function load() {
       setLoading(true)
 
-      const { data: k } = await supabase
+      const { data: k, error: koperErr } = await supabase
         .from("kopers")
         .select("id, naam, status")
         .eq("id", id)
@@ -42,24 +43,34 @@ export default function KoperStatus() {
         .eq("koper_id", id)
         .order("changed_at", { ascending: false })
 
-      setKoper(k)
-      setStatusLog(l || [])
-      setNieuweStatus(k?.status || "")
-      setLoading(false)
+      if (!cancelled) {
+        setKoper(koperErr ? null : k)
+        setStatusLog(l || [])
+        setNieuweStatus(k?.status || "")
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
   async function updateStatus() {
-    if (!nieuweStatus || nieuweStatus === koper.status) return
+    if (!koper) return
+    if (!nieuweStatus) return
+    if (nieuweStatus === koper.status) return
 
-    await supabase.rpc("wijzig_koper_status", {
+    const { error } = await supabase.rpc("wijzig_koper_status", {
       p_koper_id: id,
       p_nieuwe_status: nieuweStatus
     })
 
-    router.reload()
+    if (!error) {
+      router.reload()
+    }
   }
 
   if (loading) return null
@@ -70,7 +81,9 @@ export default function KoperStatus() {
       <h1>Status – {koper.naam}</h1>
 
       <section style={{ marginBottom: 32 }}>
-        <p>Huidige status: <strong>{koper.status}</strong></p>
+        <p>
+          Huidige status: <strong>{koper.status}</strong>
+        </p>
 
         <select
           value={nieuweStatus}
@@ -103,8 +116,11 @@ export default function KoperStatus() {
           <ul>
             {statusLog.map(l => (
               <li key={l.id}>
-                {l.oude_status} → {l.nieuwe_status}  
-                <small> {new Date(l.changed_at).toLocaleString()}</small>
+                {l.oude_status} → {l.nieuwe_status}
+                <small>
+                  {" "}
+                  {new Date(l.changed_at).toLocaleString()}
+                </small>
               </li>
             ))}
           </ul>
