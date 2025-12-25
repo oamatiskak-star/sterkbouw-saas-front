@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 export default function ConstructieRapport() {
   const router = useRouter()
@@ -16,8 +11,14 @@ export default function ConstructieRapport() {
   const [planning, setPlanning] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
     if (!project_id) return
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
 
     async function load() {
       setLoading(true)
@@ -37,13 +38,19 @@ export default function ConstructieRapport() {
         .select("*")
         .eq("project_id", project_id)
 
-      setBerekeningen(b || [])
-      setMaterialen(m || [])
-      setPlanning(p || [])
-      setLoading(false)
+      if (!cancelled) {
+        setBerekeningen(b || [])
+        setMaterialen(m || [])
+        setPlanning(p || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [project_id])
 
   if (loading) return null
@@ -51,11 +58,15 @@ export default function ConstructieRapport() {
 
   return (
     <div style={{ padding: 16 }}>
-      <h1>Constructie Rapport – Project</h1>
+      <h1>Constructie rapport – project</h1>
 
       <section style={{ marginBottom: 24 }}>
         <h2>Berekeningen</h2>
-        {berekeningen.length === 0 && <p>Geen berekeningen aanwezig.</p>}
+
+        {berekeningen.length === 0 && (
+          <p>Geen berekeningen aanwezig.</p>
+        )}
+
         {berekeningen.length > 0 && (
           <table width="100%" cellPadding="8">
             <thead>
@@ -71,9 +82,9 @@ export default function ConstructieRapport() {
               {berekeningen.map(b => (
                 <tr key={b.id}>
                   <td>{b.omschrijving}</td>
-                  <td>€ {Number(b.kosten).toFixed(2)}</td>
-                  <td>€ {Number(b.arbeid).toFixed(2)}</td>
-                  <td>€ {Number(b.totaal).toFixed(2)}</td>
+                  <td>€ {Number(b.kosten || 0).toFixed(2)}</td>
+                  <td>€ {Number(b.arbeid || 0).toFixed(2)}</td>
+                  <td>€ {Number(b.totaal || 0).toFixed(2)}</td>
                   <td>{b.status}</td>
                 </tr>
               ))}
@@ -84,7 +95,11 @@ export default function ConstructieRapport() {
 
       <section style={{ marginBottom: 24 }}>
         <h2>Materialen</h2>
-        {materialen.length === 0 && <p>Geen materialen aanwezig.</p>}
+
+        {materialen.length === 0 && (
+          <p>Geen materialen aanwezig.</p>
+        )}
+
         {materialen.length > 0 && (
           <table width="100%" cellPadding="8">
             <thead>
@@ -98,7 +113,7 @@ export default function ConstructieRapport() {
               {materialen.map(m => (
                 <tr key={m.id}>
                   <td>{m.naam}</td>
-                  <td>€ {Number(m.kosten).toFixed(2)}</td>
+                  <td>€ {Number(m.kosten || 0).toFixed(2)}</td>
                   <td>{m.status}</td>
                 </tr>
               ))}
@@ -109,7 +124,11 @@ export default function ConstructieRapport() {
 
       <section>
         <h2>Planning</h2>
-        {planning.length === 0 && <p>Geen planning aanwezig.</p>}
+
+        {planning.length === 0 && (
+          <p>Geen planning aanwezig.</p>
+        )}
+
         {planning.length > 0 && (
           <table width="100%" cellPadding="8">
             <thead>
