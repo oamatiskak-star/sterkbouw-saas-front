@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function ProjectFinanciering() {
   const router = useRouter()
@@ -14,33 +9,67 @@ export default function ProjectFinanciering() {
   const [calculaties, setCalculaties] = useState([])
   const [risico, setRisico] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     if (!id) return
 
+    let cancelled = false
+
     async function load() {
       setLoading(true)
+      setError(null)
 
-      const { data: c } = await supabase
+      const { data: c, error: cErr } = await supabase
         .from("calculaties")
         .select("kostprijs, verkoopprijs, marge")
         .eq("project_id", id)
 
-      const { data: r } = await supabase
+      if (cErr) {
+        if (!cancelled) {
+          setError(cErr.message)
+          setLoading(false)
+        }
+        return
+      }
+
+      const { data: r, error: rErr } = await supabase
         .from("v_project_risico")
         .select("*")
         .eq("project_id", id)
-        .single()
+        .maybeSingle()
+
+      if (rErr) {
+        if (!cancelled) {
+          setError(rErr.message)
+          setLoading(false)
+        }
+        return
+      }
+
+      if (cancelled) return
 
       setCalculaties(c || [])
-      setRisico(r)
+      setRisico(r || null)
       setLoading(false)
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
-  if (loading) return null
+  if (loading) return <div>Loading…</div>
+
+  if (error) {
+    return (
+      <div style={{ color: "red" }}>
+        {error}
+      </div>
+    )
+  }
 
   const totaleKostprijs = calculaties.reduce(
     (sum, c) => sum + Number(c.kostprijs || 0),
