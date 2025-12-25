@@ -66,7 +66,7 @@ export default function NieuweCalculatie() {
   const [pdfUrl, setPdfUrl] = useState(null)
 
   const [processStatus, setProcessStatus] = useState({
-    fase: "wachten",
+    fase: "Wachten",
     actie: null
   })
   const [filesStatus, setFilesStatus] = useState([])
@@ -289,9 +289,9 @@ export default function NieuweCalculatie() {
 
         if (task) {
           let fase = "Wachten"
-if (task?.action === "project_scan") fase = "Bestanden scannen"
-if (task?.action === "generate_stabu") fase = "STABU samenstellen"
-if (task?.action === "start_rekenwolk") fase = "Calculatie uitvoeren"
+          if (task.action === "project_scan") fase = "Bestanden scannen"
+          if (task.action === "generate_stabu") fase = "STABU samenstellen"
+          if (task.action === "start_rekenwolk") fase = "Calculatie uitvoeren"
           setProcessStatus({ fase, actie: task.action })
         }
 
@@ -302,33 +302,26 @@ if (task?.action === "start_rekenwolk") fase = "Calculatie uitvoeren"
         if (files) setFilesStatus(files.map(f => f.name))
 
         if (!signedUrlGuardRef.current) {
-  const { data: files } = await supabase.storage
-    .from("sterkcalc")
-    .list(projectId)
+          const pdfExists = files?.some(
+            f => f.name === "calculatie_2jours.pdf"
+          )
 
-  const pdfExists = files?.some(
-    f => f.name === "calculatie_2jours.pdf"
-  )
+          if (pdfExists) {
+            const { data: signed } = await supabase.storage
+              .from("sterkcalc")
+              .createSignedUrl(
+                `${projectId}/calculatie_2jours.pdf`,
+                3600
+              )
 
-  if (pdfExists) {
-    const { data: signed } = await supabase.storage
-      .from("sterkcalc")
-      .createSignedUrl(
-        `${projectId}/calculatie_2jours.pdf`,
-        3600
-      )
-
-    if (signed?.signedUrl) {
-      signedUrlGuardRef.current = true
-      setPdfUrl(signed.signedUrl)
-    }
-  }
-}
-          if (signed?.signedUrl) {
-            signedUrlGuardRef.current = true
-            setPdfUrl(signed.signedUrl)
+            if (signed?.signedUrl) {
+              signedUrlGuardRef.current = true
+              setPdfUrl(signed.signedUrl)
+            }
           }
         }
+      } catch (e) {
+        console.error("interval error", e)
       } finally {
         intervalTickGuardRef.current = false
       }
@@ -377,41 +370,6 @@ if (task?.action === "start_rekenwolk") fase = "Calculatie uitvoeren"
                 </div>
               )
             )}
-          </div>
-
-          <div style={{ marginTop: 24 }}>
-            <h3>Correcties</h3>
-            {Object.entries(correcties).map(([k]) => (
-              <div key={k}>
-                <label style={styles.label}>{k}</label>
-                <input
-                  type="number"
-                  value={correcties[k]}
-                  step="0.01"
-                  onChange={e =>
-                    updateCorrectie(k, Number(e.target.value))
-                  }
-                  style={styles.input}
-                />
-              </div>
-            ))}
-          </div>
-
-          <div style={{ marginTop: 24 }}>
-            <h3>Uurlonen per discipline</h3>
-            {uurlonen.map((u, i) => (
-              <div key={u.discipline}>
-                <label style={styles.label}>{u.discipline}</label>
-                <input
-                  type="number"
-                  value={u.uurloon}
-                  onChange={e =>
-                    updateUurloon(i, Number(e.target.value))
-                  }
-                  style={styles.input}
-                />
-              </div>
-            ))}
           </div>
 
           <div style={{ marginTop: 24 }}>
