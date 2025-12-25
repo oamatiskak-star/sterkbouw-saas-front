@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 export default function BouwplaatsDocumenten() {
   const router = useRouter()
@@ -15,8 +10,14 @@ export default function BouwplaatsDocumenten() {
   const [bestand, setBestand] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
     if (!project_id) return
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
 
     async function load() {
       setLoading(true)
@@ -26,11 +27,17 @@ export default function BouwplaatsDocumenten() {
         .from("bouwplaats_documenten")
         .list(project_id, { limit: 100 })
 
-      setDocumenten(data || [])
-      setLoading(false)
+      if (!cancelled) {
+        setDocumenten(data || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [project_id])
 
   async function upload() {
@@ -66,7 +73,7 @@ export default function BouwplaatsDocumenten() {
 
   return (
     <div style={{ padding: 16 }}>
-      <h1>Documenten Bouwplaats</h1>
+      <h1>Documenten bouwplaats</h1>
 
       <section style={{ marginBottom: 24 }}>
         <input
@@ -78,7 +85,9 @@ export default function BouwplaatsDocumenten() {
       </section>
 
       <section>
-        {documenten.length === 0 && <p>Geen documenten aanwezig.</p>}
+        {documenten.length === 0 && (
+          <p>Geen documenten aanwezig.</p>
+        )}
 
         {documenten.length > 0 && (
           <ul style={{ listStyle: "none", padding: 0 }}>
@@ -95,7 +104,9 @@ export default function BouwplaatsDocumenten() {
                 <span>{d.name}</span>
                 <button
                   style={{ marginLeft: 12 }}
-                  onClick={() => download(`${project_id}/${d.name}`)}
+                  onClick={() =>
+                    download(`${project_id}/${d.name}`)
+                  }
                 >
                   Download
                 </button>
