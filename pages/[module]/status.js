@@ -1,13 +1,13 @@
 import WorkflowStatus from "../../components/WorkflowStatus"
 import { createClient } from "@supabase/supabase-js"
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
-
 export async function getServerSideProps({ params }) {
   const { module } = params
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  )
 
   const { data, error } = await supabase
     .from("workflow_status")
