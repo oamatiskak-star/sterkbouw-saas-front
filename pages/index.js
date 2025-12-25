@@ -51,3 +51,33 @@ export default function LoginPage() {
               required
             />
           </div>
+
+          <div>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              placeholder="Wachtwoord"
+              required
+            />
+          </div>
+
+          {error && (
+            <div className="text-red-600 text-sm">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-yellow-400 text-black font-semibold py-3 px-4 rounded-lg shadow hover:bg-yellow-300 transition disabled:opacity-50"
+          >
+            {loading ? "Inloggen..." : "Inloggen"}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
