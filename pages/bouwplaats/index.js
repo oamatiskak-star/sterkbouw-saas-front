@@ -1,30 +1,38 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function BouwplaatsDashboard() {
   const [projecten, setProjecten] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
+
     async function load() {
       setLoading(true)
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("projecten")
         .select("id, naam, status")
         .order("created_at", { ascending: false })
 
-      setProjecten(data || [])
-      setLoading(false)
+      if (!cancelled) {
+        if (error) {
+          console.error("BOUWPLAATS_LOAD_FAILED", error)
+          setProjecten([])
+        } else {
+          setProjecten(data || [])
+        }
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   if (loading) return null
@@ -48,6 +56,7 @@ export default function BouwplaatsDashboard() {
           }}
         >
           <strong>{p.naam}</strong>
+
           <div style={{ fontSize: 14, marginBottom: 8 }}>
             Status: {p.status}
           </div>
