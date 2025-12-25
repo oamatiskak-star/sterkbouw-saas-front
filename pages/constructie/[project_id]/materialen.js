@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 export default function ConstructieMaterialen() {
   const router = useRouter()
@@ -16,8 +11,14 @@ export default function ConstructieMaterialen() {
   const [nieuwMateriaal, setNieuwMateriaal] = useState("")
   const [kosten, setKosten] = useState("")
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
     if (!project_id) return
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
 
     async function load() {
       setLoading(true)
@@ -28,11 +29,17 @@ export default function ConstructieMaterialen() {
         .eq("project_id", project_id)
         .order("created_at", { ascending: true })
 
-      setMaterialen(data || [])
-      setLoading(false)
+      if (!cancelled) {
+        setMaterialen(data || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [project_id])
 
   async function toevoegen() {
@@ -55,7 +62,7 @@ export default function ConstructieMaterialen() {
 
   return (
     <div style={{ padding: 16 }}>
-      <h1>Materialen – Project</h1>
+      <h1>Materialen – project</h1>
 
       <section style={{ marginBottom: 24 }}>
         <input
@@ -76,7 +83,9 @@ export default function ConstructieMaterialen() {
       </section>
 
       <section>
-        {materialen.length === 0 && <p>Geen materialen aanwezig.</p>}
+        {materialen.length === 0 && (
+          <p>Geen materialen aanwezig.</p>
+        )}
 
         {materialen.length > 0 && (
           <table width="100%" cellPadding="8">
