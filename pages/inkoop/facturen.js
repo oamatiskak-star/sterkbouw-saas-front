@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function Facturen() {
   const [bestellingen, setBestellingen] = useState([])
@@ -17,10 +12,12 @@ export default function Facturen() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
+
     async function load() {
       setLoading(true)
 
-      const { data: b } = await supabase
+      const { data: b, error: bErr } = await supabase
         .from("inkoop_bestellingen")
         .select(`
           id,
@@ -35,7 +32,7 @@ export default function Facturen() {
         `)
         .order("created_at", { ascending: false })
 
-      const { data: f } = await supabase
+      const { data: f, error: fErr } = await supabase
         .from("inkoop_facturen")
         .select(`
           id,
@@ -56,12 +53,30 @@ export default function Facturen() {
         `)
         .order("created_at", { ascending: false })
 
-      setBestellingen(b || [])
-      setFacturen(f || [])
-      setLoading(false)
+      if (!cancelled) {
+        if (bErr) {
+          console.error("BESTELLINGEN_LOAD_FAILED", bErr)
+          setBestellingen([])
+        } else {
+          setBestellingen(b || [])
+        }
+
+        if (fErr) {
+          console.error("FACTUREN_LOAD_FAILED", fErr)
+          setFacturen([])
+        } else {
+          setFacturen(f || [])
+        }
+
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   async function toevoegen() {
@@ -100,7 +115,9 @@ export default function Facturen() {
           <option value="">Kies bestelling</option>
           {bestellingen.map(b => (
             <option key={b.id} value={b.id}>
-              {b.omschrijving} – {b.inkoop_contracten?.inkoop_offertes?.discipline} – {b.inkoop_contracten?.inkoop_offertes?.leveranciers?.naam}
+              {b.omschrijving} –{" "}
+              {b.inkoop_contracten?.inkoop_offertes?.discipline} –{" "}
+              {b.inkoop_contracten?.inkoop_offertes?.leveranciers?.naam}
             </option>
           ))}
         </select>
@@ -167,8 +184,12 @@ export default function Facturen() {
               {facturen.map(f => (
                 <tr key={f.id}>
                   <td>{f.factuurnummer}</td>
-                  <td>{f.inkoop_bestellingen?.inkoop_contracten?.contract_nummer}</td>
-                  <td>{f.inkoop_bestellingen?.inkoop_contracten?.inkoop_offertes?.leveranciers?.naam}</td>
+                  <td>
+                    {f.inkoop_bestellingen?.inkoop_contracten?.contract_nummer}
+                  </td>
+                  <td>
+                    {f.inkoop_bestellingen?.inkoop_contracten?.inkoop_offertes?.leveranciers?.naam}
+                  </td>
                   <td>{f.inkoop_bestellingen?.omschrijving}</td>
                   <td>€ {Number(f.bedrag).toFixed(2)}</td>
                   <td>{f.factuurdatum || "-"}</td>
