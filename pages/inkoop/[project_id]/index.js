@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 export default function InkoopProjectDetail() {
   const router = useRouter()
@@ -15,17 +10,32 @@ export default function InkoopProjectDetail() {
   const [regels, setRegels] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
     if (!project_id) return
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
 
     async function load() {
       setLoading(true)
 
-      const { data: p } = await supabase
+      const { data: p, error: pErr } = await supabase
         .from("projecten")
         .select("id, naam")
         .eq("id", project_id)
         .single()
+
+      if (pErr || !p) {
+        if (!cancelled) {
+          setProject(null)
+          setRegels([])
+          setLoading(false)
+        }
+        return
+      }
 
       const { data: r } = await supabase
         .from("v_inkoop_project_regels")
@@ -33,12 +43,18 @@ export default function InkoopProjectDetail() {
         .eq("project_id", project_id)
         .order("discipline", { ascending: true })
 
-      setProject(p)
-      setRegels(r || [])
-      setLoading(false)
+      if (!cancelled) {
+        setProject(p)
+        setRegels(r || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [project_id])
 
   if (loading) return null
