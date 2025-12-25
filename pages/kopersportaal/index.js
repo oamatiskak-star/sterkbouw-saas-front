@@ -1,30 +1,33 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function Kopersportaal() {
   const [kopers, setKopers] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
+
     async function load() {
       setLoading(true)
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("kopers")
         .select("id, naam, project_naam, woning, status")
         .order("created_at", { ascending: false })
 
-      setKopers(data || [])
-      setLoading(false)
+      if (!cancelled) {
+        setKopers(data || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   if (loading) return null
