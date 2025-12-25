@@ -1,63 +1,58 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+import { useState, useEffect } from "react"
+import { useRouter } from "next/router"
+import supabase from "@/lib/supabase"
 
 export default function IndexPage() {
-  const [creating, setCreating] = useState(false);
-  const [error, setError] = useState(null);
-  const [calculaties, setCalculaties] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const [creating, setCreating] = useState(false)
+  const [error, setError] = useState(null)
+  const [calculaties, setCalculaties] = useState([])
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
-  // BESTAANDE FUNCTIE – GEREPAREERD
-  // Deze functie doet nu alleen navigatie
+  // Alleen navigatie
   async function handleNieuweCalculatie() {
-    if (creating) return;
-    setCreating(true);
-    setError(null);
+    if (creating) return
+    setCreating(true)
+    setError(null)
 
     try {
-      router.push("/calculaties/nieuw");
+      router.push("/calculaties/nieuw")
     } catch (e) {
-      setError(e.message);
+      setError(e.message)
     } finally {
-      setCreating(false);
+      setCreating(false)
     }
   }
 
-  // Ophalen recente calculaties – read only
+  // Read-only ophalen recente calculaties
   useEffect(() => {
-    let cancelled = false;
+    let cancelled = false
 
     async function loadCalculaties() {
-      setLoading(true);
+      setLoading(true)
+
       const { data, error } = await supabase
         .from("calculaties")
         .select("id, omschrijving, workflow_status, created_at")
         .order("created_at", { ascending: false })
-        .limit(10);
+        .limit(10)
 
       if (!cancelled) {
         if (error) {
-          setError(error.message);
+          setError(error.message)
         } else {
-          setCalculaties(data || []);
+          setCalculaties(data || [])
         }
-        setLoading(false);
+        setLoading(false)
       }
     }
 
-    loadCalculaties();
+    loadCalculaties()
 
     return () => {
-      cancelled = true;
-    };
-  }, []);
+      cancelled = true
+    }
+  }, [])
 
   return (
     <>
@@ -112,5 +107,5 @@ export default function IndexPage() {
         </div>
       )}
     </>
-  );
+  )
 }
