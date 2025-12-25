@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function ProjectRisico() {
   const router = useRouter()
@@ -14,23 +9,35 @@ export default function ProjectRisico() {
   const [risico, setRisico] = useState(null)
   const [knelpunten, setKnelpunten] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     if (!id) return
 
+    let cancelled = false
+
     async function load() {
       setLoading(true)
+      setError(null)
 
-      const { data: r } = await supabase
+      const { data: r, error: rErr } = await supabase
         .from("v_project_risico")
         .select("*")
         .eq("project_id", id)
         .single()
 
-      const { data: k } = await supabase
+      const { data: k, error: kErr } = await supabase
         .from("v_project_knelpunten")
         .select("*")
         .eq("project_id", id)
+
+      if (cancelled) return
+
+      if (rErr || kErr) {
+        setError((rErr || kErr)?.message || "Laadfout")
+        setLoading(false)
+        return
+      }
 
       setRisico(r)
       setKnelpunten(k || [])
@@ -38,9 +45,21 @@ export default function ProjectRisico() {
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
-  if (loading) return null
+  if (loading) return <div>Loading…</div>
+
+  if (error) {
+    return (
+      <div style={{ color: "red" }}>
+        {error}
+      </div>
+    )
+  }
 
   return (
     <>
@@ -54,12 +73,17 @@ export default function ProjectRisico() {
         <section style={{ marginBottom: 32 }}>
           <h2>Risicosamenvatting</h2>
           <p>
-            Totale risicoscore:{" "}
+            Totale risicoscore:
+            {" "}
             <strong>{Number(risico.risico_score || 0).toFixed(2)}</strong>
           </p>
           <p>
-            Faalkosteninschatting: €{" "}
-            <strong>{Number(risico.faalkosten_inschatting || 0).toFixed(2)}</strong>
+            Faalkosteninschatting:
+            {" "}
+            €{" "}
+            <strong>
+              {Number(risico.faalkosten_inschatting || 0).toFixed(2)}
+            </strong>
           </p>
         </section>
       )}
