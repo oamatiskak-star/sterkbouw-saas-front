@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 export default function KoperOplevering() {
   const router = useRouter()
@@ -15,34 +10,55 @@ export default function KoperOplevering() {
   const [documenten, setDocumenten] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
     if (!id) return
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
 
     async function load() {
       setLoading(true)
 
-      const { data: k } = await supabase
+      const { data: k, error: koperErr } = await supabase
         .from("kopers")
         .select("id, naam, project_naam, woning, status")
         .eq("id", id)
         .single()
+
+      if (koperErr || !k) {
+        if (!cancelled) {
+          setKoper(null)
+          setDocumenten([])
+          setLoading(false)
+        }
+        return
+      }
 
       const { data: d } = await supabase
         .storage
         .from("opleverdossiers")
         .list(id, { limit: 100 })
 
-      setKoper(k)
-      setDocumenten(d || [])
-      setLoading(false)
+      if (!cancelled) {
+        setKoper(k)
+        setDocumenten(d || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
   async function uploadDocument(e) {
     const file = e.target.files[0]
-    if (!file) return
+    if (!file || !id) return
 
     const path = `${id}/${Date.now()}_${file.name}`
 
@@ -59,6 +75,8 @@ export default function KoperOplevering() {
       .storage
       .from("opleverdossiers")
       .download(path)
+
+    if (!data) return
 
     const url = window.URL.createObjectURL(data)
     const a = document.createElement("a")
