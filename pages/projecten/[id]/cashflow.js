@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function ProjectCashflow() {
   const router = useRouter()
@@ -14,22 +9,44 @@ export default function ProjectCashflow() {
   const [calculaties, setCalculaties] = useState([])
   const [planning, setPlanning] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     if (!id) return
 
+    let cancelled = false
+
     async function load() {
       setLoading(true)
+      setError(null)
 
-      const { data: c } = await supabase
+      const { data: c, error: cErr } = await supabase
         .from("calculaties")
         .select("id, naam, kostprijs, verkoopprijs")
         .eq("project_id", id)
 
-      const { data: p } = await supabase
+      if (cErr) {
+        if (!cancelled) {
+          setError(cErr.message)
+          setLoading(false)
+        }
+        return
+      }
+
+      const { data: p, error: pErr } = await supabase
         .from("project_planning_activiteiten")
         .select("start_datum, eind_datum, duur_dagen")
         .eq("project_id", id)
+
+      if (pErr) {
+        if (!cancelled) {
+          setError(pErr.message)
+          setLoading(false)
+        }
+        return
+      }
+
+      if (cancelled) return
 
       setCalculaties(c || [])
       setPlanning(p || [])
@@ -37,9 +54,14 @@ export default function ProjectCashflow() {
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
-  if (loading) return null
+  if (loading) return <div>Loading…</div>
+  if (error) return <div style={{ color: "red" }}>{error}</div>
 
   const totaleKostprijs = calculaties.reduce(
     (sum, c) => sum + Number(c.kostprijs || 0),
