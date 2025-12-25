@@ -1,10 +1,5 @@
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 export default function MailDashboard() {
   const [mails, setMails] = useState([])
@@ -16,7 +11,14 @@ export default function MailDashboard() {
   const [projecten, setProjecten] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
+
     async function load() {
       setLoading(true)
 
@@ -30,20 +32,44 @@ export default function MailDashboard() {
         .select("*")
         .order("created_at", { ascending: false })
 
-      setProjecten(p || [])
-      setMails(m || [])
-      setLoading(false)
+      if (!cancelled) {
+        setProjecten(p || [])
+        setMails(m || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   async function verstuur() {
-    if (!nieuwBericht.project_id || !nieuwBericht.onderwerp || !nieuwBericht.bericht) return
+    if (
+      !nieuwBericht.project_id ||
+      !nieuwBericht.onderwerp ||
+      !nieuwBericht.bericht
+    ) {
+      return
+    }
 
     await supabase.from("project_mail").insert(nieuwBericht)
-    setNieuwBericht({ project_id: "", onderwerp: "", bericht: "" })
-    location.reload()
+
+    setNieuwBericht({
+      project_id: "",
+      onderwerp: "",
+      bericht: ""
+    })
+
+    // inbox lokaal verversen, GEEN reload
+    const { data } = await supabase
+      .from("project_mail")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    setMails(data || [])
   }
 
   if (loading) return null
@@ -54,14 +80,22 @@ export default function MailDashboard() {
 
       <section style={{ marginBottom: 24 }}>
         <h2>Nieuw bericht</h2>
+
         <select
           value={nieuwBericht.project_id}
-          onChange={e => setNieuwBericht({ ...nieuwBericht, project_id: e.target.value })}
+          onChange={e =>
+            setNieuwBericht({
+              ...nieuwBericht,
+              project_id: e.target.value
+            })
+          }
           style={{ marginRight: 8 }}
         >
           <option value="">Kies project</option>
           {projecten.map(p => (
-            <option key={p.id} value={p.id}>{p.naam}</option>
+            <option key={p.id} value={p.id}>
+              {p.naam}
+            </option>
           ))}
         </select>
 
@@ -69,7 +103,12 @@ export default function MailDashboard() {
           type="text"
           placeholder="Onderwerp"
           value={nieuwBericht.onderwerp}
-          onChange={e => setNieuwBericht({ ...nieuwBericht, onderwerp: e.target.value })}
+          onChange={e =>
+            setNieuwBericht({
+              ...nieuwBericht,
+              onderwerp: e.target.value
+            })
+          }
           style={{ marginRight: 8 }}
         />
 
@@ -77,16 +116,26 @@ export default function MailDashboard() {
           type="text"
           placeholder="Bericht"
           value={nieuwBericht.bericht}
-          onChange={e => setNieuwBericht({ ...nieuwBericht, bericht: e.target.value })}
+          onChange={e =>
+            setNieuwBericht({
+              ...nieuwBericht,
+              bericht: e.target.value
+            })
+          }
           style={{ marginRight: 8, width: "40%" }}
         />
 
-        <button onClick={verstuur}>Verstuur</button>
+        <button onClick={verstuur}>
+          Verstuur
+        </button>
       </section>
 
       <section>
         <h2>Inbox</h2>
-        {mails.length === 0 && <p>Geen berichten aanwezig.</p>}
+
+        {mails.length === 0 && (
+          <p>Geen berichten aanwezig.</p>
+        )}
 
         {mails.length > 0 && (
           <table width="100%" cellPadding="8">
@@ -101,7 +150,9 @@ export default function MailDashboard() {
             <tbody>
               {mails.map(m => (
                 <tr key={m.id}>
-                  <td>{projecten.find(p => p.id === m.project_id)?.naam || "-"}</td>
+                  <td>
+                    {projecten.find(p => p.id === m.project_id)?.naam || "-"}
+                  </td>
                   <td>{m.onderwerp}</td>
                   <td>{m.bericht}</td>
                   <td>{m.created_at}</td>
