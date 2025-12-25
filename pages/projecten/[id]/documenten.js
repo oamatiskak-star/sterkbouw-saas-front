@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function ProjectDocumenten() {
   const router = useRouter()
@@ -14,49 +9,77 @@ export default function ProjectDocumenten() {
   const [files, setFiles] = useState([])
   const [uploading, setUploading] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     if (!id) return
 
+    let cancelled = false
+
     async function load() {
       setLoading(true)
-      const { data } = await supabase
-        .storage
+      setError(null)
+
+      const { data, error } = await supabase.storage
         .from("projecten")
-        .list(id, { limit: 100, sortBy: { column: "created_at", order: "desc" } })
+        .list(id, {
+          limit: 100,
+          sortBy: { column: "created_at", order: "desc" }
+        })
+
+      if (error) {
+        if (!cancelled) {
+          setError(error.message)
+          setLoading(false)
+        }
+        return
+      }
+
+      if (cancelled) return
 
       setFiles(data || [])
       setLoading(false)
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
   async function uploadFile(e) {
     const file = e.target.files[0]
-    if (!file) return
+    if (!file || !id) return
 
     setUploading(true)
+    setError(null)
 
     const filePath = `${id}/${Date.now()}_${file.name}`
 
-    const { error } = await supabase
-      .storage
+    const { error } = await supabase.storage
       .from("projecten")
       .upload(filePath, file)
 
     setUploading(false)
 
-    if (!error) {
-      router.reload()
+    if (error) {
+      setError(error.message)
+      return
     }
+
+    router.replace(router.asPath)
   }
 
   async function downloadFile(path) {
-    const { data } = await supabase
-      .storage
+    const { data, error } = await supabase.storage
       .from("projecten")
       .download(path)
+
+    if (error) {
+      setError(error.message)
+      return
+    }
 
     const url = window.URL.createObjectURL(data)
     const a = document.createElement("a")
@@ -69,19 +92,29 @@ export default function ProjectDocumenten() {
   async function deleteFile(path) {
     if (!confirm("Document verwijderen?")) return
 
-    await supabase
-      .storage
+    const { error } = await supabase.storage
       .from("projecten")
       .remove([path])
 
-    router.reload()
+    if (error) {
+      setError(error.message)
+      return
+    }
+
+    router.replace(router.asPath)
   }
 
-  if (loading) return null
+  if (loading) return <div>Loading…</div>
 
   return (
     <>
       <h1>Projectdocumenten</h1>
+
+      {error && (
+        <div style={{ color: "red", marginBottom: 12 }}>
+          {error}
+        </div>
+      )}
 
       <div style={{ marginBottom: 24 }}>
         <input
