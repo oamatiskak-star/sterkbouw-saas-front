@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 export default function TekeningenProject() {
   const router = useRouter()
@@ -15,36 +10,51 @@ export default function TekeningenProject() {
   const [bestand, setBestand] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
     if (!project_id) return
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
 
     async function load() {
       setLoading(true)
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .storage
         .from("project_tekeningen")
         .list(project_id, { limit: 100 })
 
-      setTekeningen(data || [])
-      setLoading(false)
+      if (!cancelled) {
+        setTekeningen(data || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [project_id])
 
   async function upload() {
+    if (!project_id) return
     if (!bestand) return
 
     const path = `${project_id}/${Date.now()}_${bestand.name}`
 
-    await supabase
+    const { error } = await supabase
       .storage
       .from("project_tekeningen")
       .upload(path, bestand)
 
-    setBestand(null)
-    router.reload()
+    if (!error) {
+      setBestand(null)
+      router.reload()
+    }
   }
 
   async function download(path) {
@@ -52,6 +62,8 @@ export default function TekeningenProject() {
       .storage
       .from("project_tekeningen")
       .download(path)
+
+    if (!data) return
 
     const url = window.URL.createObjectURL(data)
     const a = document.createElement("a")
@@ -61,8 +73,8 @@ export default function TekeningenProject() {
     window.URL.revokeObjectURL(url)
   }
 
-  if (loading) return null
   if (!project_id) return <p>Project niet gevonden.</p>
+  if (loading) return null
 
   return (
     <div style={{ padding: 16 }}>
@@ -95,7 +107,9 @@ export default function TekeningenProject() {
                 <span>{t.name}</span>
                 <button
                   style={{ marginLeft: 12 }}
-                  onClick={() => download(`${project_id}/${t.name}`)}
+                  onClick={() =>
+                    download(`${project_id}/${t.name}`)
+                  }
                 >
                   Download
                 </button>
