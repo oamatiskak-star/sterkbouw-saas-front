@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
+import supabase from "../lib/supabase"
 import { isActiveRoute } from "../lib/isActiveRoute"
 
 export default function Sidebar({ mobileOpen, onClose }) {
@@ -9,22 +9,25 @@ export default function Sidebar({ mobileOpen, onClose }) {
   const [modules, setModules] = useState([])
 
   useEffect(() => {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    )
+    let cancelled = false
 
     async function load() {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("modules")
         .select("*")
         .eq("active", true)
         .order("sort_order")
 
-      setModules(data || [])
+      if (!cancelled && !error) {
+        setModules(data || [])
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const roots = modules.filter(m => !m.parent_key)
@@ -56,7 +59,9 @@ export default function Sidebar({ mobileOpen, onClose }) {
                     key={child.key}
                     href={child.route}
                     className={`sb-sub ${
-                      isActiveRoute(router.pathname, child.route) ? "active" : ""
+                      isActiveRoute(router.pathname, child.route)
+                        ? "active"
+                        : ""
                     }`}
                   >
                     {child.label}
