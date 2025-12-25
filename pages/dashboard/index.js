@@ -1,30 +1,38 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function DashboardPage() {
   const [modules, setModules] = useState([])
 
   useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      const { data, error } = await supabase
+        .from("modules")
+        .select("key,label,route,icon,sort_order")
+        .eq("active", true)
+        .not("route", "like", "%/%/%")
+        .neq("route", "/dashboard")
+        .order("sort_order", { ascending: true })
+
+      if (!cancelled) {
+        if (error) {
+          console.error("DASHBOARD_MODULES_LOAD_FAILED", error)
+          setModules([])
+        } else {
+          setModules(data || [])
+        }
+      }
+    }
+
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
-
-  async function load() {
-    const { data } = await supabase
-      .from("modules")
-      .select("key,label,route,icon,sort_order")
-      .eq("active", true)
-      .not("route", "like", "%/%/%")
-      .neq("route", "/dashboard")
-      .order("sort_order", { ascending: true })
-
-    setModules(data || [])
-  }
 
   return (
     <>
@@ -54,16 +62,3 @@ export default function DashboardPage() {
         {modules.map(m => (
           <div key={m.key} className="col-md-3">
             <Link href={m.route}>
-              <a className="card card-link">
-                <div className="card-body">
-                  <div className="h3">{m.label}</div>
-                  <div className="text-muted">Open</div>
-                </div>
-              </a>
-            </Link>
-          </div>
-        ))}
-      </div>
-    </>
-  )
-}
