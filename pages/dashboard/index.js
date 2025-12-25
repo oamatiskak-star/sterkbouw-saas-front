@@ -9,7 +9,7 @@ export default function DashboardPage() {
     let cancelled = false
 
     async function load() {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("modules")
         .select("key,label,route,icon,sort_order")
         .eq("active", true)
@@ -18,17 +18,11 @@ export default function DashboardPage() {
         .order("sort_order", { ascending: true })
 
       if (!cancelled) {
-        if (error) {
-          console.error("DASHBOARD_MODULES_LOAD_FAILED", error)
-          setModules([])
-        } else {
-          setModules(data || [])
-        }
+        setModules(data || [])
       }
     }
 
     load()
-
     return () => {
       cancelled = true
     }
@@ -62,3 +56,16 @@ export default function DashboardPage() {
         {modules.map(m => (
           <div key={m.key} className="col-md-3">
             <Link href={m.route}>
+              <a className="card card-link">
+                <div className="card-body">
+                  <div className="h3">{m.label}</div>
+                  <div className="text-muted">Open</div>
+                </div>
+              </a>
+            </Link>
+          </div>
+        ))}
+      </div>
+    </>
+  )
+}
