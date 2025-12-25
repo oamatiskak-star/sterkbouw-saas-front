@@ -1,33 +1,45 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function RapportagesDashboard() {
   const [projecten, setProjecten] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
+    let cancelled = false
+
     async function load() {
       setLoading(true)
+      setError(null)
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("projecten")
         .select("id, naam, status, startdatum, einddatum")
         .order("startdatum", { ascending: true })
+
+      if (cancelled) return
+
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+        return
+      }
 
       setProjecten(data || [])
       setLoading(false)
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
-  if (loading) return null
+  if (loading) return <div>Loading…</div>
+  if (error) return <div style={{ color: "red" }}>{error}</div>
 
   return (
     <div style={{ padding: 16 }}>
@@ -51,8 +63,8 @@ export default function RapportagesDashboard() {
               <tr key={p.id}>
                 <td>{p.naam}</td>
                 <td>{p.status}</td>
-                <td>{p.startdatum}</td>
-                <td>{p.einddatum}</td>
+                <td>{p.startdatum || "-"}</td>
+                <td>{p.einddatum || "-"}</td>
                 <td>
                   <Link href={`/rapportages/${p.id}`}>
                     <button>Bekijk rapport</button>
