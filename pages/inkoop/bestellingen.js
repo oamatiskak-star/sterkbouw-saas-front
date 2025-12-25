@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function Bestellingen() {
   const [contracten, setContracten] = useState([])
@@ -16,10 +11,12 @@ export default function Bestellingen() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
+
     async function load() {
       setLoading(true)
 
-      const { data: c } = await supabase
+      const { data: c, error: cErr } = await supabase
         .from("inkoop_contracten")
         .select(`
           id,
@@ -32,7 +29,7 @@ export default function Bestellingen() {
         .eq("status", "actief")
         .order("created_at", { ascending: false })
 
-      const { data: b } = await supabase
+      const { data: b, error: bErr } = await supabase
         .from("inkoop_bestellingen")
         .select(`
           id,
@@ -50,12 +47,30 @@ export default function Bestellingen() {
         `)
         .order("created_at", { ascending: false })
 
-      setContracten(c || [])
-      setBestellingen(b || [])
-      setLoading(false)
+      if (!cancelled) {
+        if (cErr) {
+          console.error("CONTRACTEN_LOAD_FAILED", cErr)
+          setContracten([])
+        } else {
+          setContracten(c || [])
+        }
+
+        if (bErr) {
+          console.error("BESTELLINGEN_LOAD_FAILED", bErr)
+          setBestellingen([])
+        } else {
+          setBestellingen(b || [])
+        }
+
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   async function toevoegen() {
@@ -93,7 +108,8 @@ export default function Bestellingen() {
           <option value="">Kies contract</option>
           {contracten.map(c => (
             <option key={c.id} value={c.id}>
-              {c.contract_nummer} – {c.inkoop_offertes?.discipline} – {c.inkoop_offertes?.leveranciers?.naam}
+              {c.contract_nummer} – {c.inkoop_offertes?.discipline} –{" "}
+              {c.inkoop_offertes?.leveranciers?.naam}
             </option>
           ))}
         </select>
@@ -110,58 +126,3 @@ export default function Bestellingen() {
           type="number"
           placeholder="Bedrag"
           value={bedrag}
-          onChange={e => setBedrag(e.target.value)}
-          style={{ marginRight: 8 }}
-        />
-
-        <input
-          type="date"
-          value={leverdatum}
-          onChange={e => setLeverdatum(e.target.value)}
-          style={{ marginRight: 8 }}
-        />
-
-        <button onClick={toevoegen}>
-          Bestelling plaatsen
-        </button>
-      </section>
-
-      <section>
-        <h2>Overzicht</h2>
-
-        {bestellingen.length === 0 && (
-          <p>Geen bestellingen aanwezig.</p>
-        )}
-
-        {bestellingen.length > 0 && (
-          <table width="100%" cellPadding="8">
-            <thead>
-              <tr>
-                <th>Contract</th>
-                <th>Discipline</th>
-                <th>Leverancier</th>
-                <th>Omschrijving</th>
-                <th>Bedrag</th>
-                <th>Leverdatum</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bestellingen.map(b => (
-                <tr key={b.id}>
-                  <td>{b.inkoop_contracten?.contract_nummer}</td>
-                  <td>{b.inkoop_contracten?.inkoop_offertes?.discipline}</td>
-                  <td>{b.inkoop_contracten?.inkoop_offertes?.leveranciers?.naam}</td>
-                  <td>{b.omschrijving}</td>
-                  <td>€ {Number(b.bedrag).toFixed(2)}</td>
-                  <td>{b.leverdatum || "-"}</td>
-                  <td>{b.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
-    </>
-  )
-}
