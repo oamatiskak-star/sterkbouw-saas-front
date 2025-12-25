@@ -260,13 +260,14 @@ export default function NieuweCalculatie() {
     }
   }
 
+  // ===== POLLING – 1× START =====
   useEffect(() => {
     if (!projectId || !uploaded) return
     if (intervalRunningRef.current) return
 
     intervalRunningRef.current = true
 
-    const t = setInterval(async () => {
+    const interval = setInterval(async () => {
       if (intervalTickGuardRef.current) return
       intervalTickGuardRef.current = true
 
@@ -299,36 +300,36 @@ export default function NieuweCalculatie() {
           .from("sterkcalc")
           .list(projectId)
 
-        if (files) setFilesStatus(files.map(f => f.name))
+        if (files) {
+          setFilesStatus(files.map(f => f.name))
 
-        if (!signedUrlGuardRef.current) {
-          const pdfExists = files?.some(
-            f => f.name === "calculatie_2jours.pdf"
-          )
+          if (!signedUrlGuardRef.current) {
+            const pdfExists = files.some(
+              f => f.name === "calculatie_2jours.pdf"
+            )
 
-          if (pdfExists) {
-            const { data: signed } = await supabase.storage
-              .from("sterkcalc")
-              .createSignedUrl(
-                `${projectId}/calculatie_2jours.pdf`,
-                3600
-              )
+            if (pdfExists) {
+              const { data: signed } = await supabase.storage
+                .from("sterkcalc")
+                .createSignedUrl(
+                  `${projectId}/calculatie_2jours.pdf`,
+                  3600
+                )
 
-            if (signed?.signedUrl) {
-              signedUrlGuardRef.current = true
-              setPdfUrl(signed.signedUrl)
+              if (signed?.signedUrl) {
+                signedUrlGuardRef.current = true
+                setPdfUrl(signed.signedUrl)
+              }
             }
           }
         }
-      } catch (e) {
-        console.error("interval error", e)
       } finally {
         intervalTickGuardRef.current = false
       }
     }, 3000)
 
     return () => {
-      clearInterval(t)
+      clearInterval(interval)
       intervalRunningRef.current = false
     }
   }, [projectId, uploaded])
@@ -373,10 +374,43 @@ export default function NieuweCalculatie() {
           </div>
 
           <div style={{ marginTop: 24 }}>
-            <h3>Indicatieve projectsamenvatting</h3>
-            <div style={{ fontSize: 13 }}>
-              Indicatief totaal: € {s.totaal.toFixed(0)}
-            </div>
+            <h3>Correcties</h3>
+            {Object.entries(correcties).map(([k, v]) => (
+              <div key={k}>
+                <label style={styles.label}>{k}</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={v}
+                  onChange={e =>
+                    updateCorrectie(k, Number(e.target.value))
+                  }
+                  style={styles.input}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 24 }}>
+            <h3>Uurlonen</h3>
+            {uurlonen.map((u, i) => (
+              <div key={u.discipline}>
+                <label style={styles.label}>{u.discipline}</label>
+                <input
+                  type="number"
+                  value={u.uurloon}
+                  onChange={e =>
+                    updateUurloon(i, Number(e.target.value))
+                  }
+                  style={styles.input}
+                />
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 24 }}>
+            <h3>Indicatie</h3>
+            <div>Indicatief totaal: € {s.totaal.toFixed(0)}</div>
           </div>
 
           <div style={{ marginTop: 16 }}>
@@ -398,12 +432,12 @@ export default function NieuweCalculatie() {
             />
           </div>
 
-          <div style={{ marginTop: 12, fontSize: 13 }}>
+          <div style={{ marginTop: 12 }}>
             Fase: {processStatus.fase}
           </div>
 
           {filesStatus.length > 0 && (
-            <div style={{ fontSize: 12 }}>
+            <div style={{ marginTop: 12 }}>
               <strong>Bestanden</strong>
               {filesStatus.map(f => (
                 <div key={f}>{f}</div>
@@ -417,15 +451,6 @@ export default function NieuweCalculatie() {
                 href={pdfUrl}
                 target="_blank"
                 rel="noreferrer"
-                style={{
-                  display: "block",
-                  textAlign: "center",
-                  padding: 12,
-                  background: "#2563eb",
-                  color: "#fff",
-                  borderRadius: 6,
-                  textDecoration: "none"
-                }}
               >
                 Download 2jours calculatie
               </a>
@@ -433,7 +458,7 @@ export default function NieuweCalculatie() {
           )}
 
           {error && (
-            <pre style={{ marginTop: 12, color: "red", fontSize: 12 }}>
+            <pre style={{ color: "red", marginTop: 12 }}>
               {error}
             </pre>
           )}
@@ -442,12 +467,12 @@ export default function NieuweCalculatie() {
         <div style={styles.previewWrapper}>
           {pdfUrl ? (
             <iframe
-              title="2jours preview"
+              title="preview"
               src={pdfUrl}
               style={styles.previewFrame}
             />
           ) : (
-            <div style={{ color: "#9ca3af", fontSize: 13, padding: 16 }}>
+            <div style={{ color: "#9ca3af", padding: 16 }}>
               Nog geen calculatie
             </div>
           )}
