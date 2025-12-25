@@ -288,10 +288,10 @@ export default function NieuweCalculatie() {
           .maybeSingle()
 
         if (task) {
-          let fase = "Bezig"
-          if (task.action === "project_scan") fase = "Bestanden scannen"
-          if (task.action === "generate_stabu") fase = "STABU samenstellen"
-          if (task.action === "start_rekenwolk") fase = "Calculatie uitvoeren"
+          let fase = "Wachten"
+if (task?.action === "project_scan") fase = "Bestanden scannen"
+if (task?.action === "generate_stabu") fase = "STABU samenstellen"
+if (task?.action === "start_rekenwolk") fase = "Calculatie uitvoeren"
           setProcessStatus({ fase, actie: task.action })
         }
 
@@ -302,12 +302,28 @@ export default function NieuweCalculatie() {
         if (files) setFilesStatus(files.map(f => f.name))
 
         if (!signedUrlGuardRef.current) {
-          const { data: signed } = await supabase.storage
-            .from("sterkcalc")
-            .createSignedUrl(
-              `${projectId}/calculatie_2jours.pdf`,
-              3600
-            )
+  const { data: files } = await supabase.storage
+    .from("sterkcalc")
+    .list(projectId)
+
+  const pdfExists = files?.some(
+    f => f.name === "calculatie_2jours.pdf"
+  )
+
+  if (pdfExists) {
+    const { data: signed } = await supabase.storage
+      .from("sterkcalc")
+      .createSignedUrl(
+        `${projectId}/calculatie_2jours.pdf`,
+        3600
+      )
+
+    if (signed?.signedUrl) {
+      signedUrlGuardRef.current = true
+      setPdfUrl(signed.signedUrl)
+    }
+  }
+}
           if (signed?.signedUrl) {
             signedUrlGuardRef.current = true
             setPdfUrl(signed.signedUrl)
