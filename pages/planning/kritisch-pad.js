@@ -1,33 +1,52 @@
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function KritischPad() {
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
+    let cancelled = false
+
     async function load() {
       setLoading(true)
+      setError(null)
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("v_kritisch_pad")
         .select("*")
         .order("project_naam", { ascending: true })
         .order("volgorde", { ascending: true })
+
+      if (cancelled) return
+
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+        return
+      }
 
       setRows(data || [])
       setLoading(false)
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
-  if (loading) return null
+  if (loading) return <div>Loading…</div>
+
+  if (error) {
+    return (
+      <div style={{ color: "red" }}>
+        {error}
+      </div>
+    )
+  }
 
   return (
     <>
