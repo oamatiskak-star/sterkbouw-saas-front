@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 export default function KoperBerichten() {
   const router = useRouter()
@@ -16,17 +11,32 @@ export default function KoperBerichten() {
   const [nieuwBericht, setNieuwBericht] = useState("")
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
     if (!id) return
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
 
     async function load() {
       setLoading(true)
 
-      const { data: k } = await supabase
+      const { data: k, error: koperErr } = await supabase
         .from("kopers")
         .select("id, naam")
         .eq("id", id)
         .single()
+
+      if (koperErr || !k) {
+        if (!cancelled) {
+          setKoper(null)
+          setBerichten([])
+          setLoading(false)
+        }
+        return
+      }
 
       const { data: b } = await supabase
         .from("koper_berichten")
@@ -34,16 +44,22 @@ export default function KoperBerichten() {
         .eq("koper_id", id)
         .order("created_at", { ascending: true })
 
-      setKoper(k)
-      setBerichten(b || [])
-      setLoading(false)
+      if (!cancelled) {
+        setKoper(k)
+        setBerichten(b || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
   async function verstuurBericht() {
-    if (!nieuwBericht.trim()) return
+    if (!nieuwBericht.trim() || !id) return
 
     await supabase
       .from("koper_berichten")
