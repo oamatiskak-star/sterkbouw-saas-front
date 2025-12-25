@@ -8,7 +8,7 @@ const supabase = createClient(
 export default async function handler(req, res) {
   if (req.method === "GET") {
     const { data, error } = await supabase
-      .from("projects")
+      .from("projecten")
       .select("id, naam, created_at")
       .order("created_at", { ascending: false })
       .limit(20)
@@ -21,6 +21,8 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
+    const body = req.body || {}
+
     const {
       naam,
       naam_opdrachtgever,
@@ -31,10 +33,10 @@ export default async function handler(req, res) {
       telefoon,
       project_type,
       opmerking
-    } = req.body || {}
+    } = body
 
     const { data, error } = await supabase
-      .from("projects")
+      .from("projecten")
       .insert({
         naam: naam || "Nieuw project",
         naam_opdrachtgever: naam_opdrachtgever || null,
@@ -54,10 +56,12 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: error.message })
     }
 
-    return res.status(200).json({
+    return res.status(201).json({
       project_id: data.id
     })
   }
 
-  res.status(405).json({ error: "Method not allowed" })
+  return res.status(405).json({
+    error: "Method not allowed"
+  })
 }
