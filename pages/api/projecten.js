@@ -14,9 +14,7 @@ export default async function handler(req, res) {
       .limit(20)
 
     if (error) {
-      return res.status(500).json({
-        error: error.message
-      })
+      return res.status(500).json({ error: error.message })
     }
 
     return res.status(200).json(data || [])
@@ -25,37 +23,19 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     const body = req.body || {}
 
-    const {
-      naam,
-      adres,
-      postcode,
-      plaatsnaam,
-      land,
-      telefoon,
-      project_type,
-      opmerking
-    } = body
+    const { naam } = body
 
     const { data, error } = await supabase
       .from("projecten")
       .insert({
         naam: naam || "Nieuw project",
-        adres: adres || null,
-        postcode: postcode || null,
-        plaatsnaam: plaatsnaam || null,
-        land: land || "Nederland",
-        telefoon: telefoon || null,
-        project_type: project_type || null,
-        opmerking: opmerking || null,
         status: "naw_complete"
       })
       .select("id")
       .single()
 
     if (error) {
-      return res.status(500).json({
-        error: error.message
-      })
+      return res.status(500).json({ error: error.message })
     }
 
     return res.status(201).json({
@@ -63,7 +43,5 @@ export default async function handler(req, res) {
     })
   }
 
-  return res.status(405).json({
-    error: "Method not allowed"
-  })
+  return res.status(405).json({ error: "Method not allowed" })
 }
