@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 export default function KoperNotificaties() {
   const router = useRouter()
@@ -17,17 +12,32 @@ export default function KoperNotificaties() {
   const [bericht, setBericht] = useState("")
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
     if (!id) return
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
 
     async function load() {
       setLoading(true)
 
-      const { data: k } = await supabase
+      const { data: k, error: koperErr } = await supabase
         .from("kopers")
         .select("id, naam, email")
         .eq("id", id)
         .single()
+
+      if (koperErr || !k) {
+        if (!cancelled) {
+          setKoper(null)
+          setNotificaties([])
+          setLoading(false)
+        }
+        return
+      }
 
       const { data: n } = await supabase
         .from("koper_notificaties")
@@ -35,16 +45,22 @@ export default function KoperNotificaties() {
         .eq("koper_id", id)
         .order("created_at", { ascending: false })
 
-      setKoper(k)
-      setNotificaties(n || [])
-      setLoading(false)
+      if (!cancelled) {
+        setKoper(k)
+        setNotificaties(n || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
   async function verstuurNotificatie() {
-    if (!titel.trim() || !bericht.trim()) return
+    if (!titel.trim() || !bericht.trim() || !id) return
 
     await supabase
       .from("koper_notificaties")
