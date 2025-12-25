@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function Leveranciers() {
   const [leveranciers, setLeveranciers] = useState([])
@@ -13,32 +8,60 @@ export default function Leveranciers() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
+
     async function load() {
       setLoading(true)
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("leveranciers")
         .select("*")
         .order("naam", { ascending: true })
 
-      setLeveranciers(data || [])
-      setLoading(false)
+      if (!cancelled) {
+        if (error) {
+          console.error("LEVERANCIERS_LOAD_FAILED", error)
+          setLeveranciers([])
+        } else {
+          setLeveranciers(data || [])
+        }
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   async function toevoegen() {
     if (!naam.trim()) return
 
-    await supabase.from("leveranciers").insert({
-      naam,
-      discipline
-    })
+    const { error } = await supabase
+      .from("leveranciers")
+      .insert({
+        naam: naam.trim(),
+        discipline: discipline || null
+      })
 
+    if (error) {
+      console.error("LEVERANCIER_TOEVOEGEN_FAILED", error)
+      return
+    }
+
+    // formulier resetten
     setNaam("")
     setDiscipline("")
-    location.reload()
+
+    // lijst lokaal verversen i.p.v. reload
+    const { data } = await supabase
+      .from("leveranciers")
+      .select("*")
+      .order("naam", { ascending: true })
+
+    setLeveranciers(data || [])
   }
 
   if (loading) return null
