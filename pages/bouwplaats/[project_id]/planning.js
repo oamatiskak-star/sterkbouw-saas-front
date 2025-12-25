@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 export default function BouwplaatsPlanning() {
   const router = useRouter()
@@ -14,8 +9,14 @@ export default function BouwplaatsPlanning() {
   const [planning, setPlanning] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
     if (!project_id) return
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
 
     async function load() {
       setLoading(true)
@@ -26,11 +27,17 @@ export default function BouwplaatsPlanning() {
         .eq("project_id", project_id)
         .order("start_datum", { ascending: true })
 
-      setPlanning(data || [])
-      setLoading(false)
+      if (!cancelled) {
+        setPlanning(data || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [project_id])
 
   if (loading) return null
@@ -38,9 +45,11 @@ export default function BouwplaatsPlanning() {
 
   return (
     <div style={{ padding: 16 }}>
-      <h1>Planning Bouwplaats</h1>
+      <h1>Planning bouwplaats</h1>
 
-      {planning.length === 0 && <p>Geen planning beschikbaar.</p>}
+      {planning.length === 0 && (
+        <p>Geen planning beschikbaar.</p>
+      )}
 
       {planning.length > 0 && (
         <table width="100%" cellPadding="8">
