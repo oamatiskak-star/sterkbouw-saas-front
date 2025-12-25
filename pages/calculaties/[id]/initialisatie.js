@@ -1,11 +1,6 @@
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/router"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function InitialisatieStatus() {
   const router = useRouter()
@@ -26,7 +21,12 @@ export default function InitialisatieStatus() {
       .select("project_id")
       .eq("id", id)
       .single()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) {
+          console.error("PROJECT_ID_LOAD_FAILED", error)
+          return
+        }
+
         if (data?.project_id) {
           setProjectId(data.project_id)
         }
@@ -54,10 +54,15 @@ export default function InitialisatieStatus() {
     if (!projectId) return
 
     const load = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("project_initialization_log")
         .select("module, status")
         .eq("project_id", projectId)
+
+      if (error) {
+        console.error("INIT_LOG_LOAD_FAILED", error)
+        return
+      }
 
       const rows = data || []
       setLogs(rows)
