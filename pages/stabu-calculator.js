@@ -1,28 +1,35 @@
 import { useEffect, useState } from "react"
-import supabase from "@/lib/supabase";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function StabuCalculator() {
   const [regels, setRegels] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
+
     const fetchData = async () => {
-      const { data, error } = await supabase.from("stabu_calculator").select("*")
+      const { data, error } = await supabase
+        .from("stabu_calculator")
+        .select("*")
+
+      if (cancelled) return
+
       if (error) {
         console.error("Fout bij ophalen STABU regels:", error)
         setLoading(false)
         return
       }
-      setRegels(data)
+
+      setRegels(data || [])
       setLoading(false)
     }
 
     fetchData()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   return (
@@ -44,7 +51,7 @@ export default function StabuCalculator() {
               </tr>
             </thead>
             <tbody>
-              {regels.map((regel) => (
+              {regels.map(regel => (
                 <tr key={regel.id} className="border-t border-gray-100">
                   <td className="p-3">{regel.categorie}</td>
                   <td className="p-3">{regel.omschrijving}</td>
