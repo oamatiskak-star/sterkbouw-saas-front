@@ -1,12 +1,7 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "../lib/supabase"
 
 export default function ModulePage() {
   const router = useRouter()
@@ -15,27 +10,38 @@ export default function ModulePage() {
 
   useEffect(() => {
     if (!router.pathname) return
+
+    let cancelled = false
+
+    async function load() {
+      const { data: current } = await supabase
+        .from("modules")
+        .select("label")
+        .eq("route", router.pathname)
+        .single()
+
+      if (!cancelled) {
+        setTitle(current?.label || "Projecten")
+      }
+
+      const { data } = await supabase
+        .from("modules")
+        .select("key,label,route,sort_order")
+        .like("route", "/projecten/%")
+        .eq("active", true)
+        .order("sort_order", { ascending: true })
+
+      if (!cancelled) {
+        setButtons(data || [])
+      }
+    }
+
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [router.pathname])
-
-  async function load() {
-    const { data: current } = await supabase
-      .from("modules")
-      .select("label")
-      .eq("route", router.pathname)
-      .single()
-
-    setTitle(current?.label || "Projecten")
-
-    const { data } = await supabase
-      .from("modules")
-      .select("key,label,route,sort_order")
-      .like("route", "/projecten/%")
-      .eq("active", true)
-      .order("sort_order", { ascending: true })
-
-    setButtons(data || [])
-  }
 
   return (
     <div>
