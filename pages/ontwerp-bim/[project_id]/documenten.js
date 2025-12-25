@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 export default function OntwerpDocumenten() {
   const router = useRouter()
@@ -15,36 +10,50 @@ export default function OntwerpDocumenten() {
   const [bestand, setBestand] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
     if (!project_id) return
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
 
     async function load() {
       setLoading(true)
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .storage
         .from("project_ontwerp_documenten")
         .list(project_id, { limit: 100 })
 
-      setDocumenten(data || [])
-      setLoading(false)
+      if (!cancelled) {
+        setDocumenten(data || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [project_id])
 
   async function upload() {
-    if (!bestand) return
+    if (!bestand || !project_id) return
 
     const path = `${project_id}/${Date.now()}_${bestand.name}`
 
-    await supabase
+    const { error } = await supabase
       .storage
       .from("project_ontwerp_documenten")
       .upload(path, bestand)
 
-    setBestand(null)
-    router.reload()
+    if (!error) {
+      setBestand(null)
+      router.reload()
+    }
   }
 
   async function download(path) {
@@ -61,8 +70,8 @@ export default function OntwerpDocumenten() {
     window.URL.revokeObjectURL(url)
   }
 
-  if (loading) return null
   if (!project_id) return <p>Project niet gevonden.</p>
+  if (loading) return null
 
   return (
     <div style={{ padding: 16 }}>
