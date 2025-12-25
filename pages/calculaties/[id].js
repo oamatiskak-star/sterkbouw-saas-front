@@ -89,4 +89,54 @@ export default function CalculatieDetail() {
             bucket: "sterkcalc",
             project_id: calculatie.project_id,
             calculatie_id: id,
-            filename: file
+            filename: file.name,
+            mime_type: file.type
+          }
+        })
+
+      if (error) throw error
+    } catch (err) {
+      console.error("UPLOAD_TASK_FAILED", err)
+      setUploadError(err.message)
+    } finally {
+      setUploading(false)
+      e.target.value = ""
+    }
+  }
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  if (!calculatie) {
+    return <div>Calculatie niet gevonden</div>
+  }
+
+  return (
+    <>
+      <h1>{calculatie.naam_opdrachtgever || "Calculatie"}</h1>
+
+      <p>
+        Status: <strong>{calculatie.workflow_status}</strong>
+      </p>
+      <p>Kostprijs: € {Number(calculatie.kostprijs || 0).toFixed(2)}</p>
+      <p>Verkoopprijs: € {Number(calculatie.verkoopprijs || 0).toFixed(2)}</p>
+      <p>Marge: € {Number(calculatie.marge || 0).toFixed(2)}</p>
+
+      <hr />
+
+      <h3>Bestanden uploaden voor analyse</h3>
+
+      <input
+        type="file"
+        onChange={handleFileSelect}
+        disabled={uploading}
+      />
+
+      {uploading && <p>Bestand doorgestuurd naar executor...</p>}
+      {uploadError && (
+        <p style={{ color: "red" }}>{uploadError}</p>
+      )}
+    </>
+  )
+}
