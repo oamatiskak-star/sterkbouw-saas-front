@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function Offertes() {
   const [offertes, setOffertes] = useState([])
@@ -15,10 +10,12 @@ export default function Offertes() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
+
     async function load() {
       setLoading(true)
 
-      const { data: o } = await supabase
+      const { data: o, error: oErr } = await supabase
         .from("inkoop_offertes")
         .select(`
           id,
@@ -29,34 +26,67 @@ export default function Offertes() {
         `)
         .order("created_at", { ascending: false })
 
-      const { data: l } = await supabase
+      const { data: l, error: lErr } = await supabase
         .from("leveranciers")
         .select("id, naam")
         .eq("actief", true)
         .order("naam")
 
-      setOffertes(o || [])
-      setLeveranciers(l || [])
-      setLoading(false)
+      if (!cancelled) {
+        if (oErr || lErr) {
+          console.error("INKOOP_OFFERTES_LOAD_FAILED", oErr || lErr)
+          setOffertes([])
+          setLeveranciers([])
+        } else {
+          setOffertes(o || [])
+          setLeveranciers(l || [])
+        }
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   async function toevoegen() {
     if (!discipline || !leverancierId || !bedrag) return
 
-    await supabase.from("inkoop_offertes").insert({
-      discipline,
-      leverancier_id: leverancierId,
-      bedrag: Number(bedrag),
-      status: "aangevraagd"
-    })
+    const { error } = await supabase
+      .from("inkoop_offertes")
+      .insert({
+        discipline,
+        leverancier_id: leverancierId,
+        bedrag: Number(bedrag),
+        status: "aangevraagd"
+      })
 
+    if (error) {
+      console.error("INKOOP_OFFERT_TOEVOEGEN_FAILED", error)
+      return
+    }
+
+    // formulier resetten
     setDiscipline("")
     setLeverancierId("")
     setBedrag("")
-    location.reload()
+
+    // lijst lokaal bijwerken i.p.v. reload
+    const { data } = await supabase
+      .from("inkoop_offertes")
+      .select(`
+        id,
+        discipline,
+        bedrag,
+        status,
+        leveranciers ( naam )
+      `)
+      .order("created_at", { ascending: false })
+
+    setOffertes(data || [])
   }
 
   if (loading) return null
