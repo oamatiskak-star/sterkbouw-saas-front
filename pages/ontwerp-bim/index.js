@@ -1,17 +1,19 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function OntwerpBIMDashboard() {
   const [projecten, setProjecten] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
+
     async function load() {
       setLoading(true)
 
@@ -20,11 +22,17 @@ export default function OntwerpBIMDashboard() {
         .select("id, naam, status")
         .order("created_at", { ascending: false })
 
-      setProjecten(data || [])
-      setLoading(false)
+      if (!cancelled) {
+        setProjecten(data || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   if (loading) return null
@@ -33,7 +41,9 @@ export default function OntwerpBIMDashboard() {
     <div style={{ padding: 16 }}>
       <h1>Ontwerp & BIM Dashboard</h1>
 
-      {projecten.length === 0 && <p>Geen projecten beschikbaar.</p>}
+      {projecten.length === 0 && (
+        <p>Geen projecten beschikbaar.</p>
+      )}
 
       {projecten.map(p => (
         <div
@@ -46,6 +56,7 @@ export default function OntwerpBIMDashboard() {
           }}
         >
           <strong>{p.naam}</strong>
+
           <div style={{ fontSize: 14, marginBottom: 8 }}>
             Status: {p.status}
           </div>
