@@ -14,7 +14,9 @@ export default async function handler(req, res) {
       .limit(20)
 
     if (error) {
-      return res.status(500).json({ error: error.message })
+      return res.status(500).json({
+        error: error.message
+      })
     }
 
     return res.status(200).json(data || [])
@@ -25,7 +27,6 @@ export default async function handler(req, res) {
 
     const {
       naam,
-      naam_opdrachtgever,
       adres,
       postcode,
       plaatsnaam,
@@ -39,7 +40,6 @@ export default async function handler(req, res) {
       .from("projecten")
       .insert({
         naam: naam || "Nieuw project",
-        naam_opdrachtgever: naam_opdrachtgever || null,
         adres: adres || null,
         postcode: postcode || null,
         plaatsnaam: plaatsnaam || null,
@@ -53,7 +53,9 @@ export default async function handler(req, res) {
       .single()
 
     if (error) {
-      return res.status(500).json({ error: error.message })
+      return res.status(500).json({
+        error: error.message
+      })
     }
 
     return res.status(201).json({
