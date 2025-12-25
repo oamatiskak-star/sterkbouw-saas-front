@@ -4,9 +4,22 @@ import { createClient } from "@supabase/supabase-js"
 export async function getServerSideProps({ params }) {
   const { module } = params
 
+  // simpele whitelist
+  const ALLOWED_MODULES = [
+    "analysis",
+    "calculatie",
+    "pdf",
+    "inkoop",
+    "planning"
+  ]
+
+  if (!ALLOWED_MODULES.includes(module)) {
+    return { notFound: true }
+  }
+
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
   )
 
   const { data, error } = await supabase
@@ -15,23 +28,28 @@ export async function getServerSideProps({ params }) {
     .eq("module_key", module)
     .order("created_at", { ascending: false })
     .limit(1)
-    .single()
 
-  if (error || !data) {
-    return { props: { status: null } }
+  if (error || !data || data.length === 0) {
+    return {
+      props: {
+        status: null,
+        module
+      }
+    }
   }
 
   return {
     props: {
-      status: data
+      status: data[0],
+      module
     }
   }
 }
 
-export default function ModuleStatusPage({ status }) {
+export default function ModuleStatusPage({ status, module }) {
   return (
     <div>
-      <h1 className="mb-4">Workflow status</h1>
+      <h1>Workflow status – {module}</h1>
       <WorkflowStatus status={status} />
     </div>
   )
