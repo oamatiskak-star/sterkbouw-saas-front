@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 export default function BouwplaatsTaken() {
   const router = useRouter()
@@ -15,8 +10,14 @@ export default function BouwplaatsTaken() {
   const [nieuweTaak, setNieuweTaak] = useState("")
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
     if (!project_id) return
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
 
     async function load() {
       setLoading(true)
@@ -27,11 +28,17 @@ export default function BouwplaatsTaken() {
         .eq("project_id", project_id)
         .order("created_at", { ascending: true })
 
-      setTaken(data || [])
-      setLoading(false)
+      if (!cancelled) {
+        setTaken(data || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [project_id])
 
   async function toevoegen() {
@@ -63,7 +70,7 @@ export default function BouwplaatsTaken() {
 
   return (
     <div style={{ padding: 16 }}>
-      <h1>Bouwplaats Taken</h1>
+      <h1>Bouwplaats taken</h1>
 
       <section style={{ marginBottom: 24 }}>
         <input
@@ -92,7 +99,8 @@ export default function BouwplaatsTaken() {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  backgroundColor: t.status === "gereed" ? "#d4edda" : "#f8d7da"
+                  backgroundColor:
+                    t.status === "gereed" ? "#d4edda" : "#f8d7da"
                 }}
               >
                 <span>{t.omschrijving}</span>
