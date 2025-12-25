@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function Contracten() {
   const [contracten, setContracten] = useState([])
@@ -16,10 +11,12 @@ export default function Contracten() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
+
     async function load() {
       setLoading(true)
 
-      const { data: c } = await supabase
+      const { data: c, error: cErr } = await supabase
         .from("inkoop_contracten")
         .select(`
           id,
@@ -35,7 +32,7 @@ export default function Contracten() {
         `)
         .order("created_at", { ascending: false })
 
-      const { data: o } = await supabase
+      const { data: o, error: oErr } = await supabase
         .from("inkoop_offertes")
         .select(`
           id,
@@ -46,12 +43,30 @@ export default function Contracten() {
         .eq("status", "geaccepteerd")
         .order("created_at", { ascending: false })
 
-      setContracten(c || [])
-      setOffertes(o || [])
-      setLoading(false)
+      if (!cancelled) {
+        if (cErr) {
+          console.error("CONTRACTEN_LOAD_FAILED", cErr)
+          setContracten([])
+        } else {
+          setContracten(c || [])
+        }
+
+        if (oErr) {
+          console.error("OFFERTES_LOAD_FAILED", oErr)
+          setOffertes([])
+        } else {
+          setOffertes(o || [])
+        }
+
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   async function toevoegen() {
@@ -89,7 +104,8 @@ export default function Contracten() {
           <option value="">Kies geaccepteerde offerte</option>
           {offertes.map(o => (
             <option key={o.id} value={o.id}>
-              {o.discipline} – {o.leveranciers?.naam} – € {Number(o.bedrag).toFixed(2)}
+              {o.discipline} – {o.leveranciers?.naam} – €{" "}
+              {Number(o.bedrag).toFixed(2)}
             </option>
           ))}
         </select>
