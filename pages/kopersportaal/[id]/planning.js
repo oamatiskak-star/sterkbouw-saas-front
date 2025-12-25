@@ -1,11 +1,6 @@
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import { useEffect, useState, useRef } from "react"
+import supabase from "@/lib/supabase"
 
 export default function KoperPlanning() {
   const router = useRouter()
@@ -15,22 +10,39 @@ export default function KoperPlanning() {
   const [planning, setPlanning] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const loadedRef = useRef(false)
+
   useEffect(() => {
     if (!id) return
+    if (loadedRef.current) return
+    loadedRef.current = true
+
+    let cancelled = false
 
     async function load() {
       setLoading(true)
 
-      const { data: k } = await supabase
+      const { data: k, error: koperErr } = await supabase
         .from("kopers")
         .select("id, naam, project_id, woning")
         .eq("id", id)
         .single()
 
-      if (!k?.project_id) {
-        setKoper(k)
-        setPlanning([])
-        setLoading(false)
+      if (koperErr || !k) {
+        if (!cancelled) {
+          setKoper(null)
+          setPlanning([])
+          setLoading(false)
+        }
+        return
+      }
+
+      if (!k.project_id) {
+        if (!cancelled) {
+          setKoper(k)
+          setPlanning([])
+          setLoading(false)
+        }
         return
       }
 
@@ -40,12 +52,18 @@ export default function KoperPlanning() {
         .eq("project_id", k.project_id)
         .order("start_datum", { ascending: true })
 
-      setKoper(k)
-      setPlanning(p || [])
-      setLoading(false)
+      if (!cancelled) {
+        setKoper(k)
+        setPlanning(p || [])
+        setLoading(false)
+      }
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
   if (loading) return null
@@ -56,7 +74,9 @@ export default function KoperPlanning() {
       <h1>Planning – {koper.naam}</h1>
 
       <section style={{ marginBottom: 24 }}>
-        <p>Woning: <strong>{koper.woning}</strong></p>
+        <p>
+          Woning: <strong>{koper.woning}</strong>
+        </p>
       </section>
 
       {planning.length === 0 && (
