@@ -12,18 +12,13 @@ export default function InkoopDashboard() {
     async function load() {
       setLoading(true)
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("v_inkoop_overzicht")
         .select("*")
         .order("project_naam", { ascending: true })
 
       if (!cancelled) {
-        if (error) {
-          console.error("INKOOP_OVERZICHT_LOAD_FAILED", error)
-          setRows([])
-        } else {
-          setRows(data || [])
-        }
+        setRows(data || [])
         setLoading(false)
       }
     }
@@ -58,7 +53,38 @@ export default function InkoopDashboard() {
               <th>Actie</th>
             </tr>
           </thead>
+
           <tbody>
             {rows.map((r, i) => (
               <tr
                 key={i}
+                style={{
+                  backgroundColor:
+                    Number(r.openstaand_bedrag) > 0
+                      ? "#fff3cd"
+                      : "transparent"
+                }}
+              >
+                <td>{r.project_naam}</td>
+                <td>{r.discipline}</td>
+                <td>€ {Number(r.begroot || 0).toFixed(2)}</td>
+                <td>€ {Number(r.ingekocht || 0).toFixed(2)}</td>
+                <td>€ {Number(r.openstaand_bedrag || 0).toFixed(2)}</td>
+                <td>
+                  {Number(r.openstaand_bedrag) > 0
+                    ? "Open"
+                    : "Afgerond"}
+                </td>
+                <td>
+                  <Link href={`/inkoop/${r.project_id}`}>
+                    Bekijk
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </>
+  )
+}
