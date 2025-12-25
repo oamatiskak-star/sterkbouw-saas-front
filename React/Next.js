@@ -8,12 +8,17 @@ export default function CalculatieButton({ calculatieId }) {
     try {
       const res = await fetch(`/api/pdf/calculatie/${calculatieId}`);
       if (!res.ok) throw new Error("Fout bij ophalen PDF");
+
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
+
       const a = document.createElement("a");
       a.href = url;
       a.download = `calculatie_${calculatieId}.pdf`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
+
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Fout bij genereren PDF:", err);
