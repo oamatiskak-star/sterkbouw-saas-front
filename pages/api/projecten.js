@@ -1,28 +1,26 @@
-import supabase from "@/lib/supabase";
+import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+)
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
-    // Projecten ophalen
     const { data, error } = await supabase
       .from("projects")
       .select("id, naam, created_at")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(20)
 
     if (error) {
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message })
     }
 
-    return res.status(200).json(data || []);
+    return res.status(200).json(data || [])
   }
 
   if (req.method === "POST") {
-    // Project aanmaken
     const {
       naam,
       naam_opdrachtgever,
@@ -33,7 +31,7 @@ export default async function handler(req, res) {
       telefoon,
       project_type,
       opmerking
-    } = req.body || {};
+    } = req.body || {}
 
     const { data, error } = await supabase
       .from("projects")
@@ -50,16 +48,16 @@ export default async function handler(req, res) {
         status: "naw_complete"
       })
       .select("id")
-      .single();
+      .single()
 
     if (error) {
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message })
     }
 
     return res.status(200).json({
       project_id: data.id
-    });
+    })
   }
 
-  res.status(405).json({ error: "Method not allowed" });
+  res.status(405).json({ error: "Method not allowed" })
 }
