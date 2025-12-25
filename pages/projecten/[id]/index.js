@@ -1,12 +1,7 @@
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
+import supabase from "@/lib/supabase"
 
 export default function ProjectDashboard() {
   const router = useRouter()
@@ -17,57 +12,110 @@ export default function ProjectDashboard() {
   const [planning, setPlanning] = useState(null)
   const [risico, setRisico] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     if (!id) return
 
+    let cancelled = false
+
     async function load() {
       setLoading(true)
+      setError(null)
 
-      const { data: p } = await supabase
+      const { data: p, error: pErr } = await supabase
         .from("projecten")
         .select("*")
         .eq("id", id)
         .single()
 
-      const { data: c } = await supabase
+      if (pErr) {
+        if (!cancelled) {
+          setError(pErr.message)
+          setLoading(false)
+        }
+        return
+      }
+
+      const { data: c, error: cErr } = await supabase
         .from("calculaties")
         .select("id, naam, kostprijs, verkoopprijs, marge, workflow_status")
         .eq("project_id", id)
 
-      const { data: plan } = await supabase
+      if (cErr) {
+        if (!cancelled) {
+          setError(cErr.message)
+          setLoading(false)
+        }
+        return
+      }
+
+      const { data: plan, error: planErr } = await supabase
         .from("v_project_dashboard")
         .select("*")
         .eq("project_id", id)
-        .single()
+        .maybeSingle()
 
-      const { data: r } = await supabase
+      if (planErr) {
+        if (!cancelled) {
+          setError(planErr.message)
+          setLoading(false)
+        }
+        return
+      }
+
+      const { data: r, error: rErr } = await supabase
         .from("v_project_risico")
         .select("*")
         .eq("project_id", id)
-        .single()
+        .maybeSingle()
+
+      if (rErr) {
+        if (!cancelled) {
+          setError(rErr.message)
+          setLoading(false)
+        }
+        return
+      }
+
+      if (cancelled) return
 
       setProject(p)
       setCalculaties(c || [])
-      setPlanning(plan)
-      setRisico(r)
+      setPlanning(plan || null)
+      setRisico(r || null)
       setLoading(false)
     }
 
     load()
+
+    return () => {
+      cancelled = true
+    }
   }, [id])
 
-  if (loading) return null
+  if (loading) return <div>Loading…</div>
+
+  if (error) {
+    return (
+      <div style={{ color: "red" }}>
+        {error}
+      </div>
+    )
+  }
+
   if (!project) return <p>Project niet gevonden.</p>
 
   const totaalKostprijs = calculaties.reduce(
     (sum, c) => sum + Number(c.kostprijs || 0),
     0
   )
+
   const totaalVerkoopprijs = calculaties.reduce(
     (sum, c) => sum + Number(c.verkoopprijs || 0),
     0
   )
+
   const totaalMarge = calculaties.reduce(
     (sum, c) => sum + Number(c.marge || 0),
     0
@@ -77,7 +125,6 @@ export default function ProjectDashboard() {
     <>
       <h1>{project.naam || "Project"}</h1>
 
-      {/* KPI'S */}
       <section style={{ marginBottom: 32 }}>
         <h2>Kerncijfers</h2>
         <p>Totale kostprijs: € {totaalKostprijs.toFixed(2)}</p>
@@ -102,7 +149,6 @@ export default function ProjectDashboard() {
         )}
       </section>
 
-      {/* ACTIES */}
       <section style={{ marginBottom: 32 }}>
         <h2>Project acties</h2>
 
@@ -117,7 +163,6 @@ export default function ProjectDashboard() {
         </Link>
       </section>
 
-      {/* CALCULATIES */}
       <section>
         <h2>Calculaties</h2>
 
