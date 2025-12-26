@@ -10,14 +10,31 @@ STYLES
 ========================================================
 */
 const styles = {
-  wrap: { maxWidth: 1200, margin: "0 auto", padding: 24 },
-  layout: {
+  wrap: { maxWidth: 1280, margin: "0 auto", padding: 24 },
+
+  row2: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 24,
+    marginBottom: 24
+  },
+
+  rowMain: {
     display: "grid",
     gridTemplateColumns: "1fr 420px",
     gap: 24,
-    alignItems: "flex-start"
+    alignItems: "flex-start",
+    marginBottom: 24
   },
+
+  section: {
+    border: "1px solid #e5e7eb",
+    borderRadius: 8,
+    padding: 16
+  },
+
   grid: { display: "grid", gap: 12 },
+
   label: { fontSize: 13 },
   input: {
     width: "100%",
@@ -26,22 +43,18 @@ const styles = {
     border: "1px solid #d1d5db",
     fontSize: 14
   },
+
   button: {
-    width: "100%",
     padding: 12,
     borderRadius: 6,
     border: "none",
     background: "#2563eb",
     color: "#fff",
     fontSize: 14,
-    cursor: "pointer"
+    cursor: "pointer",
+    marginRight: 12
   },
-  section: {
-    border: "1px solid #e5e7eb",
-    borderRadius: 8,
-    padding: 16,
-    marginTop: 16
-  },
+
   previewWrapper: {
     width: 420,
     height: 595,
@@ -50,6 +63,7 @@ const styles = {
     overflow: "hidden",
     background: "#111"
   },
+
   previewFrame: {
     width: "100%",
     height: "100%",
@@ -84,7 +98,7 @@ export default function NieuweCalculatie() {
 
   const [filesStatus, setFilesStatus] = useState([])
 
-  // ===== PROJECT FORM =====
+  // ===== NAW =====
   const [form, setForm] = useState({
     naam: "",
     naam_opdrachtgever: "",
@@ -97,7 +111,7 @@ export default function NieuweCalculatie() {
     opmerking: ""
   })
 
-  // ===== OPSLAGEN (HANDMATIG AANPASBAAR) =====
+  // ===== OPSLAGEN =====
   const [opslagen, setOpslagen] = useState({
     ak_pct: 0.08,
     abk_pct: 0.04,
@@ -105,7 +119,7 @@ export default function NieuweCalculatie() {
     r_pct: 0.05
   })
 
-  // ===== UURLONEN (HANDMATIG AANPASBAAR) =====
+  // ===== UURLONEN =====
   const [uurlonen, setUurlonen] = useState([
     { discipline: "timmerman", uurloon: 52 },
     { discipline: "installateur", uurloon: 60 },
@@ -114,11 +128,6 @@ export default function NieuweCalculatie() {
     { discipline: "schilder", uurloon: 45 }
   ])
 
-  /*
-  ========================================================
-  HELPERS
-  ========================================================
-  */
   function updateForm(k, v) {
     setForm(p => ({ ...p, [k]: v }))
   }
@@ -134,26 +143,22 @@ export default function NieuweCalculatie() {
   }
 
   function berekenIndicatie() {
-    const gemiddeldUurloon =
+    const avg =
       uurlonen.reduce((s, u) => s + u.uurloon, 0) / uurlonen.length
 
-    const arbeid = 100 * gemiddeldUurloon
+    const arbeid = 100 * avg
     const materiaal = 250
-    const subtotaal = arbeid + materiaal
+    const sub = arbeid + materiaal
 
-    const ak = subtotaal * opslagen.ak_pct
-    const abk = subtotaal * opslagen.abk_pct
-    const w = subtotaal * opslagen.w_pct
-    const r = subtotaal * opslagen.r_pct
-
-    return Math.round(subtotaal + ak + abk + w + r)
+    return Math.round(
+      sub +
+        sub * opslagen.ak_pct +
+        sub * opslagen.abk_pct +
+        sub * opslagen.w_pct +
+        sub * opslagen.r_pct
+    )
   }
 
-  /*
-  ========================================================
-  OPSLAAN NAAR DATABASE
-  ========================================================
-  */
   async function saveOpslagen(pid) {
     await supabase.from("calculatie_correcties").upsert({
       project_id: pid,
@@ -171,11 +176,6 @@ export default function NieuweCalculatie() {
     }
   }
 
-  /*
-  ========================================================
-  ACTIES
-  ========================================================
-  */
   async function handleCreateProject() {
     if (createProjectGuardRef.current) return
     createProjectGuardRef.current = true
@@ -229,11 +229,6 @@ export default function NieuweCalculatie() {
     }
   }
 
-  /*
-  ========================================================
-  POLLING (ALLEEN LEZEN)
-  ========================================================
-  */
   useEffect(() => {
     if (!projectId || !uploaded) return
     if (intervalRunningRef.current) return
@@ -292,11 +287,45 @@ export default function NieuweCalculatie() {
     <div style={styles.wrap}>
       <h1>Nieuwe calculatie</h1>
 
-      <div style={styles.layout}>
-        <div>
-          {/* PROJECT */}
-          <div style={styles.section}>
-            <h3>Projectgegevens</h3>
+      {/* OPSLAGEN + UURLONEN */}
+      <div style={styles.row2}>
+        <div style={styles.section}>
+          <h3>Opslagen</h3>
+          {Object.keys(opslagen).map(k => (
+            <div key={k}>
+              <label style={styles.label}>{k}</label>
+              <input
+                type="number"
+                step="0.01"
+                style={styles.input}
+                value={opslagen[k]}
+                onChange={e => updateOpslag(k, e.target.value)}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div style={styles.section}>
+          <h3>Uurlonen</h3>
+          {uurlonen.map((u, i) => (
+            <div key={u.discipline}>
+              <label style={styles.label}>{u.discipline}</label>
+              <input
+                type="number"
+                style={styles.input}
+                value={u.uurloon}
+                onChange={e => updateUurloon(i, e.target.value)}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* NAW + PREVIEW */}
+      <div style={styles.rowMain}>
+        <div style={styles.section}>
+          <h3>Project / NAW</h3>
+          <div style={styles.grid}>
             {Object.keys(form).map(k => (
               <div key={k}>
                 <label style={styles.label}>{k}</label>
@@ -308,74 +337,8 @@ export default function NieuweCalculatie() {
               </div>
             ))}
           </div>
-
-          {/* OPSLAGEN */}
-          <div style={styles.section}>
-            <h3>Opslagen</h3>
-            {Object.keys(opslagen).map(k => (
-              <div key={k}>
-                <label style={styles.label}>{k}</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  style={styles.input}
-                  value={opslagen[k]}
-                  onChange={e => updateOpslag(k, e.target.value)}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* UURLONEN */}
-          <div style={styles.section}>
-            <h3>Uurlonen</h3>
-            {uurlonen.map((u, i) => (
-              <div key={u.discipline}>
-                <label style={styles.label}>{u.discipline}</label>
-                <input
-                  type="number"
-                  style={styles.input}
-                  value={u.uurloon}
-                  onChange={e => updateUurloon(i, e.target.value)}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* ACTIES */}
-          <div style={{ marginTop: 16 }}>
-            <strong>Indicatie totaal</strong>: € {indicatie}
-          </div>
-
-          <div style={{ marginTop: 12 }}>
-            <button
-              style={styles.button}
-              onClick={handleCreateProject}
-              disabled={creating || !!projectId}
-            >
-              Project aanmaken
-            </button>
-          </div>
-
-          <div style={{ marginTop: 12 }}>
-            <input
-              type="file"
-              multiple
-              disabled={!projectId}
-              onChange={handleUpload}
-            />
-          </div>
-
-          <div style={{ marginTop: 12 }}>
-            Fase: {processStatus.fase}
-          </div>
-
-          {error && (
-            <pre style={{ color: "red", marginTop: 12 }}>{error}</pre>
-          )}
         </div>
 
-        {/* PREVIEW */}
         <div style={styles.previewWrapper}>
           {pdfUrl ? (
             <iframe
@@ -390,6 +353,44 @@ export default function NieuweCalculatie() {
           )}
         </div>
       </div>
+
+      {/* ACTIES */}
+      <div>
+        <strong>Indicatie totaal</strong>: € {indicatie}
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <button
+          style={styles.button}
+          onClick={handleCreateProject}
+          disabled={creating || !!projectId}
+        >
+          Project aanmaken
+        </button>
+
+        <input
+          type="file"
+          multiple
+          disabled={!projectId}
+          onChange={handleUpload}
+        />
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        Fase: {processStatus.fase}
+      </div>
+
+      {filesStatus.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          {filesStatus.map(f => (
+            <div key={f}>{f}</div>
+          ))}
+        </div>
+      )}
+
+      {error && (
+        <pre style={{ color: "red", marginTop: 12 }}>{error}</pre>
+      )}
     </div>
   )
 }
