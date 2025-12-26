@@ -4,13 +4,18 @@ import supabase from "@/lib/supabase"
 const EXECUTOR_URL =
   "https://sterkbouw-saas-executor-production.up.railway.app"
 
+/*
+========================================================
+STYLES
+========================================================
+*/
 const styles = {
   wrap: { maxWidth: 1200, margin: "0 auto", padding: 24 },
   layout: {
     display: "grid",
     gridTemplateColumns: "1fr 420px",
     gap: 24,
-    alignItems: "stretch"
+    alignItems: "flex-start"
   },
   grid: { display: "grid", gap: 12 },
   label: { fontSize: 13 },
@@ -31,6 +36,12 @@ const styles = {
     fontSize: 14,
     cursor: "pointer"
   },
+  section: {
+    border: "1px solid #e5e7eb",
+    borderRadius: 8,
+    padding: 16,
+    marginTop: 16
+  },
   previewWrapper: {
     width: 420,
     height: 595,
@@ -47,6 +58,11 @@ const styles = {
   }
 }
 
+/*
+========================================================
+COMPONENT
+========================================================
+*/
 export default function NieuweCalculatie() {
   // ===== GUARDS =====
   const createProjectGuardRef = useRef(false)
@@ -57,7 +73,6 @@ export default function NieuweCalculatie() {
   // ===== STATE =====
   const [projectId, setProjectId] = useState(null)
   const [uploaded, setUploaded] = useState(false)
-  const [analysisStatus, setAnalysisStatus] = useState(null)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState(null)
   const [pdfUrl, setPdfUrl] = useState(null)
@@ -69,6 +84,7 @@ export default function NieuweCalculatie() {
 
   const [filesStatus, setFilesStatus] = useState([])
 
+  // ===== PROJECT FORM =====
   const [form, setForm] = useState({
     naam: "",
     naam_opdrachtgever: "",
@@ -81,45 +97,15 @@ export default function NieuweCalculatie() {
     opmerking: ""
   })
 
-  const basisCorrecties = {
-    nieuwbouw: {
-      ak_pct: 0.08,
-      abk_pct: 0.04,
-      w_pct: 0.06,
-      r_pct: 0.05,
-      normuren_factor: 1.1,
-      materiaal_index: 1.0
-    },
-    transformatie: {
-      ak_pct: 0.08,
-      abk_pct: 0.04,
-      w_pct: 0.06,
-      r_pct: 0.05,
-      normuren_factor: 1.0,
-      materiaal_index: 1.0
-    },
-    renovatie: {
-      ak_pct: 0.07,
-      abk_pct: 0.03,
-      w_pct: 0.05,
-      r_pct: 0.04,
-      normuren_factor: 1.0,
-      materiaal_index: 1.0
-    },
-    verduurzaming: {
-      ak_pct: 0.06,
-      abk_pct: 0.02,
-      w_pct: 0.04,
-      r_pct: 0.03,
-      normuren_factor: 1.0,
-      materiaal_index: 1.0
-    }
-  }
+  // ===== OPSLAGEN (HANDMATIG AANPASBAAR) =====
+  const [opslagen, setOpslagen] = useState({
+    ak_pct: 0.08,
+    abk_pct: 0.04,
+    w_pct: 0.06,
+    r_pct: 0.05
+  })
 
-  const [correcties, setCorrecties] = useState(
-    basisCorrecties.nieuwbouw
-  )
-
+  // ===== UURLONEN (HANDMATIG AANPASBAAR) =====
   const [uurlonen, setUurlonen] = useState([
     { discipline: "timmerman", uurloon: 52 },
     { discipline: "installateur", uurloon: 60 },
@@ -128,44 +114,54 @@ export default function NieuweCalculatie() {
     { discipline: "schilder", uurloon: 45 }
   ])
 
-  function updateField(k, v) {
-    setForm(p => {
-      const next = { ...p, [k]: v }
-      if (k === "project_type" && basisCorrecties[v]) {
-        setCorrecties(basisCorrecties[v])
-      }
-      return next
-    })
+  /*
+  ========================================================
+  HELPERS
+  ========================================================
+  */
+  function updateForm(k, v) {
+    setForm(p => ({ ...p, [k]: v }))
+  }
+
+  function updateOpslag(k, v) {
+    setOpslagen(p => ({ ...p, [k]: Number(v) }))
+  }
+
+  function updateUurloon(i, v) {
+    const copy = [...uurlonen]
+    copy[i] = { ...copy[i], uurloon: Number(v) }
+    setUurlonen(copy)
   }
 
   function berekenIndicatie() {
-    const gemiddeld =
+    const gemiddeldUurloon =
       uurlonen.reduce((s, u) => s + u.uurloon, 0) / uurlonen.length
 
-    const arbeid = 100 * gemiddeld * correcties.normuren_factor
-    const materiaal = 250 * correcties.materiaal_index
+    const arbeid = 100 * gemiddeldUurloon
+    const materiaal = 250
     const subtotaal = arbeid + materiaal
 
-    return (
-      subtotaal +
-      subtotaal * correcties.ak_pct +
-      subtotaal * correcties.abk_pct +
-      subtotaal * correcties.w_pct +
-      subtotaal * correcties.r_pct
-    )
+    const ak = subtotaal * opslagen.ak_pct
+    const abk = subtotaal * opslagen.abk_pct
+    const w = subtotaal * opslagen.w_pct
+    const r = subtotaal * opslagen.r_pct
+
+    return Math.round(subtotaal + ak + abk + w + r)
   }
 
-  async function saveCorrecties(pid) {
-    if (!pid) return
+  /*
+  ========================================================
+  OPSLAAN NAAR DATABASE
+  ========================================================
+  */
+  async function saveOpslagen(pid) {
     await supabase.from("calculatie_correcties").upsert({
       project_id: pid,
-      projecttype: form.project_type,
-      ...correcties
+      ...opslagen
     })
   }
 
   async function saveUurlonen(pid) {
-    if (!pid) return
     for (const row of uurlonen) {
       await supabase.from("calculatie_uurloon_overrides").upsert({
         project_id: pid,
@@ -175,6 +171,11 @@ export default function NieuweCalculatie() {
     }
   }
 
+  /*
+  ========================================================
+  ACTIES
+  ========================================================
+  */
   async function handleCreateProject() {
     if (createProjectGuardRef.current) return
     createProjectGuardRef.current = true
@@ -192,7 +193,7 @@ export default function NieuweCalculatie() {
       const data = await res.json()
 
       setProjectId(data.project_id)
-      await saveCorrecties(data.project_id)
+      await saveOpslagen(data.project_id)
       await saveUurlonen(data.project_id)
     } catch (e) {
       setError(e.message)
@@ -203,14 +204,13 @@ export default function NieuweCalculatie() {
   }
 
   async function handleUpload(e) {
-    if (uploadGuardRef.current || !projectId) return
+    if (!projectId || uploadGuardRef.current) return
     const files = Array.from(e.target.files)
     if (!files.length) return
 
     uploadGuardRef.current = true
     setUploaded(true)
     setFilesStatus(files.map(f => f.name))
-    setError(null)
 
     const fd = new FormData()
     fd.append("project_id", projectId)
@@ -222,14 +222,18 @@ export default function NieuweCalculatie() {
         body: fd
       })
       if (!res.ok) throw new Error(await res.text())
-    } catch (err) {
-      setError(err.message)
+    } catch (e) {
+      setError(e.message)
     } finally {
       uploadGuardRef.current = false
     }
   }
 
-  // ===== POLLING =====
+  /*
+  ========================================================
+  POLLING (ALLEEN LEZEN)
+  ========================================================
+  */
   useEffect(() => {
     if (!projectId || !uploaded) return
     if (intervalRunningRef.current) return
@@ -243,15 +247,12 @@ export default function NieuweCalculatie() {
       try {
         const { data: project } = await supabase
           .from("projects")
-          .select("analysis_status,pdf_url")
+          .select("pdf_url")
           .eq("id", projectId)
           .maybeSingle()
 
-        if (project) {
-          setAnalysisStatus(project.analysis_status)
-          if (project.pdf_url && !pdfUrl) {
-            setPdfUrl(project.pdf_url)
-          }
+        if (project?.pdf_url && !pdfUrl) {
+          setPdfUrl(project.pdf_url)
         }
 
         const { data: task } = await supabase
@@ -280,50 +281,73 @@ export default function NieuweCalculatie() {
     }
   }, [projectId, uploaded, pdfUrl])
 
-  const totaal = berekenIndicatie()
+  const indicatie = berekenIndicatie()
 
+  /*
+  ========================================================
+  RENDER
+  ========================================================
+  */
   return (
     <div style={styles.wrap}>
       <h1>Nieuwe calculatie</h1>
 
       <div style={styles.layout}>
         <div>
-          <div style={styles.grid}>
-            {Object.keys(form).map(k =>
-              k === "project_type" ? (
-                <div key={k}>
-                  <label style={styles.label}>Projecttype</label>
-                  <select
-                    value={form.project_type}
-                    onChange={e =>
-                      updateField("project_type", e.target.value)
-                    }
-                    style={styles.input}
-                  >
-                    <option value="nieuwbouw">Nieuwbouw</option>
-                    <option value="transformatie">Transformatie</option>
-                    <option value="renovatie">Renovatie</option>
-                    <option value="verduurzaming">Verduurzaming</option>
-                  </select>
-                </div>
-              ) : (
-                <div key={k}>
-                  <label style={styles.label}>{k}</label>
-                  <input
-                    value={form[k]}
-                    onChange={e => updateField(k, e.target.value)}
-                    style={styles.input}
-                  />
-                </div>
-              )
-            )}
+          {/* PROJECT */}
+          <div style={styles.section}>
+            <h3>Projectgegevens</h3>
+            {Object.keys(form).map(k => (
+              <div key={k}>
+                <label style={styles.label}>{k}</label>
+                <input
+                  style={styles.input}
+                  value={form[k]}
+                  onChange={e => updateForm(k, e.target.value)}
+                />
+              </div>
+            ))}
           </div>
 
-          <div style={{ marginTop: 24 }}>
-            <strong>Indicatie totaal</strong>: € {totaal.toFixed(0)}
+          {/* OPSLAGEN */}
+          <div style={styles.section}>
+            <h3>Opslagen</h3>
+            {Object.keys(opslagen).map(k => (
+              <div key={k}>
+                <label style={styles.label}>{k}</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  style={styles.input}
+                  value={opslagen[k]}
+                  onChange={e => updateOpslag(k, e.target.value)}
+                />
+              </div>
+            ))}
           </div>
 
+          {/* UURLONEN */}
+          <div style={styles.section}>
+            <h3>Uurlonen</h3>
+            {uurlonen.map((u, i) => (
+              <div key={u.discipline}>
+                <label style={styles.label}>{u.discipline}</label>
+                <input
+                  type="number"
+                  style={styles.input}
+                  value={u.uurloon}
+                  onChange={e => updateUurloon(i, e.target.value)}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* ACTIES */}
           <div style={{ marginTop: 16 }}>
+            <strong>Indicatie totaal</strong>: € {indicatie}
+          </div>
+
+          <div style={{ marginTop: 12 }}>
             <button
               style={styles.button}
               onClick={handleCreateProject}
@@ -337,8 +361,8 @@ export default function NieuweCalculatie() {
             <input
               type="file"
               multiple
-              onChange={handleUpload}
               disabled={!projectId}
+              onChange={handleUpload}
             />
           </div>
 
@@ -346,30 +370,12 @@ export default function NieuweCalculatie() {
             Fase: {processStatus.fase}
           </div>
 
-          {filesStatus.length > 0 && (
-            <div style={{ marginTop: 12 }}>
-              <strong>Geüploade bestanden</strong>
-              {filesStatus.map(f => (
-                <div key={f}>{f}</div>
-              ))}
-            </div>
-          )}
-
-          {pdfUrl && (
-            <div style={{ marginTop: 12 }}>
-              <a href={pdfUrl} target="_blank" rel="noreferrer">
-                Download 2jours calculatie
-              </a>
-            </div>
-          )}
-
           {error && (
-            <pre style={{ color: "red", marginTop: 12 }}>
-              {error}
-            </pre>
+            <pre style={{ color: "red", marginTop: 12 }}>{error}</pre>
           )}
         </div>
 
+        {/* PREVIEW */}
         <div style={styles.previewWrapper}>
           {pdfUrl ? (
             <iframe
