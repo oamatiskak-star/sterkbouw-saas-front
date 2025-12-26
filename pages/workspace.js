@@ -3,38 +3,84 @@ import { useEffect, useState } from "react"
 import { actionSchemas } from "../lib/actionSchemas"
 
 export default function Workspace() {
-  const { query } = useRouter()
-  const action = query.action
-  const schema = actionSchemas[action]
+  const router = useRouter()
+  const action = typeof router.query.action === "string" ? router.query.action : null
+  const schema = action ? actionSchemas[action] : null
 
   const [status, setStatus] = useState(null)
+  const [error, setError] = useState(null)
   const [files, setFiles] = useState([])
+  const [starting, setStarting] = useState(false)
 
-  const start = async () => {
-    const res = await fetch(`/api/actions/${action}`, { method:"POST" })
-    setStatus(await res.json())
+  // HARD GUARD: nooit starten zonder geldige actie
+  async function start() {
+    setError(null)
+    setStatus(null)
+
+    if (!action || !schema) {
+      setError("ONGELDIGE_ACTIE")
+      return
+    }
+
+    setStarting(true)
+    try {
+      const res = await fetch(`/api/actions/${action}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          // altijd een payload sturen zodat de API niet 400t
+          files_count: files?.length || 0,
+          ts: Date.now()
+        })
+      })
+
+      if (!res.ok) {
+        const t = await res.text()
+        throw new Error(t || `HTTP_${res.status}`)
+      }
+
+      const json = await res.json()
+      setStatus(json)
+    } catch (e) {
+      setError(e.message || "START_FAILED")
+    } finally {
+      setStarting(false)
+    }
   }
 
   if (!schema) {
-    return <div className="card">Onbekende actie</div>
+    return (
+      <div className="card">
+        <h3>Ongeldige of ontbrekende actie</h3>
+        <p>Er is geen geldige actie geselecteerd.</p>
+      </div>
+    )
   }
 
   return (
     <div className="workspace">
-
       <h2>{schema.title}</h2>
 
       {schema.blocks.includes("project") && (
         <div className="card">
           <h3>Project</h3>
-          <select><option>Selecteer project</option></select>
+          <select>
+            <option>Selecteer project</option>
+          </select>
         </div>
       )}
 
       {schema.blocks.includes("upload") && (
         <div className="card">
           <h3>Bestanden</h3>
-          <input type="file" multiple onChange={e => setFiles(e.target.files)} />
+          <input
+            type="file"
+            multiple
+            onChange={e => setFiles(Array.from(e.target.files || []))}
+          />
+          <div style={{ fontSize: 12, opacity: 0.7 }}>
+            Geselecteerd: {files.length}
+          </div>
         </div>
       )}
 
@@ -47,7 +93,15 @@ export default function Workspace() {
 
       {schema.blocks.includes("start") && (
         <div className="card">
-          <button onClick={start}>Start</button>
+          <button onClick={start} disabled={starting}>
+            {starting ? "Bezig..." : "Start"}
+          </button>
+        </div>
+      )}
+
+      {error && (
+        <div className="card" style={{ color: "red" }}>
+          <pre>{error}</pre>
         </div>
       )}
 
@@ -64,7 +118,6 @@ export default function Workspace() {
           <div>Nog geen resultaat</div>
         </div>
       )}
-
     </div>
   )
 }
