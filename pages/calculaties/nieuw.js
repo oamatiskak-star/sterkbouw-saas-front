@@ -69,6 +69,7 @@ export default function NieuweCalculatie() {
     fase: "Wachten",
     actie: null
   })
+
   const [filesStatus, setFilesStatus] = useState([])
 
   const [form, setForm] = useState({
@@ -260,7 +261,7 @@ export default function NieuweCalculatie() {
     }
   }
 
-  // ===== POLLING – 1× START =====
+  // ===== POLLING (GEEN STORAGE LIST) =====
   useEffect(() => {
     if (!projectId || !uploaded) return
     if (intervalRunningRef.current) return
@@ -296,31 +297,17 @@ export default function NieuweCalculatie() {
           setProcessStatus({ fase, actie: task.action })
         }
 
-        const { data: files } = await supabase.storage
-          .from("sterkcalc")
-          .list(projectId)
-
-        if (files) {
-          setFilesStatus(files.map(f => f.name))
-
-          if (!signedUrlGuardRef.current) {
-            const pdfExists = files.some(
-              f => f.name === "calculatie_2jours.pdf"
+        if (!signedUrlGuardRef.current) {
+          const { data: signed } = await supabase.storage
+            .from("sterkcalc")
+            .createSignedUrl(
+              `${projectId}/calculatie_2jours.pdf`,
+              3600
             )
 
-            if (pdfExists) {
-              const { data: signed } = await supabase.storage
-                .from("sterkcalc")
-                .createSignedUrl(
-                  `${projectId}/calculatie_2jours.pdf`,
-                  3600
-                )
-
-              if (signed?.signedUrl) {
-                signedUrlGuardRef.current = true
-                setPdfUrl(signed.signedUrl)
-              }
-            }
+          if (signed?.signedUrl) {
+            signedUrlGuardRef.current = true
+            setPdfUrl(signed.signedUrl)
           }
         }
       } finally {
@@ -374,41 +361,6 @@ export default function NieuweCalculatie() {
           </div>
 
           <div style={{ marginTop: 24 }}>
-            <h3>Correcties</h3>
-            {Object.entries(correcties).map(([k, v]) => (
-              <div key={k}>
-                <label style={styles.label}>{k}</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={v}
-                  onChange={e =>
-                    updateCorrectie(k, Number(e.target.value))
-                  }
-                  style={styles.input}
-                />
-              </div>
-            ))}
-          </div>
-
-          <div style={{ marginTop: 24 }}>
-            <h3>Uurlonen</h3>
-            {uurlonen.map((u, i) => (
-              <div key={u.discipline}>
-                <label style={styles.label}>{u.discipline}</label>
-                <input
-                  type="number"
-                  value={u.uurloon}
-                  onChange={e =>
-                    updateUurloon(i, Number(e.target.value))
-                  }
-                  style={styles.input}
-                />
-              </div>
-            ))}
-          </div>
-
-          <div style={{ marginTop: 24 }}>
             <h3>Indicatie</h3>
             <div>Indicatief totaal: € {s.totaal.toFixed(0)}</div>
           </div>
@@ -436,22 +388,9 @@ export default function NieuweCalculatie() {
             Fase: {processStatus.fase}
           </div>
 
-          {filesStatus.length > 0 && (
-            <div style={{ marginTop: 12 }}>
-              <strong>Bestanden</strong>
-              {filesStatus.map(f => (
-                <div key={f}>{f}</div>
-              ))}
-            </div>
-          )}
-
           {pdfUrl && (
             <div style={{ marginTop: 12 }}>
-              <a
-                href={pdfUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a href={pdfUrl} target="_blank" rel="noreferrer">
                 Download 2jours calculatie
               </a>
             </div>
