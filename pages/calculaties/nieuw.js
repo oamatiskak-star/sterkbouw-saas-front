@@ -185,12 +185,7 @@ export default function NieuweCalculatie() {
     await supabase.from("calculatie_correcties").upsert({
       project_id: pid,
       projecttype: form.project_type,
-      ak_pct: correcties.ak_pct,
-      abk_pct: correcties.abk_pct,
-      w_pct: correcties.w_pct,
-      r_pct: correcties.r_pct,
-      normuren_factor: correcties.normuren_factor,
-      materiaal_index: correcties.materiaal_index
+      ...correcties
     })
   }
 
@@ -208,7 +203,6 @@ export default function NieuweCalculatie() {
   async function handleCreateProject() {
     if (createProjectGuardRef.current) return
     createProjectGuardRef.current = true
-
     setCreating(true)
     setError(null)
 
@@ -254,6 +248,7 @@ export default function NieuweCalculatie() {
         body: fd
       })
       if (!res.ok) setError(await res.text())
+      setFilesStatus(files.map(f => f.name))
     } catch (err) {
       setError(err.message)
     } finally {
@@ -261,7 +256,7 @@ export default function NieuweCalculatie() {
     }
   }
 
-  // ===== POLLING (GEEN STORAGE LIST) =====
+  // ===== POLLING =====
   useEffect(() => {
     if (!projectId || !uploaded) return
     if (intervalRunningRef.current) return
@@ -274,13 +269,13 @@ export default function NieuweCalculatie() {
 
       try {
         const { data: project } = await supabase
-  .from("projects")
-  .select("analysis_status")
-  .eq("id", projectId)
-  .maybeSingle()
-        if (project) {
-  setAnalysisStatus(project.analysis_status)
-}
+          .from("projects")
+          .select("analysis_status")
+          .eq("id", projectId)
+          .maybeSingle()
+
+        if (project) setAnalysisStatus(project.analysis_status)
+
         const { data: task } = await supabase
           .from("executor_tasks")
           .select("action")
@@ -298,17 +293,19 @@ export default function NieuweCalculatie() {
         }
 
         if (!signedUrlGuardRef.current) {
-  const pdfPath = `${projectId}/calculatie_2jours.pdf`
+          const pdfPath = `${projectId}/calculatie_2jours.pdf`
+          const { data: signed } = await supabase.storage
+            .from("sterkcalc")
+            .createSignedUrl(pdfPath, 3600)
 
-  const { data: signed, error } = await supabase.storage
-    .from("sterkcalc")
-    .createSignedUrl(pdfPath, 3600)
-
-  if (signed?.signedUrl) {
-    signedUrlGuardRef.current = true
-    setPdfUrl(signed.signedUrl)
-  }
-} finally {
+          if (signed?.signedUrl) {
+            signedUrlGuardRef.current = true
+            setPdfUrl(signed.signedUrl)
+          }
+        }
+      } catch (err) {
+        console.error("polling error", err)
+      } finally {
         intervalTickGuardRef.current = false
       }
     }, 3000)
@@ -359,8 +356,7 @@ export default function NieuweCalculatie() {
           </div>
 
           <div style={{ marginTop: 24 }}>
-            <h3>Indicatie</h3>
-            <div>Indicatief totaal: € {s.totaal.toFixed(0)}</div>
+            <strong>Indicatie totaal</strong>: € {s.totaal.toFixed(0)}
           </div>
 
           <div style={{ marginTop: 16 }}>
@@ -385,6 +381,15 @@ export default function NieuweCalculatie() {
           <div style={{ marginTop: 12 }}>
             Fase: {processStatus.fase}
           </div>
+
+          {filesStatus.length > 0 && (
+            <div style={{ marginTop: 12 }}>
+              <strong>Geüploade bestanden</strong>
+              {filesStatus.map(f => (
+                <div key={f}>{f}</div>
+              ))}
+            </div>
+          )}
 
           {pdfUrl && (
             <div style={{ marginTop: 12 }}>
