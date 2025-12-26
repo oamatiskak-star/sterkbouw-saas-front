@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         telefoon,
         project_type,
         opmerking,
-        analysis_status: false
+        analysis_status: "pending"
       })
       .select("id")
       .single()
