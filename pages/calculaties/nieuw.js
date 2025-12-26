@@ -326,16 +326,33 @@ export default function NieuweCalculatie() {
         <div style={styles.section}>
           <h3>Project / NAW</h3>
           <div style={styles.grid}>
-            {Object.keys(form).map(k => (
-              <div key={k}>
-                <label style={styles.label}>{k}</label>
-                <input
-                  style={styles.input}
-                  value={form[k]}
-                  onChange={e => updateForm(k, e.target.value)}
-                />
-              </div>
-            ))}
+            <div>
+  <label style={styles.label}>project_type</label>
+  <select
+    style={styles.input}
+    value={form.project_type}
+    onChange={e => updateForm("project_type", e.target.value)}
+  >
+    <option value="nieuwbouw">nieuwbouw</option>
+    <option value="transformatie">transformatie</option>
+    <option value="renovatie">renovatie</option>
+    <option value="verduurzaming">verduurzaming</option>
+  </select>
+</div>
+
+{Object.keys(form)
+  .filter(k => k !== "project_type")
+  .map(k => (
+    <div key={k}>
+      <label style={styles.label}>{k}</label>
+      <input
+        style={styles.input}
+        value={form[k]}
+        onChange={e => updateForm(k, e.target.value)}
+      />
+    </div>
+))}
+
           </div>
         </div>
 
