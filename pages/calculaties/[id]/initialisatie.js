@@ -40,13 +40,20 @@ export default function InitialisatieStatus() {
 
     startedRef.current = true
 
-    supabase.from("executor_tasks").insert({
-      project_id: projectId,
-      action: "PROJECT_SCAN",
-      status: "open",
-      assigned_to: "executor",
-      payload: {}
-    })
+    ;(async () => {
+      const { error } = await supabase.from("executor_tasks").insert({
+        project_id: projectId,
+        action: "PROJECT_SCAN",
+        status: "open",
+        assigned_to: "executor",
+        payload: {}
+      })
+
+      if (error) {
+        // RLS / anon blokkade bewust afvangen
+        console.error("EXECUTOR_TASK_INSERT_BLOCKED", error)
+      }
+    })()
   }, [projectId])
 
   // 3. logs pollen → DIRECT door naar calculatie bij eerste done
