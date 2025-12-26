@@ -4,16 +4,24 @@ import { supabase } from "../lib/supabase"
 export default function Uploads() {
   const [files, setFiles] = useState([])
   const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     load()
   }, [])
 
   async function load() {
-    const { data } = await supabase
+    setError(null)
+
+    const { data, error } = await supabase
       .from("uploads")
       .select("*")
       .order("created_at", { ascending: false })
+
+    if (error) {
+      setError(error.message)
+      return
+    }
 
     setFiles(data || [])
   }
@@ -23,20 +31,36 @@ export default function Uploads() {
     if (!file) return
 
     setUploading(true)
+    setError(null)
 
     const path = `${Date.now()}_${file.name}`
 
-    await supabase.storage
-      .from("project-files")
-      .upload(path, file)
+    try {
+      const { error: storageError } = await supabase.storage
+        .from("project-files")
+        .upload(path, file)
 
-    await supabase.from("uploads").insert({
-      filename: file.name,
-      path
-    })
+      if (storageError) {
+        throw new Error("STORAGE_UPLOAD_FAILED: " + storageError.message)
+      }
 
-    setUploading(false)
-    load()
+      const { error: dbError } = await supabase
+        .from("uploads")
+        .insert({
+          filename: file.name,
+          path
+        })
+
+      if (dbError) {
+        throw new Error("DB_INSERT_FAILED: " + dbError.message)
+      }
+
+      await load()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setUploading(false)
+    }
   }
 
   return (
@@ -46,6 +70,12 @@ export default function Uploads() {
       <input type="file" onChange={handleUpload} />
 
       {uploading && <p>Uploaden...</p>}
+
+      {error && (
+        <pre style={{ color: "red", marginTop: 12 }}>
+          {error}
+        </pre>
+      )}
 
       <table>
         <thead>
