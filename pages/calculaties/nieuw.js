@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/router"
 import supabase from "@/lib/supabase"
 
 const EXECUTOR_URL =
@@ -49,8 +48,6 @@ const styles = {
 }
 
 export default function NieuweCalculatie() {
-  const router = useRouter()
-
   // ===== GUARDS =====
   const createProjectGuardRef = useRef(false)
   const uploadGuardRef = useRef(false)
@@ -58,6 +55,7 @@ export default function NieuweCalculatie() {
   const intervalTickGuardRef = useRef(false)
   const signedUrlGuardRef = useRef(false)
 
+  // ===== STATE =====
   const [projectId, setProjectId] = useState(null)
   const [uploaded, setUploaded] = useState(false)
   const [analysisStatus, setAnalysisStatus] = useState(null)
@@ -141,16 +139,6 @@ export default function NieuweCalculatie() {
     })
   }
 
-  function updateCorrectie(k, v) {
-    setCorrecties(p => ({ ...p, [k]: v }))
-  }
-
-  function updateUurloon(i, v) {
-    const copy = [...uurlonen]
-    copy[i].uurloon = v
-    setUurlonen(copy)
-  }
-
   function berekenIndicatie() {
     const gemiddeldUurloon =
       uurlonen.reduce((s, u) => s + u.uurloon, 0) / uurlonen.length
@@ -162,22 +150,12 @@ export default function NieuweCalculatie() {
       250 * correcties.materiaal_index
 
     const subtotaal = basisArbeid + basisMateriaal
-
     const ak = subtotaal * correcties.ak_pct
     const abk = subtotaal * correcties.abk_pct
     const w = subtotaal * correcties.w_pct
     const r = subtotaal * correcties.r_pct
 
-    return {
-      basisArbeid,
-      basisMateriaal,
-      subtotaal,
-      ak,
-      abk,
-      w,
-      r,
-      totaal: subtotaal + ak + abk + w + r
-    }
+    return subtotaal + ak + abk + w + r
   }
 
   async function saveCorrecties(pid) {
@@ -228,14 +206,14 @@ export default function NieuweCalculatie() {
   }
 
   async function handleUpload(e) {
-    if (uploadGuardRef.current) return
-    if (!projectId) return
+    if (uploadGuardRef.current || !projectId) return
 
     const files = Array.from(e.target.files)
     if (!files.length) return
 
     uploadGuardRef.current = true
     setUploaded(true)
+    setFilesStatus(files.map(f => f.name))
     setError(null)
 
     const fd = new FormData()
@@ -247,8 +225,7 @@ export default function NieuweCalculatie() {
         method: "POST",
         body: fd
       })
-      if (!res.ok) setError(await res.text())
-      setFilesStatus(files.map(f => f.name))
+      if (!res.ok) throw new Error(await res.text())
     } catch (err) {
       setError(err.message)
     } finally {
@@ -292,19 +269,21 @@ export default function NieuweCalculatie() {
           setProcessStatus({ fase, actie: task.action })
         }
 
-        if (!signedUrlGuardRef.current) {
+        if (!signedUrlGuardRef.current && !pdfUrl) {
+          signedUrlGuardRef.current = true
+
           const pdfPath = `${projectId}/calculatie_2jours.pdf`
-          const { data: signed } = await supabase.storage
+          const { data: signed, error } = await supabase.storage
             .from("sterkcalc")
             .createSignedUrl(pdfPath, 3600)
 
           if (signed?.signedUrl) {
-            signedUrlGuardRef.current = true
-            setPdfUrl(signed.signedUrl)
+            setPdfUrl(String(signed.signedUrl))
+          } else if (error) {
+            signedUrlGuardRef.current = false
           }
         }
-      } catch (err) {
-        console.error("polling error", err)
+      } catch (_) {
       } finally {
         intervalTickGuardRef.current = false
       }
@@ -314,9 +293,9 @@ export default function NieuweCalculatie() {
       clearInterval(interval)
       intervalRunningRef.current = false
     }
-  }, [projectId, uploaded])
+  }, [projectId, uploaded, pdfUrl])
 
-  const s = berekenIndicatie()
+  const totaal = berekenIndicatie()
 
   return (
     <div style={styles.wrap}>
@@ -356,7 +335,7 @@ export default function NieuweCalculatie() {
           </div>
 
           <div style={{ marginTop: 24 }}>
-            <strong>Indicatie totaal</strong>: € {s.totaal.toFixed(0)}
+            <strong>Indicatie totaal</strong>: € {totaal.toFixed(0)}
           </div>
 
           <div style={{ marginTop: 16 }}>
