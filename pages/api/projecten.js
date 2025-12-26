@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
 export default async function handler(req, res) {
@@ -14,15 +14,15 @@ export default async function handler(req, res) {
     const body = req.body || {}
 
     const {
-      naam,
-      naam_opdrachtgever,
-      adres,
-      postcode,
-      plaatsnaam,
-      land,
-      telefoon,
-      project_type,
-      opmerking
+      naam = null,
+      naam_opdrachtgever = null,
+      adres = null,
+      postcode = null,
+      plaatsnaam = null,
+      land = "Nederland",
+      telefoon = null,
+      project_type = "nieuwbouw",
+      opmerking = null
     } = body
 
     const { data, error } = await supabase
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         telefoon,
         project_type,
         opmerking,
-        analysis_status: "pending"
+        analysis_status: false
       })
       .select("id")
       .single()
