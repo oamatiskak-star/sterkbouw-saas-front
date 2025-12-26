@@ -99,15 +99,29 @@ const files=Array.from(e.target.files)
 if(!files.length)return
 uploadGuardRef.current=true
 setFilesStatus(files.map(f=>f.name))
-const fd=new FormData()
-fd.append("project_id",projectId)
-files.forEach(f=>fd.append("files",f))
+
 try{
-const res=await fetch(`${EXECUTOR_URL}/upload-files`,{method:"POST",body:fd})
-if(!res.ok)throw new Error(await res.text())
-setUploaded(true) // <-- FIX: pas NA succesvolle upload
-}catch(e){setError(e.message)}
-finally{uploadGuardRef.current=false}
+  // 🔧 ENIGE WIJZIGING: via eigen API een executor_task aanmaken
+  const res = await fetch("/api/executor/upload-task", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      project_id: projectId,
+      files: files.map(f => ({
+        filename: f.name,
+        mime_type: f.type
+      }))
+    })
+  })
+
+  if(!res.ok) throw new Error(await res.text())
+  setUploaded(true)
+}catch(e){
+  setError(e.message)
+}finally{
+  uploadGuardRef.current=false
+  e.target.value=""
+}
 }
 
 useEffect(()=>{
