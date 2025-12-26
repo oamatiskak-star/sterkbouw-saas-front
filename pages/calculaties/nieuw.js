@@ -10,32 +10,43 @@ STYLES
 ========================================================
 */
 const styles = {
-  wrap: { maxWidth: 1280, margin: "0 auto", padding: 24 },
+  wrap: {
+    maxWidth: 1200,
+    margin: "0 auto",
+    padding: 24
+  },
 
-  row2: {
+  grid4: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: 24,
-    marginBottom: 24
+    alignItems: "stretch"
   },
 
-  rowMain: {
-    display: "grid",
-    gridTemplateColumns: "1fr 420px",
-    gap: 24,
-    alignItems: "flex-start",
-    marginBottom: 24
-  },
-
-  section: {
+  card: {
     border: "1px solid #e5e7eb",
     borderRadius: 8,
-    padding: 16
+    padding: 16,
+    background: "#fff",
+    display: "flex",
+    flexDirection: "column",
+    height: 420
   },
 
-  grid: { display: "grid", gap: 12 },
+  cardTitle: {
+    fontWeight: 600,
+    marginBottom: 12
+  },
 
-  label: { fontSize: 13 },
+  fieldGrid: {
+    display: "grid",
+    gap: 12
+  },
+
+  label: {
+    fontSize: 13
+  },
+
   input: {
     width: "100%",
     padding: 10,
@@ -45,26 +56,25 @@ const styles = {
   },
 
   button: {
+    width: "100%",
     padding: 12,
     borderRadius: 6,
     border: "none",
     background: "#2563eb",
     color: "#fff",
     fontSize: 14,
-    cursor: "pointer",
-    marginRight: 12
+    cursor: "pointer"
   },
 
-  previewWrapper: {
-    width: 420,
-    height: 595,
-    border: "1px solid #d1d5db",
+  preview: {
+    flex: 1,
     borderRadius: 6,
+    border: "1px solid #d1d5db",
     overflow: "hidden",
-    background: "#111"
+    background: "#000"
   },
 
-  previewFrame: {
+  iframe: {
     width: "100%",
     height: "100%",
     border: "none",
@@ -284,84 +294,100 @@ export default function NieuweCalculatie() {
   ========================================================
   */
   return (
-    <div style={styles.wrap}>
-      <h1>Nieuwe calculatie</h1>
+  <div style={styles.wrap}>
+    <h1>Nieuwe calculatie</h1>
 
-      {/* OPSLAGEN + UURLONEN */}
-      <div style={styles.row2}>
-        <div style={styles.section}>
-          <h3>Opslagen</h3>
-          {Object.keys(opslagen).map(k => (
+    <div style={styles.grid4}>
+      {/* OPSLAGEN */}
+      <div style={styles.card}>
+        <div style={styles.cardTitle}>Opslagen</div>
+        <div style={styles.fieldGrid}>
+          {Object.keys(correcties).map(k => (
             <div key={k}>
               <label style={styles.label}>{k}</label>
               <input
+                style={styles.input}
                 type="number"
                 step="0.01"
-                style={styles.input}
-                value={opslagen[k]}
-                onChange={e => updateOpslag(k, e.target.value)}
-              />
-            </div>
-          ))}
-        </div>
-
-        <div style={styles.section}>
-          <h3>Uurlonen</h3>
-          {uurlonen.map((u, i) => (
-            <div key={u.discipline}>
-              <label style={styles.label}>{u.discipline}</label>
-              <input
-                type="number"
-                style={styles.input}
-                value={u.uurloon}
-                onChange={e => updateUurloon(i, e.target.value)}
+                value={correcties[k]}
+                onChange={e =>
+                  setCorrecties(p => ({
+                    ...p,
+                    [k]: Number(e.target.value)
+                  }))
+                }
               />
             </div>
           ))}
         </div>
       </div>
 
-      {/* NAW + PREVIEW */}
-      <div style={styles.rowMain}>
-        <div style={styles.section}>
-          <h3>Project / NAW</h3>
-          <div style={styles.grid}>
-            <div>
-  <label style={styles.label}>project_type</label>
-  <select
-    style={styles.input}
-    value={form.project_type}
-    onChange={e => updateForm("project_type", e.target.value)}
-  >
-    <option value="nieuwbouw">nieuwbouw</option>
-    <option value="transformatie">transformatie</option>
-    <option value="renovatie">renovatie</option>
-    <option value="verduurzaming">verduurzaming</option>
-  </select>
-</div>
-
-{Object.keys(form)
-  .filter(k => k !== "project_type")
-  .map(k => (
-    <div key={k}>
-      <label style={styles.label}>{k}</label>
-      <input
-        style={styles.input}
-        value={form[k]}
-        onChange={e => updateForm(k, e.target.value)}
-      />
-    </div>
-))}
-
-          </div>
+      {/* UURLONEN */}
+      <div style={styles.card}>
+        <div style={styles.cardTitle}>Uurlonen</div>
+        <div style={styles.fieldGrid}>
+          {uurlonen.map((u, i) => (
+            <div key={u.discipline}>
+              <label style={styles.label}>{u.discipline}</label>
+              <input
+                style={styles.input}
+                type="number"
+                value={u.uurloon}
+                onChange={e => {
+                  const copy = [...uurlonen]
+                  copy[i].uurloon = Number(e.target.value)
+                  setUurlonen(copy)
+                }}
+              />
+            </div>
+          ))}
         </div>
+      </div>
 
-        <div style={styles.previewWrapper}>
+      {/* PROJECT / NAW */}
+      <div style={styles.card}>
+        <div style={styles.cardTitle}>Project / NAW</div>
+        <div style={styles.fieldGrid}>
+          <label style={styles.label}>project_type</label>
+          <select
+            style={styles.input}
+            value={form.project_type}
+            onChange={e =>
+              updateField("project_type", e.target.value)
+            }
+          >
+            <option value="nieuwbouw">nieuwbouw</option>
+            <option value="transformatie">transformatie</option>
+            <option value="renovatie">renovatie</option>
+            <option value="verduurzaming">verduurzaming</option>
+          </select>
+
+          {Object.keys(form)
+            .filter(k => k !== "project_type")
+            .map(k => (
+              <div key={k}>
+                <label style={styles.label}>{k}</label>
+                <input
+                  style={styles.input}
+                  value={form[k]}
+                  onChange={e =>
+                    updateField(k, e.target.value)
+                  }
+                />
+              </div>
+            ))}
+        </div>
+      </div>
+
+      {/* PREVIEW */}
+      <div style={styles.card}>
+        <div style={styles.cardTitle}>Preview</div>
+        <div style={styles.preview}>
           {pdfUrl ? (
             <iframe
               title="preview"
               src={pdfUrl}
-              style={styles.previewFrame}
+              style={styles.iframe}
             />
           ) : (
             <div style={{ color: "#9ca3af", padding: 16 }}>
@@ -370,44 +396,35 @@ export default function NieuweCalculatie() {
           )}
         </div>
       </div>
-
-      {/* ACTIES */}
-      <div>
-        <strong>Indicatie totaal</strong>: € {indicatie}
-      </div>
-
-      <div style={{ marginTop: 12 }}>
-        <button
-          style={styles.button}
-          onClick={handleCreateProject}
-          disabled={creating || !!projectId}
-        >
-          Project aanmaken
-        </button>
-
-        <input
-          type="file"
-          multiple
-          disabled={!projectId}
-          onChange={handleUpload}
-        />
-      </div>
-
-      <div style={{ marginTop: 12 }}>
-        Fase: {processStatus.fase}
-      </div>
-
-      {filesStatus.length > 0 && (
-        <div style={{ marginTop: 12 }}>
-          {filesStatus.map(f => (
-            <div key={f}>{f}</div>
-          ))}
-        </div>
-      )}
-
-      {error && (
-        <pre style={{ color: "red", marginTop: 12 }}>{error}</pre>
-      )}
     </div>
-  )
-}
+
+    <div style={{ marginTop: 24 }}>
+      <button
+        style={styles.button}
+        onClick={handleCreateProject}
+        disabled={creating || !!projectId}
+      >
+        Project aanmaken
+      </button>
+    </div>
+
+    <div style={{ marginTop: 12 }}>
+      <input
+        type="file"
+        multiple
+        onChange={handleUpload}
+        disabled={!projectId}
+      />
+    </div>
+
+    <div style={{ marginTop: 12 }}>
+      Fase: {processStatus.fase}
+    </div>
+
+    {error && (
+      <pre style={{ color: "red", marginTop: 12 }}>
+        {error}
+      </pre>
+    )}
+  </div>
+)
