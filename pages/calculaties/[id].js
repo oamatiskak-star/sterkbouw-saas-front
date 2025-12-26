@@ -1,6 +1,5 @@
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
-import supabase from "@/lib/supabase"
 
 export default function CalculatieDetail() {
   const router = useRouter()
@@ -15,62 +14,53 @@ export default function CalculatieDetail() {
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState(null)
 
+  // =========================
+  // DATA LADEN VIA BACKEND
+  // =========================
   useEffect(() => {
     if (!id) return
-
     let cancelled = false
 
     async function load() {
       setLoading(true)
+      setUploadError(null)
 
-      const { data: c, error } = await supabase
-        .from("calculaties")
-        .select("*")
-        .eq("id", id)
-        .single()
+      try {
+        const res = await fetch(`/api/calculaties/${id}`, {
+          method: "GET"
+        })
 
-      if (error || !c) {
-        console.error("CALCULATIE_LOAD_FAILED", error)
-        setLoading(false)
-        return
+        if (!res.ok) {
+          const t = await res.text()
+          throw new Error(t || `HTTP_${res.status}`)
+        }
+
+        const data = await res.json()
+
+        if (cancelled) return
+
+        setCalculatie(data.calculatie || null)
+        setRegels(Array.isArray(data.regels) ? data.regels : [])
+        setOpslagen(data.opslagen || null)
+        setWorkflowLog(Array.isArray(data.workflowLog) ? data.workflowLog : [])
+      } catch (e) {
+        if (!cancelled) {
+          setCalculatie(null)
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
       }
-
-      if (cancelled) return
-      setCalculatie(c)
-
-      const { data: r } = await supabase
-        .from("calculatie_regels")
-        .select("*")
-        .eq("calculatie_id", id)
-
-      if (!cancelled) setRegels(r || [])
-
-      const { data: o } = await supabase
-        .from("calculatie_opslagen")
-        .select("*")
-        .eq("calculatie_id", id)
-        .single()
-
-      if (!cancelled) setOpslagen(o || null)
-
-      const { data: w } = await supabase
-        .from("calculatie_workflow_log")
-        .select("*")
-        .eq("calculatie_id", id)
-
-      if (!cancelled) setWorkflowLog(w || [])
-
-      setLoading(false)
     }
 
     load()
-
     return () => {
       cancelled = true
     }
   }, [id])
 
-  // FRONTEND: GEEN UPLOAD, ALLEEN TASK
+  // =========================
+  // UPLOAD = ALLEEN TASK
+  // =========================
   async function handleFileSelect(e) {
     const file = e.target.files?.[0]
     if (!file || !calculatie) return
@@ -79,25 +69,23 @@ export default function CalculatieDetail() {
     setUploadError(null)
 
     try {
-      const { error } = await supabase
-        .from("tasks")
-        .insert({
-          action: "upload_files",
-          status: "open",
-          assigned_to: "executor",
-          payload: {
-            bucket: "sterkcalc",
-            project_id: calculatie.project_id,
-            calculatie_id: id,
-            filename: file.name,
-            mime_type: file.type
-          }
+      const res = await fetch(`/api/executor/upload-task`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: calculatie.project_id,
+          calculatie_id: id,
+          filename: file.name,
+          mime_type: file.type
         })
+      })
 
-      if (error) throw error
+      if (!res.ok) {
+        const t = await res.text()
+        throw new Error(t || `HTTP_${res.status}`)
+      }
     } catch (err) {
-      console.error("UPLOAD_TASK_FAILED", err)
-      setUploadError(err.message)
+      setUploadError(err.message || "UPLOAD_TASK_FAILED")
     } finally {
       setUploading(false)
       e.target.value = ""
