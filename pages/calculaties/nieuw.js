@@ -10,13 +10,17 @@ STYLES
 ========================================================
 */
 const styles = {
-  wrap: { maxWidth: 1200, margin: "0 auto", padding: 24 },
+  wrap: {
+    maxWidth: 1200,
+    margin: "0 auto",
+    padding: 24
+  },
 
   grid4: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
-    gap: 24,
-    alignItems: "stretch"
+    gridTemplateRows: "420px 420px",
+    gap: 24
   },
 
   card: {
@@ -26,14 +30,23 @@ const styles = {
     background: "#fff",
     display: "flex",
     flexDirection: "column",
-    height: 420
+    height: "100%",
+    boxSizing: "border-box"
   },
 
-  cardTitle: { fontWeight: 600, marginBottom: 12 },
+  cardTitle: {
+    fontWeight: 600,
+    marginBottom: 12
+  },
 
-  fieldGrid: { display: "grid", gap: 12 },
+  fieldGrid: {
+    display: "grid",
+    gap: 12
+  },
 
-  label: { fontSize: 13 },
+  label: {
+    fontSize: 13
+  },
 
   input: {
     width: "100%",
@@ -45,12 +58,12 @@ const styles = {
 
   button: {
     width: "100%",
-    padding: 12,
+    padding: 14,
     borderRadius: 6,
     border: "none",
     background: "#2563eb",
     color: "#fff",
-    fontSize: 14,
+    fontSize: 15,
     cursor: "pointer"
   },
 
@@ -215,7 +228,6 @@ export default function NieuweCalculatie() {
   useEffect(() => {
     if (!projectId || !uploaded) return
     if (intervalRunningRef.current) return
-
     intervalRunningRef.current = true
 
     const interval = setInterval(async () => {
@@ -231,6 +243,22 @@ export default function NieuweCalculatie() {
 
         if (project?.pdf_url && !pdfUrl) {
           setPdfUrl(project.pdf_url)
+        }
+
+        const { data: task } = await supabase
+          .from("executor_tasks")
+          .select("action")
+          .eq("project_id", projectId)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle()
+
+        if (task) {
+          let fase = "Wachten"
+          if (task.action === "project_scan") fase = "Bestanden scannen"
+          if (task.action === "generate_stabu") fase = "STABU samenstellen"
+          if (task.action === "start_rekenwolk") fase = "Calculatie uitvoeren"
+          setProcessStatus({ fase, actie: task.action })
         }
       } finally {
         intervalTickGuardRef.current = false
@@ -285,10 +313,7 @@ export default function NieuweCalculatie() {
                   value={u.uurloon}
                   onChange={e => {
                     const copy = [...uurlonen]
-                    copy[i] = {
-                      ...copy[i],
-                      uurloon: Number(e.target.value)
-                    }
+                    copy[i].uurloon = Number(e.target.value)
                     setUurlonen(copy)
                   }}
                 />
@@ -299,7 +324,7 @@ export default function NieuweCalculatie() {
 
         <div style={styles.card}>
           <div style={styles.cardTitle}>Project / NAW</div>
-          <div style={styles.fieldGrid}>
+          <div style={{ ...styles.fieldGrid, overflowY: "auto" }}>
             <label style={styles.label}>project_type</label>
             <select
               style={styles.input}
@@ -353,7 +378,7 @@ export default function NieuweCalculatie() {
         <strong>Indicatie totaal:</strong> € {indicatie}
       </div>
 
-      <div style={{ marginTop: 24 }}>
+      <div style={{ marginTop: 16 }}>
         <button
           style={styles.button}
           onClick={handleCreateProject}
@@ -370,6 +395,10 @@ export default function NieuweCalculatie() {
           onChange={handleUpload}
           disabled={!projectId}
         />
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        Fase: {processStatus.fase}
       </div>
 
       {error && (
