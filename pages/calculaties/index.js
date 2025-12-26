@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
-import supabase from "@/lib/supabase"
 
 export default function IndexPage() {
   const [creating, setCreating] = useState(false)
@@ -9,7 +8,9 @@ export default function IndexPage() {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  // Alleen navigatie
+  // =========================
+  // NAVIGATIE
+  // =========================
   async function handleNieuweCalculatie() {
     if (creating) return
     setCreating(true)
@@ -24,26 +25,37 @@ export default function IndexPage() {
     }
   }
 
-  // Read-only ophalen recente calculaties
+  // =========================
+  // RECENTE CALCULATIES (BACKEND)
+  // =========================
   useEffect(() => {
     let cancelled = false
 
     async function loadCalculaties() {
       setLoading(true)
+      setError(null)
 
-      const { data, error } = await supabase
-        .from("calculaties")
-        .select("id, omschrijving, workflow_status, created_at")
-        .order("created_at", { ascending: false })
-        .limit(10)
+      try {
+        const res = await fetch("/api/calculaties/recent", {
+          method: "GET"
+        })
 
-      if (!cancelled) {
-        if (error) {
-          setError(error.message)
-        } else {
-          setCalculaties(data || [])
+        if (!res.ok) {
+          const t = await res.text()
+          throw new Error(t || `HTTP_${res.status}`)
         }
-        setLoading(false)
+
+        const data = await res.json()
+
+        if (!cancelled) {
+          setCalculaties(Array.isArray(data) ? data : [])
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError(e.message || "LOAD_FAILED")
+        }
+      } finally {
+        if (!cancelled) setLoading(false)
       }
     }
 
