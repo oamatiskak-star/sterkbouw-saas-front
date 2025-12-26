@@ -298,19 +298,17 @@ export default function NieuweCalculatie() {
         }
 
         if (!signedUrlGuardRef.current) {
-          const { data: signed } = await supabase.storage
-            .from("sterkcalc")
-            .createSignedUrl(
-              `${projectId}/calculatie_2jours.pdf`,
-              3600
-            )
+  const pdfPath = `${projectId}/calculatie_2jours.pdf`
 
-          if (signed?.signedUrl) {
-            signedUrlGuardRef.current = true
-            setPdfUrl(signed.signedUrl)
-          }
-        }
-      } finally {
+  const { data: signed, error } = await supabase.storage
+    .from("sterkcalc")
+    .createSignedUrl(pdfPath, 3600)
+
+  if (signed?.signedUrl) {
+    signedUrlGuardRef.current = true
+    setPdfUrl(signed.signedUrl)
+  }
+} finally {
         intervalTickGuardRef.current = false
       }
     }, 3000)
