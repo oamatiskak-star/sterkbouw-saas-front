@@ -6,30 +6,36 @@ const supabase = createClient(
 )
 
 export default async function handler(req, res) {
-  if (req.method === "GET") {
-    const { data, error } = await supabase
-      .from("projecten")
-      .select("id, naam, created_at")
-      .order("created_at", { ascending: false })
-      .limit(20)
-
-    if (error) {
-      return res.status(500).json({ error: error.message })
-    }
-
-    return res.status(200).json(data || [])
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "METHOD_NOT_ALLOWED" })
   }
 
-  if (req.method === "POST") {
-    const body = req.body || {}
-
-    const { naam } = body
+  try {
+    const {
+      naam,
+      naam_opdrachtgever,
+      adres,
+      postcode,
+      plaatsnaam,
+      land,
+      telefoon,
+      project_type,
+      opmerking
+    } = req.body || {}
 
     const { data, error } = await supabase
-      .from("projecten")
+      .from("projects")
       .insert({
-        naam: naam || "Nieuw project",
-        status: "naw_complete"
+        naam,
+        naam_opdrachtgever,
+        adres,
+        postcode,
+        plaatsnaam,
+        land,
+        telefoon,
+        project_type,
+        opmerking,
+        analysis_status: false
       })
       .select("id")
       .single()
@@ -38,10 +44,10 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: error.message })
     }
 
-    return res.status(201).json({
+    return res.status(200).json({
       project_id: data.id
     })
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
   }
-
-  return res.status(405).json({ error: "Method not allowed" })
 }
