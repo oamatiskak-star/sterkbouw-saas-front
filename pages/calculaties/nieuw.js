@@ -53,7 +53,6 @@ export default function NieuweCalculatie() {
   const uploadGuardRef = useRef(false)
   const intervalRunningRef = useRef(false)
   const intervalTickGuardRef = useRef(false)
-  const signedUrlGuardRef = useRef(false)
 
   // ===== STATE =====
   const [projectId, setProjectId] = useState(null)
@@ -117,9 +116,9 @@ export default function NieuweCalculatie() {
     }
   }
 
-  const [correcties, setCorrecties] = useState({
-    ...basisCorrecties.nieuwbouw
-  })
+  const [correcties, setCorrecties] = useState(
+    basisCorrecties.nieuwbouw
+  )
 
   const [uurlonen, setUurlonen] = useState([
     { discipline: "timmerman", uurloon: 52 },
@@ -131,31 +130,29 @@ export default function NieuweCalculatie() {
 
   function updateField(k, v) {
     setForm(p => {
-      const updated = { ...p, [k]: v }
+      const next = { ...p, [k]: v }
       if (k === "project_type" && basisCorrecties[v]) {
-        setCorrecties({ ...basisCorrecties[v] })
+        setCorrecties(basisCorrecties[v])
       }
-      return updated
+      return next
     })
   }
 
   function berekenIndicatie() {
-    const gemiddeldUurloon =
+    const gemiddeld =
       uurlonen.reduce((s, u) => s + u.uurloon, 0) / uurlonen.length
 
-    const basisArbeid =
-      100 * gemiddeldUurloon * correcties.normuren_factor
+    const arbeid = 100 * gemiddeld * correcties.normuren_factor
+    const materiaal = 250 * correcties.materiaal_index
+    const subtotaal = arbeid + materiaal
 
-    const basisMateriaal =
-      250 * correcties.materiaal_index
-
-    const subtotaal = basisArbeid + basisMateriaal
-    const ak = subtotaal * correcties.ak_pct
-    const abk = subtotaal * correcties.abk_pct
-    const w = subtotaal * correcties.w_pct
-    const r = subtotaal * correcties.r_pct
-
-    return subtotaal + ak + abk + w + r
+    return (
+      subtotaal +
+      subtotaal * correcties.ak_pct +
+      subtotaal * correcties.abk_pct +
+      subtotaal * correcties.w_pct +
+      subtotaal * correcties.r_pct
+    )
   }
 
   async function saveCorrecties(pid) {
@@ -207,7 +204,6 @@ export default function NieuweCalculatie() {
 
   async function handleUpload(e) {
     if (uploadGuardRef.current || !projectId) return
-
     const files = Array.from(e.target.files)
     if (!files.length) return
 
@@ -247,11 +243,16 @@ export default function NieuweCalculatie() {
       try {
         const { data: project } = await supabase
           .from("projects")
-          .select("analysis_status")
+          .select("analysis_status,pdf_url")
           .eq("id", projectId)
           .maybeSingle()
 
-        if (project) setAnalysisStatus(project.analysis_status)
+        if (project) {
+          setAnalysisStatus(project.analysis_status)
+          if (project.pdf_url && !pdfUrl) {
+            setPdfUrl(project.pdf_url)
+          }
+        }
 
         const { data: task } = await supabase
           .from("executor_tasks")
@@ -268,22 +269,6 @@ export default function NieuweCalculatie() {
           if (task.action === "start_rekenwolk") fase = "Calculatie uitvoeren"
           setProcessStatus({ fase, actie: task.action })
         }
-
-        if (!signedUrlGuardRef.current && !pdfUrl) {
-          signedUrlGuardRef.current = true
-
-          const pdfPath = `${projectId}/calculatie_2jours.pdf`
-          const { data: signed, error } = await supabase.storage
-            .from("sterkcalc")
-            .createSignedUrl(pdfPath, 3600)
-
-          if (signed?.signedUrl) {
-            setPdfUrl(String(signed.signedUrl))
-          } else if (error) {
-            signedUrlGuardRef.current = false
-          }
-        }
-      } catch (_) {
       } finally {
         intervalTickGuardRef.current = false
       }
