@@ -2,36 +2,26 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 
 export default function IndexPage() {
-  const [creating, setCreating] = useState(false)
-  const [error, setError] = useState(null)
-  const [calculaties, setCalculaties] = useState([])
-  const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  // =========================
-  // NAVIGATIE
-  // =========================
-  async function handleNieuweCalculatie() {
-    if (creating) return
-    setCreating(true)
-    setError(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [calculaties, setCalculaties] = useState([])
 
-    try {
-      router.push("/calculaties/nieuw")
-    } catch (e) {
-      setError(e.message)
-    } finally {
-      setCreating(false)
-    }
+  // =========================
+  // ALLEEN NAVIGATIE
+  // =========================
+  function handleNieuweCalculatie() {
+    router.push("/calculaties/nieuw")
   }
 
   // =========================
-  // RECENTE CALCULATIES (BACKEND)
+  // VEILIG: RECENTE CALCULATIES
   // =========================
   useEffect(() => {
     let cancelled = false
 
-    async function loadCalculaties() {
+    async function load() {
       setLoading(true)
       setError(null)
 
@@ -41,33 +31,31 @@ export default function IndexPage() {
         })
 
         if (!res.ok) {
-          const t = await res.text()
-          throw new Error(t || `HTTP_${res.status}`)
+          // index mag NOOIT stuk gaan
+          setCalculaties([])
+          return
         }
 
         const data = await res.json()
-
-        if (!cancelled) {
-          setCalculaties(Array.isArray(data) ? data : [])
+        if (!cancelled && Array.isArray(data)) {
+          setCalculaties(data)
         }
-      } catch (e) {
-        if (!cancelled) {
-          setError(e.message || "LOAD_FAILED")
-        }
+      } catch (_) {
+        // index moet altijd renderen
+        if (!cancelled) setCalculaties([])
       } finally {
         if (!cancelled) setLoading(false)
       }
     }
 
-    loadCalculaties()
-
+    load()
     return () => {
       cancelled = true
     }
   }, [])
 
   return (
-    <>
+    <div>
       <h1>Calculaties</h1>
 
       <div
@@ -80,10 +68,12 @@ export default function IndexPage() {
       >
         <strong>Recente calculaties</strong>
 
-        {loading && <div style={{ marginTop: 8 }}>Laden...</div>}
+        {loading && <div style={{ marginTop: 8 }}>Laden…</div>}
 
         {!loading && calculaties.length === 0 && (
-          <div style={{ marginTop: 8 }}>Nog geen calculaties</div>
+          <div style={{ marginTop: 8 }}>
+            Nog geen calculaties
+          </div>
         )}
 
         {!loading && calculaties.length > 0 && (
@@ -99,18 +89,17 @@ export default function IndexPage() {
 
       <button
         onClick={handleNieuweCalculatie}
-        disabled={creating}
         style={{
           padding: "10px 16px",
           borderRadius: 6,
           border: "none",
-          cursor: creating ? "not-allowed" : "pointer",
+          cursor: "pointer",
           background: "#2563eb",
           color: "#ffffff",
           fontWeight: 600
         }}
       >
-        {creating ? "Bezig..." : "Start calculatie"}
+        Start calculatie
       </button>
 
       {error && (
@@ -118,6 +107,6 @@ export default function IndexPage() {
           {error}
         </div>
       )}
-    </>
+    </div>
   )
 }
