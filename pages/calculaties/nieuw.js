@@ -274,13 +274,13 @@ export default function NieuweCalculatie() {
 
       try {
         const { data: project } = await supabase
-          .from("projects")
-          .select("analysis_status")
-          .eq("id", projectId)
-          .single()
-
-        if (project) setAnalysisStatus(project.analysis_status)
-
+  .from("projects")
+  .select("analysis_status")
+  .eq("id", projectId)
+  .maybeSingle()
+        if (project) {
+  setAnalysisStatus(project.analysis_status)
+}
         const { data: task } = await supabase
           .from("executor_tasks")
           .select("action")
