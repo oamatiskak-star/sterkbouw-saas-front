@@ -1,9 +1,19 @@
 import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(
-  process.env.SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
+
+/*
+====================================================
+UPLOAD-TASK API – DEFINITIEF
+====================================================
+- GEEN file upload hier
+- Alleen metadata + task
+- Executor verwerkt Storage
+====================================================
+*/
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -22,7 +32,22 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "NO_FILES" })
     }
 
-    // executor task aanmaken
+    /*
+    ============================================
+    VALIDATIE FILE METADATA
+    ============================================
+    */
+    for (const f of files) {
+      if (!f.filename) {
+        return res.status(400).json({ error: "FILE_MISSING_FILENAME" })
+      }
+    }
+
+    /*
+    ============================================
+    EXECUTOR TASK AANMAKEN
+    ============================================
+    */
     const { error } = await supabase
       .from("executor_tasks")
       .insert({
@@ -32,7 +57,10 @@ export default async function handler(req, res) {
         assigned_to: "executor",
         payload: {
           project_id,
-          files
+          files: files.map(f => ({
+            filename: f.filename,
+            mime_type: f.mime_type || "application/octet-stream"
+          }))
         }
       })
 
@@ -40,7 +68,11 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: error.message })
     }
 
-    return res.status(200).json({ status: "OK" })
+    return res.status(200).json({
+      status: "OK",
+      project_id,
+      files: files.length
+    })
 
   } catch (err) {
     return res.status(500).json({ error: err.message })
