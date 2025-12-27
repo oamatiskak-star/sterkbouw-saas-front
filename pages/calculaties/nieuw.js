@@ -53,12 +53,18 @@ export default function NieuweCalculatie() {
   const createProjectGuardRef = useRef(false)
   const uploadGuardRef = useRef(false)
   const intervalRunningRef = useRef(false)
+  const intervalTickGuardRef = useRef(false)
 
   const [projectId, setProjectId] = useState(null)
   const [uploaded, setUploaded] = useState(false)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState(null)
   const [pdfUrl, setPdfUrl] = useState(null)
+
+  const [processStatus, setProcessStatus] = useState({
+    fase: "Wachten",
+    actie: null
+  })
 
   const [form, setForm] = useState({
     naam: "",
@@ -153,6 +159,7 @@ export default function NieuweCalculatie() {
 
       if (!res.ok) throw new Error(await res.text())
       setUploaded(true)
+      setProcessStatus({ fase: "Bestanden geüpload", actie: "upload" })
     } catch (e) {
       setError(e.message)
     } finally {
@@ -162,7 +169,7 @@ export default function NieuweCalculatie() {
 
   /*
   =========================
-  PDF POLLING (ENIGE STATUS)
+  LIVE VIEW – PDF + STATUS
   =========================
   */
   useEffect(() => {
@@ -170,6 +177,9 @@ export default function NieuweCalculatie() {
     intervalRunningRef.current = true
 
     const interval = setInterval(async () => {
+      if (intervalTickGuardRef.current) return
+      intervalTickGuardRef.current = true
+
       try {
         const { data: project } = await supabase
           .from("projects")
@@ -179,15 +189,26 @@ export default function NieuweCalculatie() {
 
         if (project?.pdf_url) {
           setPdfUrl(project.pdf_url)
+          setProcessStatus({
+            fase: "Calculatie gereed (PDF)",
+            actie: "generate_2jours_pdf"
+          })
+        } else if (uploaded) {
+          setProcessStatus({
+            fase: "Calculatie wordt uitgevoerd",
+            actie: "generate_2jours_pdf"
+          })
         }
-      } catch (_) {}
+      } finally {
+        intervalTickGuardRef.current = false
+      }
     }, 3000)
 
     return () => {
       clearInterval(interval)
       intervalRunningRef.current = false
     }
-  }, [projectId])
+  }, [projectId, uploaded])
 
   const indicatie = berekenIndicatie()
 
@@ -299,12 +320,11 @@ export default function NieuweCalculatie() {
       </div>
 
       <div style={{ marginTop: 12 }}>
-        <input
-          type="file"
-          multiple
-          onChange={handleUpload}
-          disabled={!projectId}
-        />
+        <input type="file" multiple onChange={handleUpload} disabled={!projectId} />
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <strong>Status:</strong> {processStatus.fase}
       </div>
 
       {error && (
