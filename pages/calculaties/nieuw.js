@@ -167,11 +167,6 @@ export default function NieuweCalculatie() {
     }
   }
 
-  /*
-  =========================
-  LIVE VIEW – PDF + STATUS
-  =========================
-  */
   useEffect(() => {
     if (!projectId || intervalRunningRef.current) return
     intervalRunningRef.current = true
@@ -189,15 +184,6 @@ export default function NieuweCalculatie() {
 
         if (project?.pdf_url) {
           setPdfUrl(project.pdf_url)
-          setProcessStatus({
-            fase: "Calculatie gereed (PDF)",
-            actie: "generate_2jours_pdf"
-          })
-        } else if (uploaded) {
-          setProcessStatus({
-            fase: "Calculatie wordt uitgevoerd",
-            actie: "generate_2jours_pdf"
-          })
         }
       } finally {
         intervalTickGuardRef.current = false
@@ -208,7 +194,7 @@ export default function NieuweCalculatie() {
       clearInterval(interval)
       intervalRunningRef.current = false
     }
-  }, [projectId, uploaded])
+  }, [projectId])
 
   const indicatie = berekenIndicatie()
 
@@ -295,7 +281,12 @@ export default function NieuweCalculatie() {
           <div style={styles.cardTitle}>Preview</div>
           <div style={styles.preview}>
             {pdfUrl ? (
-              <iframe title="preview" src={pdfUrl} style={styles.iframe} />
+              <iframe
+                key={pdfUrl}
+                title="preview"
+                src={`${pdfUrl}?t=${Date.now()}`}
+                style={styles.iframe}
+              />
             ) : (
               <div style={{ color: "#9ca3af", padding: 16 }}>
                 Nog geen calculatie
