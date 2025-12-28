@@ -1032,4 +1032,238 @@ export default function NieuweCalculatie() {
                 </thead>
                 <tbody>
                   {posten.map(post => {
-                    const postTotaal = berekenPost
+                    const postTotaal = berekenPostTotaal(post)
+                    return (
+                      <tr key={post.id}>
+                        <td style={styles.tableCell}>{post.code}</td>
+                        <td style={styles.tableCell}>
+                          <div>{post.omschrijving}</div>
+                          {post.opmerking && (
+                            <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>
+                              {post.opmerking}
+                            </div>
+                          )}
+                        </td>
+                        <td style={styles.tableCell}>{post.eenheid}</td>
+                        <td style={styles.tableCell}>{post.aantal}</td>
+                        <td style={styles.tableCell}>{post.arbeidsuren} uur</td>
+                        <td style={styles.tableCell}>
+                          €{(post.materiaal || post.eenheidsprijs * post.aantal).toFixed(2)}
+                        </td>
+                        <td style={styles.tableCell}>
+                          <strong>€{postTotaal.toFixed(2)}</strong>
+                        </td>
+                        <td style={styles.tableCell}>
+                          <button
+                            onClick={() => verwijderPost(post.id)}
+                            style={{
+                              padding: "4px 8px",
+                              background: "#fee2e2",
+                              color: "#dc2626",
+                              border: "1px solid #fca5a5",
+                              borderRadius: 4,
+                              fontSize: 12,
+                              cursor: "pointer"
+                            }}
+                            disabled={generating}
+                          >
+                            Verwijder
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colSpan="6" style={{ ...styles.tableCell, textAlign: "right", fontWeight: 600 }}>
+                      Subtotaal werkzaamheden:
+                    </td>
+                    <td style={{ ...styles.tableCell, fontWeight: 600 }}>
+                      €{berekenSubtotaal().toFixed(2)}
+                    </td>
+                    <td style={styles.tableCell}></td>
+                  </tr>
+                  <tr>
+                    <td colSpan="6" style={{ ...styles.tableCell, textAlign: "right", fontSize: 12 }}>
+                      + Algemene kosten (8%):
+                    </td>
+                    <td style={{ ...styles.tableCell, fontSize: 12 }}>
+                      €{opslagData.bedragen.ak.toFixed(2)}
+                    </td>
+                    <td style={styles.tableCell}></td>
+                  </tr>
+                  <tr>
+                    <td colSpan="6" style={{ ...styles.tableCell, textAlign: "right", fontSize: 12 }}>
+                      + Bouwplaatskosten (4%):
+                    </td>
+                    <td style={{ ...styles.tableCell, fontSize: 12 }}>
+                      €{opslagData.bedragen.abk.toFixed(2)}
+                    </td>
+                    <td style={styles.tableCell}></td>
+                  </tr>
+                  <tr>
+                    <td colSpan="6" style={{ ...styles.tableCell, textAlign: "right", fontSize: 12 }}>
+                      + Winst (6%):
+                    </td>
+                    <td style={{ ...styles.tableCell, fontSize: 12 }}>
+                      €{opslagData.bedragen.w.toFixed(2)}
+                    </td>
+                    <td style={styles.tableCell}></td>
+                  </tr>
+                  <tr>
+                    <td colSpan="6" style={{ ...styles.tableCell, textAlign: "right", fontSize: 12 }}>
+                      + Risico (5%):
+                    </td>
+                    <td style={{ ...styles.tableCell, fontSize: 12 }}>
+                      €{opslagData.bedragen.r.toFixed(2)}
+                    </td>
+                    <td style={styles.tableCell}></td>
+                  </tr>
+                  <tr>
+                    <td colSpan="6" style={{ ...styles.tableCell, textAlign: "right", fontWeight: 600 }}>
+                      Totaal exclusief BTW:
+                    </td>
+                    <td style={{ ...styles.tableCell, fontWeight: 600 }}>
+                      €{opslagData.totaalExclusiefBtw.toFixed(2)}
+                    </td>
+                    <td style={styles.tableCell}></td>
+                  </tr>
+                  <tr>
+                    <td colSpan="6" style={{ ...styles.tableCell, textAlign: "right", fontSize: 12 }}>
+                      + BTW (21%):
+                    </td>
+                    <td style={{ ...styles.tableCell, fontSize: 12 }}>
+                      €{totaal.btwBedrag.toFixed(2)}
+                    </td>
+                    <td style={styles.tableCell}></td>
+                  </tr>
+                  <tr>
+                    <td colSpan="6" style={{ ...styles.tableCell, textAlign: "right", fontWeight: 600, background: "#f0f9ff" }}>
+                      Totaal inclusief BTW:
+                    </td>
+                    <td style={{ ...styles.tableCell, fontWeight: 600, background: "#f0f9ff" }}>
+                      €{totaal.inclusiefBtw.toFixed(2)}
+                    </td>
+                    <td style={{ ...styles.tableCell, background: "#f0f9ff" }}></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            {/* Nieuwe post toevoegen */}
+            <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid #e5e7eb" }}>
+              <div style={styles.cardTitle}>Nieuwe post toevoegen</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr 1fr 1fr 1fr 1fr 1fr auto", gap: 8, alignItems: "end" }}>
+                <div>
+                  <label style={styles.label}>Code</label>
+                  <input
+                    style={styles.input}
+                    value={nieuwePost.code}
+                    onChange={e => updateNieuwePost("code", e.target.value)}
+                    placeholder="12.10"
+                  />
+                </div>
+                <div>
+                  <label style={styles.label}>Omschrijving</label>
+                  <input
+                    style={styles.input}
+                    value={nieuwePost.omschrijving}
+                    onChange={e => updateNieuwePost("omschrijving", e.target.value)}
+                    placeholder="Werkzaamheden"
+                  />
+                </div>
+                <div>
+                  <label style={styles.label}>Eenheid</label>
+                  <select
+                    style={styles.input}
+                    value={nieuwePost.eenheid}
+                    onChange={e => updateNieuwePost("eenheid", e.target.value)}
+                  >
+                    <option value="m²">m²</option>
+                    <option value="m">m</option>
+                    <option value="stuk">stuk</option>
+                    <option value="uur">uur</option>
+                    <option value="kg">kg</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={styles.label}>Aantal</label>
+                  <input
+                    style={styles.input}
+                    type="number"
+                    value={nieuwePost.aantal}
+                    onChange={e => updateNieuwePost("aantal", e.target.value)}
+                    min="1"
+                  />
+                </div>
+                <div>
+                  <label style={styles.label}>Uren</label>
+                  <input
+                    style={styles.input}
+                    type="number"
+                    value={nieuwePost.arbeidsuren}
+                    onChange={e => updateNieuwePost("arbeidsuren", e.target.value)}
+                    min="0"
+                  />
+                </div>
+                <div>
+                  <label style={styles.label}>Materiaal</label>
+                  <input
+                    style={styles.input}
+                    type="number"
+                    value={nieuwePost.materiaal}
+                    onChange={e => updateNieuwePost("materiaal", e.target.value)}
+                    min="0"
+                    placeholder="€"
+                  />
+                </div>
+                <div>
+                  <label style={styles.label}>Opmerking</label>
+                  <input
+                    style={styles.input}
+                    value={nieuwePost.opmerking}
+                    onChange={e => updateNieuwePost("opmerking", e.target.value)}
+                    placeholder="Extra info"
+                  />
+                </div>
+                <div>
+                  <button
+                    onClick={voegPostToe}
+                    style={{
+                      padding: "10px 16px",
+                      background: "#10b981",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 6,
+                      cursor: "pointer",
+                      fontWeight: 500,
+                      whiteSpace: "nowrap"
+                    }}
+                    disabled={generating}
+                  >
+                    Toevoegen
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Foutmelding */}
+      {error && (
+        <div style={{
+          padding: 16,
+          background: "#fee2e2",
+          border: "1px solid #fecaca",
+          borderRadius: 8,
+          color: "#dc2626",
+          marginTop: 16
+        }}>
+          <strong>Fout:</strong> {error}
+        </div>
+      )}
+    </div>
+  )
+}
