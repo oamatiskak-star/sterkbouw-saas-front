@@ -115,15 +115,19 @@ const styles = {
     color: "#1f2937",
     paddingBottom: 8,
     borderBottom: "2px solid #e5e7eb"
+  },
+  analyseResult: {
+    padding: 12,
+    background: "#f0f9ff",
+    borderRadius: 6,
+    marginTop: 8,
+    fontSize: 13
   }
 }
 
-// PAD NAAR JE PDF TEMPLATE - PAS DIT AAN!
 const TEMPLATE_PREVIEW_URL = "/templates/offerte_2jours_template.pdf"
 
-// Initiele calculatie posten volgens de PDF structuur
 const INITIELE_POSTEN = [
-  // 1. Sloop en stripwerk
   {
     id: 1,
     code: "12.10",
@@ -135,7 +139,6 @@ const INITIELE_POSTEN = [
     materiaal: 1200,
     opmerking: "Incl. afvoer puin"
   },
-  // 2. Constructieve aanpassingen
   {
     id: 2,
     code: "21.50",
@@ -147,7 +150,6 @@ const INITIELE_POSTEN = [
     materiaal: 3500,
     opmerking: "Staalconstructies"
   },
-  // 3. Gevel en isolatie
   {
     id: 3,
     code: "23.30",
@@ -159,7 +161,6 @@ const INITIELE_POSTEN = [
     materiaal: 4200,
     opmerking: "PIR isolatie + gevelbekleding"
   },
-  // 4. Installaties E en W
   {
     id: 4,
     code: "41.10",
@@ -171,7 +172,6 @@ const INITIELE_POSTEN = [
     materiaal: 5200,
     opmerking: "Elektra en waterleidingen"
   },
-  // 5. Afbouw en herindeling
   {
     id: 5,
     code: "51.90",
@@ -202,36 +202,31 @@ export default function NieuweCalculatie() {
     actie: null
   })
 
+  const [analyseResultaat, setAnalyseResultaat] = useState(null)
+
   const [form, setForm] = useState({
-    // NAW-gegevens volgens PDF-placeholders
     naam_opdrachtgever: "",
     t_a_v_naam: "",
     straatnaam_en_huisnummer: "",
     postcode: "",
     plaats: "",
-    
-    // Projectgegevens
     projectnaam: "",
     plaatsnaam: "",
-    
-    // Overige gegevens
     land: "Nederland",
     telefoon: "",
     project_type: "transformatie",
     opmerking: "",
-    
-    // Project specificaties
-    oppervlakte_m2: 120,
-    bouwjaar: 1985,
-    verbouwing_type: "volledige transformatie"
+    oppervlakte_m2: 0,
+    bouwjaar: null,
+    aantal_kamers: 0
   })
 
   const [opslagen, setOpslagen] = useState({
-    ak_pct: 0.08,      // Algemene kosten
-    abk_pct: 0.04,     // Administratie en bedrijfskosten
-    w_pct: 0.06,       // Winstopslag
-    r_pct: 0.05,       // Risicopslag
-    btw_pct: 0.21      // BTW percentage
+    ak_pct: 0.08,
+    abk_pct: 0.04,
+    w_pct: 0.06,
+    r_pct: 0.05,
+    btw_pct: 0.21
   })
 
   const [uurlonen, setUurlonen] = useState([
@@ -254,6 +249,37 @@ export default function NieuweCalculatie() {
     opmerking: ""
   })
 
+  // Update posten wanneer oppervlakte verandert
+  useEffect(() => {
+    if (form.oppervlakte_m2 > 0) {
+      const bijgewerktePosten = posten.map(post => {
+        if (post.eenheid === "m²") {
+          return {
+            ...post,
+            aantal: form.oppervlakte_m2
+          }
+        }
+        return post
+      })
+      setPosten(bijgewerktePosten)
+    }
+  }, [form.oppervlakte_m2])
+
+  // Update form wanneer analyse resultaat binnenkomt
+  useEffect(() => {
+    if (analyseResultaat) {
+      setForm(prev => ({
+        ...prev,
+        oppervlakte_m2: analyseResultaat.oppervlakte_m2 || prev.oppervlakte_m2,
+        bouwjaar: analyseResultaat.bouwjaar || prev.bouwjaar,
+        aantal_kamers: analyseResultaat.aantal_kamers || prev.aantal_kamers,
+        project_type: analyseResultaat.project_type !== 'onbekend' 
+          ? analyseResultaat.project_type 
+          : prev.project_type
+      }))
+    }
+  }, [analyseResultaat])
+
   function updateForm(k, v) {
     setForm(p => ({ ...p, [k]: v }))
   }
@@ -262,21 +288,18 @@ export default function NieuweCalculatie() {
     setNieuwePost(p => ({ ...p, [k]: v }))
   }
 
-  // Bereken totaal per post
   function berekenPostTotaal(post) {
     const arbeidskosten = post.arbeidsuren * getGemiddeldUurloon()
     const materiaal = post.materiaal || (post.eenheidsprijs * post.aantal)
     return arbeidskosten + materiaal
   }
 
-  // Bereken subtotaal van alle posten
   function berekenSubtotaal() {
     return posten.reduce((totaal, post) => {
       return totaal + berekenPostTotaal(post)
     }, 0)
   }
 
-  // Bereken opslagen
   function berekenOpslagen() {
     const subtotaal = berekenSubtotaal()
     const opslagBedragen = {
@@ -296,7 +319,6 @@ export default function NieuweCalculatie() {
     }
   }
 
-  // Bereken eindtotaal
   function berekenTotaal() {
     const opslagData = berekenOpslagen()
     const btwBedrag = opslagData.totaalExclusiefBtw * opslagen.btw_pct
@@ -311,45 +333,6 @@ export default function NieuweCalculatie() {
     return uurlonen.reduce((som, u) => som + u.uurloon, 0) / uurlonen.length
   }
 
-  function voegPostToe() {
-    if (!nieuwePost.code || !nieuwePost.omschrijving) {
-      alert("Code en omschrijving zijn verplicht")
-      return
-    }
-
-    const nieuweId = Math.max(...posten.map(p => p.id)) + 1
-    setPosten([
-      ...posten,
-      {
-        id: nieuweId,
-        code: nieuwePost.code,
-        omschrijving: nieuwePost.omschrijving,
-        eenheid: nieuwePost.eenheid,
-        aantal: Number(nieuwePost.aantal),
-        eenheidsprijs: Number(nieuwePost.eenheidsprijs),
-        arbeidsuren: Number(nieuwePost.arbeidsuren),
-        materiaal: Number(nieuwePost.materiaal),
-        opmerking: nieuwePost.opmerking
-      }
-    ])
-
-    // Reset nieuwe post form
-    setNieuwePost({
-      code: "",
-      omschrijving: "",
-      eenheid: "m²",
-      aantal: 1,
-      eenheidsprijs: 0,
-      arbeidsuren: 0,
-      materiaal: 0,
-      opmerking: ""
-    })
-  }
-
-  function verwijderPost(id) {
-    setPosten(posten.filter(p => p.id !== id))
-  }
-
   async function handleCreateProject() {
     if (createProjectGuardRef.current) return
     createProjectGuardRef.current = true
@@ -357,7 +340,6 @@ export default function NieuweCalculatie() {
     setError(null)
 
     try {
-      // Bereken de volledige calculatie
       const calculatieData = {
         projectInfo: form,
         opslagen: opslagen,
@@ -367,7 +349,8 @@ export default function NieuweCalculatie() {
           subtotaal: berekenSubtotaal(),
           opslagen: berekenOpslagen(),
           totaal: berekenTotaal()
-        }
+        },
+        analyse: analyseResultaat
       }
 
       const res = await fetch("/api/projecten", {
@@ -395,27 +378,66 @@ export default function NieuweCalculatie() {
 
     uploadGuardRef.current = true
     setError(null)
+    setProcessStatus({ fase: "Bestanden uploaden...", actie: "uploading" })
 
     try {
+      const formData = new FormData()
+      files.forEach(file => {
+        formData.append('files', file)
+      })
+      formData.append('project_id', projectId)
+
       const res = await fetch("/api/executor/upload-task", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          project_id: projectId,
-          files: files.map(f => ({
-            filename: f.name,
-            mime_type: f.type
-          }))
-        })
+        body: formData
       })
 
       if (!res.ok) throw new Error(await res.text())
+      
+      const data = await res.json()
       setUploaded(true)
-      setProcessStatus({ fase: "Bestanden geüpload - verwerking bezig", actie: "upload" })
+      
+      // Start analyse van geüploade bestanden
+      if (data.analyse_resultaat) {
+        setAnalyseResultaat(data.analyse_resultaat)
+        setProcessStatus({ 
+          fase: "Bestanden geüpload en geanalyseerd", 
+          actie: "upload_and_analyze" 
+        })
+      } else {
+        setProcessStatus({ 
+          fase: "Bestanden geüpload - analyse wordt uitgevoerd", 
+          actie: "upload" 
+        })
+        
+        // Poll voor analyse resultaat
+        setTimeout(() => {
+          checkAnalyseResultaat()
+        }, 3000)
+      }
     } catch (e) {
       setError(e.message)
+      setProcessStatus({ fase: "Upload mislukt", actie: "error" })
     } finally {
       uploadGuardRef.current = false
+    }
+  }
+
+  async function checkAnalyseResultaat() {
+    try {
+      const res = await fetch(`/api/projecten/${projectId}/analyse`)
+      if (res.ok) {
+        const data = await res.json()
+        if (data.analyse_resultaat) {
+          setAnalyseResultaat(data.analyse_resultaat)
+          setProcessStatus({ 
+            fase: "Analyse voltooid", 
+            actie: "analyze_complete" 
+          })
+        }
+      }
+    } catch (e) {
+      console.error("Check analyse error:", e)
     }
   }
 
@@ -424,7 +446,7 @@ export default function NieuweCalculatie() {
     
     try {
       const calculatieData = {
-        projectInfo: form,
+        projectInfo: { ...form, projectId },
         opslagen: opslagen,
         uurlonen: uurlonen,
         posten: posten,
@@ -495,7 +517,6 @@ export default function NieuweCalculatie() {
     <div style={styles.wrap}>
       <h1>Nieuwe calculatie</h1>
 
-      {/* Projectinformatie sectie */}
       <div style={styles.sectionTitle}>Projectinformatie</div>
       
       <div style={styles.grid4}>
@@ -604,8 +625,19 @@ export default function NieuweCalculatie() {
                 <option value="transformatie">Transformatie</option>
                 <option value="renovatie">Renovatie</option>
                 <option value="verduurzaming">Verduurzaming</option>
+                <option value="sloop">Sloop</option>
+                <option value="onderhoud">Onderhoud</option>
               </select>
             </div>
+            
+            {analyseResultaat && (
+              <div style={styles.analyseResult}>
+                <strong>Automatische detectie:</strong>
+                <div>Oppervlakte: {analyseResultaat.oppervlakte_m2 || 0} m²</div>
+                <div>Bouwjaar: {analyseResultaat.bouwjaar || 'onbekend'}</div>
+                <div>Type: {analyseResultaat.project_type || 'onbekend'}</div>
+              </div>
+            )}
             
             <div>
               <label style={styles.label}>Oppervlakte (m²)</label>
@@ -613,8 +645,9 @@ export default function NieuweCalculatie() {
                 style={styles.input}
                 type="number"
                 value={form.oppervlakte_m2}
-                onChange={e => updateForm("oppervlakte_m2", e.target.value)}
+                onChange={e => updateForm("oppervlakte_m2", parseInt(e.target.value) || 0)}
                 min="1"
+                placeholder="Automatisch gedetecteerd of handmatig"
               />
             </div>
             
@@ -623,10 +656,11 @@ export default function NieuweCalculatie() {
               <input
                 style={styles.input}
                 type="number"
-                value={form.bouwjaar}
-                onChange={e => updateForm("bouwjaar", e.target.value)}
+                value={form.bouwjaar || ''}
+                onChange={e => updateForm("bouwjaar", parseInt(e.target.value) || null)}
                 min="1900"
                 max="2025"
+                placeholder="Automatisch gedetecteerd of handmatig"
               />
             </div>
             
