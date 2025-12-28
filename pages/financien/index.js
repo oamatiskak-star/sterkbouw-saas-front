@@ -1021,3 +1021,4 @@ const FinancienDashboard = () => {
     </>
   );
 };
+export default FinancienDashboard;
