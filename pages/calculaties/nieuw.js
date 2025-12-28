@@ -122,6 +122,15 @@ const styles = {
     borderRadius: 6,
     marginTop: 8,
     fontSize: 13
+  },
+  fileUpload: {
+    padding: 12,
+    border: "2px dashed #d1d5db",
+    borderRadius: 6,
+    background: "#f9fafb",
+    textAlign: "center",
+    cursor: "pointer",
+    marginTop: 8
   }
 }
 
@@ -288,6 +297,44 @@ export default function NieuweCalculatie() {
     setNieuwePost(p => ({ ...p, [k]: v }))
   }
 
+  function voegPostToe() {
+    if (!nieuwePost.code || !nieuwePost.omschrijving) {
+      alert("Code en omschrijving zijn verplicht")
+      return
+    }
+
+    const nieuweId = Math.max(...posten.map(p => p.id)) + 1
+    setPosten([
+      ...posten,
+      {
+        id: nieuweId,
+        code: nieuwePost.code,
+        omschrijving: nieuwePost.omschrijving,
+        eenheid: nieuwePost.eenheid,
+        aantal: Number(nieuwePost.aantal),
+        eenheidsprijs: Number(nieuwePost.eenheidsprijs),
+        arbeidsuren: Number(nieuwePost.arbeidsuren),
+        materiaal: Number(nieuwePost.materiaal),
+        opmerking: nieuwePost.opmerking
+      }
+    ])
+
+    setNieuwePost({
+      code: "",
+      omschrijving: "",
+      eenheid: "m²",
+      aantal: 1,
+      eenheidsprijs: 0,
+      arbeidsuren: 0,
+      materiaal: 0,
+      opmerking: ""
+    })
+  }
+
+  function verwijderPost(id) {
+    setPosten(posten.filter(p => p.id !== id))
+  }
+
   function berekenPostTotaal(post) {
     const arbeidskosten = post.arbeidsuren * getGemiddeldUurloon()
     const materiaal = post.materiaal || (post.eenheidsprijs * post.aantal)
@@ -330,7 +377,8 @@ export default function NieuweCalculatie() {
   }
 
   function getGemiddeldUurloon() {
-    return uurlonen.reduce((som, u) => som + u.uurloon, 0) / uurlonen.length
+    const total = uurlonen.reduce((som, u) => som + u.uurloon, 0)
+    return total / uurlonen.length
   }
 
   async function handleCreateProject() {
@@ -397,7 +445,6 @@ export default function NieuweCalculatie() {
       const data = await res.json()
       setUploaded(true)
       
-      // Start analyse van geüploade bestanden
       if (data.analyse_resultaat) {
         setAnalyseResultaat(data.analyse_resultaat)
         setProcessStatus({ 
@@ -410,7 +457,6 @@ export default function NieuweCalculatie() {
           actie: "upload" 
         })
         
-        // Poll voor analyse resultaat
         setTimeout(() => {
           checkAnalyseResultaat()
         }, 3000)
@@ -968,19 +1014,24 @@ export default function NieuweCalculatie() {
             </button>
             
             <div style={{ marginTop: 8 }}>
-              <label style={styles.label}>Bestanden uploaden</label>
+              <label style={styles.label}>Bestanden uploaden voor analyse</label>
+              <div 
+                style={styles.fileUpload}
+                onClick={() => document.getElementById('file-upload').click()}
+              >
+                Klik om CAD/PDF bestanden te uploaden
+                <div style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
+                  Plattegronden, tekeningen, PDF's, CAD bestanden
+                </div>
+              </div>
               <input 
+                id="file-upload"
                 type="file" 
                 multiple 
                 onChange={handleUpload} 
                 disabled={!projectId}
-                style={{ 
-                  width: "100%", 
-                  padding: 12,
-                  border: "1px solid #d1d5db",
-                  borderRadius: 6,
-                  marginTop: 8
-                }}
+                style={{ display: 'none' }}
+                accept=".pdf,.dwg,.dxf,.jpg,.jpeg,.png,.cad"
               />
             </div>
             
