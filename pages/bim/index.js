@@ -1,587 +1,955 @@
-import { useState, useRef } from "react"
+import { useState, useEffect, useRef } from "react"
 import supabase from "@/lib/supabase"
+import axios from "axios"
+import {
+  Container,
+  Grid,
+  Card,
+  Button,
+  Text,
+  Group,
+  Stack,
+  LoadingOverlay,
+  Alert,
+  Tabs,
+  Progress,
+  Badge,
+  Modal,
+  Image,
+  Select,
+  NumberInput,
+  TextInput,
+  Switch,
+  SimpleGrid,
+  Paper,
+  Title,
+  ActionIcon,
+  Tooltip,
+  Center,
+  Box,
+  Flex,
+  Collapse,
+  Divider,
+  List,
+  ThemeIcon
+} from '@mantine/core'
+import {
+  Icon3dCubeSphere,
+  IconPhoto,
+  IconMaterials,
+  IconCalculator,
+  IconBuilding,
+  IconRefresh,
+  IconDownload,
+  IconEye,
+  IconRobot,
+  IconCheck,
+  IconAlertCircle,
+  IconCube,
+  IconBox,
+  IconRuler,
+  IconColorSwatch,
+  IconUpload,
+  IconZoomIn,
+  IconArrowsMaximize,
+  IconRotate,
+  IconLayoutGrid,
+  IconSettings,
+  IconCopy,
+  IconTrash,
+  IconHistory,
+  IconCloudUpload,
+  IconBrandBlender,
+  IconCubeSend,
+  IconProgress,
+  IconCurrencyEuro,
+  IconTrees
+} from '@tabler/icons-react'
+import { useNotifications } from '@mantine/notifications'
+import { useRouter } from 'next/router'
 
-const styles = {
-  wrap: { maxWidth: 1400, margin: "0 auto", padding: 24 },
-  grid3: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: 24,
-    marginBottom: 24
-  },
-  card: {
-    border: "1px solid #e5e7eb",
-    borderRadius: 12,
-    padding: 20,
-    background: "#fff",
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-    boxSizing: "border-box",
-    transition: "all 0.3s ease",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-  },
-  cardHover: {
-    borderColor: "#2563eb",
-    boxShadow: "0 8px 16px rgba(37, 99, 235, 0.1)"
-  },
-  cardTitle: { 
-    fontWeight: 600, 
-    marginBottom: 16,
-    fontSize: 18,
-    color: "#1f2937",
-    display: "flex",
-    alignItems: "center",
-    gap: 10
-  },
-  input: {
-    width: "100%",
-    padding: 12,
-    borderRadius: 8,
-    border: "1px solid #d1d5db",
-    fontSize: 14,
-    boxSizing: "border-box",
-    marginBottom: 16
-  },
-  textarea: {
-    width: "100%",
-    padding: 12,
-    borderRadius: 8,
-    border: "1px solid #d1d5db",
-    fontSize: 14,
-    minHeight: 120,
-    resize: "vertical",
-    boxSizing: "border-box",
-    marginBottom: 16,
-    fontFamily: "monospace"
-  },
-  button: {
-    padding: "12px 24px",
-    background: "#2563eb",
-    color: "#fff",
-    fontSize: 14,
-    cursor: "pointer",
-    fontWeight: 500,
-    border: "none",
-    borderRadius: 8,
-    width: "100%",
-    transition: "background 0.3s ease"
-  },
-  buttonHover: {
-    background: "#1d4ed8"
-  },
-  secondaryButton: {
-    padding: "12px 24px",
-    background: "#10b981",
-    color: "#fff",
-    fontSize: 14,
-    cursor: "pointer",
-    fontWeight: 500,
-    border: "none",
-    borderRadius: 8,
-    width: "100%",
-    marginTop: 8,
-    transition: "background 0.3s ease"
-  },
-  previewContainer: {
-    border: "2px dashed #d1d5db",
-    borderRadius: 8,
-    padding: 20,
-    minHeight: 300,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "#f9fafb",
-    marginTop: 16
-  },
-  imagePreview: {
-    maxWidth: "100%",
-    maxHeight: 400,
-    borderRadius: 8,
-    boxShadow: "0 4px 8px rgba(0,0,0,0.1)"
-  },
-  loadingSpinner: {
-    border: "4px solid #f3f3f3",
-    borderTop: "4px solid #2563eb",
-    borderRadius: "50%",
-    width: 40,
-    height: 40,
-    animation: "spin 1s linear infinite"
-  },
-  dropdown: {
-    width: "100%",
-    padding: 12,
-    borderRadius: 8,
-    border: "1px solid #d1d5db",
-    fontSize: 14,
-    background: "#fff",
-    marginBottom: 16
-  },
-  icon: {
-    fontSize: 20,
-    color: "#2563eb"
-  }
-}
-
-const TEKENING_TYPES = [
-  { id: "bestek", naam: "Bestektekening", icon: "📋", beschrijving: "Contractuele tekeningen met alle details en specificaties" },
-  { id: "installatie_e", naam: "Elektra Installatie", icon: "⚡", beschrijving: "Elektrische schema's, aansluitingen, verdeelkasten" },
-  { id: "installatie_w", naam: "Water Installatie", icon: "💧", beschrijving: "Waterleidingen, afvoeren, sanitaire voorzieningen" },
-  { id: "bouw_detail", naam: "Bouwkundig Detail", icon: "🏗️", beschrijving: "Wandopbouw, vloerdetails, dakconstructies" },
-  { id: "gevel", naam: "Geveltekening", icon: "🏢", beschrijving: "Voor-, zij-, achtergevels met materialisatie" },
-  { id: "plat", naam: "Plattegrond", icon: "📐", beschrijving: "Verdiepingsplattegronden met functie-indeling" }
-]
-
-const DETAIL_NIVEAUS = [
-  { id: "concept", naam: "Concept", niveau: "Laag", detail: "Basisvormen en indelingen" },
-  { id: "voorlopig", naam: "Voorlopig Ontwerp", niveau: "Middel", detail: "Dimensionering en materialen" },
-  { id: "definitief", naam: "Definitief Ontwerp", niveau: "Hoog", detail: "Alle technische details en aansluitingen" },
-  { id: "uitvoering", naam: "Uitvoeringstekening", niveau: "Maximaal", detail: "Productie- en montagedetails" }
-]
-
-export default function BIMOntwerpPage() {
-  const [activeTab, setActiveTab] = useState("bestek")
-  const [loading, setLoading] = useState(false)
-  const [generatedImage, setGeneratedImage] = useState(null)
-  const [error, setError] = useState(null)
+export default function BIMPagina() {
+  const router = useRouter()
+  const { projectId } = router.query
+  const notifications = useNotifications()
   
-  const [tekeningConfig, setTekeningConfig] = useState({
-    type: "bestek",
-    niveau: "voorlopig",
-    schaal: "1:50",
-    project_naam: "",
-    locatie: "",
-    opdrachtgever: "",
-    beschrijving: "Genereer een technische tekening volgens NEN normen",
-    extra_specificaties: ""
+  // State management
+  const [loading, setLoading] = useState(false)
+  const [project, setProject] = useState(null)
+  const [calculaties, setCalculaties] = useState([])
+  const [selectedCalculatie, setSelectedCalculatie] = useState(null)
+  const [renders, setRenders] = useState([])
+  const [materials, setMaterials] = useState(null)
+  const [activeTab, setActiveTab] = useState("3d-render")
+  
+  // Render settings
+  const [renderSettings, setRenderSettings] = useState({
+    type: 'interior',
+    quality: 'medium',
+    viewType: 'perspective',
+    resolution: '1920x1080',
+    includeMaterials: true,
+    includeFurniture: false,
+    lighting: 'studio',
+    cameraAngle: '45'
   })
-
+  
+  // Material extraction
+  const [extractedMaterials, setExtractedMaterials] = useState(null)
+  const [materialAnalysis, setMaterialAnalysis] = useState(null)
+  
+  // Active render job
+  const [activeRenderJob, setActiveRenderJob] = useState(null)
+  const [renderProgress, setRenderProgress] = useState(0)
+  const [renderModalOpen, setRenderModalOpen] = useState(false)
+  
+  // References
   const fileInputRef = useRef(null)
+  const progressIntervalRef = useRef(null)
 
-  function updateConfig(k, v) {
-    setTekeningConfig(p => ({ ...p, [k]: v }))
+  // Fetch project data
+  useEffect(() => {
+    if (projectId) {
+      fetchProjectData()
+      fetchCalculaties()
+      fetchRenders()
+    }
+  }, [projectId])
+
+  // Cleanup intervals
+  useEffect(() => {
+    return () => {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current)
+      }
+    }
+  }, [])
+
+  // Fetch project data
+  const fetchProjectData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', projectId)
+        .single()
+      
+      if (error) throw error
+      setProject(data)
+    } catch (error) {
+      notifications.show({
+        title: 'Fout',
+        message: 'Kon project niet laden',
+        color: 'red'
+      })
+    }
   }
 
-  async function generateTekening() {
-    if (!tekeningConfig.project_naam.trim()) {
-      setError("Projectnaam is verplicht")
+  // Fetch calculaties
+  const fetchCalculaties = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('calculaties')
+        .select('id, title, created_at, total_amount')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false })
+      
+      if (error) throw error
+      setCalculaties(data || [])
+      if (data && data.length > 0) {
+        setSelectedCalculatie(data[0])
+      }
+    } catch (error) {
+      console.error('Error fetching calculaties:', error)
+    }
+  }
+
+  // Fetch existing renders
+  const fetchRenders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('bim_render_jobs')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false })
+        .limit(10)
+      
+      if (error) throw error
+      setRenders(data || [])
+    } catch (error) {
+      console.error('Error fetching renders:', error)
+    }
+  }
+
+  // Extract materials from calculatie
+  const handleExtractMaterials = async () => {
+    if (!selectedCalculatie) {
+      notifications.show({
+        title: 'Fout',
+        message: 'Selecteer eerst een calculatie',
+        color: 'red'
+      })
       return
     }
 
     setLoading(true)
-    setError(null)
-
     try {
-      // Simuleer AI generatie - in productie zou dit een echte AI API aanroepen
-      console.log("Generating tekening with config:", tekeningConfig)
-      
-      // Voor demo: wacht 2 seconden en toon placeholder
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // In een echte implementatie:
-      // const response = await fetch("/api/ai/generate-drawing", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(tekeningConfig)
-      // })
-      
-      // if (!response.ok) throw new Error("AI generatie mislukt")
-      // const data = await response.json()
-      
-      // Placeholder voor demo
-      const demoImages = {
-        bestek: "https://via.placeholder.com/800x600/3b82f6/ffffff?text=Bestektekening",
-        installatie_e: "https://via.placeholder.com/800x600/10b981/ffffff?text=Elektra+Schema",
-        installatie_w: "https://via.placeholder.com/800x600/06b6d4/ffffff?text=Water+Installatie",
-        bouw_detail: "https://via.placeholder.com/800x600/f59e0b/ffffff?text=Bouwkundig+Detail",
-        gevel: "https://via.placeholder.com/800x600/8b5cf6/ffffff?text=Geveltekening",
-        plat: "https://via.placeholder.com/800x600/ef4444/ffffff?text=Plattegrond"
-      }
-      
-      setGeneratedImage({
-        url: demoImages[tekeningConfig.type],
-        config: { ...tekeningConfig },
-        timestamp: new Date().toISOString(),
-        download_url: `/${tekeningConfig.type}_tekening_${Date.now()}.png`
+      const response = await axios.post('/api/bim/extract-materials', {
+        calculatie_id: selectedCalculatie.id,
+        include_pricing: true
       })
-      
-      // Opslaan in database
-      await saveToDatabase()
-      
-    } catch (err) {
-      setError(err.message)
-      console.error("Tekening generatie fout:", err)
+
+      if (response.data.success) {
+        setExtractedMaterials(response.data.analysis.materials)
+        setMaterialAnalysis(response.data.analysis)
+        notifications.show({
+          title: 'Success',
+          message: `Materialen geëxtraheerd (${response.data.analysis.materials.length} materialen)`,
+          color: 'green'
+        })
+      }
+    } catch (error) {
+      notifications.show({
+        title: 'Fout',
+        message: error.response?.data?.error || 'Materialen extractie mislukt',
+        color: 'red'
+      })
     } finally {
       setLoading(false)
     }
   }
 
-  async function saveToDatabase() {
-    try {
-      const { error } = await supabase
-        .from("bim_tekeningen")
-        .insert([{
-          project_naam: tekeningConfig.project_naam,
-          tekening_type: tekeningConfig.type,
-          detail_niveau: tekeningConfig.niveau,
-          schaal: tekeningConfig.schaal,
-          beschrijving: tekeningConfig.beschrijving,
-          status: "gegenereerd",
-          gegenereerd_op: new Date().toISOString()
-        }])
-
-      if (error) throw error
-      
-      console.log("Tekening opgeslagen in database")
-    } catch (err) {
-      console.error("Database opslag fout:", err)
+  // Generate 3D render
+  const handleGenerateRender = async () => {
+    if (!selectedCalculatie || !extractedMaterials) {
+      notifications.show({
+        title: 'Fout',
+        message: 'Extraheer eerst materialen uit een calculatie',
+        color: 'red'
+      })
+      return
     }
-  }
 
-  async function uploadReferentie() {
-    if (!fileInputRef.current.files.length) return
-    
-    const file = fileInputRef.current.files[0]
     setLoading(true)
-    
+    setRenderProgress(0)
+    setRenderModalOpen(true)
+
     try {
-      // Upload naar Supabase Storage
-      const fileExt = file.name.split('.').pop()
-      const fileName = `referentie_${Date.now()}.${fileExt}`
-      
-      const { data, error } = await supabase.storage
-        .from('bim-referenties')
-        .upload(fileName, file)
-      
-      if (error) throw error
-      
-      // URL voor preview
-      const { data: { publicUrl } } = supabase.storage
-        .from('bim-referenties')
-        .getPublicUrl(fileName)
-      
-      // Gebruik deze referentie voor AI training
-      updateConfig("referentie_image", publicUrl)
-      
-      alert("Referentie afbeelding geüpload!")
-    } catch (err) {
-      setError("Upload mislukt: " + err.message)
-    } finally {
+      const response = await axios.post('/api/bim/generate-render', {
+        project_id: projectId,
+        calculatie_id: selectedCalculatie.id,
+        render_type: renderSettings.type,
+        quality: renderSettings.quality,
+        view_type: renderSettings.viewType
+      })
+
+      if (response.data.success) {
+        const jobId = response.data.job_id
+        setActiveRenderJob({
+          id: jobId,
+          estimated_completion: response.data.estimated_completion
+        })
+
+        // Start progress polling
+        startProgressPolling(jobId)
+        
+        notifications.show({
+          title: 'Render gestart',
+          message: '3D render wordt gegenereerd...',
+          color: 'blue'
+        })
+      }
+    } catch (error) {
+      notifications.show({
+        title: 'Fout',
+        message: error.response?.data?.error || 'Render generatie mislukt',
+        color: 'red'
+      })
+      setRenderModalOpen(false)
       setLoading(false)
     }
   }
 
-  async function downloadTekening() {
-    if (!generatedImage) return
-    
+  // Poll render progress
+  const startProgressPolling = (jobId) => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current)
+    }
+
+    progressIntervalRef.current = setInterval(async () => {
+      try {
+        const response = await axios.get(`/api/bim/generate-render/status/${jobId}`)
+        
+        if (response.data.success) {
+          const job = response.data.job
+          
+          // Update progress based on status
+          if (job.status === 'processing') {
+            setRenderProgress(50)
+          } else if (job.status === 'completed') {
+            setRenderProgress(100)
+            clearInterval(progressIntervalRef.current)
+            
+            // Refresh renders list
+            fetchRenders()
+            
+            notifications.show({
+              title: 'Render voltooid!',
+              message: '3D render is klaar voor gebruik',
+              color: 'green'
+            })
+            
+            setTimeout(() => {
+              setRenderModalOpen(false)
+              setLoading(false)
+              setActiveRenderJob(null)
+            }, 2000)
+            
+          } else if (job.status === 'failed') {
+            setRenderProgress(0)
+            clearInterval(progressIntervalRef.current)
+            
+            notifications.show({
+              title: 'Render mislukt',
+              message: job.error || 'Onbekende fout',
+              color: 'red'
+            })
+            
+            setRenderModalOpen(false)
+            setLoading(false)
+          }
+        }
+      } catch (error) {
+        console.error('Error polling render status:', error)
+      }
+    }, 3000)
+  }
+
+  // Download render
+  const handleDownloadRender = async (renderUrl, renderName) => {
     try {
       const link = document.createElement('a')
-      link.href = generatedImage.url
-      link.download = `${tekeningConfig.project_naam}_${tekeningConfig.type}_${Date.now()}.png`
+      link.href = renderUrl
+      link.download = `${renderName || 'render'}_${Date.now()}.png`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-    } catch (err) {
-      setError("Download mislukt: " + err.message)
+    } catch (error) {
+      notifications.show({
+        title: 'Download mislukt',
+        message: error.message,
+        color: 'red'
+      })
     }
   }
 
-  function resetForm() {
-    setTekeningConfig({
-      type: "bestek",
-      niveau: "voorlopig",
-      schaal: "1:50",
-      project_naam: "",
-      locatie: "",
-      opdrachtgever: "",
-      beschrijving: "Genereer een technische tekening volgens NEN normen",
-      extra_specificaties: ""
-    })
-    setGeneratedImage(null)
-    setError(null)
+  // Delete render
+  const handleDeleteRender = async (renderId) => {
+    if (!confirm('Weet je zeker dat je deze render wilt verwijderen?')) return
+
+    try {
+      const response = await axios.delete(`/api/bim/generate-render/${renderId}`)
+      
+      if (response.data.success) {
+        notifications.show({
+          title: 'Render verwijderd',
+          message: 'Render succesvol verwijderd',
+          color: 'green'
+        })
+        fetchRenders()
+      }
+    } catch (error) {
+      notifications.show({
+        title: 'Fout',
+        message: error.response?.data?.error || 'Verwijderen mislukt',
+        color: 'red'
+      })
+    }
   }
 
+  // Render settings options
+  const renderTypes = [
+    { value: 'interior', label: 'Interieur', description: 'Binnenruimte render' },
+    { value: 'exterior', label: 'Exterieur', description: 'Buitenkant gebouw' },
+    { value: 'topdown', label: 'Vogelvlucht', description: 'Bovenaanzicht' },
+    { value: 'section', label: 'Doorsnede', description: 'Dwarsdoorsnede' }
+  ]
+
+  const qualityOptions = [
+    { value: 'low', label: 'Laag (concept)', description: 'Snelle preview' },
+    { value: 'medium', label: 'Medium (standaard)', description: 'Goede kwaliteit' },
+    { value: 'high', label: 'Hoog (presentatie)', description: 'Hoge kwaliteit' },
+    { value: 'ultra', label: 'Ultra (print)', description: 'Beste kwaliteit' }
+  ]
+
+  const viewTypeOptions = [
+    { value: 'perspective', label: 'Perspectief', description: 'Natuurlijk zicht' },
+    { value: 'orthographic', label: 'Orthografisch', description: 'Technische tekening' },
+    { value: 'isometric', label: 'Isometrisch', description: '3D technisch' }
+  ]
+
   return (
-    <div style={styles.wrap}>
-      <h1 style={{ marginBottom: 8 }}>AI Tekening Generator</h1>
-      <p style={{ color: "#6b7280", marginBottom: 32 }}>
-        Genereer automatisch technische tekeningen met AI voor bouwkundige, installatie- en bestektekeningen
-      </p>
-
-      <div style={styles.grid3}>
-        {/* Linker kolom - Tekening Types */}
-        <div style={styles.card}>
-          <div style={styles.cardTitle}>
-            <span>📋</span> Tekening Types
-          </div>
-          
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {TEKENING_TYPES.map(type => (
-              <div 
-                key={type.id}
-                style={{
-                  padding: 12,
-                  borderRadius: 8,
-                  background: activeTab === type.id ? "#f0f9ff" : "#f9fafb",
-                  border: activeTab === type.id ? "1px solid #2563eb" : "1px solid #e5e7eb",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease"
-                }}
-                onClick={() => {
-                  setActiveTab(type.id)
-                  updateConfig("type", type.id)
-                }}
-              >
-                <div style={{ fontWeight: 600, marginBottom: 4 }}>
-                  {type.icon} {type.naam}
-                </div>
-                <div style={{ fontSize: 12, color: "#6b7280" }}>
-                  {type.beschrijving}
-                </div>
-              </div>
-            ))}
-          </div>
+    <Container size="xl" py="xl">
+      {/* Header */}
+      <Group position="apart" mb="xl">
+        <div>
+          <Title order={1}>BIM & 3D Visualisatie</Title>
+          <Text color="dimmed" size="sm">
+            Genereer 3D renders op basis van calculatie materialen
+          </Text>
         </div>
+        <Group>
+          <Button 
+            leftIcon={<IconHistory size={18} />}
+            variant="light"
+            onClick={fetchRenders}
+          >
+            Vernieuw
+          </Button>
+          {project && (
+            <Badge size="lg" variant="filled">
+              {project.title}
+            </Badge>
+          )}
+        </Group>
+      </Group>
 
-        {/* Midden kolom - Configuratie */}
-        <div style={styles.card}>
-          <div style={styles.cardTitle}>
-            <span>⚙️</span> Configuratie
-          </div>
-          
-          <div style={styles.fieldGrid}>
-            <div>
-              <label style={styles.label}>Projectnaam *</label>
-              <input
-                style={styles.input}
-                value={tekeningConfig.project_naam}
-                onChange={e => updateConfig("project_naam", e.target.value)}
-                placeholder="Bijv. 'Kantoorpand Rotterdam Zuid'"
-              />
-            </div>
-            
-            <div>
-              <label style={styles.label}>Locatie</label>
-              <input
-                style={styles.input}
-                value={tekeningConfig.locatie}
-                onChange={e => updateConfig("locatie", e.target.value)}
-                placeholder="Adres of plaats"
-              />
-            </div>
-            
-            <div>
-              <label style={styles.label}>Detailniveau</label>
-              <select
-                style={styles.dropdown}
-                value={tekeningConfig.niveau}
-                onChange={e => updateConfig("niveau", e.target.value)}
-              >
-                {DETAIL_NIVEAUS.map(niveau => (
-                  <option key={niveau.id} value={niveau.id}>
-                    {niveau.naam} ({niveau.niveau}) - {niveau.detail}
-                  </option>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <label style={styles.label}>Schaal</label>
-              <select
-                style={styles.dropdown}
-                value={tekeningConfig.schaal}
-                onChange={e => updateConfig("schaal", e.target.value)}
-              >
-                <option value="1:20">1:20 - Zeer gedetailleerd</option>
-                <option value="1:50">1:50 - Standaard detail</option>
-                <option value="1:100">1:100 - Overzicht</option>
-                <option value="1:200">1:200 - Masterplan</option>
-              </select>
-            </div>
-            
-            <div>
-              <label style={styles.label}>Beschrijving</label>
-              <textarea
-                style={styles.textarea}
-                value={tekeningConfig.beschrijving}
-                onChange={e => updateConfig("beschrijving", e.target.value)}
-                rows="4"
-                placeholder="Beschrijf wat je nodig hebt..."
-              />
-            </div>
-            
-            <div>
-              <label style={styles.label}>Extra specificaties</label>
-              <textarea
-                style={styles.textarea}
-                value={tekeningConfig.extra_specificaties}
-                onChange={e => updateConfig("extra_specificaties", e.target.value)}
-                rows="3"
-                placeholder="Bijzondere eisen, materialen, normen (NEN, Eurocode)..."
-              />
-            </div>
-          </div>
-        </div>
+      {/* Main Tabs */}
+      <Tabs value={activeTab} onTabChange={setActiveTab}>
+        <Tabs.List>
+          <Tabs.Tab value="3d-render" icon={<Icon3dCubeSphere size={16} />}>
+            3D Render
+          </Tabs.Tab>
+          <Tabs.Tab value="materials" icon={<IconMaterials size={16} />}>
+            Materialen
+          </Tabs.Tab>
+          <Tabs.Tab value="library" icon={<IconLayoutGrid size={16} />}>
+            Render Library
+          </Tabs.Tab>
+          <Tabs.Tab value="settings" icon={<IconSettings size={16} />}>
+            Instellingen
+          </Tabs.Tab>
+        </Tabs.List>
 
-        {/* Rechter kolom - Preview & Acties */}
-        <div style={styles.card}>
-          <div style={styles.cardTitle}>
-            <span>👁️</span> Preview & Acties
-          </div>
-          
-          <div style={{ flex: 1 }}>
-            {loading ? (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%" }}>
-                <div style={styles.loadingSpinner}></div>
-                <p style={{ marginTop: 16, color: "#6b7280" }}>AI is bezig met genereren...</p>
-              </div>
-            ) : generatedImage ? (
-              <div>
-                <div style={styles.previewContainer}>
-                  <img 
-                    src={generatedImage.url} 
-                    alt="Gegenereerde tekening"
-                    style={styles.imagePreview}
-                  />
-                </div>
-                <div style={{ marginTop: 16 }}>
-                  <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 8 }}>
-                    Type: {tekeningConfig.type} | Niveau: {tekeningConfig.niveau} | Schaal: {tekeningConfig.schaal}
-                  </div>
-                  <button 
-                    style={styles.secondaryButton}
-                    onClick={downloadTekening}
+        {/* 3D Render Tab */}
+        <Tabs.Panel value="3d-render" pt="md">
+          <Grid>
+            {/* Left Column - Settings */}
+            <Grid.Col span={4}>
+              <Card withBorder shadow="sm">
+                <Card.Section withBorder p="md">
+                  <Title order={4}><IconCalculator size={20} /> Calculatie Selectie</Title>
+                </Card.Section>
+                
+                <Select
+                  label="Selecteer calculatie"
+                  placeholder="Kies een calculatie"
+                  value={selectedCalculatie?.id}
+                  onChange={(value) => {
+                    const calc = calculaties.find(c => c.id === value)
+                    setSelectedCalculatie(calc)
+                  }}
+                  data={calculaties.map(c => ({
+                    value: c.id,
+                    label: `${c.title} (€${c.total_amount?.toFixed(2) || '0.00'})`
+                  }))}
+                  mb="md"
+                />
+
+                <Button
+                  fullWidth
+                  leftIcon={<IconBox size={18} />}
+                  onClick={handleExtractMaterials}
+                  loading={loading && !activeRenderJob}
+                  disabled={!selectedCalculatie}
+                  mb="md"
+                >
+                  Materialen Extraheren
+                </Button>
+
+                {extractedMaterials && (
+                  <Alert 
+                    icon={<IconCheck size={16} />} 
+                    title="Materialen geladen"
+                    color="green"
+                    mb="md"
                   >
-                    📥 Tekening Downloaden
-                  </button>
-                </div>
-              </div>
+                    {extractedMaterials.length} materialen klaar voor rendering
+                  </Alert>
+                )}
+
+                <Divider my="md" />
+
+                <Card.Section withBorder p="md">
+                  <Title order={4}><IconSettings size={20} /> Render Instellingen</Title>
+                </Card.Section>
+
+                <Select
+                  label="Render Type"
+                  value={renderSettings.type}
+                  onChange={(value) => setRenderSettings({...renderSettings, type: value})}
+                  data={renderTypes.map(t => ({ value: t.value, label: t.label }))}
+                  mb="sm"
+                />
+
+                <Select
+                  label="Kwaliteit"
+                  value={renderSettings.quality}
+                  onChange={(value) => setRenderSettings({...renderSettings, quality: value})}
+                  data={qualityOptions.map(q => ({ value: q.value, label: q.label }))}
+                  mb="sm"
+                />
+
+                <Select
+                  label="Weergave Type"
+                  value={renderSettings.viewType}
+                  onChange={(value) => setRenderSettings({...renderSettings, viewType: value})}
+                  data={viewTypeOptions.map(v => ({ value: v.value, label: v.label }))}
+                  mb="md"
+                />
+
+                <Group grow mb="md">
+                  <Switch
+                    label="Materialen"
+                    checked={renderSettings.includeMaterials}
+                    onChange={(e) => setRenderSettings({...renderSettings, includeMaterials: e.currentTarget.checked})}
+                  />
+                  <Switch
+                    label="Meubilair"
+                    checked={renderSettings.includeFurniture}
+                    onChange={(e) => setRenderSettings({...renderSettings, includeFurniture: e.currentTarget.checked})}
+                  />
+                </Group>
+
+                <Button
+                  fullWidth
+                  size="lg"
+                  leftIcon={<IconBrandBlender size={20} />}
+                  onClick={handleGenerateRender}
+                  loading={loading && activeRenderJob}
+                  disabled={!extractedMaterials || loading}
+                  color="blue"
+                >
+                  3D Render Genereren
+                </Button>
+
+                <Text size="xs" color="dimmed" mt="sm" align="center">
+                  Render tijd: {renderSettings.quality === 'low' ? '1-2 min' : 
+                               renderSettings.quality === 'medium' ? '3-5 min' : 
+                               renderSettings.quality === 'high' ? '5-10 min' : '10-20 min'}
+                </Text>
+              </Card>
+            </Grid.Col>
+
+            {/* Right Column - Preview & Results */}
+            <Grid.Col span={8}>
+              <Card withBorder shadow="sm" style={{ height: '100%' }}>
+                <Card.Section withBorder p="md">
+                  <Group position="apart">
+                    <Title order={4}><IconPhoto size={20} /> Render Preview & Resultaten</Title>
+                    <Badge color={renders.length > 0 ? "green" : "gray"}>
+                      {renders.length} renders
+                    </Badge>
+                  </Group>
+                </Card.Section>
+
+                {renders.length > 0 ? (
+                  <SimpleGrid cols={2} spacing="md">
+                    {renders.map((render) => (
+                      <Card key={render.id} withBorder>
+                        <Card.Section>
+                          {render.render_url ? (
+                            <Image
+                              src={render.render_url}
+                              alt={`Render ${render.render_type}`}
+                              height={200}
+                              fit="cover"
+                            />
+                          ) : (
+                            <Center style={{ height: 200, background: 'linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)',
+                              backgroundSize: '20px 20px',
+                              backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px' }}>
+                              <Stack align="center">
+                                <IconProgress size={48} color="#adb5bd" />
+                                <Text color="dimmed">Bezig met renderen...</Text>
+                              </Stack>
+                            </Center>
+                          )}
+                        </Card.Section>
+                        
+                        <Group position="apart" mt="md">
+                          <div>
+                            <Text weight={500} size="sm">
+                              {render.render_type === 'interior' ? 'Interieur' :
+                               render.render_type === 'exterior' ? 'Exterieur' :
+                               render.render_type === 'topdown' ? 'Vogelvlucht' : 'Doorsnede'}
+                            </Text>
+                            <Text size="xs" color="dimmed">
+                              {new Date(render.created_at).toLocaleDateString()}
+                            </Text>
+                          </div>
+                          
+                          <Group spacing="xs">
+                            {render.render_url && (
+                              <Tooltip label="Download">
+                                <ActionIcon
+                                  color="blue"
+                                  onClick={() => handleDownloadRender(render.render_url, render.render_type)}
+                                >
+                                  <IconDownload size={16} />
+                                </ActionIcon>
+                              </Tooltip>
+                            )}
+                            <Tooltip label="Verwijder">
+                              <ActionIcon
+                                color="red"
+                                onClick={() => handleDeleteRender(render.id)}
+                              >
+                                <IconTrash size={16} />
+                              </ActionIcon>
+                            </Tooltip>
+                          </Group>
+                        </Group>
+                        
+                        <Group spacing="xs" mt="xs">
+                          <Badge size="xs" variant="light" color={
+                            render.status === 'completed' ? 'green' :
+                            render.status === 'processing' ? 'blue' :
+                            render.status === 'failed' ? 'red' : 'gray'
+                          }>
+                            {render.status}
+                          </Badge>
+                          <Badge size="xs" variant="dot">
+                            {render.quality}
+                          </Badge>
+                        </Group>
+                      </Card>
+                    ))}
+                  </SimpleGrid>
+                ) : (
+                  <Center style={{ height: 400 }}>
+                    <Stack align="center" spacing="md">
+                      <IconCubeSend size={64} color="#adb5bd" />
+                      <Text size="lg" color="dimmed">Nog geen renders beschikbaar</Text>
+                      <Text size="sm" color="dimmed" align="center">
+                        Selecteer een calculatie en genereer je eerste 3D render
+                      </Text>
+                    </Stack>
+                  </Center>
+                )}
+              </Card>
+            </Grid.Col>
+          </Grid>
+        </Tabs.Panel>
+
+        {/* Materials Tab */}
+        <Tabs.Panel value="materials" pt="md">
+          {materialAnalysis ? (
+            <Grid>
+              <Grid.Col span={8}>
+                <Card withBorder>
+                  <Card.Section withBorder p="md">
+                    <Title order={4}><IconMaterials size={20} /> Materialen Overzicht</Title>
+                  </Card.Section>
+                  
+                  <SimpleGrid cols={3} spacing="md" mt="md">
+                    {extractedMaterials.map((material, index) => (
+                      <Paper key={index} p="md" withBorder>
+                        <Group position="apart" mb="xs">
+                          <Text weight={500}>{material.name}</Text>
+                          <Badge size="sm">{material.category}</Badge>
+                        </Group>
+                        <Text size="sm" color="dimmed" mb="xs">
+                          Type: {material.type}
+                        </Text>
+                        <Group spacing="xs">
+                          <Badge size="xs" variant="dot" color="blue">
+                            {material.unit}
+                          </Badge>
+                          {material.average_price && (
+                            <Badge size="xs" variant="light" color="green">
+                              €{material.average_price}/{material.unit}
+                            </Badge>
+                          )}
+                        </Group>
+                        <Group mt="md" spacing="xs">
+                          <Box
+                            style={{
+                              width: 24,
+                              height: 24,
+                              borderRadius: 4,
+                              background: `rgb(${material.color?.map(c => Math.floor(c * 255)).join(',') || '128,128,128'})`,
+                              border: '1px solid #dee2e6'
+                            }}
+                          />
+                          <Text size="xs">Ruwheid: {material.roughness}</Text>
+                          <Text size="xs">Metaal: {material.metallic}</Text>
+                        </Group>
+                      </Paper>
+                    ))}
+                  </SimpleGrid>
+                </Card>
+              </Grid.Col>
+              
+              <Grid.Col span={4}>
+                <Card withBorder>
+                  <Card.Section withBorder p="md">
+                    <Title order={4}><IconRuler size={20} /> Analyse</Title>
+                  </Card.Section>
+                  
+                  <Stack spacing="md" mt="md">
+                    <Paper p="md" withBorder>
+                      <Text weight={500} mb="xs">Kosten Overzicht</Text>
+                      <Progress 
+                        value={materialAnalysis.total_cost > 0 ? 100 : 0}
+                        size="lg"
+                        color="blue"
+                        mb="xs"
+                      />
+                      <Group position="apart">
+                        <Text size="sm">Totaal waarde:</Text>
+                        <Text weight={500}>€{materialAnalysis.total_cost?.toFixed(2) || '0.00'}</Text>
+                      </Group>
+                    </Paper>
+                    
+                    <Paper p="md" withBorder>
+                      <Text weight={500} mb="md">Materiaal Verdeling</Text>
+                      {materialAnalysis.material_distribution?.map((dist, index) => (
+                        <div key={index} mb="xs">
+                          <Group position="apart" mb={4}>
+                            <Text size="sm">{dist.category}</Text>
+                            <Text size="sm" weight={500}>{dist.percentage.toFixed(1)}%</Text>
+                          </Group>
+                          <Progress value={dist.percentage} size="sm" />
+                        </div>
+                      ))}
+                    </Paper>
+                    
+                    <Paper p="md" withBorder>
+                      <Text weight={500} mb="xs">Statistieken</Text>
+                      <List spacing="xs">
+                        <List.Item>
+                          <Group position="apart">
+                            <Text size="sm">Unieke materialen:</Text>
+                            <Text size="sm" weight={500}>{materialAnalysis.materials.length}</Text>
+                          </Group>
+                        </List.Item>
+                        <List.Item>
+                          <Group position="apart">
+                            <Text size="sm">Categorieën:</Text>
+                            <Text size="sm" weight={500}>{materialAnalysis.categories.length}</Text>
+                          </Group>
+                        </List.Item>
+                        <List.Item>
+                          <Group position="apart">
+                            <Text size="sm">Oppervlakte:</Text>
+                            <Text size="sm" weight={500}>{materialAnalysis.total_area?.toFixed(1)} m²</Text>
+                          </Group>
+                        </List.Item>
+                      </List>
+                    </Paper>
+                  </Stack>
+                </Card>
+              </Grid.Col>
+            </Grid>
+          ) : (
+            <Card withBorder>
+              <Center style={{ height: 300 }}>
+                <Stack align="center" spacing="md">
+                  <IconBox size={64} color="#adb5bd" />
+                  <Text size="lg" color="dimmed">Nog geen materialen geëxtraheerd</Text>
+                  <Text size="sm" color="dimmed" align="center">
+                    Selecteer een calculatie en klik op "Materialen Extraheren"
+                  </Text>
+                  <Button
+                    leftIcon={<IconBox size={18} />}
+                    onClick={handleExtractMaterials}
+                    disabled={!selectedCalculatie}
+                  >
+                    Materialen Extraheren
+                  </Button>
+                </Stack>
+              </Center>
+            </Card>
+          )}
+        </Tabs.Panel>
+
+        {/* Render Library Tab */}
+        <Tabs.Panel value="library" pt="md">
+          <Card withBorder>
+            <Card.Section withBorder p="md">
+              <Group position="apart">
+                <Title order={4}><IconLayoutGrid size={20} /> Render Bibliotheek</Title>
+                <Badge color="blue" variant="light">
+                  {renders.filter(r => r.status === 'completed').length} voltooid
+                </Badge>
+              </Group>
+            </Card.Section>
+            
+            {renders.filter(r => r.status === 'completed').length > 0 ? (
+              <SimpleGrid cols={3} spacing="md" mt="md">
+                {renders
+                  .filter(r => r.status === 'completed')
+                  .map((render) => (
+                    <Card key={render.id} withBorder>
+                      <Card.Section>
+                        <Image
+                          src={render.render_url}
+                          alt={`Render ${render.render_type}`}
+                          height={180}
+                          fit="cover"
+                        />
+                      </Card.Section>
+                      
+                      <Group position="apart" mt="md">
+                        <div>
+                          <Text weight={500} size="sm">
+                            {render.render_type === 'interior' ? 'Interieur Render' :
+                             render.render_type === 'exterior' ? 'Exterieur Render' :
+                             render.render_type === 'topdown' ? 'Vogelvlucht' : 'Doorsnede'}
+                          </Text>
+                          <Text size="xs" color="dimmed">
+                            {new Date(render.created_at).toLocaleDateString('nl-NL')}
+                          </Text>
+                        </div>
+                        <ActionIcon
+                          color="blue"
+                          onClick={() => handleDownloadRender(render.render_url)}
+                        >
+                          <IconDownload size={16} />
+                        </ActionIcon>
+                      </Group>
+                    </Card>
+                  ))}
+              </SimpleGrid>
             ) : (
-              <div style={styles.previewContainer}>
-                <div style={{ textAlign: "center", color: "#6b7280" }}>
-                  <div style={{ fontSize: 48, marginBottom: 16 }}>🏗️</div>
-                  <p>Nog geen tekening gegenereerd</p>
-                  <p style={{ fontSize: 12 }}>Configureer en klik op 'Genereer Tekening'</p>
-                </div>
-              </div>
+              <Center style={{ height: 300 }}>
+                <Stack align="center" spacing="md">
+                  <IconPhoto size={64} color="#adb5bd" />
+                  <Text size="lg" color="dimmed">Nog geen renders in bibliotheek</Text>
+                  <Text size="sm" color="dimmed" align="center">
+                    Genereer eerst een 3D render om je bibliotheek te vullen
+                  </Text>
+                </Stack>
+              </Center>
             )}
-          </div>
+          </Card>
+        </Tabs.Panel>
+
+        {/* Settings Tab */}
+        <Tabs.Panel value="settings" pt="md">
+          <Card withBorder>
+            <Card.Section withBorder p="md">
+              <Title order={4}><IconSettings size={20} /> BIM Instellingen</Title>
+            </Card.Section>
+            
+            <SimpleGrid cols={2} spacing="md" mt="md">
+              <Paper p="md" withBorder>
+                <Text weight={500} mb="md">Render Defaults</Text>
+                <Stack spacing="md">
+                  <Select
+                    label="Standaard kwaliteit"
+                    defaultValue="medium"
+                    data={qualityOptions}
+                  />
+                  <Select
+                    label="Standaard type"
+                    defaultValue="interior"
+                    data={renderTypes}
+                  />
+                  <Switch label="Automatisch materialen extraheren" />
+                  <Switch label="Watermerk toevoegen" />
+                </Stack>
+              </Paper>
+              
+              <Paper p="md" withBorder>
+                <Text weight={500} mb="md">Opslag & Export</Text>
+                <Stack spacing="md">
+                  <Select
+                    label="Standaard export formaat"
+                    defaultValue="png"
+                    data={[
+                      { value: 'png', label: 'PNG (aanbevolen)' },
+                      { value: 'jpg', label: 'JPG (kleiner)' },
+                      { value: 'webp', label: 'WebP (modern)' }
+                    ]}
+                  />
+                  <NumberInput
+                    label="Max render grootte (MB)"
+                    defaultValue={50}
+                    min={10}
+                    max={500}
+                  />
+                  <Switch label="Automatisch backup naar cloud" />
+                  <Button leftIcon={<IconCloudUpload size={18} />} variant="light">
+                    Opslagbeheer
+                  </Button>
+                </Stack>
+              </Paper>
+            </SimpleGrid>
+          </Card>
+        </Tabs.Panel>
+      </Tabs>
+
+      {/* Render Progress Modal */}
+      <Modal
+        opened={renderModalOpen}
+        onClose={() => {}}
+        title="3D Render Generatie"
+        closeOnClickOutside={false}
+        closeOnEscape={false}
+        withCloseButton={false}
+        centered
+      >
+        <Stack align="center" spacing="md">
+          <IconBrandBlender size={64} color="#4dabf7" />
+          <Title order={3}>Render wordt gegenereerd</Title>
+          <Text color="dimmed" align="center">
+            Dit kan enkele minuten duren, afhankelijk van de geselecteerde kwaliteit.
+          </Text>
           
-          <div style={{ marginTop: 20 }}>
-            {/* Referentie upload */}
-            <div style={{ marginBottom: 16 }}>
-              <label style={styles.label}>Referentie upload (optioneel)</label>
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-                accept="image/*,.pdf,.dwg,.dxf"
-                onChange={uploadReferentie}
-              />
-              <button 
-                style={{ 
-                  ...styles.button, 
-                  background: "#6b7280" 
-                }}
-                onClick={() => fileInputRef.current.click()}
-              >
-                📁 Referentie Uploaden
-              </button>
-              <div style={{ fontSize: 11, color: "#6b7280", marginTop: 4 }}>
-                Upload bestaande tekeningen als voorbeeld
-              </div>
-            </div>
-            
-            {/* Generate button */}
-            <button 
-              style={styles.button}
-              onClick={generateTekening}
-              disabled={loading || !tekeningConfig.project_naam.trim()}
-            >
-              {loading ? "⏳ Bezig..." : "🚀 Tekening Genereren met AI"}
-            </button>
-            
-            {/* Reset button */}
-            <button 
-              style={{ 
-                ...styles.button, 
-                background: "#ef4444",
-                marginTop: 8
-              }}
-              onClick={resetForm}
-            >
-              🔄 Reset Alles
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Onderste sectie - Recent gegenereerd */}
-      <div style={{ ...styles.card, marginTop: 24 }}>
-        <div style={styles.cardTitle}>
-          <span>📚</span> Recent Gegenereerde Tekeningen
-        </div>
-        
-        <div style={{ 
-          display: "grid", 
-          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-          gap: 16,
-          marginTop: 16
-        }}>
-          {/* Voorbeeld items */}
-          {[
-            { naam: "Wandopbouw Detail", type: "bouw_detail", datum: "2024-01-15" },
-            { naam: "Elektra Schema Keuken", type: "installatie_e", datum: "2024-01-14" },
-            { naam: "Badkamer Water", type: "installatie_w", datum: "2024-01-13" },
-            { naam: "Gevel Zuidzijde", type: "gevel", datum: "2024-01-12" }
-          ].map((item, index) => (
-            <div key={index} style={{
-              padding: 16,
-              border: "1px solid #e5e7eb",
-              borderRadius: 8,
-              background: "#f9fafb"
-            }}>
-              <div style={{ fontWeight: 600, marginBottom: 4 }}>{item.naam}</div>
-              <div style={{ fontSize: 12, color: "#6b7280", display: "flex", justifyContent: "space-between" }}>
-                <span>Type: {item.type}</span>
-                <span>{item.datum}</span>
-              </div>
-              <button style={{
-                padding: "6px 12px",
-                fontSize: 12,
-                background: "#2563eb",
-                color: "#fff",
-                border: "none",
-                borderRadius: 4,
-                marginTop: 8,
-                width: "100%"
-              }}>
-                Opnieuw Genereren
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {error && (
-        <div style={{ 
-          marginTop: 24,
-          padding: 16,
-          background: "#fef2f2",
-          border: "1px solid #fecaca",
-          borderRadius: 8,
-          color: "#dc2626"
-        }}>
-          <strong>Fout:</strong> {error}
-        </div>
-      )}
-
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
+          <Progress
+            value={renderProgress}
+            size="xl"
+            radius="xl"
+            style={{ width: '100%' }}
+            label={`${renderProgress}%`}
+            animate
+          />
+          
+          <Text size="sm" color="dimmed">
+            Status: {renderProgress < 50 ? 'Voorbereiden' : 
+                    renderProgress < 100 ? 'Rendering' : 'Voltooid'}
+          </Text>
+          
+          {activeRenderJob?.estimated_completion && (
+            <Text size="xs" color="dimmed">
+              Geschatte eindtijd: {new Date(activeRenderJob.estimated_completion).toLocaleTimeString()}
+            </Text>
+          )}
+          
+          <Button
+            variant="light"
+            color="red"
+            onClick={() => {
+              if (progressIntervalRef.current) {
+                clearInterval(progressIntervalRef.current)
+              }
+              setRenderModalOpen(false)
+              setLoading(false)
+              setActiveRenderJob(null)
+              notifications.show({
+                title: 'Render geannuleerd',
+                message: 'Render proces gestopt',
+                color: 'yellow'
+              })
+            }}
+            disabled={renderProgress >= 100}
+          >
+            Annuleren
+          </Button>
+        </Stack>
+      </Modal>
+    </Container>
   )
 }
