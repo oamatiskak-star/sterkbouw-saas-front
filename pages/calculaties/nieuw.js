@@ -591,7 +591,7 @@ export default function NieuweCalculatie() {
             </div>
             
             <div>
-              <label style={styles.label}>Adres *</label>
+              <label style={styles.label}>straatnaam_en_huisnummer *</label>
               <input
                 style={styles.input}
                 value={form.straatnaam_en_huisnummer}
