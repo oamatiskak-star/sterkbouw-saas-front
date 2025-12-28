@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from "react"
 import supabase from "@/lib/supabase"
 
 const styles = {
-  wrap: { maxWidth: 1200, margin: "0 auto", padding: 24 },
+  wrap: { maxWidth: 1400, margin: "0 auto", padding: 24 },
   grid4: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
-    gridTemplateRows: "420px 420px",
+    gridTemplateRows: "auto auto",
     gap: 24
   },
   card: {
@@ -19,15 +19,25 @@ const styles = {
     height: "100%",
     boxSizing: "border-box"
   },
-  cardTitle: { fontWeight: 600, marginBottom: 12 },
+  cardTitle: { 
+    fontWeight: 600, 
+    marginBottom: 12,
+    fontSize: 16,
+    color: "#1f2937"
+  },
   fieldGrid: { display: "grid", gap: 12 },
-  label: { fontSize: 13 },
+  label: { 
+    fontSize: 13, 
+    fontWeight: 500,
+    color: "#374151"
+  },
   input: {
     width: "100%",
     padding: 10,
     borderRadius: 6,
     border: "1px solid #d1d5db",
-    fontSize: 14
+    fontSize: 14,
+    boxSizing: "border-box"
   },
   textarea: {
     width: "100%",
@@ -36,7 +46,8 @@ const styles = {
     border: "1px solid #d1d5db",
     fontSize: 14,
     minHeight: 60,
-    resize: "vertical"
+    resize: "vertical",
+    boxSizing: "border-box"
   },
   button: {
     width: "100%",
@@ -46,20 +57,133 @@ const styles = {
     background: "#2563eb",
     color: "#fff",
     fontSize: 15,
-    cursor: "pointer"
+    cursor: "pointer",
+    fontWeight: 500
+  },
+  secondaryButton: {
+    width: "100%",
+    padding: 14,
+    borderRadius: 6,
+    border: "1px solid #d1d5db",
+    background: "#fff",
+    color: "#374151",
+    fontSize: 15,
+    cursor: "pointer",
+    fontWeight: 500,
+    marginTop: 8
   },
   preview: {
     flex: 1,
     borderRadius: 6,
     border: "1px solid #d1d5db",
     overflow: "hidden",
-    background: "#000"
+    background: "#000",
+    minHeight: 400
   },
-  iframe: { width: "100%", height: "100%", border: "none", background: "#fff" }
+  iframe: { 
+    width: "100%", 
+    height: "100%", 
+    border: "none", 
+    background: "#fff",
+    minHeight: 400
+  },
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+    fontSize: 13
+  },
+  tableHeader: {
+    background: "#f9fafb",
+    borderBottom: "1px solid #e5e7eb",
+    padding: "8px 12px",
+    textAlign: "left",
+    fontWeight: 600
+  },
+  tableCell: {
+    borderBottom: "1px solid #e5e7eb",
+    padding: "8px 12px",
+    verticalAlign: "top"
+  },
+  totalRow: {
+    background: "#f0f9ff",
+    fontWeight: 600
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 600,
+    margin: "24px 0 12px 0",
+    color: "#1f2937",
+    paddingBottom: 8,
+    borderBottom: "2px solid #e5e7eb"
+  }
 }
 
 // PAD NAAR JE PDF TEMPLATE - PAS DIT AAN!
 const TEMPLATE_PREVIEW_URL = "/templates/offerte_2jours_template.pdf"
+
+// Initiele calculatie posten volgens de PDF structuur
+const INITIELE_POSTEN = [
+  // 1. Sloop en stripwerk
+  {
+    id: 1,
+    code: "12.10",
+    omschrijving: "Sloop en stripwerk",
+    eenheid: "m²",
+    aantal: 120,
+    eenheidsprijs: 45,
+    arbeidsuren: 80,
+    materiaal: 1200,
+    opmerking: "Incl. afvoer puin"
+  },
+  // 2. Constructieve aanpassingen
+  {
+    id: 2,
+    code: "21.50",
+    omschrijving: "Constructieve aanpassingen",
+    eenheid: "m²",
+    aantal: 120,
+    eenheidsprijs: 85,
+    arbeidsuren: 120,
+    materiaal: 3500,
+    opmerking: "Staalconstructies"
+  },
+  // 3. Gevel en isolatie
+  {
+    id: 3,
+    code: "23.30",
+    omschrijving: "Gevel en isolatie",
+    eenheid: "m²",
+    aantal: 96,
+    eenheidsprijs: 95,
+    arbeidsuren: 90,
+    materiaal: 4200,
+    opmerking: "PIR isolatie + gevelbekleding"
+  },
+  // 4. Installaties E en W
+  {
+    id: 4,
+    code: "41.10",
+    omschrijving: "Installaties E en W",
+    eenheid: "stuk",
+    aantal: 1,
+    eenheidsprijs: 8500,
+    arbeidsuren: 60,
+    materiaal: 5200,
+    opmerking: "Elektra en waterleidingen"
+  },
+  // 5. Afbouw en herindeling
+  {
+    id: 5,
+    code: "51.90",
+    omschrijving: "Afbouw en herindeling",
+    eenheid: "stuk",
+    aantal: 1,
+    eenheidsprijs: 12500,
+    arbeidsuren: 180,
+    materiaal: 7800,
+    opmerking: "Wanden, plafonds, vloeren"
+  }
+]
 
 export default function NieuweCalculatie() {
   const createProjectGuardRef = useRef(false)
@@ -80,28 +204,34 @@ export default function NieuweCalculatie() {
 
   const [form, setForm] = useState({
     // NAW-gegevens volgens PDF-placeholders
-    naam_opdrachtgever: "",           // (Naam opdrachtgever)
-    t_a_v_naam: "",                   // (t.a.v. naam)
-    straatnaam_en_huisnummer: "",     // (straatnaam en huisnummer)
-    postcode: "",                     // (postcode)
-    plaats: "",                       // (plaats)
+    naam_opdrachtgever: "",
+    t_a_v_naam: "",
+    straatnaam_en_huisnummer: "",
+    postcode: "",
+    plaats: "",
     
     // Projectgegevens
-    projectnaam: "",                  // (projectnaam) in aanhef
-    plaatsnaam: "",                   // (plaatsnaam) in aanhef
+    projectnaam: "",
+    plaatsnaam: "",
     
     // Overige gegevens
     land: "Nederland",
     telefoon: "",
-    project_type: "nieuwbouw",
-    opmerking: ""
+    project_type: "transformatie",
+    opmerking: "",
+    
+    // Project specificaties
+    oppervlakte_m2: 120,
+    bouwjaar: 1985,
+    verbouwing_type: "volledige transformatie"
   })
 
   const [opslagen, setOpslagen] = useState({
-    ak_pct: 0.08,
-    abk_pct: 0.04,
-    w_pct: 0.06,
-    r_pct: 0.05
+    ak_pct: 0.08,      // Algemene kosten
+    abk_pct: 0.04,     // Administratie en bedrijfskosten
+    w_pct: 0.06,       // Winstopslag
+    r_pct: 0.05,       // Risicopslag
+    btw_pct: 0.21      // BTW percentage
   })
 
   const [uurlonen, setUurlonen] = useState([
@@ -112,23 +242,112 @@ export default function NieuweCalculatie() {
     { discipline: "schilder", uurloon: 45 }
   ])
 
+  const [posten, setPosten] = useState(INITIELE_POSTEN)
+  const [nieuwePost, setNieuwePost] = useState({
+    code: "",
+    omschrijving: "",
+    eenheid: "m²",
+    aantal: 1,
+    eenheidsprijs: 0,
+    arbeidsuren: 0,
+    materiaal: 0,
+    opmerking: ""
+  })
+
   function updateForm(k, v) {
     setForm(p => ({ ...p, [k]: v }))
   }
 
-  function berekenIndicatie() {
-    const avg =
-      uurlonen.reduce((s, u) => s + u.uurloon, 0) / uurlonen.length
-    const arbeid = 100 * avg
-    const materiaal = 250
-    const sub = arbeid + materiaal
-    return Math.round(
-      sub +
-        sub * opslagen.ak_pct +
-        sub * opslagen.abk_pct +
-        sub * opslagen.w_pct +
-        sub * opslagen.r_pct
-    )
+  function updateNieuwePost(k, v) {
+    setNieuwePost(p => ({ ...p, [k]: v }))
+  }
+
+  // Bereken totaal per post
+  function berekenPostTotaal(post) {
+    const arbeidskosten = post.arbeidsuren * getGemiddeldUurloon()
+    const materiaal = post.materiaal || (post.eenheidsprijs * post.aantal)
+    return arbeidskosten + materiaal
+  }
+
+  // Bereken subtotaal van alle posten
+  function berekenSubtotaal() {
+    return posten.reduce((totaal, post) => {
+      return totaal + berekenPostTotaal(post)
+    }, 0)
+  }
+
+  // Bereken opslagen
+  function berekenOpslagen() {
+    const subtotaal = berekenSubtotaal()
+    const opslagBedragen = {
+      ak: subtotaal * opslagen.ak_pct,
+      abk: subtotaal * opslagen.abk_pct,
+      w: subtotaal * opslagen.w_pct,
+      r: subtotaal * opslagen.r_pct
+    }
+    
+    const totaalOpslagen = Object.values(opslagBedragen).reduce((a, b) => a + b, 0)
+    
+    return {
+      bedragen: opslagBedragen,
+      totaal: totaalOpslagen,
+      subtotaal: subtotaal,
+      totaalExclusiefBtw: subtotaal + totaalOpslagen
+    }
+  }
+
+  // Bereken eindtotaal
+  function berekenTotaal() {
+    const opslagData = berekenOpslagen()
+    const btwBedrag = opslagData.totaalExclusiefBtw * opslagen.btw_pct
+    return {
+      exclusiefBtw: opslagData.totaalExclusiefBtw,
+      btwBedrag: btwBedrag,
+      inclusiefBtw: opslagData.totaalExclusiefBtw + btwBedrag
+    }
+  }
+
+  function getGemiddeldUurloon() {
+    return uurlonen.reduce((som, u) => som + u.uurloon, 0) / uurlonen.length
+  }
+
+  function voegPostToe() {
+    if (!nieuwePost.code || !nieuwePost.omschrijving) {
+      alert("Code en omschrijving zijn verplicht")
+      return
+    }
+
+    const nieuweId = Math.max(...posten.map(p => p.id)) + 1
+    setPosten([
+      ...posten,
+      {
+        id: nieuweId,
+        code: nieuwePost.code,
+        omschrijving: nieuwePost.omschrijving,
+        eenheid: nieuwePost.eenheid,
+        aantal: Number(nieuwePost.aantal),
+        eenheidsprijs: Number(nieuwePost.eenheidsprijs),
+        arbeidsuren: Number(nieuwePost.arbeidsuren),
+        materiaal: Number(nieuwePost.materiaal),
+        opmerking: nieuwePost.opmerking
+      }
+    ])
+
+    // Reset nieuwe post form
+    setNieuwePost({
+      code: "",
+      omschrijving: "",
+      eenheid: "m²",
+      aantal: 1,
+      eenheidsprijs: 0,
+      arbeidsuren: 0,
+      materiaal: 0,
+      opmerking: ""
+    })
+  }
+
+  function verwijderPost(id) {
+    setPosten(posten.filter(p => p.id !== id))
   }
 
   async function handleCreateProject() {
@@ -138,10 +357,23 @@ export default function NieuweCalculatie() {
     setError(null)
 
     try {
+      // Bereken de volledige calculatie
+      const calculatieData = {
+        projectInfo: form,
+        opslagen: opslagen,
+        uurlonen: uurlonen,
+        posten: posten,
+        berekeningen: {
+          subtotaal: berekenSubtotaal(),
+          opslagen: berekenOpslagen(),
+          totaal: berekenTotaal()
+        }
+      }
+
       const res = await fetch("/api/projecten", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        body: JSON.stringify(calculatieData)
       })
 
       if (!res.ok) throw new Error(await res.text())
@@ -187,6 +419,41 @@ export default function NieuweCalculatie() {
     }
   }
 
+  async function genereerCalculatie() {
+    setProcessStatus({ fase: "Calculatie genereren...", actie: "generating" })
+    
+    try {
+      const calculatieData = {
+        projectInfo: form,
+        opslagen: opslagen,
+        uurlonen: uurlonen,
+        posten: posten,
+        berekeningen: {
+          subtotaal: berekenSubtotaal(),
+          opslagen: berekenOpslagen(),
+          totaal: berekenTotaal()
+        }
+      }
+
+      const res = await fetch("/api/generate-calculatie", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(calculatieData)
+      })
+
+      if (!res.ok) throw new Error(await res.text())
+      const data = await res.json()
+      
+      if (data.pdf_url) {
+        setPdfUrl(data.pdf_url)
+        setProcessStatus({ fase: "Calculatie gegenereerd", actie: "generated" })
+      }
+    } catch (e) {
+      setError(e.message)
+      setProcessStatus({ fase: "Fout bij genereren", actie: "error" })
+    }
+  }
+
   useEffect(() => {
     if (!projectId || intervalRunningRef.current) return
     intervalRunningRef.current = true
@@ -221,80 +488,28 @@ export default function NieuweCalculatie() {
     }
   }, [projectId])
 
-  const indicatie = berekenIndicatie()
+  const totaal = berekenTotaal()
+  const opslagData = berekenOpslagen()
 
   return (
     <div style={styles.wrap}>
       <h1>Nieuwe calculatie</h1>
 
+      {/* Projectinformatie sectie */}
+      <div style={styles.sectionTitle}>Projectinformatie</div>
+      
       <div style={styles.grid4}>
         <div style={styles.card}>
-          <div style={styles.cardTitle}>Opslagen</div>
-          <div style={styles.fieldGrid}>
-            {Object.keys(opslagen).map(k => (
-              <div key={k}>
-                <label style={styles.label}>{k}</label>
-                <input
-                  style={styles.input}
-                  type="number"
-                  step="0.01"
-                  value={opslagen[k]}
-                  onChange={e =>
-                    setOpslagen(p => ({
-                      ...p,
-                      [k]: Number(e.target.value)
-                    }))
-                  }
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div style={styles.card}>
-          <div style={styles.cardTitle}>Uurlonen</div>
-          <div style={styles.fieldGrid}>
-            {uurlonen.map((u, i) => (
-              <div key={u.discipline}>
-                <label style={styles.label}>{u.discipline}</label>
-                <input
-                  style={styles.input}
-                  type="number"
-                  value={u.uurloon}
-                  onChange={e => {
-                    const c = [...uurlonen]
-                    c[i].uurloon = Number(e.target.value)
-                    setUurlonen(c)
-                  }}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div style={styles.card}>
-          <div style={styles.cardTitle}>Project / NAW</div>
-          <div style={{ ...styles.fieldGrid, overflowY: "auto" }}>
-            <label style={styles.label}>project_type</label>
-            <select
-              style={styles.input}
-              value={form.project_type}
-              onChange={e => updateForm("project_type", e.target.value)}
-            >
-              <option value="nieuwbouw">nieuwbouw</option>
-              <option value="transformatie">transformatie</option>
-              <option value="renovatie">renovatie</option>
-              <option value="verduurzaming">verduurzaming</option>
-            </select>
-
-            {/* NAW-velden volgens PDF-placeholders */}
+          <div style={styles.cardTitle}>Klantgegevens</div>
+          <div style={{ ...styles.fieldGrid, overflowY: "auto", maxHeight: 400 }}>
             <div>
-              <label style={styles.label}>naam_opdrachtgever</label>
+              <label style={styles.label}>Naam opdrachtgever *</label>
               <input
                 style={styles.input}
                 value={form.naam_opdrachtgever}
                 onChange={e => updateForm("naam_opdrachtgever", e.target.value)}
                 placeholder="(Naam opdrachtgever)"
+                required
               />
             </div>
             
@@ -309,88 +524,181 @@ export default function NieuweCalculatie() {
             </div>
             
             <div>
-              <label style={styles.label}>straatnaam en huisnummer</label>
+              <label style={styles.label}>Adres *</label>
               <input
                 style={styles.input}
                 value={form.straatnaam_en_huisnummer}
                 onChange={e => updateForm("straatnaam_en_huisnummer", e.target.value)}
                 placeholder="(straatnaam en huisnummer)"
+                required
               />
             </div>
             
             <div>
-              <label style={styles.label}>postcode</label>
+              <label style={styles.label}>Postcode *</label>
               <input
                 style={styles.input}
                 value={form.postcode}
                 onChange={e => updateForm("postcode", e.target.value)}
                 placeholder="(postcode)"
+                required
               />
             </div>
             
             <div>
-              <label style={styles.label}>plaats</label>
+              <label style={styles.label}>Plaats *</label>
               <input
                 style={styles.input}
                 value={form.plaats}
                 onChange={e => updateForm("plaats", e.target.value)}
                 placeholder="(plaats)"
+                required
               />
             </div>
             
             <div>
-              <label style={styles.label}>projectnaam</label>
-              <input
-                style={styles.input}
-                value={form.projectnaam}
-                onChange={e => updateForm("projectnaam", e.target.value)}
-                placeholder="(projectnaam)"
-              />
-            </div>
-            
-            <div>
-              <label style={styles.label}>plaatsnaam (project)</label>
-              <input
-                style={styles.input}
-                value={form.plaatsnaam}
-                onChange={e => updateForm("plaatsnaam", e.target.value)}
-                placeholder="(plaatsnaam)"
-              />
-            </div>
-            
-            {/* Overige velden */}
-            <div>
-              <label style={styles.label}>land</label>
-              <input
-                style={styles.input}
-                value={form.land}
-                onChange={e => updateForm("land", e.target.value)}
-              />
-            </div>
-            
-            <div>
-              <label style={styles.label}>telefoon</label>
+              <label style={styles.label}>Telefoon</label>
               <input
                 style={styles.input}
                 value={form.telefoon}
                 onChange={e => updateForm("telefoon", e.target.value)}
-              />
-            </div>
-            
-            <div>
-              <label style={styles.label}>opmerking</label>
-              <textarea
-                style={styles.textarea}
-                value={form.opmerking}
-                onChange={e => updateForm("opmerking", e.target.value)}
-                rows="3"
+                placeholder="Telefoonnummer"
               />
             </div>
           </div>
         </div>
 
         <div style={styles.card}>
-          <div style={styles.cardTitle}>Preview</div>
+          <div style={styles.cardTitle}>Projectdetails</div>
+          <div style={{ ...styles.fieldGrid, overflowY: "auto", maxHeight: 400 }}>
+            <div>
+              <label style={styles.label}>Projectnaam *</label>
+              <input
+                style={styles.input}
+                value={form.projectnaam}
+                onChange={e => updateForm("projectnaam", e.target.value)}
+                placeholder="(projectnaam)"
+                required
+              />
+            </div>
+            
+            <div>
+              <label style={styles.label}>Plaatsnaam project *</label>
+              <input
+                style={styles.input}
+                value={form.plaatsnaam}
+                onChange={e => updateForm("plaatsnaam", e.target.value)}
+                placeholder="(plaatsnaam)"
+                required
+              />
+            </div>
+            
+            <div>
+              <label style={styles.label}>Projecttype</label>
+              <select
+                style={styles.input}
+                value={form.project_type}
+                onChange={e => updateForm("project_type", e.target.value)}
+              >
+                <option value="nieuwbouw">Nieuwbouw</option>
+                <option value="transformatie">Transformatie</option>
+                <option value="renovatie">Renovatie</option>
+                <option value="verduurzaming">Verduurzaming</option>
+              </select>
+            </div>
+            
+            <div>
+              <label style={styles.label}>Oppervlakte (m²)</label>
+              <input
+                style={styles.input}
+                type="number"
+                value={form.oppervlakte_m2}
+                onChange={e => updateForm("oppervlakte_m2", e.target.value)}
+                min="1"
+              />
+            </div>
+            
+            <div>
+              <label style={styles.label}>Bouwjaar</label>
+              <input
+                style={styles.input}
+                type="number"
+                value={form.bouwjaar}
+                onChange={e => updateForm("bouwjaar", e.target.value)}
+                min="1900"
+                max="2025"
+              />
+            </div>
+            
+            <div>
+              <label style={styles.label}>Opmerkingen</label>
+              <textarea
+                style={styles.textarea}
+                value={form.opmerking}
+                onChange={e => updateForm("opmerking", e.target.value)}
+                rows="3"
+                placeholder="Extra opmerkingen..."
+              />
+            </div>
+          </div>
+        </div>
+
+        <div style={styles.card}>
+          <div style={styles.cardTitle}>Calculatie-instellingen</div>
+          <div style={styles.fieldGrid}>
+            <div>
+              <label style={styles.label}>Uurlonen per discipline</label>
+              {uurlonen.map((u, i) => (
+                <div key={u.discipline} style={{ marginBottom: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ minWidth: 100, fontSize: 13 }}>{u.discipline}</span>
+                    <input
+                      style={{ ...styles.input, width: 100 }}
+                      type="number"
+                      value={u.uurloon}
+                      onChange={e => {
+                        const c = [...uurlonen]
+                        c[i].uurloon = Number(e.target.value)
+                        setUurlonen(c)
+                      }}
+                    />
+                    <span style={{ fontSize: 13 }}>€/uur</span>
+                  </div>
+                </div>
+              ))}
+              <div style={{ marginTop: 8, fontSize: 13, color: "#6b7280" }}>
+                Gemiddeld uurloon: €{getGemiddeldUurloon().toFixed(2)}
+              </div>
+            </div>
+            
+            <div style={{ marginTop: 12 }}>
+              <label style={styles.label}>Opslagen (%)</label>
+              {Object.keys(opslagen).map(k => (
+                <div key={k} style={{ marginBottom: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ minWidth: 120, fontSize: 13 }}>{k}</span>
+                    <input
+                      style={{ ...styles.input, width: 100 }}
+                      type="number"
+                      step="0.01"
+                      value={opslagen[k] * 100}
+                      onChange={e =>
+                        setOpslagen(p => ({
+                          ...p,
+                          [k]: Number(e.target.value) / 100
+                        }))
+                      }
+                    />
+                    <span style={{ fontSize: 13 }}>%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div style={styles.card}>
+          <div style={styles.cardTitle}>Preview offerte</div>
           <div style={styles.preview}>
             <iframe
               key={pdfUrl ? "generated" : "template"}
@@ -402,58 +710,278 @@ export default function NieuweCalculatie() {
         </div>
       </div>
 
-      <div style={{ marginTop: 24 }}>
-        <strong>Indicatie totaal:</strong> € {indicatie}
-      </div>
-
-      <div style={{ marginTop: 16 }}>
-        <button
-          style={{
-            ...styles.button,
-            opacity: (creating || !!projectId) ? 0.6 : 1,
-            cursor: (creating || !!projectId) ? "not-allowed" : "pointer"
-          }}
-          onClick={handleCreateProject}
-          disabled={creating || !!projectId}
-        >
-          {creating ? "Aanmaken..." : "Project aanmaken"}
-        </button>
-      </div>
-
-      <div style={{ marginTop: 12 }}>
-        <input 
-          type="file" 
-          multiple 
-          onChange={handleUpload} 
-          disabled={!projectId}
-          style={{ padding: 8 }}
-        />
-        <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
-          Upload bestanden voor verwerking
+      {/* Calculatie posten sectie */}
+      <div style={styles.sectionTitle}>Calculatie posten</div>
+      
+      <div style={{ ...styles.card, marginBottom: 24 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div style={styles.cardTitle}>Werkzaamheden</div>
+          <div style={{ fontSize: 13, color: "#6b7280" }}>
+            Totaal {posten.length} posten
+          </div>
+        </div>
+        
+        <div style={{ overflowX: "auto" }}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.tableHeader}>Code</th>
+                <th style={styles.tableHeader}>Omschrijving</th>
+                <th style={styles.tableHeader}>Eenheid</th>
+                <th style={styles.tableHeader}>Aantal</th>
+                <th style={styles.tableHeader}>Arbeid (uren)</th>
+                <th style={styles.tableHeader}>Materiaal</th>
+                <th style={styles.tableHeader}>Totaal</th>
+                <th style={styles.tableHeader}>Acties</th>
+              </tr>
+            </thead>
+            <tbody>
+              {posten.map(post => {
+                const postTotaal = berekenPostTotaal(post)
+                return (
+                  <tr key={post.id}>
+                    <td style={styles.tableCell}>{post.code}</td>
+                    <td style={styles.tableCell}>
+                      <div><strong>{post.omschrijving}</strong></div>
+                      {post.opmerking && (
+                        <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>
+                          {post.opmerking}
+                        </div>
+                      )}
+                    </td>
+                    <td style={styles.tableCell}>{post.eenheid}</td>
+                    <td style={styles.tableCell}>{post.aantal}</td>
+                    <td style={styles.tableCell}>{post.arbeidsuren}</td>
+                    <td style={styles.tableCell}>€{post.materiaal.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</td>
+                    <td style={styles.tableCell}>
+                      <strong>€{postTotaal.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</strong>
+                    </td>
+                    <td style={styles.tableCell}>
+                      <button
+                        onClick={() => verwijderPost(post.id)}
+                        style={{
+                          padding: "4px 8px",
+                          fontSize: 12,
+                          background: "#ef4444",
+                          color: "white",
+                          border: "none",
+                          borderRadius: 4,
+                          cursor: "pointer"
+                        }}
+                      >
+                        Verwijder
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Nieuwe post toevoegen */}
+        <div style={{ marginTop: 24, padding: 16, border: "1px dashed #d1d5db", borderRadius: 6 }}>
+          <div style={{ ...styles.cardTitle, marginBottom: 16 }}>Nieuwe post toevoegen</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+            <div>
+              <label style={styles.label}>Code *</label>
+              <input
+                style={styles.input}
+                value={nieuwePost.code}
+                onChange={e => updateNieuwePost("code", e.target.value)}
+                placeholder="Bijv. 12.10"
+              />
+            </div>
+            <div>
+              <label style={styles.label}>Omschrijving *</label>
+              <input
+                style={styles.input}
+                value={nieuwePost.omschrijving}
+                onChange={e => updateNieuwePost("omschrijving", e.target.value)}
+                placeholder="Bijv. Sloopwerkzaamheden"
+              />
+            </div>
+            <div>
+              <label style={styles.label}>Eenheid</label>
+              <select
+                style={styles.input}
+                value={nieuwePost.eenheid}
+                onChange={e => updateNieuwePost("eenheid", e.target.value)}
+              >
+                <option value="m²">m²</option>
+                <option value="stuk">stuk</option>
+                <option value="m">m</option>
+                <option value="uur">uur</option>
+                <option value="dag">dag</option>
+              </select>
+            </div>
+            <div>
+              <label style={styles.label}>Aantal</label>
+              <input
+                style={styles.input}
+                type="number"
+                value={nieuwePost.aantal}
+                onChange={e => updateNieuwePost("aantal", e.target.value)}
+                min="1"
+              />
+            </div>
+            <div>
+              <label style={styles.label}>Arbeidsuren</label>
+              <input
+                style={styles.input}
+                type="number"
+                value={nieuwePost.arbeidsuren}
+                onChange={e => updateNieuwePost("arbeidsuren", e.target.value)}
+                min="0"
+              />
+            </div>
+            <div>
+              <label style={styles.label}>Materiaal (€)</label>
+              <input
+                style={styles.input}
+                type="number"
+                value={nieuwePost.materiaal}
+                onChange={e => updateNieuwePost("materiaal", e.target.value)}
+                min="0"
+                step="0.01"
+              />
+            </div>
+            <div style={{ gridColumn: "span 2" }}>
+              <label style={styles.label}>Opmerking</label>
+              <input
+                style={styles.input}
+                value={nieuwePost.opmerking}
+                onChange={e => updateNieuwePost("opmerking", e.target.value)}
+                placeholder="Optionele opmerking"
+              />
+            </div>
+          </div>
+          <button
+            onClick={voegPostToe}
+            style={{
+              ...styles.secondaryButton,
+              marginTop: 16,
+              background: "#10b981",
+              color: "white",
+              border: "none"
+            }}
+          >
+            + Post toevoegen
+          </button>
         </div>
       </div>
 
-      <div style={{ marginTop: 12, padding: 8, background: "#f3f4f6", borderRadius: 6 }}>
-        <strong>Status:</strong> {processStatus.fase}
-        {projectId && !pdfUrl && (
-          <div style={{ fontSize: 12, color: "#666", marginTop: 2 }}>
-            (Polling voor resultaat...)
+      {/* Totale berekening sectie */}
+      <div style={styles.sectionTitle}>Totale berekening</div>
+      
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 24 }}>
+        <div style={styles.card}>
+          <div style={styles.cardTitle}>Kostenoverzicht</div>
+          <div style={styles.fieldGrid}>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #e5e7eb" }}>
+              <span>Subtotaal posten:</span>
+              <span><strong>€{berekenSubtotaal().toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</strong></span>
+            </div>
+            
+            {Object.entries(opslagData.bedragen).map(([key, value]) => (
+              <div key={key} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #e5e7eb" }}>
+                <span>{key.toUpperCase()} ({opslagen[`${key}_pct`] * 100}%):</span>
+                <span>€{value.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</span>
+              </div>
+            ))}
+            
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #e5e7eb" }}>
+              <span>Totaal opslagen:</span>
+              <span><strong>€{opslagData.totaal.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</strong></span>
+            </div>
+            
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "2px solid #1f2937" }}>
+              <span><strong>Totaal exclusief BTW:</strong></span>
+              <span><strong>€{opslagData.totaalExclusiefBtw.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</strong></span>
+            </div>
+            
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #e5e7eb" }}>
+              <span>BTW ({opslagen.btw_pct * 100}%):</span>
+              <span>€{totaal.btwBedrag.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</span>
+            </div>
+            
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 0", background: "#f0f9ff", borderRadius: 6, padding: 12 }}>
+              <span style={{ fontWeight: 600, fontSize: 16 }}>TOTAAL INCLUSIEF BTW:</span>
+              <span style={{ fontWeight: 600, fontSize: 18, color: "#1e40af" }}>
+                €{totaal.inclusiefBtw.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}
+              </span>
+            </div>
           </div>
-        )}
+        </div>
+
+        <div style={styles.card}>
+          <div style={styles.cardTitle}>Projectacties</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <button
+              style={styles.button}
+              onClick={handleCreateProject}
+              disabled={creating || !!projectId}
+            >
+              {creating ? "Project aanmaken..." : "Project aanmaken"}
+            </button>
+            
+            <button
+              style={styles.secondaryButton}
+              onClick={genereerCalculatie}
+              disabled={!projectId}
+            >
+              Calculatie genereren
+            </button>
+            
+            <div style={{ marginTop: 8 }}>
+              <label style={styles.label}>Bestanden uploaden</label>
+              <input 
+                type="file" 
+                multiple 
+                onChange={handleUpload} 
+                disabled={!projectId}
+                style={{ 
+                  width: "100%", 
+                  padding: 12,
+                  border: "1px solid #d1d5db",
+                  borderRadius: 6,
+                  marginTop: 8
+                }}
+              />
+            </div>
+            
+            <div style={{ marginTop: 16 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Status:</div>
+              <div style={{ 
+                padding: 12, 
+                background: "#f3f4f6", 
+                borderRadius: 6,
+                fontSize: 14
+              }}>
+                {processStatus.fase}
+                {projectId && !pdfUrl && processStatus.actie !== "generated" && (
+                  <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
+                    Wachten op verwerking...
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {error && (
-        <pre style={{ 
-          color: "red", 
+        <div style={{ 
+          color: "#dc2626", 
           marginTop: 12, 
-          padding: 12, 
-          background: "#fee", 
+          padding: 16, 
+          background: "#fef2f2", 
           borderRadius: 6,
-          fontSize: 13,
-          overflow: "auto"
+          fontSize: 14,
+          border: "1px solid #fecaca"
         }}>
-          {error}
-        </pre>
+          <strong>Fout:</strong> {error}
+        </div>
       )}
     </div>
   )
