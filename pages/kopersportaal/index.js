@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
-import supabase from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 const API_BASE = "https://sterkbouw-saas-executor-production.up.railway.app";
 
