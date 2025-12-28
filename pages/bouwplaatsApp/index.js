@@ -675,3 +675,4 @@ const BouwplaatsApp = () => {
     </>
   );
 };
+export default BouwplaatsApp;
