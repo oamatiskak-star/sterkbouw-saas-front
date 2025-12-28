@@ -29,6 +29,15 @@ const styles = {
     border: "1px solid #d1d5db",
     fontSize: 14
   },
+  textarea: {
+    width: "100%",
+    padding: 10,
+    borderRadius: 6,
+    border: "1px solid #d1d5db",
+    fontSize: 14,
+    minHeight: 60,
+    resize: "vertical"
+  },
   button: {
     width: "100%",
     padding: 14,
@@ -48,6 +57,9 @@ const styles = {
   },
   iframe: { width: "100%", height: "100%", border: "none", background: "#fff" }
 }
+
+// PAD NAAR JE PDF TEMPLATE - PAS DIT AAN!
+const TEMPLATE_PREVIEW_URL = "/templates/offerte_2jours_template.pdf"
 
 export default function NieuweCalculatie() {
   const createProjectGuardRef = useRef(false)
@@ -71,7 +83,7 @@ export default function NieuweCalculatie() {
     naam_opdrachtgever: "",           // (Naam opdrachtgever)
     t_a_v_naam: "",                   // (t.a.v. naam)
     straatnaam_en_huisnummer: "",     // (straatnaam en huisnummer)
-    postcode: "",                     // (postcode) - in PDF staat "pastcode" (typo)
+    postcode: "",                     // (postcode)
     plaats: "",                       // (plaats)
     
     // Projectgegevens
@@ -135,6 +147,7 @@ export default function NieuweCalculatie() {
       if (!res.ok) throw new Error(await res.text())
       const data = await res.json()
       setProjectId(data.project_id)
+      setProcessStatus({ fase: "Project aangemaakt", actie: "created" })
     } catch (e) {
       setError(e.message)
     } finally {
@@ -166,7 +179,7 @@ export default function NieuweCalculatie() {
 
       if (!res.ok) throw new Error(await res.text())
       setUploaded(true)
-      setProcessStatus({ fase: "Bestanden geüpload", actie: "upload" })
+      setProcessStatus({ fase: "Bestanden geüpload - verwerking bezig", actie: "upload" })
     } catch (e) {
       setError(e.message)
     } finally {
@@ -185,12 +198,17 @@ export default function NieuweCalculatie() {
       try {
         const { data: project } = await supabase
           .from("projects")
-          .select("pdf_url")
+          .select("pdf_url, status")
           .eq("id", projectId)
           .maybeSingle()
 
         if (project?.pdf_url) {
           setPdfUrl(project.pdf_url)
+          if (project.status === "voltooid") {
+            setProcessStatus({ fase: "Calculatie gereed", actie: "completed" })
+            clearInterval(interval)
+            intervalRunningRef.current = false
+          }
         }
       } finally {
         intervalTickGuardRef.current = false
@@ -362,7 +380,7 @@ export default function NieuweCalculatie() {
             <div>
               <label style={styles.label}>opmerking</label>
               <textarea
-                style={styles.input}
+                style={styles.textarea}
                 value={form.opmerking}
                 onChange={e => updateForm("opmerking", e.target.value)}
                 rows="3"
@@ -374,18 +392,12 @@ export default function NieuweCalculatie() {
         <div style={styles.card}>
           <div style={styles.cardTitle}>Preview</div>
           <div style={styles.preview}>
-            {pdfUrl ? (
-              <iframe
-                key={pdfUrl}
-                title="preview"
-                src={`${pdfUrl}?t=${Date.now()}`}
-                style={styles.iframe}
-              />
-            ) : (
-              <div style={{ color: "#9ca3af", padding: 16 }}>
-                Nog geen calculatie
-              </div>
-            )}
+            <iframe
+              key={pdfUrl ? "generated" : "template"}
+              title="preview"
+              src={pdfUrl ? `${pdfUrl}?t=${Date.now()}` : TEMPLATE_PREVIEW_URL}
+              style={styles.iframe}
+            />
           </div>
         </div>
       </div>
@@ -396,24 +408,52 @@ export default function NieuweCalculatie() {
 
       <div style={{ marginTop: 16 }}>
         <button
-          style={styles.button}
+          style={{
+            ...styles.button,
+            opacity: (creating || !!projectId) ? 0.6 : 1,
+            cursor: (creating || !!projectId) ? "not-allowed" : "pointer"
+          }}
           onClick={handleCreateProject}
           disabled={creating || !!projectId}
         >
-          Project aanmaken
+          {creating ? "Aanmaken..." : "Project aanmaken"}
         </button>
       </div>
 
       <div style={{ marginTop: 12 }}>
-        <input type="file" multiple onChange={handleUpload} disabled={!projectId} />
+        <input 
+          type="file" 
+          multiple 
+          onChange={handleUpload} 
+          disabled={!projectId}
+          style={{ padding: 8 }}
+        />
+        <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>
+          Upload bestanden voor verwerking
+        </div>
       </div>
 
-      <div style={{ marginTop: 12 }}>
+      <div style={{ marginTop: 12, padding: 8, background: "#f3f4f6", borderRadius: 6 }}>
         <strong>Status:</strong> {processStatus.fase}
+        {projectId && !pdfUrl && (
+          <div style={{ fontSize: 12, color: "#666", marginTop: 2 }}>
+            (Polling voor resultaat...)
+          </div>
+        )}
       </div>
 
       {error && (
-        <pre style={{ color: "red", marginTop: 12 }}>{error}</pre>
+        <pre style={{ 
+          color: "red", 
+          marginTop: 12, 
+          padding: 12, 
+          background: "#fee", 
+          borderRadius: 6,
+          fontSize: 13,
+          overflow: "auto"
+        }}>
+          {error}
+        </pre>
       )}
     </div>
   )
