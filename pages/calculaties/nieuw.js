@@ -67,11 +67,18 @@ export default function NieuweCalculatie() {
   })
 
   const [form, setForm] = useState({
-    naam: "",
-    naam_opdrachtgever: "",
-    adres: "",
-    postcode: "",
-    plaatsnaam: "",
+    // NAW-gegevens volgens PDF-placeholders
+    naam_opdrachtgever: "",           // (Naam opdrachtgever)
+    t_a_v_naam: "",                   // (t.a.v. naam)
+    straatnaam_en_huisnummer: "",     // (straatnaam en huisnummer)
+    postcode: "",                     // (postcode) - in PDF staat "pastcode" (typo)
+    plaats: "",                       // (plaats)
+    
+    // Projectgegevens
+    projectnaam: "",                  // (projectnaam) in aanhef
+    plaatsnaam: "",                   // (plaatsnaam) in aanhef
+    
+    // Overige gegevens
     land: "Nederland",
     telefoon: "",
     project_type: "nieuwbouw",
@@ -262,18 +269,105 @@ export default function NieuweCalculatie() {
               <option value="verduurzaming">verduurzaming</option>
             </select>
 
-            {Object.keys(form)
-              .filter(k => k !== "project_type")
-              .map(k => (
-                <div key={k}>
-                  <label style={styles.label}>{k}</label>
-                  <input
-                    style={styles.input}
-                    value={form[k]}
-                    onChange={e => updateForm(k, e.target.value)}
-                  />
-                </div>
-              ))}
+            {/* NAW-velden volgens PDF-placeholders */}
+            <div>
+              <label style={styles.label}>naam_opdrachtgever</label>
+              <input
+                style={styles.input}
+                value={form.naam_opdrachtgever}
+                onChange={e => updateForm("naam_opdrachtgever", e.target.value)}
+                placeholder="(Naam opdrachtgever)"
+              />
+            </div>
+            
+            <div>
+              <label style={styles.label}>t.a.v. naam</label>
+              <input
+                style={styles.input}
+                value={form.t_a_v_naam}
+                onChange={e => updateForm("t_a_v_naam", e.target.value)}
+                placeholder="(t.a.v. naam)"
+              />
+            </div>
+            
+            <div>
+              <label style={styles.label}>straatnaam en huisnummer</label>
+              <input
+                style={styles.input}
+                value={form.straatnaam_en_huisnummer}
+                onChange={e => updateForm("straatnaam_en_huisnummer", e.target.value)}
+                placeholder="(straatnaam en huisnummer)"
+              />
+            </div>
+            
+            <div>
+              <label style={styles.label}>postcode</label>
+              <input
+                style={styles.input}
+                value={form.postcode}
+                onChange={e => updateForm("postcode", e.target.value)}
+                placeholder="(postcode)"
+              />
+            </div>
+            
+            <div>
+              <label style={styles.label}>plaats</label>
+              <input
+                style={styles.input}
+                value={form.plaats}
+                onChange={e => updateForm("plaats", e.target.value)}
+                placeholder="(plaats)"
+              />
+            </div>
+            
+            <div>
+              <label style={styles.label}>projectnaam</label>
+              <input
+                style={styles.input}
+                value={form.projectnaam}
+                onChange={e => updateForm("projectnaam", e.target.value)}
+                placeholder="(projectnaam)"
+              />
+            </div>
+            
+            <div>
+              <label style={styles.label}>plaatsnaam (project)</label>
+              <input
+                style={styles.input}
+                value={form.plaatsnaam}
+                onChange={e => updateForm("plaatsnaam", e.target.value)}
+                placeholder="(plaatsnaam)"
+              />
+            </div>
+            
+            {/* Overige velden */}
+            <div>
+              <label style={styles.label}>land</label>
+              <input
+                style={styles.input}
+                value={form.land}
+                onChange={e => updateForm("land", e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <label style={styles.label}>telefoon</label>
+              <input
+                style={styles.input}
+                value={form.telefoon}
+                onChange={e => updateForm("telefoon", e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <label style={styles.label}>opmerking</label>
+              <textarea
+                style={styles.input}
+                value={form.opmerking}
+                onChange={e => updateForm("opmerking", e.target.value)}
+                rows="3"
+              />
+            </div>
           </div>
         </div>
 
