@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react"
-import supabase from "@/lib/supabase"
+import { supabase } from "@/lib/supabase"
 
 const styles = {
   wrap: { maxWidth: 1400, margin: "0 auto", padding: 24 },
