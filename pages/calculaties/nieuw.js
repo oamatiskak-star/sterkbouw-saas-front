@@ -1,4 +1,3 @@
-// pages/calculaties/nieuw.js
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/router"
 import { supabase } from "@/lib/supabase"
