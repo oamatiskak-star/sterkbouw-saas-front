@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // BELANGRIJK: Dit maakt een standalone build voor Docker
+  output: 'standalone',
+  
   reactStrictMode: true,
   swcMinify: true,
   images: {
@@ -11,25 +14,24 @@ const nextConfig = {
     ],
     domains: ['localhost'],
   },
-  // Uitschakelen van experimentele features voor stabiliteit
+  // Experimentele features minimaliseren voor Railway
   experimental: {
-    optimizeCss: false, // UITZETTEN vanwege Tabler CSS warning
-    // serverComponentsExternalPackages: ['@supabase/supabase-js'],
+    optimizeCss: false,
   },
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   },
-  // Build errors negeren voor nu
+  // Build process stabiliteit
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true, // TypeScript errors negeren
+    ignoreBuildErrors: true,
   },
-  // Performance optimalisaties
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    // Console.log alleen verwijderen in productie als het problemen geeft
+    removeConsole: false, // ZET OP false voor debugging
   },
   async headers() {
     return [
