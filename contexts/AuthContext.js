@@ -1,54 +1,37 @@
-// pages/_app.js - GECORRIGEERDE VERSIE
-import '@/styles/globals.css'
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
-import { Toaster } from 'react-hot-toast'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import NProgress from 'nprogress'
-import 'nprogress/nprogress.css'
+// contexts/AuthContext.js - PAS DIT AAN
+import { createContext, useContext, useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 
-// MANTINE VOEGEN WE HIER TOE
-import { MantineProvider } from '@mantine/core'
-import '@mantine/core/styles.css'
-import { AuthProvider } from '@/contexts/AuthContext'
+const AuthContext = createContext({})
 
-// Tabler CSS
-import '@tabler/core/dist/css/tabler.min.css'
-import '@tabler/core/dist/css/tabler-vendors.min.css'
-import '@tabler/icons-webfont/dist/tabler-icons.min.css'
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-const queryClient = new QueryClient()
-
-export default function App({ Component, pageProps }) {
-  const router = useRouter()
-
-  // Page loading progress
   useEffect(() => {
-    const handleStart = () => NProgress.start()
-    const handleComplete = () => NProgress.done()
+    // Check active sessions
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
 
-    router.events.on('routeChangeStart', handleStart)
-    router.events.on('routeChangeComplete', handleComplete)
-    router.events.on('routeChangeError', handleComplete)
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null)
+      }
+    )
 
-    return () => {
-      router.events.off('routeChangeStart', handleStart)
-      router.events.off('routeChangeComplete', handleComplete)
-      router.events.off('routeChangeError', handleComplete)
-    }
-  }, [router])
+    return () => subscription.unsubscribe()
+  }, [])
 
-  return (
-    <>
-      {/* MANTINE PROVIDER WRAPT ALLES */}
-      <MantineProvider>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <Toaster position="top-right" />
-            <Component {...pageProps} />
-          </AuthProvider>
-        </QueryClientProvider>
-      </MantineProvider>
-    </>
-  )
+  const value = {
+    user,
+    loading
+  }
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
+
+// Zorg dat dit wordt geëxporteerd
+export const useAuth = () => useContext(AuthContext)
