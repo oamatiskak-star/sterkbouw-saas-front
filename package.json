@@ -2,8 +2,8 @@
   "name": "sterkbouw-frontend",
   "version": "1.0.0",
   "scripts": {
-    "start": "node server.js",  
-    "dev": "node server.js"     
+    "start": "npx serve -s .",
+    "dev": "echo 'Development server not configured'"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.1",
