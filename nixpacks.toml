@@ -1,8 +1,11 @@
 [phases.setup]
-cmds = ["npm ci"]
+cmds = ["npm install"]  # <-- Verander "npm ci" naar "npm install"
 
 [phases.build]
-cmds = ["echo 'No build needed for static site'"]  # of jouw build commando
+cmds = ["echo 'No build needed'"]
 
 [start]
-cmd = "npm start"  # of wat je start commando is
+cmd = "npx serve -s ."
+
+[vars]
+NIXPACKS_PATH = "/opt/nixpacks"
