@@ -1,4 +1,3 @@
-# nixpacks.toml
 [phases.setup]
 cmds = ["npm ci"]
 
