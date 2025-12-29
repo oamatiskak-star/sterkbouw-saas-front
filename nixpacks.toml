@@ -1,0 +1,8 @@
+[phases.setup]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = ["echo 'No build needed for static site'"]  # of jouw build commando
+
+[start]
+cmd = "npm start"  # of wat je start commando is
