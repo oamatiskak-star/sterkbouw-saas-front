@@ -1,13 +1,14 @@
-cat > next.config.js << 'EOF'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  // Uitgeschakelde App Router, zodat we Pages Router gebruiken
+  // Zorg dat je Pages Router gebruikt
   experimental: {
     appDir: false,
+  },
+  images: {
+    domains: ['localhost'],
   },
 }
 
 module.exports = nextConfig
-EOF
