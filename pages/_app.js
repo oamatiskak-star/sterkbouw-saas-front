@@ -79,6 +79,18 @@ export default function MyApp({ Component, pageProps }) {
   const isPublicPage = publicPages.includes(router.pathname)
 
   // ======================
+  // DEBUG LOGS
+  // ======================
+  useEffect(() => {
+    console.log('🔍 DEBUG _app.js:')
+    console.log('  - Path:', router.pathname)
+    console.log('  - Is auth page?', isAuthPage)
+    console.log('  - Is public page?', isPublicPage)
+    console.log('  - Session:', session ? 'YES' : 'NO')
+    console.log('  - Booting:', booting)
+  }, [router.pathname, session, booting])
+
+  // ======================
   // INIT SESSION – EXACT 1x
   // ======================
   useEffect(() => {
@@ -89,32 +101,42 @@ export default function MyApp({ Component, pageProps }) {
 
     async function initSession() {
       try {
+        console.log('🔄 INIT: Checking session...')
         const s = await getSession()
+        console.log('🔄 INIT: Session result:', s ? 'FOUND' : 'NOT FOUND')
+        
         if (!alive) return
 
         setSession(s || null)
 
         // ---- redirects alleen voor beveiligde pagina's ----
         if (!s && !isAuthPage && !isPublicPage && !redirectingRef.current) {
+          console.log('🚫 REDIRECT: No session, redirecting to login')
           redirectingRef.current = true
           router.replace("/login")
           return
         }
 
         if (s && isAuthPage && !redirectingRef.current) {
+          console.log('✅ REDIRECT: Has session, redirecting to dashboard')
           redirectingRef.current = true
           router.replace("/dashboard")
           return
         }
+        
+        console.log('✅ INIT: Session check complete')
       } catch (_) {
+        console.error('❌ INIT: Session error')
         if (!alive) return
         setSession(null)
 
         if (!isAuthPage && !isPublicPage && !redirectingRef.current) {
+          console.log('🚫 REDIRECT: Session error, redirecting to login')
           redirectingRef.current = true
           router.replace("/login")
         }
       } finally {
+        console.log('✅ INIT: Setting booting to false')
         if (alive) setBooting(false)
       }
     }
@@ -122,6 +144,7 @@ export default function MyApp({ Component, pageProps }) {
     initSession()
 
     return () => {
+      console.log('🔄 INIT: Cleanup')
       alive = false
     }
   }, [])
@@ -184,6 +207,7 @@ export default function MyApp({ Component, pageProps }) {
   // LOADING GATE
   // ======================
   if (booting) {
+    console.log('⏳ Showing loading screen')
     return <LoadingFallback />
   }
 
@@ -209,6 +233,7 @@ export default function MyApp({ Component, pageProps }) {
   // AUTH PAGES
   // ======================
   if (isAuthPage) {
+    console.log('🔐 Rendering auth page')
     return (
       <>
         <HeadElement />
@@ -225,6 +250,7 @@ export default function MyApp({ Component, pageProps }) {
   // PUBLIEKE PAGINA'S (geen auth nodig)
   // ======================
   if (isPublicPage) {
+    console.log('🔓 Rendering public page')
     return (
       <>
         <HeadElement />
@@ -240,6 +266,7 @@ export default function MyApp({ Component, pageProps }) {
   // ======================
   // APP PAGES (beveiligde pagina's)
   // ======================
+  console.log('🔒 Rendering protected app page')
   return (
     <>
       <HeadElement />
@@ -288,4 +315,3 @@ const globalStyles = `
     animation: spin 1s linear infinite;
     margin: 0 auto 20px;
   }
-`
