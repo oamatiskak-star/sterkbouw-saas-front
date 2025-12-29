@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import supabase from "@/lib/supabase"
+import { useRouter } from "next/router"
 
 export default function DashboardPage() {
   const [modules, setModules] = useState([])
@@ -14,15 +15,44 @@ export default function DashboardPage() {
   })
   const [recentActivity, setRecentActivity] = useState([])
   const [loading, setLoading] = useState(true)
+  const [authChecked, setAuthChecked] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     let cancelled = false
 
-    async function loadDashboardData() {
+    async function checkAndLoadData() {
       try {
         setLoading(true)
         
-        // Load modules
+        // 1. EERST: Check of gebruiker is ingelogd
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        console.log("Auth sessie:", { session, sessionError })
+        
+        if (sessionError) {
+          console.error("Auth error:", sessionError)
+          if (!cancelled) {
+            router.push("/login")
+          }
+          return
+        }
+        
+        if (!session) {
+          console.log("Geen sessie gevonden, redirect naar login")
+          if (!cancelled) {
+            router.push(`/login?returnTo=${encodeURIComponent(router.pathname)}`)
+          }
+          return
+        }
+
+        console.log("Ingelogd als:", session.user.email)
+        
+        if (!cancelled) {
+          setAuthChecked(true)
+        }
+
+        // 2. Nu data laden MET auth token
         const { data: modulesData, error: modulesError } = await supabase
           .from("modules")
           .select("key,label,route,icon,sort_order,color,description")
@@ -51,13 +81,10 @@ export default function DashboardPage() {
 
         if (!cancelled) {
           setModules(modulesData || [])
-          setStats({
-            activeProjects: activeProjectsCount || 0,
-            cashflow: 0, // Vul aan met echte data
-            ongoingTasks: 0,
-            openIssues: 0,
-            budgetUtilization: 65
-          })
+          setStats(prev => ({
+            ...prev,
+            activeProjects: activeProjectsCount || 0
+          }))
           setRecentActivity(activityData || [])
         }
       } catch (err) {
@@ -69,12 +96,32 @@ export default function DashboardPage() {
       }
     }
 
-    loadDashboardData()
+    checkAndLoadData()
     
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [router])
+
+  // Luister naar auth state changes
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state changed:", event)
+        
+        if (!session && event === 'SIGNED_OUT') {
+          router.push('/login')
+        }
+        
+        if (session && event === 'SIGNED_IN') {
+          // Herlaad data als gebruiker opnieuw inlogt
+          window.location.reload()
+        }
+      }
+    )
+    
+    return () => subscription.unsubscribe()
+  }, [router])
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('nl-NL', {
@@ -97,6 +144,22 @@ export default function DashboardPage() {
       pink: 'bg-pink'
     }
     return colorMap[color] || 'bg-blue'
+  }
+
+  // Toon loading of redirect
+  if (loading && !authChecked) {
+    return (
+      <div className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '70vh' }}>
+        <div className="spinner-border text-primary mb-3" style={{ width: '3rem', height: '3rem' }} role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <h3 className="text-muted">Beveiliging controleren...</h3>
+      </div>
+    )
+  }
+
+  if (!authChecked) {
+    return null // Wordt al doorgestuurd
   }
 
   if (loading) {
