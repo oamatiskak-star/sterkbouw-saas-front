@@ -1,246 +1,195 @@
-// components/Layout.js
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTheme } from '@/contexts/ThemeContext'
 
-export default function Layout({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const { user, logout } = useAuth()
+const Layout = ({ children }) => {
   const router = useRouter()
+  const { user, signOut } = useAuth()
+  const { theme, toggleTheme } = useTheme()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  // Navigation items
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: 'fas fa-home', badge: null },
-    { name: 'Projecten', href: '/projecten', icon: 'fas fa-building', badge: 3 },
-    { name: 'Calculaties', href: '/calculaties', icon: 'fas fa-calculator', badge: 2 },
-    { name: 'Financiering', href: '/financiering', icon: 'fas fa-euro-sign', badge: 1 },
-    { name: 'Bouwplaats', href: '/bouwplaatsApp', icon: 'fas fa-hard-hat', badge: 'AI' },
-    { name: 'BIM Ontwerpen', href: '/bim', icon: 'fas fa-drafting-compass', badge: null },
-    { name: 'Constructie', href: '/constructie', icon: 'fas fa-ruler-combined', badge: null },
-    { name: 'Mail', href: '/mail', icon: 'fas fa-envelope', badge: 5 },
-    { name: 'Investeringen', href: '/investeringen', icon: 'fas fa-chart-line', badge: null },
-    { name: 'Faseringen', href: '/faseringen', icon: 'fas fa-calendar-alt', badge: null },
+    { name: 'Dashboard', href: '/', icon: 'fas fa-home' },
+    { name: 'Projecten', href: '/projects', icon: 'fas fa-project-diagram' },
+    { name: 'Inspecties', href: '/inspections', icon: 'fas fa-clipboard-check' },
+    { name: 'Calculaties', href: '/calculaties', icon: 'fas fa-calculator' },
+    { name: 'BIM', href: '/bim', icon: 'fas fa-cube' },
+    { name: 'Rapporten', href: '/reports', icon: 'fas fa-chart-bar' },
+    { name: 'Gebruikers', href: '/users', icon: 'fas fa-users' },
+    { name: 'Instellingen', href: '/settings', icon: 'fas fa-cog' },
   ]
 
-  // Close sidebar on route change (mobile)
-  useEffect(() => {
-    const handleRouteChange = () => {
-      if (sidebarOpen) {
-        setSidebarOpen(false)
-      }
-    }
-
-    router.events.on('routeChangeComplete', handleRouteChange)
-    return () => router.events.off('routeChangeComplete', handleRouteChange)
-  }, [router, sidebarOpen])
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`)
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile sidebar backdrop */}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Mobile sidebar */}
       {sidebarOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:translate-x-0 lg:static lg:inset-auto lg:z-auto`}>
-        <div className="h-full flex flex-col">
-          {/* Logo */}
-          <div className="h-20 px-6 flex items-center border-b border-gray-200">
-            <Link href="/dashboard">
-              <a className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center shadow-md">
-                  <i className="fas fa-building text-white text-xl"></i>
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">Sterkbouw</h1>
-                  <p className="text-xs text-blue-600 font-medium">Bouw Management Systeem</p>
-                </div>
-              </a>
-            </Link>
-          </div>
-
-          {/* Search */}
-          <div className="px-4 py-5">
-            <form onSubmit={handleSearch} className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Zoek projecten, taken..."
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <i className="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-            </form>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-            {navigation.map((item) => {
-              const isActive = router.pathname === item.href || 
-                router.pathname.startsWith(`${item.href}/`)
-              
-              return (
-                <Link key={item.name} href={item.href}>
-                  <a
-                    className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
-                      isActive
-                        ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 border-r-4 border-blue-600'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <i className={`${item.icon} ${isActive ? 'text-blue-600' : 'text-gray-500'} text-lg`}></i>
-                      <span className="font-medium">{item.name}</span>
+        <div className="lg:hidden">
+          <div className="fixed inset-0 flex z-40">
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
+            <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-gray-800">
+              <div className="absolute top-0 right-0 -mr-12 pt-2">
+                <button
+                  className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <i className="fas fa-times text-white text-lg"></i>
+                </button>
+              </div>
+              <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+                <div className="flex-shrink-0 flex items-center px-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                      <i className="fas fa-building text-white text-sm"></i>
                     </div>
-                    
-                    {item.badge && (
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        isActive 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-gray-200 text-gray-700'
-                      }`}>
-                        {item.badge}
-                      </span>
-                    )}
-                  </a>
-                </Link>
-              )
-            })}
-          </nav>
-
-          {/* User profile & Quick actions */}
-          <div className="border-t border-gray-200 p-4 space-y-4">
-            {/* Quick actions */}
-            <div className="grid grid-cols-2 gap-2">
-              <button className="p-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors">
-                <i className="fas fa-plus text-sm"></i>
-                <span className="text-xs font-medium ml-1">Nieuw</span>
-              </button>
-              <button className="p-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors">
-                <i className="fas fa-file-export text-sm"></i>
-                <span className="text-xs font-medium ml-1">Export</span>
-              </button>
-            </div>
-
-            {/* User */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center text-white font-bold">
-                    {user?.name?.charAt(0) || 'U'}
+                    <span className="text-xl font-bold text-gray-900 dark:text-white">Sterkbouw</span>
                   </div>
-                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{user?.name || 'Gebruiker'}</p>
-                  <p className="text-xs text-gray-500 truncate">{user?.role || 'Medewerker'}</p>
+                <nav className="mt-5 px-2 space-y-1">
+                  {navigation.map((item) => {
+                    const isActive = router.pathname === item.href
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                          isActive
+                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                        }`}
+                        onClick={() => setSidebarOpen(false)}
+                      >
+                        <i className={`${item.icon} mr-4 flex-shrink-0 h-6 w-6`}></i>
+                        {item.name}
+                      </Link>
+                    )
+                  })}
+                </nav>
+              </div>
+              <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+                <div className="flex items-center">
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {user?.email || 'Gebruiker'}
+                    </p>
+                    <button
+                      onClick={signOut}
+                      className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                    >
+                      Uitloggen
+                    </button>
+                  </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Desktop sidebar */}
+      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
+        <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+          <div className="flex items-center flex-shrink-0 px-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <i className="fas fa-building text-white text-sm"></i>
+              </div>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">Sterkbouw</span>
+            </div>
+          </div>
+          <div className="mt-8 flex-grow flex flex-col">
+            <nav className="flex-1 px-2 space-y-1">
+              {navigation.map((item) => {
+                const isActive = router.pathname === item.href
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
+                      isActive
+                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                    }`}
+                  >
+                    <i className={`${item.icon} mr-3 flex-shrink-0 h-6 w-6`}></i>
+                    {item.name}
+                  </Link>
+                )
+              })}
+            </nav>
+          </div>
+          <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+            <div className="flex items-center">
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {user?.email || 'Gebruiker'}
+                </p>
+                <button
+                  onClick={signOut}
+                  className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                >
+                  Uitloggen
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="lg:pl-64 flex flex-col flex-1">
+        <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <button
+            type="button"
+            className="px-4 border-r border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 lg:hidden"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <i className="fas fa-bars h-6 w-6"></i>
+          </button>
+          <div className="flex-1 flex justify-between px-4">
+            <div className="flex-1 flex">
+              <div className="w-full flex md:ml-0">
+                <div className="relative w-full text-gray-400 focus-within:text-gray-600 dark:focus-within:text-gray-300">
+                  <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
+                    <i className="fas fa-search h-5 w-5 ml-3"></i>
+                  </div>
+                  <input
+                    className="block w-full h-full pl-10 pr-3 py-2 border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 dark:focus:placeholder-gray-500 focus:ring-0 focus:border-transparent bg-transparent"
+                    placeholder="Zoeken..."
+                    type="search"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="ml-4 flex items-center md:ml-6 space-x-4">
               <button
-                onClick={logout}
-                className="p-2 text-gray-400 hover:text-gray-600"
-                title="Uitloggen"
+                onClick={toggleTheme}
+                className="p-2 rounded-full text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                <i className="fas fa-sign-out-alt"></i>
+                {theme === 'dark' ? (
+                  <i className="fas fa-sun h-5 w-5"></i>
+                ) : (
+                  <i className="fas fa-moon h-5 w-5"></i>
+                )}
+              </button>
+              <button className="p-2 rounded-full text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <i className="fas fa-bell h-5 w-5"></i>
               </button>
             </div>
           </div>
         </div>
-      </aside>
 
-      {/* Main content */}
-      <div className="lg:pl-72">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div className="flex items-center">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden text-gray-500 hover:text-gray-700 p-2"
-              >
-                <i className="fas fa-bars text-xl"></i>
-              </button>
-              
-              <div className="ml-4">
-                <h1 className="text-lg font-bold text-gray-900">
-                  {navigation.find(nav => nav.href === router.pathname)?.name || 'Dashboard'}
-                </h1>
-                <p className="text-sm text-gray-500">
-                  {new Date().toLocaleDateString('nl-NL', { 
-                    weekday: 'long', 
-                    day: 'numeric', 
-                    month: 'long',
-                    year: 'numeric'
-                  })}
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              {/* Notifications */}
-              <div className="relative">
-                <button className="p-2 text-gray-500 hover:text-gray-700 relative">
-                  <i className="fas fa-bell text-xl"></i>
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
-              </div>
-              
-              {/* Messages */}
-              <div className="relative">
-                <button className="p-2 text-gray-500 hover:text-gray-700 relative">
-                  <i className="fas fa-envelope text-xl"></i>
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full"></span>
-                </button>
-              </div>
-              
-              {/* Settings */}
-              <button className="p-2 text-gray-500 hover:text-gray-700">
-                <i className="fas fa-cog text-xl"></i>
-              </button>
-              
-              {/* Help */}
-              <button className="p-2 text-gray-500 hover:text-gray-700">
-                <i className="fas fa-question-circle text-xl"></i>
-              </button>
+        <main className="flex-1">
+          <div className="py-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+              {children}
             </div>
           </div>
-        </header>
-
-        {/* Page content */}
-        <main className="p-4 md:p-6">
-          {children}
         </main>
-
-        {/* Footer */}
-        <footer className="border-t border-gray-200 bg-white px-6 py-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-sm text-gray-600">
-              © {new Date().getFullYear()} Sterkbouw B.V. - Alle rechten voorbehouden
-            </div>
-            <div className="flex items-center space-x-4 mt-2 md:mt-0">
-              <a href="#" className="text-sm text-gray-600 hover:text-blue-600">Privacy</a>
-              <a href="#" className="text-sm text-gray-600 hover:text-blue-600">Voorwaarden</a>
-              <a href="#" className="text-sm text-gray-600 hover:text-blue-600">Help</a>
-              <a href="#" className="text-sm text-gray-600 hover:text-blue-600">Contact</a>
-            </div>
-          </div>
-        </footer>
       </div>
     </div>
   )
 }
+
+export default Layout
