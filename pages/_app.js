@@ -11,7 +11,7 @@ import ErrorBoundary from "../components/ErrorBoundary"
 
 import AppLayout from "../layouts/AppLayout"
 import AuthLayout from "../layouts/AuthLayout"
-import { getSession } from "../lib/auth"
+import { AuthProvider, getSession } from "../lib/auth" // AuthProvider toegevoegd
 
 // Loading component voor Suspense
 const LoadingFallback = () => (
@@ -43,7 +43,7 @@ const LoadingFallback = () => (
   </div>
 )
 
-export default function MyApp({ Component, pageProps }) {
+function MyAppContent({ Component, pageProps }) {
   const router = useRouter()
 
   // ======================
@@ -291,34 +291,12 @@ export default function MyApp({ Component, pageProps }) {
     </>
   )
 }
-// ↑↑↑ Dit is het einde van de MyApp functie ↑↑↑
 
-// VERWIJDER DEZE REGEL COMPLEET:
-// export default MyApp
-
-// Als je de globalStyles nog nodig hebt, kun je ze hier toevoegen:
-/*
-const globalStyles = `
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  .error-boundary {
-    padding: 40px;
-    text-align: center;
-    background-color: #f8f9fa;
-    min-height: 100vh;
-  }
-  
-  .loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid #f3f3f3;
-    border-top: 5px solid #3498db;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 20px;
-  }
-`
-*/
+// Hoofd component met AuthProvider wrapper
+export default function MyApp({ Component, pageProps }) {
+  return (
+    <AuthProvider>
+      <MyAppContent Component={Component} pageProps={pageProps} />
+    </AuthProvider>
+  )
+}
