@@ -1,16 +1,9 @@
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base  # ← Verander van 18 naar 20
 WORKDIR /app
 
-# 1. Kopieer package.json eerst (voor betere caching)
 COPY package*.json ./
-
-# 2. Installeer dependencies
 RUN npm install --production=false
-
-# 3. Kopieer ALLE andere bestanden
 COPY . .
-
-# 4. Bouw de Next.js app
 RUN npm run build
 
 EXPOSE 3000
