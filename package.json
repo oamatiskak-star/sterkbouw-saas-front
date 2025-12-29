@@ -4,25 +4,25 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build", 
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "next": "13.4.19",  // ← Next.js 13+ voor hybride
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    
     "@supabase/supabase-js": "^2.45.1",
     "@tabler/core": "^1.0.0-beta22",
     "axios": "^1.7.2",
     "chart.js": "^4.4.3",
     "formidable": "^3.5.1",
     "three": "^0.164.1",
-    "next": "12.3.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     
     "@mantine/core": "^6.0.21",
     "@mantine/notifications": "^6.0.21",
     "@tabler/icons-react": "^3.15.0",
-    
     "lucide-react": "^0.309.0",
     
     "clsx": "^2.0.0",
@@ -32,7 +32,6 @@
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5",
-    
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/node": "^20.0.0"
