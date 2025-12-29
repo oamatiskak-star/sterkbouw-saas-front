@@ -1,15 +1,17 @@
-// components/ProgressBar.js
-import { useEffect } from 'react'
+// components/ProgressBar.js - ZONDER NPROGRESS
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import NProgress from 'nprogress'
-import 'nprogress/nprogress.css'
 
 export default function ProgressBar() {
   const router = useRouter()
+  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    const handleStart = () => NProgress.start()
-    const handleComplete = () => NProgress.done()
+    const handleStart = () => setProgress(30)
+    const handleComplete = () => {
+      setProgress(100)
+      setTimeout(() => setProgress(0), 300)
+    }
 
     router.events.on('routeChangeStart', handleStart)
     router.events.on('routeChangeComplete', handleComplete)
@@ -22,5 +24,14 @@ export default function ProgressBar() {
     }
   }, [router])
 
-  return null
+  if (progress === 0) return null
+
+  return (
+    <div className="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
+      <div 
+        className="h-full bg-blue-600 transition-all duration-300 ease-out"
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+  )
 }
