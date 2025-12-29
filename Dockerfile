@@ -2,16 +2,16 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Kopieer ALLEEN package.json
-COPY package.json ./
+# Kopieer package files
+COPY package.json package-lock.json* ./
 
-# Gebruik npm install ipv npm ci - werkt altijd
-RUN npm install
+# Eerst proberen npm ci, anders npm install
+RUN if [ -f package-lock.json ] && [ -s package-lock.json ]; then npm ci; else npm install; fi
 
-# Kopieer rest van de code
+# Kopieer rest
 COPY . .
 
-# Build Next.js (gebruik standalone output voor Railway)
+# Build met standalone output
 RUN npm run build
 
 # Productie image
