@@ -3,7 +3,16 @@
   "build": {
     "builder": "NIXPACKS",
     "buildCommand": "npm install --frozen-lockfile && npm run build",
-    "buildTimeout": 600
+    "buildTimeout": 600,
+    "nixpacks": {
+      "config": {
+        "phases": {
+          "setup": {
+            "aptPackages": ["git"]
+          }
+        }
+      }
+    }
   },
   "deploy": {
     "startCommand": "npm start",
@@ -15,6 +24,7 @@
   "env": {
     "NODE_ENV": "production",
     "NEXT_TELEMETRY_DISABLED": "1",
-    "CI": "true"
+    "CI": "true",
+    "NODE_OPTIONS": "--max-old-space-size=4096"
   }
 }
