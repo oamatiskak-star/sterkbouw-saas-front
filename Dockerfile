@@ -1,17 +1,16 @@
 FROM node:18-alpine AS base
-
-# Stel de submap in waar je Next.js project staat
-ARG PROJECT_DIR=frontend
 WORKDIR /app
-COPY ${PROJECT_DIR}/package*.json ./
 
-# Installeer dependencies
+# 1. Kopieer package.json en package-lock.json
+COPY package*.json ./
+
+# 2. Installeer dependencies (inclusief dev dependencies voor build)
 RUN npm install --production=false
 
-# Kopieer de rest van je project
-COPY ${PROJECT_DIR} ./
+# 3. Kopieer ALLES behalve wat in .dockerignore staat
+COPY . .
 
-# Bouw de Next.js app
+# 4. Bouw de Next.js app
 RUN npm run build
 
 EXPOSE 3000
