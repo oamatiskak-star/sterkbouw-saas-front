@@ -25,7 +25,7 @@ export default function DashboardPage() {
         // Load modules
         const { data: modulesData, error: modulesError } = await supabase
           .from("modules")
-          .select("key,label,route,icon,sort_order,color")
+          .select("key,label,route,icon,sort_order,color,description")
           .eq("active", true)
           .not("route", "like", "%/%/%")
           .neq("route", "/dashboard")
@@ -36,18 +36,11 @@ export default function DashboardPage() {
           return
         }
 
-        // Load stats (vervang dit met je echte data queries)
-        // Voorbeeld queries - pas aan aan je database structuur
+        // Load stats
         const { count: activeProjectsCount } = await supabase
           .from("projects")
           .select("*", { count: 'exact', head: true })
           .eq("status", "active")
-
-        const { data: cashflowData } = await supabase
-          .from("financials")
-          .select("amount")
-          .eq("type", "income")
-          .single()
 
         // Load recent activity
         const { data: activityData } = await supabase
@@ -60,10 +53,10 @@ export default function DashboardPage() {
           setModules(modulesData || [])
           setStats({
             activeProjects: activeProjectsCount || 0,
-            cashflow: cashflowData?.amount || 0,
-            ongoingTasks: 0, // Vul aan
-            openIssues: 0, // Vul aan
-            budgetUtilization: 65 // Voorbeeld percentage
+            cashflow: 0, // Vul aan met echte data
+            ongoingTasks: 0,
+            openIssues: 0,
+            budgetUtilization: 65
           })
           setRecentActivity(activityData || [])
         }
@@ -117,6 +110,11 @@ export default function DashboardPage() {
     )
   }
 
+  // Vind specifieke modules voor snelle links
+  const calculatieModule = modules.find(m => m.key === 'calculaties' || m.label.toLowerCase().includes('calculatie'))
+  const bimModule = modules.find(m => m.key === 'bim' || m.label.toLowerCase().includes('bim'))
+  const bouwplaatsModule = modules.find(m => m.key === 'bouwplaats' || m.label.toLowerCase().includes('bouwplaats'))
+
   return (
     <div className="container-fluid px-lg-4 px-xl-5">
       {/* Page Header with Welcome */}
@@ -131,10 +129,12 @@ export default function DashboardPage() {
           </div>
           <div className="col-auto">
             <div className="btn-list">
-              <button className="btn btn-primary">
-                <i className="ti ti-plus me-2"></i>
-                Nieuw Project
-              </button>
+              <Link href="/projects/new">
+                <a className="btn btn-primary">
+                  <i className="ti ti-plus me-2"></i>
+                  Nieuw Project
+                </a>
+              </Link>
               <button className="btn btn-outline-secondary">
                 <i className="ti ti-report-analytics me-2"></i>
                 Rapportage
@@ -144,7 +144,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Stats Cards Grid - Verbeterd ontwerp */}
+      {/* Stats Cards */}
       <div className="row row-deck row-cards mb-4">
         <div className="col-md-3 col-sm-6">
           <div className="card card-sm card-borderless bg-primary-lt">
@@ -165,9 +165,11 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="card-footer">
-              <a href="/projects" className="text-primary text-decoration-none">
-                Bekijk alle projecten <i className="ti ti-arrow-right ms-1"></i>
-              </a>
+              <Link href="/projects">
+                <a className="text-primary text-decoration-none">
+                  Bekijk alle projecten <i className="ti ti-arrow-right ms-1"></i>
+                </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -193,9 +195,9 @@ export default function DashboardPage() {
               </div>
               <div className="mt-3">
                 <div className="progress progress-sm">
-                  <div className="progress-bar bg-green" style={{ width: '78%' }}></div>
+                  <div className="progress-bar bg-green" style={{ width: `${stats.budgetUtilization}%` }}></div>
                 </div>
-                <small className="text-muted">78% van budget gebruikt</small>
+                <small className="text-muted">{stats.budgetUtilization}% van budget gebruikt</small>
               </div>
             </div>
           </div>
@@ -246,25 +248,147 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="mt-3">
-                <a href="/issues" className="text-danger text-decoration-none">
-                  <i className="ti ti-alert-circle me-1"></i>
-                  Dringende actie nodig
-                </a>
+                <Link href="/issues">
+                  <a className="text-danger text-decoration-none">
+                    <i className="ti ti-alert-circle me-1"></i>
+                    Dringende actie nodig
+                  </a>
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Quick Stats Row */}
+      {/* Quick Access Section */}
       <div className="row mb-4">
+        <div className="col-12">
+          <div className="card">
+            <div className="card-header">
+              <h3 className="card-title">
+                <i className="ti ti-bolt me-2"></i>
+                Snelle toegang
+              </h3>
+              <div className="card-actions">
+                <span className="text-muted">Belangrijke functies direct bereikbaar</span>
+              </div>
+            </div>
+            <div className="card-body">
+              <div className="row g-3">
+                {/* Calculatie Module */}
+                {calculatieModule && (
+                  <div className="col-xl-3 col-lg-4 col-md-6">
+                    <Link href={calculatieModule.route}>
+                      <a className="card card-link card-borderless hover-shadow-sm" style={{ textDecoration: 'none' }}>
+                        <div className="card-body">
+                          <div className="d-flex align-items-center">
+                            <div className="flex-shrink-0">
+                              <div className="bg-blue text-white avatar">
+                                <i className={`ti ti-${calculatieModule.icon || 'calculator'}`}></i>
+                              </div>
+                            </div>
+                            <div className="flex-fill ms-3">
+                              <h4 className="mb-1">{calculatieModule.label}</h4>
+                              <div className="text-muted small">
+                                <i className="ti ti-arrow-right me-1"></i>
+                                Kostenberekeningen
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </Link>
+                  </div>
+                )}
+
+                {/* BIM Module */}
+                {bimModule && (
+                  <div className="col-xl-3 col-lg-4 col-md-6">
+                    <Link href={bimModule.route}>
+                      <a className="card card-link card-borderless hover-shadow-sm" style={{ textDecoration: 'none' }}>
+                        <div className="card-body">
+                          <div className="d-flex align-items-center">
+                            <div className="flex-shrink-0">
+                              <div className="bg-purple text-white avatar">
+                                <i className={`ti ti-${bimModule.icon || 'drafting-compass'}`}></i>
+                              </div>
+                            </div>
+                            <div className="flex-fill ms-3">
+                              <h4 className="mb-1">{bimModule.label}</h4>
+                              <div className="text-muted small">
+                                <i className="ti ti-arrow-right me-1"></i>
+                                Bouwinformatiemodellen
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </Link>
+                  </div>
+                )}
+
+                {/* Bouwplaats App */}
+                <div className="col-xl-3 col-lg-4 col-md-6">
+                  <Link href="/bouwplaats">
+                    <a className="card card-link card-borderless hover-shadow-sm" style={{ textDecoration: 'none' }}>
+                      <div className="card-body">
+                        <div className="d-flex align-items-center">
+                          <div className="flex-shrink-0">
+                            <div className="bg-green text-white avatar">
+                              <i className="ti ti-building"></i>
+                            </div>
+                          </div>
+                          <div className="flex-fill ms-3">
+                            <h4 className="mb-1">AI Bouwplaats</h4>
+                            <div className="text-muted small">
+                              <i className="ti ti-arrow-right me-1"></i>
+                              Inspectie & Uitvoering
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </Link>
+                </div>
+
+                {/* Projectontwikkeling */}
+                <div className="col-xl-3 col-lg-4 col-md-6">
+                  <Link href="/projectontwikkeling">
+                    <a className="card card-link card-borderless hover-shadow-sm" style={{ textDecoration: 'none' }}>
+                      <div className="card-body">
+                        <div className="d-flex align-items-center">
+                          <div className="flex-shrink-0">
+                            <div className="bg-orange text-white avatar">
+                              <i className="ti ti-trending-up"></i>
+                            </div>
+                          </div>
+                          <div className="flex-fill ms-3">
+                            <h4 className="mb-1">Projectontwikkeling</h4>
+                            <div className="text-muted small">
+                              <i className="ti ti-arrow-right me-1"></i>
+                              Nieuwe projecten
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Grid */}
+      <div className="row">
         <div className="col-lg-8">
-          {/* Modules Grid - Verbeterd ontwerp */}
+          {/* Modules Grid */}
           <div className="card mb-4">
             <div className="card-header">
               <h3 className="card-title">
                 <i className="ti ti-apps me-2"></i>
-                Modules
+                Alle Modules
               </h3>
               <div className="card-actions">
                 <span className="text-muted">Directe toegang tot alle functionaliteiten</span>
@@ -296,7 +420,7 @@ export default function DashboardPage() {
                                 <h4 className="mb-1">{module.label}</h4>
                                 <div className="text-muted small">
                                   <i className="ti ti-arrow-right me-1"></i>
-                                  Open module
+                                  {module.description || 'Open module'}
                                 </div>
                               </div>
                             </div>
@@ -310,7 +434,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Recent Activity with Timeline */}
+          {/* Recent Activity */}
           <div className="card">
             <div className="card-header">
               <h3 className="card-title">
@@ -366,7 +490,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Sidebar with Quick Actions and Upcoming */}
+        {/* Sidebar */}
         <div className="col-lg-4">
           <div className="card mb-4">
             <div className="card-header">
@@ -377,34 +501,47 @@ export default function DashboardPage() {
             </div>
             <div className="card-body">
               <div className="list-group list-group-flush">
-                <a href="/projects/new" className="list-group-item list-group-item-action d-flex align-items-center">
-                  <i className="ti ti-plus text-blue me-3"></i>
-                  <div className="flex-fill">
-                    <div>Nieuw project aanmaken</div>
-                    <small className="text-muted">Start een nieuw bouwproject</small>
-                  </div>
-                </a>
-                <a href="/calculaties/new" className="list-group-item list-group-item-action d-flex align-items-center">
-                  <i className="ti ti-calculator text-green me-3"></i>
-                  <div className="flex-fill">
-                    <div>Nieuwe calculatie</div>
-                    <small className="text-muted">Bereken projectkosten</small>
-                  </div>
-                </a>
-                <a href="/financiering/aanvraag" className="list-group-item list-group-item-action d-flex align-items-center">
-                  <i className="ti ti-pig-money text-purple me-3"></i>
-                  <div className="flex-fill">
-                    <div>Financiering aanvragen</div>
-                    <small className="text-muted">Nieuwe financieringsaanvraag</small>
-                  </div>
-                </a>
-                <a href="/mail" className="list-group-item list-group-item-action d-flex align-items-center">
-                  <i className="ti ti-mail text-orange me-3"></i>
-                  <div className="flex-fill">
-                    <div>Nieuwe e-mail</div>
-                    <small className="text-muted">Stuur een bericht</small>
-                  </div>
-                </a>
+                <Link href="/projects/new">
+                  <a className="list-group-item list-group-item-action d-flex align-items-center">
+                    <i className="ti ti-plus text-blue me-3"></i>
+                    <div className="flex-fill">
+                      <div>Nieuw project aanmaken</div>
+                      <small className="text-muted">Start een nieuw bouwproject</small>
+                    </div>
+                  </a>
+                </Link>
+                
+                {calculatieModule && (
+                  <Link href={calculatieModule.route}>
+                    <a className="list-group-item list-group-item-action d-flex align-items-center">
+                      <i className="ti ti-calculator text-green me-3"></i>
+                      <div className="flex-fill">
+                        <div>Nieuwe calculatie</div>
+                        <small className="text-muted">Bereken projectkosten</small>
+                      </div>
+                    </a>
+                  </Link>
+                )}
+                
+                <Link href="/financiering/aanvraag">
+                  <a className="list-group-item list-group-item-action d-flex align-items-center">
+                    <i className="ti ti-pig-money text-purple me-3"></i>
+                    <div className="flex-fill">
+                      <div>Financiering aanvragen</div>
+                      <small className="text-muted">Nieuwe financieringsaanvraag</small>
+                    </div>
+                  </a>
+                </Link>
+                
+                <Link href="/bouwplaats">
+                  <a className="list-group-item list-group-item-action d-flex align-items-center">
+                    <i className="ti ti-building text-orange me-3"></i>
+                    <div className="flex-fill">
+                      <div>AI Bouwinspectie starten</div>
+                      <small className="text-muted">Bouwplaats controle</small>
+                    </div>
+                  </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -454,10 +591,52 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="mt-3 text-center">
-                <a href="/calendar" className="text-primary text-decoration-none">
-                  <i className="ti ti-calendar me-1"></i>
-                  Volledige agenda bekijken
-                </a>
+                <Link href="/calendar">
+                  <a className="text-primary text-decoration-none">
+                    <i className="ti ti-calendar me-1"></i>
+                    Volledige agenda bekijken
+                  </a>
+                </Link>
+              </div>
+            </div>
+          </div>
+          
+          {/* AI Bouwinspecteur Status */}
+          <div className="card">
+            <div className="card-header">
+              <h3 className="card-title">
+                <i className="ti ti-robot me-2"></i>
+                AI Inspecteur Status
+              </h3>
+            </div>
+            <div className="card-body">
+              <div className="d-flex align-items-center mb-3">
+                <div className="flex-shrink-0">
+                  <div className="bg-green text-white avatar">
+                    <i className="ti ti-shield-check"></i>
+                  </div>
+                </div>
+                <div className="flex-fill ms-3">
+                  <div className="fw-bold">AI Bouwinspecteur</div>
+                  <div className="text-muted small">Actief op bouwplaats</div>
+                </div>
+                <div className="flex-shrink-0">
+                  <span className="badge bg-success">Live</span>
+                </div>
+              </div>
+              
+              <div className="progress mb-2">
+                <div className="progress-bar bg-success" style={{ width: '92%' }}></div>
+              </div>
+              <small className="text-muted">Veiligheidsscore: 92%</small>
+              
+              <div className="mt-3">
+                <Link href="/bouwplaats">
+                  <a className="btn btn-primary w-100">
+                    <i className="ti ti-arrow-right me-2"></i>
+                    Naar Bouwplaats App
+                  </a>
+                </Link>
               </div>
             </div>
           </div>
