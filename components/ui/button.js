@@ -2,7 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
-// Default export Button component
 const Button = React.forwardRef(({ 
   className,
   variant = 'default',
@@ -57,15 +56,15 @@ const Button = React.forwardRef(({
 })
 
 Button.displayName = 'Button'
+
 Button.propTypes = {
   className: PropTypes.string,
   variant: PropTypes.oneOf(['default', 'destructive', 'outline', 'secondary', 'ghost', 'link']),
   size: PropTypes.oneOf(['default', 'sm', 'lg', 'icon']),
-  children: PropTypes.node,
+  children: PropTypes.node.isRequired, // ✅ Nu accepteert het children
   disabled: PropTypes.bool,
   loading: PropTypes.bool,
 }
 
-// Named export
 export { Button }
 export default Button
