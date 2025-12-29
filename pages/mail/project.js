@@ -1,46 +1,24 @@
-import MailWorkflowActions from "../../components/MailWorkflowActions"
-import { useProject } from "../../components/ProjectContext"
+// pages/mail/project.js
+import { useRouter } from 'next/router'
+import { useState, useEffect } from 'react'
 
-export default function ProjectMail({ session }) {
-  const { projectId } = useProject()
+export default function MailProject() {
+  const router = useRouter()
+  const { projectId } = router.query
+  const [mounted, setMounted] = useState(false)
 
-  const actions = [
-    {
-      workflow_key: "mail_project_update",
-      label: "Stuur projectupdate",
-      onRun: () => {
-        fetch("/api/mail/workflow", {
-          method: "POST",
-          body: JSON.stringify({
-            workflow_key: "mail_project_update",
-            project_id: projectId
-          })
-        })
-      }
-    },
-    {
-      workflow_key: "mail_project_factuur",
-      label: "Stuur factuur",
-      onRun: () => {
-        fetch("/api/mail/workflow", {
-          method: "POST",
-          body: JSON.stringify({
-            workflow_key: "mail_project_factuur",
-            project_id: projectId
-          })
-        })
-      }
-    }
-  ]
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <div>Mail project laden...</div>
+  }
 
   return (
     <div>
-      <h1>Projectmail</h1>
-
-      <MailWorkflowActions
-        userId={session.user.id}
-        actions={actions}
-      />
+      <h1>Mail project {projectId || ''}</h1>
+      <p>Mail functionaliteit voor project {projectId}</p>
     </div>
   )
 }
