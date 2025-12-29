@@ -65,13 +65,17 @@ import {
   IconCurrencyEuro,
   IconTrees
 } from '@tabler/icons-react'
-import { useNotifications } from '@mantine/notifications'
+import { notifications } from '@mantine/notifications'
 import { useRouter } from 'next/router'
 
 export default function BIMPagina() {
   const router = useRouter()
   const { projectId } = router.query
-  const notifications = useNotifications()
+  notifications.show({
+  title: 'Fout',
+  message: 'Kon project niet laden',
+  color: 'red'
+})
   
   // State management
   const [loading, setLoading] = useState(false)
