@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base  # ← Verander van 18 naar 20
+FROM node:20-alpine AS base
 WORKDIR /app
 
 COPY package*.json ./
