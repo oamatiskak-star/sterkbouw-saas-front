@@ -19,15 +19,12 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     
-    // Nieuwe dependencies voor BIM module
     "@mantine/core": "^6.0.21",
     "@mantine/notifications": "^6.0.21",
     "@tabler/icons-react": "^3.15.0",
     
-    // Nieuwe dependencies voor calculatie module
     "lucide-react": "^0.309.0",
     
-    // Utility libraries
     "clsx": "^2.0.0",
     "tailwind-merge": "^2.1.0"
   },
@@ -36,7 +33,6 @@
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5",
     
-    // Type definitions (optioneel maar aanbevolen)
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/node": "^20.0.0"
