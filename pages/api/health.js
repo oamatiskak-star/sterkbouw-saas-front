@@ -1,9 +1,8 @@
-// pages/api/health.js
 export default function handler(req, res) {
   res.status(200).json({ 
-    status: 'ok',
-    message: 'SterkBouw Frontend API',
+    status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'online'
-  });
+    service: 'sterkbouw-frontend',
+    version: '1.0.0'
+  })
 }
