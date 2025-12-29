@@ -8,14 +8,4 @@ cmds = ["echo 'No build needed'"]
 cmd = "npm start"
 
 [vars]
-NIXPACKS_PATH = "/opt/nixpacks"[phases.setup]
-cmds = ["npm install"]  
-
-[phases.build]
-cmds = ["echo 'No build needed'"]
-
-[start]
-cmd = "npx serve -s ."
-
-[vars]
 NIXPACKS_PATH = "/opt/nixpacks"
