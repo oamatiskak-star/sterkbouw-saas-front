@@ -263,7 +263,7 @@ export default function MyApp({ Component, pageProps }) {
     )
   }
 
-    // ======================
+  // ======================
   // APP PAGES (beveiligde pagina's)
   // ======================
   console.log('🔒 Rendering protected app page')
@@ -290,9 +290,14 @@ export default function MyApp({ Component, pageProps }) {
       </ErrorBoundary>
     </>
   )
-} // ← DIT MIS JE! Deze } moet de MyApp component afsluiten
+}
+// ↑↑↑ Dit is het einde van de MyApp functie ↑↑↑
 
-// Voeg styles toe voor loading spinner
+// VERWIJDER DEZE REGEL COMPLEET:
+// export default MyApp
+
+// Als je de globalStyles nog nodig hebt, kun je ze hier toevoegen:
+/*
 const globalStyles = `
   @keyframes spin {
     0% { transform: rotate(0deg); }
@@ -316,5 +321,4 @@ const globalStyles = `
     margin: 0 auto 20px;
   }
 `
-
-export default MyApp 
+*/
