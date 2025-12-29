@@ -1,20 +1,22 @@
 /* styles/globals.css */
 
-/* 1. TABLER CSS IMPORTS (jouw bestaande styles) */
-@import "@tabler/core/dist/css/tabler.min.css";
-@import "@tabler/core/dist/css/tabler-flags.min.css";
-@import "@tabler/core/dist/css/tabler-payments.min.css";
-@import "@tabler/core/dist/css/tabler-vendors.min.css";
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
-
-/* 2. TAILWIND CSS (voeg dit TOE) */
+/* 1. TAILWIND CSS - MOET EERST KOMEN! */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 3. CUSTOM STYLES (pas aan voor compatibiliteit) */
+/* 2. TABLER CSS IMPORTS - komt NA Tailwind */
+@import "@tabler/core/dist/css/tabler.min.css";
+@import "@tabler/core/dist/css/tabler-flags.min.css";
+@import "@tabler/core/dist/css/tabler-payments.min.css";
+@import "@tabler/core/dist/css/tabler-vendors.min.css";
 
-/* Base styles - overschrijf Tabler waar nodig */
+/* 3. GOOGLE FONT */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+
+/* 4. CUSTOM STYLES */
+
+/* Base styles */
 body {
   margin: 0;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -24,7 +26,7 @@ body {
   line-height: 1.5;
 }
 
-/* Koppen - gebruik Tailwind classes voor nieuwe components */
+/* Koppen */
 h1 {
   font-size: 22px;
   font-weight: 600;
@@ -47,53 +49,50 @@ h3 {
 
 /* Tailwind layer voor nieuwe components */
 @layer components {
-  /* Modern card - combineer Tabler met Tailwind */
   .modern-card {
     @apply bg-white p-6 rounded-xl shadow-sm border border-gray-200;
   }
   
-  /* Primary button - Tailwind variant */
   .btn-primary {
     @apply px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors;
   }
   
-  /* Form input - Tailwind styling */
   .input-modern {
     @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
   }
   
-  /* Grid layout voor nieuwe dashboard */
   .dashboard-grid-modern {
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
   }
 }
 
-/* 4. CONFLICT RESOLUTION */
-/* Voorkom dat Tabler onze nieuwe Tailwind components overschrijft */
+/* 5. CONFLICT RESOLUTION - hernoem deze selectors */
+/* Gebruik sterkbouw specifieke classes */
 
-/* Zorg dat nieuwe App Router components Tabler niet erven */
-#__next > div:not(.tabler) {
-  all: unset;
-}
-
-/* Specifiek voor nieuwe App Router pages */
-[data-app-router="true"] {
-  /* Reset Tabler styles voor nieuwe app */
+/* Voor Next.js container */
+.sb-app-container {
   font-family: inherit;
   color: inherit;
   background: inherit;
 }
 
-/* 5. TRANSITION CLASSES */
-/* Mix Tabler en Tailwind voor geleidelijke migratie */
+/* Voor je dashboard specifiek */
+.sb-dashboard {
+  /* Reset styles voor dashboard gebied */
+  font-family: inherit !important;
+  color: inherit !important;
+}
 
-/* Voor bestaande components die Tabler gebruiken */
+/* 6. TRANSITION CLASSES */
 .sb-card {
-  /* Behoud Tabler styling maar voeg Tailwind utilities toe */
   @apply transition-all duration-200;
 }
 
-/* Voor nieuwe components die alleen Tailwind gebruiken */
 .tw-card {
   @apply bg-white p-6 rounded-lg shadow border border-gray-200;
+}
+
+/* Next.js container fix */
+#__next {
+  min-height: 100vh;
 }
