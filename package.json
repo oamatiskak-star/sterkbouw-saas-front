@@ -14,6 +14,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "@supabase/supabase-js": "^2.45.1",
+    "@supabase/ssr": "^0.2.1",
     "@tanstack/react-query": "^5.17.19",
     "@tanstack/react-query-devtools": "^5.17.19",
     "react-hot-toast": "^2.4.1",
@@ -45,7 +46,8 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "file-saver": "^2.0.5",
     "papaparse": "^5.4.1",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.16",
@@ -57,6 +59,8 @@
     "typescript": "^5.3.0",
     "@types/nprogress": "^0.2.3",
     "@types/uuid": "^9.0.8",
-    "@types/three": "^0.164.0"
+    "@types/three": "^0.164.0",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.0.0"
   }
 }
