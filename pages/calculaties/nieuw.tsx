@@ -23,7 +23,7 @@ const API_ENDPOINTS = {
   BACKEND_API: process.env.NEXT_PUBLIC_BACKEND_API || "https://sterkbouw-saas-backend-production.up.railway.app",
 }
 
-interface Post {
+const Post = {
   id: string
   code: string
   omschrijving: string
