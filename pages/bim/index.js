@@ -1,3 +1,4 @@
+// pages/bim/index.js
 import { useState, useEffect, useRef } from "react"
 import supabase from "@/lib/supabase"
 import axios from "axios"
@@ -52,7 +53,7 @@ import {
   IconEye,
   IconHistory,
   IconLayoutGrid,
-  IconPackage, 
+  IconPackage,
   IconPhoto,
   IconProgress,
   IconRefresh,
@@ -71,11 +72,6 @@ import { useRouter } from 'next/router'
 export default function BIMPagina() {
   const router = useRouter()
   const { projectId } = router.query
-  notifications.show({
-  title: 'Fout',
-  message: 'Kon project niet laden',
-  color: 'red'
-})
   
   // State management
   const [loading, setLoading] = useState(false)
@@ -424,7 +420,7 @@ export default function BIMPagina() {
           <Tabs.Tab value="3d-render" icon={<Icon3dCubeSphere size={16} />}>
             3D Render
           </Tabs.Tab>
-          <Tabs.Tab value="materials" icon={<IconMaterials size={16} />}>
+          <Tabs.Tab value="materials" icon={<IconBox size={16} />}>
             Materialen
           </Tabs.Tab>
           <Tabs.Tab value="library" icon={<IconLayoutGrid size={16} />}>
@@ -653,7 +649,7 @@ export default function BIMPagina() {
               <Grid.Col span={8}>
                 <Card withBorder>
                   <Card.Section withBorder p="md">
-                    <Title order={4}><IconMaterials size={20} /> Materialen Overzicht</Title>
+                    <Title order={4}><IconBox size={20} /> Materialen Overzicht</Title>
                   </Card.Section>
                   
                   <SimpleGrid cols={3} spacing="md" mt="md">
