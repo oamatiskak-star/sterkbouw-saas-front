@@ -1,32 +1,24 @@
-import { canRunMailWorkflow } from "../../lib/mailWorkflowPermissions"
+// pages/mail/workflow.js
+import { useRouter } from 'next/router'
+import { useState, useEffect } from 'react'
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).end("METHOD_NOT_ALLOWED")
+export default function MailWorkflow() {
+  const router = useRouter()
+  const { workflowId } = router.query
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <div>Mail workflow laden...</div>
   }
 
-  let body
-  try {
-    body = typeof req.body === "string" ? JSON.parse(req.body) : req.body
-  } catch {
-    return res.status(400).json({ error: "INVALID_JSON" })
-  }
-
-  const { workflow_key, project_id } = body
-  const userId = req.session?.user?.id
-
-  if (!userId || !workflow_key || !project_id) {
-    return res.status(400).json({ error: "CONTEXT_REQUIRED" })
-  }
-
-  const allowed = await canRunMailWorkflow(userId, workflow_key)
-  if (!allowed) {
-    return res.status(403).json({ error: "NOT_ALLOWED" })
-  }
-
-  /*
-  Workflow trigger naar backend / executor
-  */
-
-  return res.status(200).json({ ok: true })
+  return (
+    <div>
+      <h1>Mail workflow {workflowId || ''}</h1>
+      <p>Workflow mail functionaliteit</p>
+    </div>
+  )
 }
