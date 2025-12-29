@@ -263,7 +263,7 @@ export default function MyApp({ Component, pageProps }) {
     )
   }
 
-  // ======================
+    // ======================
   // APP PAGES (beveiligde pagina's)
   // ======================
   console.log('🔒 Rendering protected app page')
@@ -290,7 +290,7 @@ export default function MyApp({ Component, pageProps }) {
       </ErrorBoundary>
     </>
   )
-}
+} // ← DIT MIS JE! Deze } moet de MyApp component afsluiten
 
 // Voeg styles toe voor loading spinner
 const globalStyles = `
@@ -315,3 +315,6 @@ const globalStyles = `
     animation: spin 1s linear infinite;
     margin: 0 auto 20px;
   }
+`
+
+export default MyApp 
