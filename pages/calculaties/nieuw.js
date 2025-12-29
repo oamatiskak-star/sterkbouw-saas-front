@@ -1,63 +1,116 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/router"
 import { supabase } from "@/lib/supabase"
-import { useAuth } from "@/lib/auth" // ← VERANDERD: gebruik direct vanuit lib/auth
-import Card from "@/components/ui/card" // ← DEFAULT IMPORT
-import Button from "@/components/ui/button" // ← DEFAULT IMPORT
-import Input from "@/components/ui/input" // ← DEFAULT IMPORT
-import Label from "@/components/ui/label" // ← DEFAULT IMPORT
-import Textarea from "@/components/ui/textarea" // ← DEFAULT IMPORT
-import Select from "@/components/ui/select" // ← DEFAULT IMPORT
-import Badge from "@/components/ui/badge" // ← DEFAULT IMPORT
-import Progress from "@/components/ui/progress" // ← DEFAULT IMPORT
-import Separator from "@/components/ui/separator" // ← DEFAULT IMPORT
-import Alert from "@/components/ui/alert" // ← DEFAULT IMPORT
+import { useAuth } from "@/lib/auth"
+// UI Components - alle correct geïmporteerd
+import Card from "@/components/ui/card"
+import Button from "@/components/ui/button"
+import Input from "@/components/ui/input"
+import Label from "@/components/ui/label"
+import Textarea from "@/components/ui/textarea"
+import Select from "@/components/ui/select"
+import Badge from "@/components/ui/badge"
+import Progress from "@/components/ui/progress"
+import Separator from "@/components/ui/separator"
+import Alert from "@/components/ui/alert"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Upload, FileText, Building, Calculator, Download, Plus, Trash2, CheckCircle, AlertCircle } from "lucide-react"
 
-// API endpoints vanuit jouw architectuur
+// Card subcomponents - toegevoegd
+const CardHeader = ({ className, children, ...props }) => (
+  <div className={`flex flex-col space-y-1.5 p-6 ${className || ''}`} {...props}>
+    {children}
+  </div>
+)
+
+const CardTitle = ({ className, children, ...props }) => (
+  <h3 className={`text-2xl font-semibold leading-none tracking-tight ${className || ''}`} {...props}>
+    {children}
+  </h3>
+)
+
+const CardDescription = ({ className, children, ...props }) => (
+  <p className={`text-sm text-muted-foreground ${className || ''}`} {...props}>
+    {children}
+  </p>
+)
+
+const CardContent = ({ className, children, ...props }) => (
+  <div className={`p-6 pt-0 ${className || ''}`} {...props}>
+    {children}
+  </div>
+)
+
+// Alert subcomponents - toegevoegd
+const AlertTitle = ({ className, children, ...props }) => (
+  <h5 className={`mb-1 font-medium leading-none tracking-tight ${className || ''}`} {...props}>
+    {children}
+  </h5>
+)
+
+const AlertDescription = ({ className, children, ...props }) => (
+  <div className={`text-sm ${className || ''}`} {...props}>
+    {children}
+  </div>
+)
+
+// Select subcomponents - toegevoegd
+const SelectTrigger = ({ className, children, ...props }) => (
+  <div className={`flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className || ''}`} {...props}>
+    {children}
+  </div>
+)
+
+const SelectValue = ({ placeholder, children, ...props }) => (
+  <span className={`${!children ? 'text-muted-foreground' : ''}`} {...props}>
+    {children || placeholder}
+  </span>
+)
+
+const SelectContent = ({ className, children, ...props }) => (
+  <div className={`relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ${className || ''}`} {...props}>
+    <div className="p-1">{children}</div>
+  </div>
+)
+
+const SelectItem = ({ className, children, value, ...props }) => (
+  <div className={`relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${className || ''}`} {...props}>
+    {children}
+  </div>
+)
+
+// API endpoints
 const API_ENDPOINTS = {
   EXECUTOR_API: process.env.NEXT_PUBLIC_EXECUTOR_API || "https://sterkbouw-saas-executor-production.up.railway.app",
   BACKEND_API: process.env.NEXT_PUBLIC_BACKEND_API || "https://sterkbouw-saas-backend-production.up.railway.app",
 }
 
-// FIX: Verander interface naar JSDoc comments
-/**
- * @typedef {Object} PostType
- * @property {string} id
- * @property {string} code
- * @property {string} omschrijving
- * @property {string} eenheid
- * @property {number} aantal
- * @property {number} eenheidsprijs
- * @property {number} arbeidsuren
- * @property {number} materiaal
- * @property {string} opmerking
- * @property {string} [categorie]
- */
+// Types
+const PostType = {
+  id: "",
+  code: "",
+  omschrijving: "",
+  eenheid: "",
+  aantal: 0,
+  eenheidsprijs: 0,
+  arbeidsuren: 0,
+  materiaal: 0,
+  opmerking: "",
+  categorie: ""
+}
 
-/**
- * @typedef {Object} AnalyseResultaatType
- * @property {number} oppervlakte_m2
- * @property {number} bouwjaar
- * @property {number} aantal_kamers
- * @property {'nieuwbouw' | 'renovatie' | 'transformatie' | 'verduurzaming' | 'onbekend'} project_type
- * @property {Array<{naam: string, eenheid: string, geschatte_kosten: number}>} materiaal_suggesties
- * @property {string[]} risico_indicatoren
- * @property {string[]} verduurzamingspotentieel
- * @property {number} geschatte_totale_kosten
- * @property {number} confidence_score
- */
-
-/**
- * @typedef {Object} ProjectType
- * @property {string} id
- * @property {string} naam
- * @property {'draft' | 'uploading' | 'analyzing' | 'calculating' | 'ready' | 'error'} status
- * @property {string} [pdf_url]
- * @property {string} created_at
- */
+const AnalyseResultaatType = {
+  oppervlakte_m2: 0,
+  bouwjaar: 0,
+  aantal_kamers: 0,
+  project_type: 'onbekend',
+  materiaal_suggesties: [],
+  risico_indicatoren: [],
+  verduurzamingspotentieel: [],
+  geschatte_totale_kosten: 0,
+  confidence_score: 0
+}
 
 export default function NieuweCalculatiePage() {
   const router = useRouter()
@@ -90,8 +143,7 @@ export default function NieuweCalculatiePage() {
     opmerkingen: "",
   })
   
-  // Calculatie state - gebruik JSDoc type
-  /** @type {[PostType[], function]} */
+  // Calculatie state
   const [posten, setPosten] = useState([
     {
       id: "1",
@@ -155,7 +207,6 @@ export default function NieuweCalculatiePage() {
     }
   ])
   
-  /** @type {[Partial<PostType>, function]} */
   const [nieuwePost, setNieuwePost] = useState({
     code: "",
     omschrijving: "",
@@ -170,11 +221,11 @@ export default function NieuweCalculatiePage() {
   
   // Instellingen
   const [opslagen, setOpslagen] = useState({
-    algemene_kosten: 8,    // %
-    bouwplaatskosten: 4,   // %
-    winstopslag: 6,        // %
-    risicofactor: 5,       // %
-    btw_percentage: 21     // %
+    algemene_kosten: 8,
+    bouwplaatskosten: 4,
+    winstopslag: 6,
+    risicofactor: 5,
+    btw_percentage: 21
   })
   
   const [uurlonen, setUurlonen] = useState([
@@ -186,7 +237,6 @@ export default function NieuweCalculatiePage() {
   ])
   
   // AI Analyse resultaten
-  /** @type {[AnalyseResultaatType | null, function]} */
   const [analyseResultaat, setAnalyseResultaat] = useState(null)
   const [uploadedFiles, setUploadedFiles] = useState([])
   const [analyseStatus, setAnalyseStatus] = useState('idle')
@@ -280,7 +330,6 @@ export default function NieuweCalculatiePage() {
         }
       }
       
-      // Gebruik de Saas Backend API
       const response = await fetch(`${API_ENDPOINTS.BACKEND_API}/api/projects`, {
         method: 'POST',
         headers: {
@@ -329,7 +378,6 @@ export default function NieuweCalculatiePage() {
       formData.append('project_id', projectId)
       formData.append('user_id', user?.id || '')
       
-      // Upload naar Executor voor analyse
       const response = await fetch(`${API_ENDPOINTS.EXECUTOR_API}/api/analyze`, {
         method: 'POST',
         body: formData
@@ -343,9 +391,7 @@ export default function NieuweCalculatiePage() {
       
       if (data.task_id) {
         setAnalyseStatus('analyzing')
-        // Polling wordt door effect afgehandeld
       } else if (data.resultaten) {
-        // Direct resultaat (bij kleine bestanden)
         verwerkAnalyseResultaten(data.resultaten)
       }
       
@@ -405,12 +451,10 @@ export default function NieuweCalculatiePage() {
     setError(null)
     
     try {
-      // Bereken totalen
       const subtotaal = berekenSubtotaal()
       const opslagBedragen = berekenOpslagen(subtotaal)
       const totaalData = berekenTotaal(opslagBedragen)
       
-      // Bereid calculatie data voor
       const calculatieData = {
         project_id: projectId,
         project_info: formData,
@@ -428,7 +472,6 @@ export default function NieuweCalculatiePage() {
         }
       }
       
-      // Verstuur naar Executor voor PDF generatie
       const response = await fetch(`${API_ENDPOINTS.EXECUTOR_API}/api/generate-pdf`, {
         method: 'POST',
         headers: {
@@ -443,7 +486,6 @@ export default function NieuweCalculatiePage() {
       
       const pdfData = await response.json()
       
-      // Update project in backend met PDF URL
       if (pdfData.pdf_url) {
         await updateProjectWithPDF(pdfData.pdf_url)
         setCurrentStep(4)
@@ -601,10 +643,10 @@ export default function NieuweCalculatiePage() {
       
       {/* Fout- en succesmeldingen */}
       {error && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Fout</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+        <Alert className="mb-6 bg-red-50 border-red-200">
+          <AlertCircle className="h-4 w-4 text-red-600" />
+          <AlertTitle className="text-red-800">Fout</AlertTitle>
+          <AlertDescription className="text-red-700">{error}</AlertDescription>
         </Alert>
       )}
       
@@ -787,7 +829,7 @@ export default function NieuweCalculatiePage() {
                 </div>
                 
                 {analyseResultaat && (
-                  <Alert>
+                  <Alert className="mt-4">
                     <AlertTitle className="text-sm">AI Detectie Resultaten</AlertTitle>
                     <AlertDescription className="text-xs space-y-1">
                       <div className="grid grid-cols-2 gap-2">
@@ -1098,18 +1140,21 @@ export default function NieuweCalculatiePage() {
                           </div>
                           <div>
                             <Label htmlFor="eenheid" className="text-xs">Eenheid</Label>
-                            <select
-                              id="eenheid"
+                            <Select 
                               value={nieuwePost.eenheid}
-                              onChange={(e) => handleNieuwePostChange('eenheid', e.target.value)}
-                              className="w-full h-9 px-3 py-1 text-sm border rounded-md"
+                              onValueChange={(value) => handleNieuwePostChange('eenheid', value)}
                             >
-                              <option value="m²">m²</option>
-                              <option value="m">m</option>
-                              <option value="stuk">stuk</option>
-                              <option value="uur">uur</option>
-                              <option value="kg">kg</option>
-                            </select>
+                              <SelectTrigger className="h-9 text-sm">
+                                <SelectValue placeholder="Selecteer eenheid" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="m²">m²</SelectItem>
+                                <SelectItem value="m">m</SelectItem>
+                                <SelectItem value="stuk">stuk</SelectItem>
+                                <SelectItem value="uur">uur</SelectItem>
+                                <SelectItem value="kg">kg</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                           <div>
                             <Label htmlFor="aantal" className="text-xs">Aantal</Label>
