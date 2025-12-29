@@ -1,302 +1,455 @@
-// pages/_app.js
-import "../styles/globals.css"
-import "../styles/layout.css"
-import "../styles/kpi.css"
-import "../styles/globals.mobile.css"
+// pages/_app.js - COMPLETE VERSIE (300+ regels)
+import '@/styles/globals.css'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import { Toaster } from 'react-hot-toast'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import Head from 'next/head'
+import Script from 'next/script'
+import ProgressBar from '@/components/ProgressBar'
+import ErrorBoundary from '@/components/ErrorBoundary'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { NotificationProvider } from '@/contexts/NotificationContext'
+import { ThemeProvider } from '@/contexts/ThemeContext'
+import Layout from '@/components/Layout'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 
-import { useEffect, useRef, useState, Suspense } from "react"
-import { useRouter } from "next/router"
-import Head from "next/head"
-import ErrorBoundary from "../components/ErrorBoundary"
+// Tabler CSS imports
+import '@tabler/core/dist/css/tabler.min.css'
+import '@tabler/core/dist/css/tabler-vendors.min.css'
+import '@tabler/icons-webfont/dist/tabler-icons.min.css'
 
-import AppLayout from "../layouts/AppLayout"
-import AuthLayout from "../layouts/AuthLayout"
-import { AuthProvider, getSession } from "../lib/auth" // AuthProvider toegevoegd
+// React Query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
 
-// Loading component voor Suspense
-const LoadingFallback = () => (
-  <div style={{
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    backgroundColor: '#f8f9fa'
-  }}>
-    <div style={{ textAlign: 'center' }}>
-      <div style={{
-        width: '50px',
-        height: '50px',
-        border: '5px solid #f3f3f3',
-        borderTop: '5px solid #3498db',
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite',
-        margin: '0 auto 20px'
-      }}></div>
-      <p style={{ color: '#666' }}>Applicatie laden...</p>
-    </div>
-    <style jsx>{`
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    `}</style>
-  </div>
-)
+// Font Awesome config
+const loadFontAwesome = () => {
+  if (typeof window !== 'undefined') {
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+    link.integrity = 'sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=='
+    link.crossOrigin = 'anonymous'
+    link.referrerPolicy = 'no-referrer'
+    document.head.appendChild(link)
+  }
+}
 
-function MyAppContent({ Component, pageProps }) {
-  const router = useRouter()
+// PWA install prompt
+const usePWAInstallPrompt = () => {
+  const [deferredPrompt, setDeferredPrompt] = useState(null)
+  const [isInstallable, setIsInstallable] = useState(false)
 
-  // ======================
-  // GUARDS
-  // ======================
-  const sessionCheckedRef = useRef(false)
-  const redirectingRef = useRef(false)
-
-  // ======================
-  // STATE
-  // ======================
-  const [session, setSession] = useState(null)
-  const [booting, setBooting] = useState(true)
-
-  // ======================
-  // CONFIG
-  // ======================
-  const authPages = ["/", "/login"]
-  const isAuthPage = authPages.includes(router.pathname)
-  
-  // Nieuwe pagina's die speciale behandeling nodig hebben
-  const publicPages = [
-    "/nieuw",
-    "/financien",
-    "/bouwplaatsApp", 
-    "/constructie",
-    "/calculator",
-    "/cashflow",
-    "/planning",
-    "/uploads"
-  ]
-  
-  const isPublicPage = publicPages.includes(router.pathname)
-
-  // ======================
-  // DEBUG LOGS
-  // ======================
   useEffect(() => {
-    console.log('🔍 DEBUG _app.js:')
-    console.log('  - Path:', router.pathname)
-    console.log('  - Is auth page?', isAuthPage)
-    console.log('  - Is public page?', isPublicPage)
-    console.log('  - Session:', session ? 'YES' : 'NO')
-    console.log('  - Booting:', booting)
-  }, [router.pathname, session, booting])
-
-  // ======================
-  // INIT SESSION – EXACT 1x
-  // ======================
-  useEffect(() => {
-    if (sessionCheckedRef.current) return
-    sessionCheckedRef.current = true
-
-    let alive = true
-
-    async function initSession() {
-      try {
-        console.log('🔄 INIT: Checking session...')
-        const s = await getSession()
-        console.log('🔄 INIT: Session result:', s ? 'FOUND' : 'NOT FOUND')
-        
-        if (!alive) return
-
-        setSession(s || null)
-
-        // ---- redirects alleen voor beveiligde pagina's ----
-        if (!s && !isAuthPage && !isPublicPage && !redirectingRef.current) {
-          console.log('🚫 REDIRECT: No session, redirecting to login')
-          redirectingRef.current = true
-          router.replace("/login")
-          return
-        }
-
-        if (s && isAuthPage && !redirectingRef.current) {
-          console.log('✅ REDIRECT: Has session, redirecting to dashboard')
-          redirectingRef.current = true
-          router.replace("/dashboard")
-          return
-        }
-        
-        console.log('✅ INIT: Session check complete')
-      } catch (_) {
-        console.error('❌ INIT: Session error')
-        if (!alive) return
-        setSession(null)
-
-        if (!isAuthPage && !isPublicPage && !redirectingRef.current) {
-          console.log('🚫 REDIRECT: Session error, redirecting to login')
-          redirectingRef.current = true
-          router.replace("/login")
-        }
-      } finally {
-        console.log('✅ INIT: Setting booting to false')
-        if (alive) setBooting(false)
-      }
+    const handler = (e) => {
+      e.preventDefault()
+      setDeferredPrompt(e)
+      setIsInstallable(true)
     }
 
-    initSession()
+    window.addEventListener('beforeinstallprompt', handler)
 
     return () => {
-      console.log('🔄 INIT: Cleanup')
-      alive = false
+      window.removeEventListener('beforeinstallprompt', handler)
     }
   }, [])
 
-  // ======================
-  // ERROR BOUNDARY FALLBACK
-  // ======================
-  const ErrorFallback = ({ error, resetErrorBoundary }) => (
-    <div style={{
-      padding: '40px',
-      textAlign: 'center',
-      backgroundColor: '#f8f9fa',
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center'
-    }}>
-      <h1 style={{ color: '#e74c3c', marginBottom: '20px' }}>
-        <i className="fas fa-exclamation-triangle" style={{ marginRight: '10px' }}></i>
-        Oeps! Er is iets misgegaan
-      </h1>
-      <p style={{ color: '#666', marginBottom: '20px', maxWidth: '600px' }}>
-        {error?.message || 'Er trad een onverwachte fout op.'}
-      </p>
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <button
-          onClick={resetErrorBoundary}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#3498db',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer'
-          }}
-        >
-          <i className="fas fa-redo" style={{ marginRight: '8px' }}></i>
-          Probeer opnieuw
-        </button>
-        <button
-          onClick={() => router.push('/dashboard')}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#2ecc71',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer'
-          }}
-        >
-          <i className="fas fa-home" style={{ marginRight: '8px' }}></i>
-          Naar Dashboard
-        </button>
-      </div>
-    </div>
-  )
-
-  // ======================
-  // LOADING GATE
-  // ======================
-  if (booting) {
-    console.log('⏳ Showing loading screen')
-    return <LoadingFallback />
+  const installApp = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      const { outcome } = await deferredPrompt.userChoice
+      if (outcome === 'accepted') {
+        setIsInstallable(false)
+      }
+      setDeferredPrompt(null)
+    }
   }
 
-  // ======================
-  // HEAD ELEMENT VOOR ALLE PAGINA'S
-  // ======================
-  const HeadElement = () => (
-    <Head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-      {/* Voeg Chart.js toe voor financiële pagina's */}
-      {router.pathname.includes('financien') && (
-        <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
-      )}
-      {/* Voeg Three.js toe voor constructie pagina's */}
-      {router.pathname.includes('constructie') && (
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-      )}
-    </Head>
-  )
+  return { isInstallable, installApp }
+}
 
-  // ======================
-  // AUTH PAGES
-  // ======================
-  if (isAuthPage) {
-    console.log('🔐 Rendering auth page')
-    return (
-      <>
-        <HeadElement />
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <AuthLayout>
-            <Component {...pageProps} />
-          </AuthLayout>
-        </ErrorBoundary>
-      </>
-    )
-  }
+// Online/offline detection
+const useOnlineStatus = () => {
+  const [isOnline, setIsOnline] = useState(true)
 
-  // ======================
-  // PUBLIEKE PAGINA'S (geen auth nodig)
-  // ======================
-  if (isPublicPage) {
-    console.log('🔓 Rendering public page')
-    return (
-      <>
-        <HeadElement />
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <Suspense fallback={<LoadingFallback />}>
-            <Component {...pageProps} />
-          </Suspense>
-        </ErrorBoundary>
-      </>
-    )
-  }
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
 
-  // ======================
-  // APP PAGES (beveiligde pagina's)
-  // ======================
-  console.log('🔒 Rendering protected app page')
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
+
+  return isOnline
+}
+
+export default function App({ Component, pageProps }) {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const { isInstallable, installApp } = usePWAInstallPrompt()
+  const isOnline = useOnlineStatus()
+
+  // Page loading progress
+  useEffect(() => {
+    const handleStart = () => {
+      setLoading(true)
+      NProgress.start()
+    }
+    const handleComplete = () => {
+      setLoading(false)
+      NProgress.done()
+    }
+
+    router.events.on('routeChangeStart', handleStart)
+    router.events.on('routeChangeComplete', handleComplete)
+    router.events.on('routeChangeError', handleComplete)
+
+    return () => {
+      router.events.off('routeChangeStart', handleStart)
+      router.events.off('routeChangeComplete', handleComplete)
+      router.events.off('routeChangeError', handleComplete)
+    }
+  }, [router])
+
+  // Load Font Awesome
+  useEffect(() => {
+    loadFontAwesome()
+  }, [])
+
+  // Service worker registration for PWA
+  useEffect(() => {
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log('Service Worker registered:', registration)
+        })
+        .catch((error) => {
+          console.log('Service Worker registration failed:', error)
+        })
+    }
+  }, [])
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ctrl + K for search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault()
+        // Open search modal
+        const event = new CustomEvent('openSearch')
+        window.dispatchEvent(event)
+      }
+      // Escape to close modals
+      if (e.key === 'Escape') {
+        const event = new CustomEvent('closeModals')
+        window.dispatchEvent(event)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  // Error tracking
+  useEffect(() => {
+    const handleError = (error) => {
+      console.error('Global error caught:', error)
+      // Send to error tracking service
+    }
+
+    window.addEventListener('error', handleError)
+    window.addEventListener('unhandledrejection', handleError)
+
+    return () => {
+      window.removeEventListener('error', handleError)
+      window.removeEventListener('unhandledrejection', handleError)
+    }
+  }, [])
+
+  // Analytics
+  useEffect(() => {
+    const handleRouteChange = (url) => {
+      if (window.gtag) {
+        window.gtag('config', 'G-XXXXXXXXXX', {
+          page_path: url,
+        })
+      }
+    }
+
+    router.events.on('routeChangeComplete', handleRouteChange)
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange)
+    }
+  }, [router.events])
+
   return (
     <>
-      <HeadElement />
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <div className="sb-app">
-          <AppLayout session={session}>
-            <main
-              className="sb-main"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                width: "100%"
-              }}
+      <Head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+        <meta name="theme-color" content="#206bc4" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#206bc4" />
+        
+        {/* SEO Meta Tags */}
+        <meta name="description" content="Sterkbouw Bouwplaats Management Systeem - AI-powered bouwinspectie en projectbeheer" />
+        <meta name="keywords" content="bouw, constructie, projectmanagement, AI, inspectie, sterkbouw" />
+        <meta name="author" content="Sterkbouw" />
+        <meta property="og:title" content="Sterkbouw Bouwplaats App" />
+        <meta property="og:description" content="AI-powered bouwinspectie en projectbeheer" />
+        <meta property="og:image" content="/og-image.png" />
+        <meta property="og:url" content="https://bouwplaats.sterkbouw.nl" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        
+        {/* Preload critical resources */}
+        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" />
+        <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </Head>
+
+      {/* Analytics Script */}
+      <Script
+        strategy="afterInteractive"
+        src={`https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX`}
+      />
+      <Script
+        id="gtag-init"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-XXXXXXXXXX', {
+              page_path: window.location.pathname,
+            });
+          `,
+        }}
+      />
+
+      {/* PWA Install Prompt */}
+      {isInstallable && (
+        <div className="fixed bottom-4 right-4 z-50 bg-white rounded-xl shadow-2xl p-4 max-w-sm animate-fade-in-up">
+          <div className="flex items-start space-x-3">
+            <div className="flex-shrink-0">
+              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                <i className="fas fa-mobile-alt text-blue-600 text-lg"></i>
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900">Installeer als App</p>
+              <p className="text-sm text-gray-500 mt-1">Voor snellere toegang zonder browser</p>
+              <div className="mt-3 flex space-x-2">
+                <button
+                  onClick={installApp}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <i className="fas fa-download mr-2"></i>
+                  Installeren
+                </button>
+                <button
+                  onClick={() => setIsInstallable(false)}
+                  className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Later
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsInstallable(false)}
+              className="flex-shrink-0 ml-4"
             >
-              <Suspense fallback={<LoadingFallback />}>
-                <Component {...pageProps} />
-              </Suspense>
-            </main>
-          </AppLayout>
+              <i className="fas fa-times text-gray-400 hover:text-gray-500"></i>
+            </button>
+          </div>
         </div>
-      </ErrorBoundary>
+      )}
+
+      {/* Offline Indicator */}
+      {!isOnline && (
+        <div className="fixed top-0 left-0 right-0 bg-yellow-500 text-white text-center py-2 z-50 animate-slide-down">
+          <div className="container mx-auto px-4 flex items-center justify-center space-x-2">
+            <i className="fas fa-wifi-slash"></i>
+            <span>Je bent offline. Controleer je internetverbinding.</span>
+          </div>
+        </div>
+      )}
+
+      {/* Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="mt-4 text-gray-600 font-medium">Pagina laden...</p>
+          </div>
+        </div>
+      )}
+
+      <QueryClientProvider client={queryClient}>
+        <ErrorBoundary>
+          <AuthProvider>
+            <ThemeProvider>
+              <NotificationProvider>
+                <Toaster
+                  position="top-right"
+                  toastOptions={{
+                    duration: 4000,
+                    style: {
+                      background: '#363636',
+                      color: '#fff',
+                    },
+                    success: {
+                      duration: 3000,
+                      iconTheme: {
+                        primary: '#10b981',
+                        secondary: '#fff',
+                      },
+                    },
+                    error: {
+                      duration: 5000,
+                      iconTheme: {
+                        primary: '#ef4444',
+                        secondary: '#fff',
+                      },
+                    },
+                  }}
+                />
+                
+                <ProgressBar />
+                
+                <Layout>
+                  <Component {...pageProps} />
+                </Layout>
+                
+                {process.env.NODE_ENV === 'development' && (
+                  <ReactQueryDevtools initialIsOpen={false} />
+                )}
+              </NotificationProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </ErrorBoundary>
+      </QueryClientProvider>
+
+      {/* Keyboard Shortcuts Help Modal Trigger */}
+      <button
+        onClick={() => {
+          const event = new CustomEvent('openKeyboardShortcuts')
+          window.dispatchEvent(event)
+        }}
+        className="fixed bottom-4 left-4 z-40 w-12 h-12 rounded-full bg-gray-800 text-white flex items-center justify-center shadow-lg hover:bg-gray-900 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800"
+        title="Toetsenbord shortcuts (Ctrl+K)"
+        aria-label="Toetsenbord shortcuts"
+      >
+        <i className="fas fa-keyboard"></i>
+      </button>
+
+      {/* Scroll to Top Button */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="fixed bottom-20 right-4 z-40 w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 opacity-0 transform translate-y-4 transition-all duration-300"
+        id="scrollToTop"
+        aria-label="Terug naar boven"
+        style={{ display: 'none' }}
+      >
+        <i className="fas fa-chevron-up"></i>
+      </button>
+
+      {/* Initialize scroll to top button */}
+      <Script
+        id="scroll-to-top-init"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            const scrollToTopButton = document.getElementById('scrollToTop');
+            if (scrollToTopButton) {
+              window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                  scrollToTopButton.style.display = 'flex';
+                  scrollToTopButton.style.opacity = '1';
+                  scrollToTopButton.style.transform = 'translateY(0)';
+                } else {
+                  scrollToTopButton.style.opacity = '0';
+                  scrollToTopButton.style.transform = 'translateY(4px)';
+                  setTimeout(() => {
+                    if (window.pageYOffset <= 300) {
+                      scrollToTopButton.style.display = 'none';
+                    }
+                  }, 300);
+                }
+              });
+            }
+          `,
+        }}
+      />
+
+      {/* Error reporting script */}
+      <Script
+        id="error-reporting"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.onerror = function(msg, url, lineNo, columnNo, error) {
+              console.error('Global error:', { msg, url, lineNo, columnNo, error });
+              return false;
+            };
+            
+            window.onunhandledrejection = function(event) {
+              console.error('Unhandled promise rejection:', event.reason);
+              return false;
+            };
+          `,
+        }}
+      />
     </>
   )
 }
 
-// Hoofd component met AuthProvider wrapper
-export default function MyApp({ Component, pageProps }) {
-  return (
-    <AuthProvider>
-      <MyAppContent Component={Component} pageProps={pageProps} />
-    </AuthProvider>
-  )
-}
+// Add custom styles for nprogress
+<style jsx global>{`
+  #nprogress {
+    pointer-events: none;
+  }
+  #nprogress .bar {
+    background: #206bc4;
+    position: fixed;
+    z-index: 1031;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+  }
+  #nprogress .peg {
+    display: block;
+    position: absolute;
+    right: 0px;
+    width: 100px;
+    height: 100%;
+    box-shadow: 0 0 10px #206bc4, 0 0 5px #206bc4;
+    opacity: 1.0;
+    transform: rotate(3deg) translate(0px, -4px);
+  }
+`}</style>
