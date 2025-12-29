@@ -1,4 +1,4 @@
-// pages/_app.js - MINIMALISTISCHE VERSIE
+// pages/_app.js - GECORRIGEERDE VERSIE
 import '@/styles/globals.css'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
@@ -8,17 +8,17 @@ import Head from 'next/head'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
-// Mantine Provider - VOEG DIT TOE
+// Mantine Provider
 import { MantineProvider } from '@mantine/core'
-import '@mantine/core/styles.css' // VOEG DIT TOE
+import '@mantine/core/styles.css'
 
-// Tabler CSS imports - BEWAAR DIT
+// Tabler CSS imports
 import '@tabler/core/dist/css/tabler.min.css'
 import '@tabler/core/dist/css/tabler-vendors.min.css'
 import '@tabler/icons-webfont/dist/tabler-icons.min.css'
 
-// Auth Provider - VOEG DIT TOE
-import { AuthProvider } from '@/contexts/AuthContext'
+// ✅ VERANDER DIT: importeer van lib/auth ipv contexts/AuthContext
+import { AuthProvider } from '@/lib/auth'
 
 // Query Client
 const queryClient = new QueryClient({
@@ -80,9 +80,8 @@ export default function App({ Component, pageProps }) {
       </Head>
 
       <QueryClientProvider client={queryClient}>
-        {/* MANTINE PROVIDER - VOEG DIT TOE */}
         <MantineProvider>
-          {/* AUTH PROVIDER - VOEG DIT TOE */}
+          {/* ✅ NU importeert dit van lib/auth */}
           <AuthProvider>
             <Toaster
               position="top-right"
