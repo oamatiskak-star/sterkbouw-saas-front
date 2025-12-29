@@ -2,10 +2,8 @@
   "name": "sterkbouw-frontend",
   "version": "1.0.0",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "node server.js",  // of wat je start script is
+    "dev": "node server.js"     // pas aan naar jouw setup
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.1",
@@ -13,9 +11,7 @@
     "axios": "^1.7.2",
     "chart.js": "^4.4.3",
     "formidable": "^3.5.1",
-    "next": "14.2.35",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
     "three": "^0.164.1"
+    // Verwijder: next, react, react-dom
   }
 }
