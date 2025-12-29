@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
+// Default export Card component
 const Card = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
@@ -17,6 +18,7 @@ Card.propTypes = {
   className: PropTypes.string,
 }
 
+// Named exports voor Card sub-components
 const CardHeader = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
@@ -76,8 +78,9 @@ CardFooter.propTypes = {
   className: PropTypes.string,
 }
 
+// Export both default and named
+export default Card
 export {
-  Card,
   CardHeader,
   CardFooter,
   CardTitle,
