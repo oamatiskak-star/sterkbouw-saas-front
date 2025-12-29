@@ -1,4 +1,4 @@
-// pages/_app.js - GECORRIGEERDE VERSIE
+// pages/_app.js - COMPLETE VERSIE
 import '@/styles/globals.css'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
@@ -25,8 +25,8 @@ import '@tabler/icons-webfont/dist/tabler-icons.min.css'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
+      staleTime: 5 * 60 * 1000,
+      cacheTime: 10 * 60 * 1000,
       retry: 1,
       refetchOnWindowFocus: false,
     },
@@ -134,7 +134,7 @@ export default function App({ Component, pageProps }) {
 
   // Service worker registration for PWA
   useEffect(() => {
-    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
@@ -152,7 +152,6 @@ export default function App({ Component, pageProps }) {
       // Ctrl + K for search
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault()
-        // Open search modal
         const event = new CustomEvent('openSearch')
         window.dispatchEvent(event)
       }
@@ -171,7 +170,6 @@ export default function App({ Component, pageProps }) {
   useEffect(() => {
     const handleError = (error) => {
       console.error('Global error caught:', error)
-      // Send to error tracking service
     }
 
     window.addEventListener('error', handleError)
@@ -230,7 +228,7 @@ export default function App({ Component, pageProps }) {
         <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
-        {/* NProgress styles - VERPLAATST VANAF HIER */}
+        {/* NProgress styles */}
         <style jsx global>{`
           #nprogress {
             pointer-events: none;
@@ -298,7 +296,7 @@ export default function App({ Component, pageProps }) {
                   Installeren
                 </button>
                 <button
-                  onClick={() => setIsInstallable(false)}
+                  onClick={() => {}}
                   className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   Later
@@ -306,7 +304,7 @@ export default function App({ Component, pageProps }) {
               </div>
             </div>
             <button
-              onClick={() => setIsInstallable(false)}
+              onClick={() => {}}
               className="flex-shrink-0 ml-4"
             >
               <i className="fas fa-times text-gray-400 hover:text-gray-500"></i>
