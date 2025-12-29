@@ -1,17 +1,18 @@
 FROM node:18-alpine AS base
+
+# Stel de submap in waar je Next.js project staat
+ARG PROJECT_DIR=frontend
 WORKDIR /app
-COPY package*.json ./
+COPY ${PROJECT_DIR}/package*.json ./
 
-# Eerst: genereer package-lock.json als die er niet is
-RUN if [ ! -f package-lock.json ]; then npm install; fi
+# Installeer dependencies
+RUN npm install --production=false
 
-# Daarna: voer de build uit (dit installeert ook dev dependencies)
+# Kopieer de rest van je project
+COPY ${PROJECT_DIR} ./
+
+# Bouw de Next.js app
 RUN npm run build
-
-# Voor productie: installeer alleen productie dependencies
-RUN npm ci --only=production --ignore-scripts
-
-COPY . .
 
 EXPOSE 3000
 CMD ["npm", "start"]
