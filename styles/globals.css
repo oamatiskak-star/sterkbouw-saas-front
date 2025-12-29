@@ -1,98 +1,410 @@
 /* styles/globals.css */
 
-/* 1. TAILWIND CSS - MOET EERST KOMEN! */
+/* 1. RESET & TAILWIND BASE - MOET EERST! */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 2. TABLER CSS IMPORTS - komt NA Tailwind */
-@import "@tabler/core/dist/css/tabler.min.css";
-@import "@tabler/core/dist/css/tabler-flags.min.css";
-@import "@tabler/core/dist/css/tabler-payments.min.css";
-@import "@tabler/core/dist/css/tabler-vendors.min.css";
-
-/* 3. GOOGLE FONT */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
-
-/* 4. CUSTOM STYLES */
-
-/* Base styles */
-body {
-  margin: 0;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #ffffff;
-  color: #0f172a;
-  font-size: 15px;
-  line-height: 1.5;
+/* 2. BASE RESET VOOR TABLER CONFLICTEN */
+:root {
+  /* Tabler variables overschrijven */
+  --tblr-primary-rgb: 59, 130, 246;
+  --tblr-secondary-rgb: 107, 114, 128;
+  --tblr-success-rgb: 34, 197, 94;
+  --tblr-info-rgb: 59, 130, 246;
+  --tblr-warning-rgb: 245, 158, 11;
+  --tblr-danger-rgb: 239, 68, 68;
+  --tblr-light-rgb: 249, 250, 251;
+  --tblr-dark-rgb: 17, 24, 39;
+  --tblr-font-sans-serif: 'Inter', system-ui, -apple-system, sans-serif;
+  --tblr-border-radius: 0.5rem;
 }
 
-/* Koppen */
-h1 {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 20px;
-  color: #020617;
-}
+/* 3. TABLER IMPORTS MET VERMINDERDE PRIORITEIT */
+@import "@tabler/core/dist/css/tabler.min.css" layer(tabler-base);
+@import "@tabler/core/dist/css/tabler-vendors.min.css" layer(tabler-vendors);
 
-h2 {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  color: #020617;
-}
+/* 4. GOOGLE FONT */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
-h3 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-/* Tailwind layer voor nieuwe components */
-@layer components {
-  .modern-card {
-    @apply bg-white p-6 rounded-xl shadow-sm border border-gray-200;
+/* 5. TABLER OVERRIDES - Zorgen dat Tailwind voorrang heeft */
+@layer base {
+  body {
+    @apply font-sans text-gray-900 bg-gray-50 antialiased;
+    font-family: 'Inter', var(--tblr-font-sans-serif) !important;
+  }
+  
+  /* Reset Tabler container */
+  .container,
+  .container-fluid,
+  .container-lg,
+  .container-md,
+  .container-sm,
+  .container-xl,
+  .container-xxl {
+    @apply max-w-full px-4 mx-auto;
+  }
+  
+  /* Reset Tabler typography */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+  
+  h1 {
+    @apply text-2xl md:text-3xl;
+  }
+  
+  h2 {
+    @apply text-xl md:text-2xl;
+  }
+  
+  h3 {
+    @apply text-lg md:text-xl;
+  }
+  
+  /* Reset Tabler components */
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200;
+  }
+  
+  .btn {
+    @apply font-medium rounded-lg transition-colors duration-200;
   }
   
   .btn-primary {
-    @apply px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors;
+    @apply bg-blue-600 hover:bg-blue-700 text-white border-transparent;
   }
   
-  .input-modern {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 border-transparent;
   }
   
-  .dashboard-grid-modern {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+  .form-control,
+  .form-select {
+    @apply border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500;
+  }
+  
+  .table {
+    @apply w-full divide-y divide-gray-200;
+  }
+  
+  .table th {
+    @apply text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+  }
+  
+  .table td {
+    @apply whitespace-nowrap px-6 py-4;
   }
 }
 
-/* 5. CONFLICT RESOLUTION - hernoem deze selectors */
-/* Gebruik sterkbouw specifieke classes */
-
-/* Voor Next.js container */
-.sb-app-container {
-  font-family: inherit;
-  color: inherit;
-  background: inherit;
+/* 6. TAILWIND COMPONENTS LAAG */
+@layer components {
+  /* Modern card - Tailwind style */
+  .sb-card {
+    @apply bg-white rounded-2xl shadow-lg border border-gray-100 p-6 transition-all duration-300 hover:shadow-xl;
+  }
+  
+  /* Primary button - Tailwind style */
+  .sb-btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-md hover:shadow-lg;
+  }
+  
+  /* Secondary button */
+  .sb-btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-800 font-medium rounded-xl hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-colors duration-200;
+  }
+  
+  /* Modern input */
+  .sb-input {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200 placeholder-gray-400;
+  }
+  
+  /* Dashboard grid */
+  .sb-dashboard-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+  }
+  
+  /* Status badges */
+  .sb-status-success {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800;
+  }
+  
+  .sb-status-warning {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800;
+  }
+  
+  .sb-status-danger {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800;
+  }
+  
+  /* Modern alert */
+  .sb-alert {
+    @apply rounded-xl border-l-4 p-4;
+  }
+  
+  .sb-alert-success {
+    @apply sb-alert border-green-500 bg-green-50 text-green-800;
+  }
+  
+  .sb-alert-warning {
+    @apply sb-alert border-yellow-500 bg-yellow-50 text-yellow-800;
+  }
+  
+  .sb-alert-danger {
+    @apply sb-alert border-red-500 bg-red-50 text-red-800;
+  }
+  
+  /* Progress bar */
+  .sb-progress {
+    @apply w-full bg-gray-200 rounded-full h-2;
+  }
+  
+  .sb-progress-bar {
+    @apply h-2 rounded-full transition-all duration-500;
+  }
+  
+  /* Badge */
+  .sb-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
 }
 
-/* Voor je dashboard specifiek */
-.sb-dashboard {
-  /* Reset styles voor dashboard gebied */
-  font-family: inherit !important;
-  color: inherit !important;
+/* 7. UTILITIES - Custom utilities */
+@layer utilities {
+  .sb-scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+  }
+  
+  .sb-scrollbar-thin::-webkit-scrollbar {
+    @apply w-2;
+  }
+  
+  .sb-scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+  
+  .sb-scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-full;
+  }
+  
+  .sb-animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .sb-animate-slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
 }
 
-/* 6. TRANSITION CLASSES */
-.sb-card {
-  @apply transition-all duration-200;
+/* 8. TABLER SPECIFIC OVERRIDES - Forceer Tailwind styles */
+/* Container overrides */
+.container,
+.container-fluid {
+  max-width: 100% !important;
+  padding-right: 1rem !important;
+  padding-left: 1rem !important;
 }
 
-.tw-card {
-  @apply bg-white p-6 rounded-lg shadow border border-gray-200;
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px !important;
+  }
 }
 
-/* Next.js container fix */
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px !important;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px !important;
+  }
+}
+
+/* Card overrides */
+.card {
+  background-color: white !important;
+  border-radius: 1rem !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+.card-header {
+  border-bottom: 1px solid #e5e7eb !important;
+  padding: 1.5rem !important;
+}
+
+.card-body {
+  padding: 1.5rem !important;
+}
+
+/* Button overrides */
+.btn {
+  border-radius: 0.75rem !important;
+  font-weight: 500 !important;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter !important;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-duration: 200ms !important;
+}
+
+.btn-primary {
+  background-color: rgb(37 99 235) !important;
+  border-color: rgb(37 99 235) !important;
+  color: white !important;
+}
+
+.btn-primary:hover {
+  background-color: rgb(29 78 216) !important;
+  border-color: rgb(29 78 216) !important;
+}
+
+/* Form overrides */
+.form-control,
+.form-select {
+  border-radius: 0.75rem !important;
+  border: 1px solid #d1d5db !important;
+  padding: 0.75rem 1rem !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: rgb(59 130 246) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Table overrides */
+.table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.table th {
+  background-color: #f9fafb !important;
+  padding: 0.75rem 1rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em !important;
+}
+
+.table td {
+  padding: 1rem !important;
+  border-top: 1px solid #e5e7eb !important;
+}
+
+/* Alert overrides */
+.alert {
+  border-radius: 0.75rem !important;
+  border: 1px solid transparent !important;
+  padding: 1rem !important;
+}
+
+.alert-success {
+  background-color: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+  color: #166534 !important;
+}
+
+.alert-warning {
+  background-color: #fefce8 !important;
+  border-color: #fef08a !important;
+  color: #854d0e !important;
+}
+
+.alert-danger {
+  background-color: #fef2f2 !important;
+  border-color: #fecaca !important;
+  color: #991b1b !important;
+}
+
+/* Badge overrides */
+.badge {
+  border-radius: 9999px !important;
+  padding: 0.25rem 0.75rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+}
+
+.bg-primary {
+  background-color: rgb(37 99 235) !important;
+}
+
+.bg-success {
+  background-color: rgb(34 197 94) !important;
+}
+
+.bg-warning {
+  background-color: rgb(245 158 11) !important;
+}
+
+.bg-danger {
+  background-color: rgb(239 68 68) !important;
+}
+
+/* 9. APP SPECIFIC STYLES */
 #__next {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* BouwplaatsApp specifieke overrides */
+.sb-app-container {
+  @apply flex-1;
+}
+
+.sb-dashboard {
+  @apply p-4 md:p-6;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .container {
+    @apply px-4;
+  }
+  
+  .card {
+    @apply rounded-xl;
+  }
+  
+  .btn {
+    @apply py-3;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+  }
 }
