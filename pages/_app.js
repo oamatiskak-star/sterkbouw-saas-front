@@ -1,4 +1,4 @@
-// pages/_app.js - COMPLETE VERSIE (300+ regels)
+// pages/_app.js - GECORRIGEERDE VERSIE
 import '@/styles/globals.css'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
@@ -229,6 +229,32 @@ export default function App({ Component, pageProps }) {
         <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" />
         <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        
+        {/* NProgress styles - VERPLAATST VANAF HIER */}
+        <style jsx global>{`
+          #nprogress {
+            pointer-events: none;
+          }
+          #nprogress .bar {
+            background: #206bc4;
+            position: fixed;
+            z-index: 1031;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+          }
+          #nprogress .peg {
+            display: block;
+            position: absolute;
+            right: 0px;
+            width: 100px;
+            height: 100%;
+            box-shadow: 0 0 10px #206bc4, 0 0 5px #206bc4;
+            opacity: 1.0;
+            transform: rotate(3deg) translate(0px, -4px);
+          }
+        `}</style>
       </Head>
 
       {/* Analytics Script */}
@@ -427,29 +453,3 @@ export default function App({ Component, pageProps }) {
     </>
   )
 }
-
-// Add custom styles for nprogress
-<style jsx global>{`
-  #nprogress {
-    pointer-events: none;
-  }
-  #nprogress .bar {
-    background: #206bc4;
-    position: fixed;
-    z-index: 1031;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-  }
-  #nprogress .peg {
-    display: block;
-    position: absolute;
-    right: 0px;
-    width: 100px;
-    height: 100%;
-    box-shadow: 0 0 10px #206bc4, 0 0 5px #206bc4;
-    opacity: 1.0;
-    transform: rotate(3deg) translate(0px, -4px);
-  }
-`}</style>
