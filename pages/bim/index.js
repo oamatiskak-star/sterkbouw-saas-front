@@ -52,8 +52,7 @@ import {
   IconEye,
   IconHistory,
   IconLayoutGrid,
-  // IconMaterials bestaat niet! Gebruik alternatief:
-  IconPackage, // Of IconBox als alternatief voor materials
+  IconPackage, 
   IconPhoto,
   IconProgress,
   IconRefresh,
