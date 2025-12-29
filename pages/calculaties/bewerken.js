@@ -1,77 +1,67 @@
+// pages/calculaties/bewerken.js
 import { useRouter } from 'next/router';
-import WorkflowActions from "../../components/WorkflowActions";
-import { useProject } from "../../components/ProjectContext";
 import { useEffect, useState } from 'react';
+import WorkflowActions from "../../components/WorkflowActions";
 
 export default function CalculatieBewerken({ session }) {
   const router = useRouter();
-  const { id } = router.query; // Haal ID uit de URL query
-  const { projectId: contextProjectId, setProjectId } = useProject();
-  const [isClient, setIsClient] = useState(false);
+  const { id } = router.query;
+  const [mounted, setMounted] = useState(false);
 
-  // Sync route ID met context
+  // Alleen client-side renderen
   useEffect(() => {
-    setIsClient(true);
-    if (id && setProjectId) {
-      setProjectId(id);
-    }
-  }, [id, setProjectId]);
+    setMounted(true);
+  }, []);
 
-  // Gebruik óf route ID óf context ID
-  const effectiveProjectId = id || contextProjectId;
+  // Build/server: minimal render
+  if (!mounted) {
+    return (
+      <div>
+        <h1>Calculatie bewerken</h1>
+        <p>...</p>
+      </div>
+    );
+  }
 
+  // Nu hebben we id (client-side)
   const actions = [
     {
       workflow_key: "calculatie_optimaliseren",
       label: "Optimaliseren",
+      disabled: !id,
       onRun: () => {
+        if (!id) return;
         fetch("/api/workflow/run", {
           method: "POST",
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             workflow_key: "calculatie_optimaliseren",
-            project_id: effectiveProjectId
+            project_id: id
           })
-        })
+        });
       }
     },
     {
       workflow_key: "calculatie_fixeren",
       label: "Zet vast als Fixed Price",
+      disabled: !id,
       onRun: () => {
+        if (!id) return;
         fetch("/api/workflow/run", {
           method: "POST",
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             workflow_key: "calculatie_fixeren",
-            project_id: effectiveProjectId
+            project_id: id
           })
-        })
+        });
       }
     }
   ];
 
-  // Toon loading state tijdens build/server render
-  if (!isClient) {
-    return (
-      <div>
-        <h1>Calculatie bewerken</h1>
-        <p>Laden...</p>
-      </div>
-    );
-  }
-
-  if (!effectiveProjectId) {
-    return (
-      <div>
-        <h1>Calculatie bewerken</h1>
-        <p className="text-red-500">Geen project ID gevonden. Ga terug naar overzicht.</p>
-      </div>
-    );
-  }
-
   return (
     <div>
-      <h1>Calculatie bewerken ({effectiveProjectId})</h1>
-
+      <h1>Calculatie {id ? `#${id}` : ''} bewerken</h1>
       <WorkflowActions
         userId={session?.user?.id}
         actions={actions}
@@ -80,16 +70,14 @@ export default function CalculatieBewerken({ session }) {
   );
 }
 
-// VOEG DEZE TOE voor server-side rendering:
+// Server-side session
 export async function getServerSideProps(context) {
-  // Haal session op (afhankelijk van je auth systeem)
-  const { req } = context;
-  // Je session logica hier...
-  
-  return {
-    props: {
-      session: { user: { id: 'temp' } }, // placeholder
-      // projectId komt nu via router.query
-    },
+  // JOUW SESSION LOGICA HIER
+  const session = { 
+    user: { 
+      id: 'user-id-placeholder'
+    }
   };
+  
+  return { props: { session } };
 }
