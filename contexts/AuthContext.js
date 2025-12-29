@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/router'
-import { supabase } from '@/lib/supabase'
+import { supabase, getUserProfile, updateUserProfile } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 
 const AuthContext = createContext({})
@@ -12,91 +12,58 @@ export function AuthProvider({ children }) {
   const [authLoading, setAuthLoading] = useState(false)
   const router = useRouter()
 
-  // Check active session on mount
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
+  // Initialize auth
+  const initAuth = useCallback(async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session?.user) {
+        setUser(session.user)
         
-        if (session?.user) {
-          setUser(session.user)
-          
-          // Fetch user profile
-          const { data: userProfile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-            
-          if (userProfile) {
-            setProfile(userProfile)
-          }
-        }
-      } catch (error) {
-        console.error('Session check failed:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    checkSession()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session?.user) {
-          setUser(session.user)
-          
-          // Fetch user profile on auth state change
-          const { data: userProfile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-            
-          if (userProfile) {
-            setProfile(userProfile)
-          } else {
-            // Create profile if it doesn't exist
-            await createProfile(session.user)
-          }
+        // Load user profile
+        const userProfile = await getUserProfile(session.user.id)
+        if (userProfile) {
+          setProfile(userProfile)
         } else {
-          setUser(null)
-          setProfile(null)
+          // Create default profile
+          await createUserProfile(session.user)
         }
-        setLoading(false)
       }
-    )
-
-    return () => subscription.unsubscribe()
+    } catch (error) {
+      console.error('Auth initialization failed:', error)
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
-  const createProfile = async (userData) => {
+  // Create user profile
+  const createUserProfile = async (userData) => {
     try {
+      const defaultProfile = {
+        id: userData.id,
+        email: userData.email,
+        full_name: userData.user_metadata?.full_name || '',
+        role: userData.user_metadata?.role || 'medewerker',
+        company: userData.user_metadata?.company || '',
+        phone: userData.user_metadata?.phone || '',
+        avatar_url: userData.user_metadata?.avatar_url || '',
+        settings: {
+          language: 'nl',
+          theme: 'light',
+          notifications: true,
+          email_notifications: true
+        },
+        permissions: getDefaultPermissions(userData.user_metadata?.role)
+      }
+
       const { data, error } = await supabase
         .from('profiles')
-        .insert([
-          {
-            id: userData.id,
-            email: userData.email,
-            full_name: userData.user_metadata?.full_name || '',
-            role: userData.user_metadata?.role || 'medewerker',
-            company: userData.user_metadata?.company || '',
-            phone: userData.user_metadata?.phone || '',
-            avatar_url: userData.user_metadata?.avatar_url || '',
-            settings: {
-              language: 'nl',
-              theme: 'light',
-              notifications: true,
-              email_notifications: true
-            },
-            permissions: getDefaultPermissions(userData.user_metadata?.role)
-          }
-        ])
+        .insert([defaultProfile])
         .select()
         .single()
 
       if (error) throw error
+      
       setProfile(data)
       return data
     } catch (error) {
@@ -105,6 +72,7 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Get default permissions based on role
   const getDefaultPermissions = (role) => {
     const permissions = {
       admin: [
@@ -142,6 +110,40 @@ export function AuthProvider({ children }) {
     return permissions[role] || permissions.medewerker
   }
 
+  // Setup auth state change listener
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event)
+        
+        if (session?.user) {
+          setUser(session.user)
+          
+          // Load profile on sign in
+          if (event === 'SIGNED_IN') {
+            const userProfile = await getUserProfile(session.user.id)
+            if (userProfile) {
+              setProfile(userProfile)
+            }
+          }
+        } else {
+          setUser(null)
+          setProfile(null)
+        }
+        
+        setLoading(false)
+      }
+    )
+
+    // Initial auth check
+    initAuth()
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [initAuth])
+
+  // Login function
   const login = async (email, password, rememberMe = false) => {
     try {
       setAuthLoading(true)
@@ -159,22 +161,9 @@ export function AuthProvider({ children }) {
       }
 
       if (data?.user) {
-        setUser(data.user)
-        
-        // Fetch user profile
-        const { data: userProfile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', data.user.id)
-          .single()
-          
-        if (userProfile) {
-          setProfile(userProfile)
-        }
-        
         toast.success('Succesvol ingelogd!')
         
-        // Redirect based on role or last visited page
+        // Redirect
         const returnTo = router.query.returnTo || '/dashboard'
         router.push(returnTo)
       }
@@ -189,6 +178,7 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Signup function
   const signup = async (email, password, userData) => {
     try {
       setAuthLoading(true)
@@ -229,6 +219,7 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Logout function
   const logout = async () => {
     try {
       setAuthLoading(true)
@@ -236,9 +227,6 @@ export function AuthProvider({ children }) {
       const { error } = await supabase.auth.signOut()
       
       if (error) throw error
-      
-      setUser(null)
-      setProfile(null)
       
       toast.success('Succesvol uitgelogd')
       
@@ -255,23 +243,16 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Update user profile
   const updateProfile = async (profileData) => {
     try {
       if (!user) throw new Error('Geen gebruiker gevonden')
       
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(profileData)
-        .eq('id', user.id)
-        .select()
-        .single()
-
-      if (error) throw error
-      
-      setProfile(data)
+      const updatedProfile = await updateUserProfile(user.id, profileData)
+      setProfile(updatedProfile)
       toast.success('Profiel bijgewerkt')
       
-      return { success: true, profile: data }
+      return { success: true, profile: updatedProfile }
     } catch (error) {
       console.error('Profile update error:', error)
       toast.error('Profiel bijwerken mislukt')
@@ -279,8 +260,18 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Update password
   const updatePassword = async (currentPassword, newPassword) => {
     try {
+      // First verify current password
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword
+      })
+
+      if (signInError) throw new Error('Huidig wachtwoord is incorrect')
+
+      // Update to new password
       const { error } = await supabase.auth.updateUser({
         password: newPassword
       })
@@ -296,6 +287,7 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Reset password
   const resetPassword = async (email) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -313,6 +305,7 @@ export function AuthProvider({ children }) {
     }
   }
 
+  // Permission checks
   const hasPermission = (permission) => {
     if (!profile) return false
     return profile.permissions?.includes(permission) || false
@@ -333,6 +326,7 @@ export function AuthProvider({ children }) {
     return hasPermission(requiredPermission)
   }
 
+  // User info helpers
   const getUserFullName = () => {
     return profile?.full_name || user?.email?.split('@')[0] || 'Gebruiker'
   }
@@ -373,11 +367,14 @@ export function AuthProvider({ children }) {
     // User info
     getUserFullName,
     getUserInitials,
+    getUserEmail: () => user?.email || '',
+    getUserRole: () => profile?.role || '',
     
     // Convenience
     isAuthenticated: !!user,
     userRole: profile?.role || null,
-    userPermissions: profile?.permissions || []
+    userPermissions: profile?.permissions || [],
+    userId: user?.id || null
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
