@@ -1,30 +1,49 @@
+# Dockerfile
 FROM node:20-alpine AS builder
+
+# Werkmap instellen
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# 1. Eerst alleen package.json en package-lock.json kopiëren
+COPY package.json package-lock.json* ./
+
+# 2. Clean install met lockfile
 RUN npm ci
 
-# Copy source
+# 3. Rest van de code kopiëren
 COPY . .
 
-# Build met supabase environment variables
-ENV NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co
-ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-key
-ENV SUPABASE_SERVICE_ROLE_KEY=dummy
-ENV SUPABASE_JWT_SECRET=dummy
-ENV NEXT_TELEMETRY_DISABLED=1
-
+# 4. Build de applicatie
 RUN npm run build
 
-# Production image
+# 5. Productie image
 FROM node:20-alpine AS runner
+
 WORKDIR /app
 
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules ./node_modules
+# Omgeving variabelen (gebruik Railway secrets ipv hier te zetten)
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
+# Gebruiker maken
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy from builder
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+# Rechten instellen
+RUN chown -R nextjs:nodejs /app
+
+# Gebruiker switchen
+USER nextjs
+
+# Poort exposen
 EXPOSE 3000
-CMD ["npm", "start"]
+
+# Server starten
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+CMD ["node", "server.js"]
