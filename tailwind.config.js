@@ -1,7 +1,7 @@
-// tailwind.config.js - UPDATE
+// tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  important: true, // Zorg dat Tailwind Tabler overschrijft
+  important: true,
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -11,22 +11,19 @@ module.exports = {
     './lib/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   corePlugins: {
-    // Schakel preflight uit als het conflicteert met Tabler
-    preflight: false, // ZET DIT OP 'true' ALS JE PROBLEMEN ZIET
+    preflight: true,
   },
   theme: {
     extend: {
       colors: {
-        // Match Tabler's color scheme
         primary: {
-          DEFAULT: '#206bc4', // Tabler's primary blue
+          DEFAULT: '#206bc4',
           50: '#f0f7ff',
           100: '#e0effe',
           500: '#206bc4',
           600: '#1d5fb4',
           700: '#1a53a4',
         },
-        // Tabler's gray scale
         gray: {
           100: '#f8f9fa',
           200: '#e9ecef',
