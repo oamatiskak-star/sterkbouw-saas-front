@@ -2,18 +2,18 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/router"
 import { supabase } from "@/lib/supabase"
-import { useAuth } from "@/hooks/useAuth"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
+import { useAuth } from "@/lib/auth" // ← VERANDERD: gebruik direct vanuit lib/auth
+import Card from "@/components/ui/card" // ← DEFAULT IMPORT
+import Button from "@/components/ui/button" // ← DEFAULT IMPORT
+import Input from "@/components/ui/input" // ← DEFAULT IMPORT
+import Label from "@/components/ui/label" // ← DEFAULT IMPORT
+import Textarea from "@/components/ui/textarea" // ← DEFAULT IMPORT
+import Select from "@/components/ui/select" // ← DEFAULT IMPORT
+import Badge from "@/components/ui/badge" // ← DEFAULT IMPORT
+import Progress from "@/components/ui/progress" // ← DEFAULT IMPORT
+import Separator from "@/components/ui/separator" // ← DEFAULT IMPORT
+import Alert from "@/components/ui/alert" // ← DEFAULT IMPORT
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Upload, FileText, Building, Calculator, Download, Plus, Trash2, CheckCircle, AlertCircle } from "lucide-react"
 
