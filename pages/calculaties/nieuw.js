@@ -1,8 +1,8 @@
-"use client"
-
+// pages/calculaties/nieuw.js
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/router"
 import { supabase } from "@/lib/supabase"
+import { useAuth } from "@/hooks/useAuth"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,53 +23,57 @@ const API_ENDPOINTS = {
   BACKEND_API: process.env.NEXT_PUBLIC_BACKEND_API || "https://sterkbouw-saas-backend-production.up.railway.app",
 }
 
-const Post = {
-  id: string
-  code: string
-  omschrijving: string
-  eenheid: string
-  aantal: number
-  eenheidsprijs: number
-  arbeidsuren: number
-  materiaal: number
-  opmerking: string
-  categorie?: string
-}
+// FIX: Verander interface naar JSDoc comments
+/**
+ * @typedef {Object} PostType
+ * @property {string} id
+ * @property {string} code
+ * @property {string} omschrijving
+ * @property {string} eenheid
+ * @property {number} aantal
+ * @property {number} eenheidsprijs
+ * @property {number} arbeidsuren
+ * @property {number} materiaal
+ * @property {string} opmerking
+ * @property {string} [categorie]
+ */
 
-interface AnalyseResultaat {
-  oppervlakte_m2: number
-  bouwjaar: number
-  aantal_kamers: number
-  project_type: 'nieuwbouw' | 'renovatie' | 'transformatie' | 'verduurzaming' | 'onbekend'
-  materiaal_suggesties: Array<{naam: string, eenheid: string, geschatte_kosten: number}>
-  risico_indicatoren: string[]
-  verduurzamingspotentieel: string[]
-  geschatte_totale_kosten: number
-  confidence_score: number
-}
+/**
+ * @typedef {Object} AnalyseResultaatType
+ * @property {number} oppervlakte_m2
+ * @property {number} bouwjaar
+ * @property {number} aantal_kamers
+ * @property {'nieuwbouw' | 'renovatie' | 'transformatie' | 'verduurzaming' | 'onbekend'} project_type
+ * @property {Array<{naam: string, eenheid: string, geschatte_kosten: number}>} materiaal_suggesties
+ * @property {string[]} risico_indicatoren
+ * @property {string[]} verduurzamingspotentieel
+ * @property {number} geschatte_totale_kosten
+ * @property {number} confidence_score
+ */
 
-interface Project {
-  id: string
-  naam: string
-  status: 'draft' | 'uploading' | 'analyzing' | 'calculating' | 'ready' | 'error'
-  pdf_url?: string
-  created_at: string
-}
+/**
+ * @typedef {Object} ProjectType
+ * @property {string} id
+ * @property {string} naam
+ * @property {'draft' | 'uploading' | 'analyzing' | 'calculating' | 'ready' | 'error'} status
+ * @property {string} [pdf_url]
+ * @property {string} created_at
+ */
 
 export default function NieuweCalculatiePage() {
   const router = useRouter()
   const { user } = useAuth()
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef(null)
   
   // State management
-  const [currentStep, setCurrentStep] = useState<number>(1)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
+  const [currentStep, setCurrentStep] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(null)
   
   // Project state
-  const [project, setProject] = useState<Project | null>(null)
-  const [projectId, setProjectId] = useState<string | null>(null)
+  const [project, setProject] = useState(null)
+  const [projectId, setProjectId] = useState(null)
   
   // Form state
   const [formData, setFormData] = useState({
@@ -87,8 +91,9 @@ export default function NieuweCalculatiePage() {
     opmerkingen: "",
   })
   
-  // Calculatie state
-  const [posten, setPosten] = useState<Post[]>([
+  // Calculatie state - gebruik JSDoc type
+  /** @type {[PostType[], function]} */
+  const [posten, setPosten] = useState([
     {
       id: "1",
       code: "12.10",
@@ -151,7 +156,8 @@ export default function NieuweCalculatiePage() {
     }
   ])
   
-  const [nieuwePost, setNieuwePost] = useState<Partial<Post>>({
+  /** @type {[Partial<PostType>, function]} */
+  const [nieuwePost, setNieuwePost] = useState({
     code: "",
     omschrijving: "",
     eenheid: "m²",
@@ -181,9 +187,10 @@ export default function NieuweCalculatiePage() {
   ])
   
   // AI Analyse resultaten
-  const [analyseResultaat, setAnalyseResultaat] = useState<AnalyseResultaat | null>(null)
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
-  const [analyseStatus, setAnalyseStatus] = useState<'idle' | 'uploading' | 'analyzing' | 'complete' | 'error'>('idle')
+  /** @type {[AnalyseResultaatType | null, function]} */
+  const [analyseResultaat, setAnalyseResultaat] = useState(null)
+  const [uploadedFiles, setUploadedFiles] = useState([])
+  const [analyseStatus, setAnalyseStatus] = useState('idle')
   
   // ======================
   // EFFECTS
@@ -221,7 +228,7 @@ export default function NieuweCalculatiePage() {
   
   // Poll voor project updates
   useEffect(() => {
-    let intervalId: NodeJS.Timeout
+    let intervalId
     
     if (projectId && analyseStatus === 'analyzing') {
       intervalId = setInterval(async () => {
@@ -238,11 +245,11 @@ export default function NieuweCalculatiePage() {
   // FUNCTIES
   // ======================
   
-  const handleFormChange = (field: string, value: string) => {
+  const handleFormChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
   
-  const handleNieuwePostChange = (field: keyof Post, value: string | number) => {
+  const handleNieuwePostChange = (field, value) => {
     setNieuwePost(prev => ({ ...prev, [field]: value }))
   }
   
@@ -304,7 +311,7 @@ export default function NieuweCalculatiePage() {
   }
   
   // STAP 2: Bestanden uploaden voor AI analyse
-  const handleFileUpload = async (files: FileList) => {
+  const handleFileUpload = async (files) => {
     if (!projectId) {
       setError("Maak eerst een project aan")
       return
@@ -374,7 +381,7 @@ export default function NieuweCalculatiePage() {
     }
   }
   
-  const verwerkAnalyseResultaten = (resultaten: any) => {
+  const verwerkAnalyseResultaten = (resultaten) => {
     setAnalyseResultaat({
       oppervlakte_m2: resultaten.oppervlakte || 0,
       bouwjaar: resultaten.bouwjaar || 0,
@@ -451,7 +458,7 @@ export default function NieuweCalculatiePage() {
     }
   }
   
-  const updateProjectWithPDF = async (pdfUrl: string) => {
+  const updateProjectWithPDF = async (pdfUrl) => {
     if (!projectId || !user) return
     
     try {
@@ -473,22 +480,22 @@ export default function NieuweCalculatiePage() {
   }
   
   // Berekeningsfuncties
-  const berekenPostTotaal = (post: Post): number => {
+  const berekenPostTotaal = (post) => {
     const arbeidskosten = post.arbeidsuren * getGemiddeldUurloon()
     const materiaal = post.materiaal || (post.eenheidsprijs * post.aantal)
     return arbeidskosten + materiaal
   }
   
-  const berekenSubtotaal = (): number => {
+  const berekenSubtotaal = () => {
     return posten.reduce((totaal, post) => totaal + berekenPostTotaal(post), 0)
   }
   
-  const getGemiddeldUurloon = (): number => {
+  const getGemiddeldUurloon = () => {
     const total = uurlonen.reduce((som, u) => som + u.uurloon, 0)
     return total / uurlonen.length
   }
   
-  const berekenOpslagen = (subtotaal: number) => {
+  const berekenOpslagen = (subtotaal) => {
     return {
       algemene_kosten: subtotaal * (opslagen.algemene_kosten / 100),
       bouwplaatskosten: subtotaal * (opslagen.bouwplaatskosten / 100),
@@ -497,9 +504,9 @@ export default function NieuweCalculatiePage() {
     }
   }
   
-  const berekenTotaal = (opslagen: any) => {
+  const berekenTotaal = (opslagen) => {
     const subtotaal = berekenSubtotaal()
-    const totaalOpslagen = Object.values(opslagen).reduce((a: number, b: number) => a + b, 0)
+    const totaalOpslagen = Object.values(opslagen).reduce((a, b) => a + b, 0)
     const totaalExclBtw = subtotaal + totaalOpslagen
     const btwBedrag = totaalExclBtw * (opslagen.btw_percentage / 100)
     
@@ -512,7 +519,7 @@ export default function NieuweCalculatiePage() {
     }
   }
   
-  const genereerSamenvatting = (subtotaal: number, totaal: any): string => {
+  const genereerSamenvatting = (subtotaal, totaal) => {
     return `Calculatie voor ${formData.project_naam}. Subtotaal: €${subtotaal.toFixed(2)}, Totaal incl. BTW: €${totaal.totaal_incl_btw.toFixed(2)}`
   }
   
@@ -527,8 +534,8 @@ export default function NieuweCalculatiePage() {
       ...posten,
       {
         id: nieuweId,
-        code: nieuwePost.code!,
-        omschrijving: nieuwePost.omschrijving!,
+        code: nieuwePost.code,
+        omschrijving: nieuwePost.omschrijving,
         eenheid: nieuwePost.eenheid || "m²",
         aantal: Number(nieuwePost.aantal) || 1,
         eenheidsprijs: Number(nieuwePost.eenheidsprijs) || 0,
@@ -552,7 +559,7 @@ export default function NieuweCalculatiePage() {
     })
   }
   
-  const verwijderPost = (id: string) => {
+  const verwijderPost = (id) => {
     setPosten(posten.filter(p => p.id !== id))
   }
   
@@ -954,7 +961,7 @@ export default function NieuweCalculatiePage() {
                         </CardHeader>
                         <CardContent className="py-3">
                           <ul className="space-y-1 text-sm">
-                            {analyseResultaat.risico_indicatores.slice(0, 3).map((r, i) => (
+                            {analyseResultaat.risico_indicatoren.slice(0, 3).map((r, i) => (
                               <li key={i} className="flex items-center gap-2">
                                 <AlertCircle className="h-3 w-3 text-yellow-500" />
                                 <span>{r}</span>
