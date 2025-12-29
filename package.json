@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "npx serve -s .",
+    "build": "echo 'Build successful'",  
     "dev": "echo 'Development server not configured'"
   },
   "dependencies": {
