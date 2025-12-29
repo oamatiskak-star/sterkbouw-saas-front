@@ -2,8 +2,8 @@
   "name": "sterkbouw-frontend",
   "version": "1.0.0",
   "scripts": {
-    "start": "node server.js",  // of wat je start script is
-    "dev": "node server.js"     // pas aan naar jouw setup
+    "start": "node server.js",  s
+    "dev": "node server.js"     
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.1",
@@ -12,6 +12,5 @@
     "chart.js": "^4.4.3",
     "formidable": "^3.5.1",
     "three": "^0.164.1"
-    // Verwijder: next, react, react-dom
   }
 }
