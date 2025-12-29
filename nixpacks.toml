@@ -1,5 +1,15 @@
 [phases.setup]
-cmds = ["npm install"]  # <-- Verander "npm ci" naar "npm install"
+cmds = ["npm install"]
+
+[phases.build]
+cmds = ["echo 'No build needed'"]  
+
+[start]
+cmd = "npm start"
+
+[vars]
+NIXPACKS_PATH = "/opt/nixpacks"[phases.setup]
+cmds = ["npm install"]  
 
 [phases.build]
 cmds = ["echo 'No build needed'"]
