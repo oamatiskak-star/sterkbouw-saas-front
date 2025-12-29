@@ -2,13 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  // Zorg dat je Pages Router gebruikt
-  experimental: {
-    appDir: false,
-  },
   images: {
     domains: ['localhost'],
   },
+  // Als je App Router gebruikt:
+  // experimental: {
+  //   appDir: true,
+  // },
 }
 
 module.exports = nextConfig
