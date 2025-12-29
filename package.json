@@ -5,9 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -p $PORT"
+    "start": "next start -p $PORT",
+    "dev:app": "next dev --turbo",
+    "dev:pages": "next dev",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    // JE BESTAANDE DEPENDENCIES
     "next": "14.0.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -16,6 +20,28 @@
     "@tabler/core": "^1.0.0-beta21",
     "formidable": "^3.5.1",
     "chart.js": "^4.4.0",
-    "three": "^0.164.0"
+    "three": "^0.164.0",
+    
+    // NIEUWE DEPENDENCIES VOOR MODERNE FRONTEND
+    "tailwindcss": "^3.3.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "@tanstack/react-query": "^5.0.0",
+    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-dropdown-menu": "^2.0.6",
+    "@radix-ui/react-tabs": "^1.0.4",
+    "react-hook-form": "^7.0.0",
+    "date-fns": "^3.0.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.0.0",
+    "lucide-react": "^0.309.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@types/three": "^0.164.0"
   }
 }
