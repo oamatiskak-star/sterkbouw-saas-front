@@ -33,37 +33,38 @@ import {
   List,
   ThemeIcon
 } from '@mantine/core'
-import {
+import { 
   Icon3dCubeSphere,
-  IconPhoto,
-  IconMaterials,
-  IconCalculator,
+  IconAlertCircle,
+  IconArrowsMaximize,
+  IconBox,
+  IconBrandBlender,
   IconBuilding,
-  IconRefresh,
+  IconCalculator,
+  IconCheck,
+  IconCloudUpload,
+  IconColorSwatch,
+  IconCopy,
+  IconCube,
+  IconCubeSend,
+  IconCurrencyEuro,
   IconDownload,
   IconEye,
-  IconRobot,
-  IconCheck,
-  IconAlertCircle,
-  IconCube,
-  IconBox,
-  IconRuler,
-  IconColorSwatch,
-  IconUpload,
-  IconZoomIn,
-  IconArrowsMaximize,
-  IconRotate,
-  IconLayoutGrid,
-  IconSettings,
-  IconCopy,
-  IconTrash,
   IconHistory,
-  IconCloudUpload,
-  IconBrandBlender,
-  IconCubeSend,
+  IconLayoutGrid,
+  // IconMaterials bestaat niet! Gebruik alternatief:
+  IconPackage, // Of IconBox als alternatief voor materials
+  IconPhoto,
   IconProgress,
-  IconCurrencyEuro,
-  IconTrees
+  IconRefresh,
+  IconRobot,
+  IconRotate,
+  IconRuler,
+  IconSettings,
+  IconTrash,
+  IconTrees,
+  IconUpload,
+  IconZoomIn
 } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
 import { useRouter } from 'next/router'
