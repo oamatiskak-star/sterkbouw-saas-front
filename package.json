@@ -1,6 +1,12 @@
 {
   "name": "sterkbouw-frontend",
   "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.1",
     "@tabler/core": "^1.0.0-beta22",
