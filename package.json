@@ -1,23 +1,21 @@
 {
   "name": "sterkbouw-frontend",
   "version": "1.0.0",
-  "lockfileVersion": 3,
-  "requires": true,
-  "packages": {
-    "": {
-      "name": "sterkbouw-frontend",
-      "version": "1.0.0",
-      "dependencies": {
-        "@supabase/supabase-js": "^2.38.0",
-        "@tabler/core": "^1.0.0-beta21",
-        "axios": "^1.6.0",
-        "chart.js": "^4.4.0",
-        "formidable": "^3.5.1",
-        "next": "^14.2.5",  
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "three": "^0.164.0"
-      }
-    }
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start -p $PORT"
+  },
+  "dependencies": {
+    "next": "^14.2.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "axios": "^1.6.0",
+    "@tabler/core": "^1.0.0-beta21",
+    "formidable": "^3.5.1",
+    "chart.js": "^4.4.0",
+    "three": "^0.164.0"
   }
 }
