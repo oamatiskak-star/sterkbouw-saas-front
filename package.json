@@ -7,7 +7,7 @@
     "axios": "^1.7.2",
     "chart.js": "^4.4.3",
     "formidable": "^3.5.1",
-    "next": "14.2.13",
+    "next": "14.2.35",  // <--- HIER AANPASSEN!
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "three": "^0.164.1"
