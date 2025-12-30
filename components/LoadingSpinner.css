@@ -1,0 +1,103 @@
+/* Frontend/components/LoadingSpinner.css */
+.loading-spinner-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  width: 100%;
+}
+
+.loading-spinner-container.full-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  z-index: 9999;
+  min-height: 100vh;
+}
+
+.spinner-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.spinner {
+  position: relative;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinner-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: currentColor;
+}
+
+/* Sizes */
+.spinner-small {
+  width: 24px;
+  height: 24px;
+}
+
+.spinner-medium {
+  width: 40px;
+  height: 40px;
+}
+
+.spinner-large {
+  width: 60px;
+  height: 60px;
+}
+
+/* Colors */
+.spinner-primary {
+  color: #667eea;
+}
+
+.spinner-secondary {
+  color: #4c51bf;
+}
+
+.spinner-white {
+  color: #ffffff;
+}
+
+/* Animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spinner-message {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* SUPER_ADMIN special styling */
+.super-admin-loading .spinner {
+  border-width: 4px;
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+}
+
+.super-admin-loading .spinner-message {
+  color: #667eea;
+  font-weight: 600;
+  font-size: 1rem;
+}
