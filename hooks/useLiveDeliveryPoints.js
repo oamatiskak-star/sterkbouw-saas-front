@@ -1,93 +1,53 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useWebSocket } from '../../context/WebSocketContext';
-import api from '../../services/api';
+// Voor nu, maak een simpele versie zonder API of WebSocket
+import { useState, useEffect } from 'react';
 
-export const useLiveDeliveryPoints = (projectId) => {
+export const useLiveDeliveryPoints = () => {
   const [deliveryPoints, setDeliveryPoints] = useState([]);
-  const [buildingNumbers, setBuildingNumbers] = useState([]);
-  const [spaces, setSpaces] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const { subscribe, unsubscribe } = useWebSocket();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Laad initiële data
-  const loadData = useCallback(async () => {
-    if (!projectId) return;
-    
-    setIsLoading(true);
-    try {
-      const [pointsRes, buildingsRes, spacesRes] = await Promise.all([
-        api.get(`/delivery-points?projectId=${projectId}`),
-        api.get(`/projects/${projectId}/building-numbers`),
-        api.get(`/projects/${projectId}/spaces`)
-      ]);
-      
-      setDeliveryPoints(pointsRes.data);
-      setBuildingNumbers(buildingsRes.data);
-      setSpaces(spacesRes.data);
-    } catch (error) {
-      console.error('Error loading delivery points:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [projectId]);
-
-  // WebSocket voor realtime updates
   useEffect(() => {
-    if (!projectId) return;
-
-    const handleDeliveryPointUpdate = (data) => {
-      if (data.projectId === projectId) {
-        setDeliveryPoints(prev => {
-          const index = prev.findIndex(dp => dp.id === data.id);
-          if (index >= 0) {
-            // Update bestaand punt
-            const newPoints = [...prev];
-            newPoints[index] = data;
-            return newPoints;
-          } else {
-            // Voeg nieuw punt toe
-            return [...prev, data];
+    const fetchDeliveryPoints = async () => {
+      try {
+        // Simuleer data voor nu
+        const mockData = [
+          {
+            id: 1,
+            name: 'Hoofdleverpunt',
+            address: 'Amsterdam Noord',
+            status: 'active',
+            lastUpdate: new Date().toISOString()
           }
-        });
+        ];
+        setDeliveryPoints(mockData);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
-    // Subscribe op updates
-    subscribe(`project-${projectId}-delivery-points`, handleDeliveryPointUpdate);
+    fetchDeliveryPoints();
 
-    // Laad initiële data
-    loadData();
+    // Simuleer live updates
+    const interval = setInterval(() => {
+      setDeliveryPoints(prev => prev.map(point => ({
+        ...point,
+        lastUpdate: new Date().toISOString()
+      })));
+    }, 30000);
 
-    // Cleanup
-    return () => {
-      unsubscribe(`project-${projectId}-delivery-points`);
-    };
-  }, [projectId, loadData, subscribe, unsubscribe]);
-
-  // Opleverrapport genereren
-  const generateDeliveryReport = async (reportType) => {
-    if (!projectId) return null;
-    
-    try {
-      const response = await api.post('/documents/generate-delivery-report', {
-        projectId,
-        reportType,
-        deliveryPoints,
-        timestamp: new Date().toISOString()
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error generating report:', error);
-      throw error;
-    }
-  };
+    return () => clearInterval(interval);
+  }, []);
 
   return {
     deliveryPoints,
-    buildingNumbers,
-    spaces,
-    isLoading,
-    refreshData: loadData,
-    generateDeliveryReport
+    loading,
+    error,
+    refresh: () => {
+      setLoading(true);
+      // Herlaad logica hier
+      setTimeout(() => setLoading(false), 1000);
+    }
   };
 };
