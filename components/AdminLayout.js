@@ -343,10 +343,10 @@ const AdminLayout = ({ children }) => {
         
         {!collapsed && (
           <div style={{ 
-            padding: '16px',
-            borderTop: `1px solid ${darkTheme ? '#303030' : '#f0f0f0}`,
-            marginTop: 'auto'
-          }}>
+  padding: '16px',
+  borderTop: `1px solid ${darkTheme ? '#303030' : '#f0f0f0'}`,
+  marginTop: 'auto'
+}}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ color: darkTheme ? '#fff' : '#000' }}>Donker thema</span>
               <Switch 
