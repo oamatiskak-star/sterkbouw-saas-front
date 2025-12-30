@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { useProject } from '../../context/ProjectContext';
-import { useWebSocket } from '../../context/WebSocketContext';
-import { useAuth } from '../../context/AuthContext';
+import { ProjectProvider } from '@/contexts/ProjectContext'
+import { WebSocketProvider } from '@/contexts/WebSocketContext'
+import { AuthProvider } from '@/contexts/AuthContext'
 import { useGeoLocation } from '../../hooks/useGeoLocation';
 import { useOfflineSync } from '../../hooks/useOfflineSync';
 
