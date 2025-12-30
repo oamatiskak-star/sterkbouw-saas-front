@@ -11,62 +11,99 @@
   },
   "dependencies": {
     "next": "14.2.35",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+
     "antd": "^5.16.1",
     "@ant-design/icons": "^5.3.6",
-    "react-router-dom": "^6.22.0",
-    "@supabase/supabase-js": "^2.45.1",
-    "@tanstack/react-query": "^5.17.19",
-    "@tanstack/react-query-devtools": "^5.17.19",
-    "react-hot-toast": "^2.4.1",
-    "nprogress": "^0.2.0",
-    "react-dropzone": "^14.2.3",
-    "react-hook-form": "^7.48.2",
-    "date-fns": "^2.30.0",
-    "chart.js": "^4.4.3",
-    "react-chartjs-2": "^5.2.0",
-    "html2canvas": "^1.4.1",
-    "jspdf": "^2.5.1",
-    "uuid": "^9.0.1",
-    "@tabler/core": "^1.0.0-beta22",
-    "@tabler/icons-webfont": "^3.15.0",
-    "@tabler/icons-react": "^3.15.0",
-    "axios": "^1.7.2",
-    "formidable": "^3.5.1",
-    "three": "^0.164.1",
+
+    "@mui/material": "^5.15.10",
+    "@mui/icons-material": "^5.15.10",
+
+    "@emotion/react": "^11.11.5",
+    "@emotion/styled": "^11.11.5",
+
     "@mantine/core": "^7.10.1",
     "@mantine/hooks": "^7.10.1",
     "@mantine/form": "^7.10.1",
     "@mantine/notifications": "^7.10.1",
-    "lucide-react": "^0.309.0",
+
+    "@tabler/core": "^1.0.0-beta22",
+    "@tabler/icons-react": "^3.15.0",
+    "@tabler/icons-webfont": "^3.15.0",
+
+    "bootstrap": "^5.3.3",
+
+    "react-router-dom": "^6.22.0",
+
+    "@supabase/supabase-js": "^2.45.1",
+    "@supabase/auth-helpers-nextjs": "^0.8.7",
+    "@supabase/ssr": "^0.4.0",
+
+    "@tanstack/react-query": "^5.17.19",
+    "@tanstack/react-query-devtools": "^5.17.19",
+
+    "react-hot-toast": "^2.4.1",
+    "nprogress": "^0.2.0",
+    "react-dropzone": "^14.2.3",
+
+    "react-hook-form": "^7.51.3",
+    "zod": "^3.22.4",
+
+    "date-fns": "^3.6.0",
+    "lodash": "^4.17.21",
+
+    "axios": "^1.7.2",
+
+    "chart.js": "^4.4.3",
+    "react-chartjs-2": "^5.2.0",
+    "recharts": "^2.10.4",
+
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^4.10.1",
+
+    "three": "^0.164.1",
+    "@react-three/fiber": "^8.15.24",
+    "@react-three/drei": "^9.94.3",
+
+    "file-saver": "^2.0.5",
+    "jszip": "^3.10.1",
+    "pdf-lib": "^1.17.1",
+    "jspdf": "^2.5.1",
+    "html2canvas": "^1.4.1",
+
+    "papaparse": "^5.4.1",
+    "xlsx": "^0.18.5",
+
+    "uuid": "^9.0.1",
+
     "clsx": "^2.0.0",
     "tailwind-merge": "^2.1.0",
+    "lucide-react": "^0.309.0",
+
     "prop-types": "^15.8.1",
+
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
-    "@mui/icons-material": "^5.14.18",
-    "@mui/material": "^5.14.18",
-    "file-saver": "^2.0.5",
-    "papaparse": "^5.4.1",
-    "xlsx": "^0.18.5",
-    "zod": "^3.22.4"
+
+    "formidable": "^3.5.1"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.5",
+    "typescript": "^5.3.0",
+
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@types/node": "^20.0.0",
-    "typescript": "^5.3.0",
     "@types/nprogress": "^0.2.3",
     "@types/uuid": "^9.0.8",
     "@types/three": "^0.164.0",
+
     "eslint": "^8.56.0",
-    "eslint-config-next": "^14.0.0"
+    "eslint-config-next": "14.2.35",
+
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1"
   }
 }
