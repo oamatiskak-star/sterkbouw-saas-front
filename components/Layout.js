@@ -1,9 +1,10 @@
-import { useState } from 'react'
-import { useRouter } from 'next/router'
+// components/Layout.js
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import supabase from '@/lib/supabase'
 
-export default function Layout({ children }) {
+export default function Layout({ children }) {  // Dit is al de export
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [user, setUser] = useState(null)
   const router = useRouter()
@@ -198,5 +199,3 @@ export default function Layout({ children }) {
     </div>
   )
 }
-
-export default Layout
