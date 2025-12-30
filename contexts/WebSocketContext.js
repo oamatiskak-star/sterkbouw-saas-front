@@ -1,77 +1,104 @@
-import React, { createContext, useContext, useEffect, useRef, useCallback } from 'react';
-import { toast } from 'react-toastify';
+// contexts/WebSocketContext.js
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useCallback,
+  useState,
+} from 'react'
 
-const WebSocketContext = createContext();
+const WebSocketContext = createContext(null)
 
-export const WebSocketProvider = ({ children }) => {
-const ws = useRef(null);
-const [isConnected, setIsConnected] = useState(false);
-const [messages, setMessages] = useState([]);
+// eenvoudige fallback notifier (geen externe dependency)
+function notify(type, message) {
+  if (typeof window !== 'undefined') {
+    console[type === 'error' ? 'error' : 'log'](
+      `[WebSocket:${type}]`,
+      message
+    )
+  }
+}
 
-const connect = useCallback(() => {
-try {
-// For development, use mock. In production: wss://api.example.com/ws
-ws.current = new WebSocket('ws://localhost:3001');
+export function WebSocketProvider({ children }) {
+  const ws = useRef(null)
+  const [isConnected, setIsConnected] = useState(false)
+  const [messages, setMessages] = useState([])
 
-text
-  ws.current.onopen = () => {
-    setIsConnected(true);
-    toast.success('Verbonden met real-time updates');
-  };
+  const connect = useCallback(() => {
+    try {
+      // DEV endpoint (zoals origineel bedoeld)
+      ws.current = new WebSocket('ws://localhost:3001')
 
-  ws.current.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    setMessages(prev => [...prev, data]);
-    
-    // Show notifications for important updates
-    if (data.type === 'inspection_update') {
-      toast.info(`Inspectie geüpdatet: ${data.title}`);
+      ws.current.onopen = () => {
+        setIsConnected(true)
+        notify('info', 'Verbonden met real-time updates')
+      }
+
+      ws.current.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          setMessages(prev => [...prev, data])
+
+          if (data?.type === 'inspection_update') {
+            notify('info', `Inspectie geüpdatet: ${data.title}`)
+          }
+        } catch (err) {
+          notify('error', 'Ongeldig WebSocket-bericht')
+        }
+      }
+
+      ws.current.onclose = () => {
+        setIsConnected(false)
+        notify('warn', 'Verbinding verbroken')
+      }
+
+      ws.current.onerror = (error) => {
+        notify('error', 'WebSocket fout')
+        console.error(error)
+      }
+    } catch (error) {
+      notify('error', 'WebSocket connectie mislukt')
+      console.error(error)
     }
-  };
+  }, [])
 
-  ws.current.onclose = () => {
-    setIsConnected(false);
-    toast.warning('Verbinding verbroken, probeer opnieuw...');
-  };
+  const sendMessage = useCallback(
+    (message) => {
+      if (ws.current && isConnected) {
+        ws.current.send(JSON.stringify(message))
+      }
+    },
+    [isConnected]
+  )
 
-  ws.current.onerror = (error) => {
-    console.error('WebSocket error:', error);
-    toast.error('WebSocket fout');
-  };
-} catch (error) {
-  console.error('Connection error:', error);
+  useEffect(() => {
+    connect()
+    return () => {
+      if (ws.current) {
+        ws.current.close()
+      }
+    }
+  }, [connect])
+
+  return (
+    <WebSocketContext.Provider
+      value={{
+        isConnected,
+        messages,
+        sendMessage,
+        reconnect: connect,
+      }}
+    >
+      {children}
+    </WebSocketContext.Provider>
+  )
 }
-}, []);
 
-const sendMessage = useCallback((message) => {
-if (ws.current && isConnected) {
-ws.current.send(JSON.stringify(message));
+export function useWebSocket() {
+  const context = useContext(WebSocketContext)
+  if (!context) {
+    throw new Error('useWebSocket must be used within WebSocketProvider')
+  }
+  return context
 }
-}, [isConnected]);
-
-useEffect(() => {
-connect();
-return () => {
-if (ws.current) {
-ws.current.close();
-}
-};
-}, [connect]);
-
-return (
-<WebSocketContext.Provider value={{
-isConnected,
-messages,
-sendMessage,
-reconnect: connect,
-}}>
-{children}
-</WebSocketContext.Provider>
-);
-};
-
-export const useWebSocket = () => {
-const context = useContext(WebSocketContext);
-if (!context) throw new Error('useWebSocket must be used within WebSocketProvider');
-return context;
-  };
