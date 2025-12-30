@@ -23,9 +23,9 @@ import Layout from '@/components/Layout'
 import AdminLayout from '@/components/AdminLayout'
 
 // Contexts / Providers
+import { ProjectProvider } from '@/contexts/ProjectContext'
+import { WebSocketProvider } from '@/contexts/WebSocketContext'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
-import { ProjectProvider } from '@/context/ProjectContext'
-import { WebSocketProvider } from '@/context/WebSocketContext'
 
 // -------------------------
 // React Query
