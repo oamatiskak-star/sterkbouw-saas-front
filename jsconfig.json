@@ -2,7 +2,16 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["./*"],
+      "@components/*": ["components/*"],
+      "@context/*": ["context/*"],
+      "@hooks/*": ["hooks/*"],
+      "@utils/*": ["utils/*"],
+      "@services/*": ["services/*"],
+      "@locales/*": ["locales/*"],
+      "@config/*": ["config/*"]
     }
-  }
+  },
+  "include": ["**/*"],
+  "exclude": ["node_modules"]
 }
