@@ -1151,6 +1151,5 @@ function getSupplierQuote(request, supplierId) {
   return response?.total_price || 0
 }
 
-// Andere helper functies...
-
+}
 export default InkoopPage
