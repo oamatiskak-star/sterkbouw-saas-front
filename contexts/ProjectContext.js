@@ -1,54 +1,80 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
-const ProjectContext = createContext(null);
+const ProjectContext = createContext();
+
+export const useProject = () => {
+  const context = useContext(ProjectContext);
+  if (!context) {
+    throw new Error('useProject must be used within a ProjectProvider');
+  }
+  return context;
+};
 
 export const ProjectProvider = ({ children }) => {
   const [projects, setProjects] = useState([]);
-  const [currentProject, setCurrentProject] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Mock data for initial development
   useEffect(() => {
-    // Simuleer project data
+    // Replace this with actual API call
     const mockProjects = [
       {
         id: 1,
-        name: 'Woningbouw Amsterdam Noord',
+        name: 'Project A',
+        location: 'Amsterdam',
+        startDate: '2024-01-01',
+        endDate: '2024-12-31',
         status: 'active',
-        budget: 2500000,
-        progress: 65
+        budget: 500000
       },
       {
         id: 2,
-        name: 'Kantoorrenovatie Rotterdam',
-        status: 'active',
-        budget: 1200000,
-        progress: 40
-      },
-      {
-        id: 3,
-        name: 'Project Havenkwartier',
-        status: 'planned',
-        budget: 3500000,
-        progress: 15
+        name: 'Project B',
+        location: 'Rotterdam',
+        startDate: '2024-02-01',
+        endDate: '2024-11-30',
+        status: 'planning',
+        budget: 750000
       }
     ];
-
+    
     setProjects(mockProjects);
-    setCurrentProject(mockProjects[0]);
     setLoading(false);
   }, []);
 
+  const addProject = (project) => {
+    const newProject = {
+      ...project,
+      id: projects.length + 1
+    };
+    setProjects([...projects, newProject]);
+  };
+
+  const updateProject = (id, updatedData) => {
+    setProjects(projects.map(project => 
+      project.id === id ? { ...project, ...updatedData } : project
+    ));
+  };
+
+  const deleteProject = (id) => {
+    setProjects(projects.filter(project => project.id !== id));
+  };
+
+  const selectProject = (project) => {
+    setSelectedProject(project);
+  };
+
   const value = {
     projects,
-    currentProject,
+    selectedProject,
     loading,
-    setCurrentProject,
-    addProject: (project) => {
-      setProjects([...projects, { ...project, id: projects.length + 1 }]);
-    },
-    updateProject: (id, updates) => {
-      setProjects(projects.map(p => p.id === id ? { ...p, ...updates } : p));
-    }
+    error,
+    addProject,
+    updateProject,
+    deleteProject,
+    selectProject
   };
 
   return (
@@ -58,10 +84,4 @@ export const ProjectProvider = ({ children }) => {
   );
 };
 
-export const useProject = () => {
-  const context = useContext(ProjectContext);
-  if (!context) {
-    throw new Error('useProject must be used within ProjectProvider');
-  }
-  return context;
-};
+export default ProjectContext;
