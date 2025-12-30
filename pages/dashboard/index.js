@@ -1,121 +1,212 @@
-// pages/dashboard/index.js
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import supabase from "@/lib/supabase"
 import { useRouter } from "next/router"
+import Layout from "@/components/Layout"
+import DashboardLayout from "@/components/DashboardLayout"
 
 export default function DashboardPage() {
   const [modules, setModules] = useState([])
   const [stats, setStats] = useState({
-    activeProjects: 0,
-    cashflow: 0,
-    ongoingTasks: 0,
-    openIssues: 0,
-    budgetUtilization: 0
+    activeProjects: 12,
+    cashflow: 2850000,
+    ongoingTasks: 47,
+    openIssues: 8,
+    budgetUtilization: 68
   })
   const [recentActivity, setRecentActivity] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [authChecked, setAuthChecked] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [user, setUser] = useState(null)
   const router = useRouter()
 
-  useEffect(() => {
-    let cancelled = false
+  // Fallback modules als database leeg is
+  const fallbackModules = [
+    {
+      key: 'calculatie',
+      label: 'Calculatie & Offertes',
+      route: '/calculatie',
+      icon: 'calculator',
+      color: 'blue',
+      description: 'Kostenberekeningen en offertes'
+    },
+    {
+      key: 'projecten',
+      label: 'Projecten',
+      route: '/projecten',
+      icon: 'building',
+      color: 'green',
+      description: 'Projectmanagement en planning'
+    },
+    {
+      key: 'bim',
+      label: 'BIM Modellen',
+      route: '/bim',
+      icon: 'cube',
+      color: 'purple',
+      description: '3D modellen en tekeningen'
+    },
+    {
+      key: 'financien',
+      label: 'Financiën',
+      route: '/financien',
+      icon: 'currency-euro',
+      color: 'teal',
+      description: 'Budgetten en facturatie'
+    },
+    {
+      key: 'bouwplaats',
+      label: 'Bouwplaats',
+      route: '/bouwplaats',
+      icon: 'building-warehouse',
+      color: 'orange',
+      description: 'Uitvoering en inspectie'
+    },
+    {
+      key: 'urenregistratie',
+      label: 'Urenregistratie',
+      route: '/uren',
+      icon: 'clock',
+      color: 'pink',
+      description: 'Uren en urenstaten'
+    },
+    {
+      key: 'voorraad',
+      label: 'Voorraad',
+      route: '/voorraad',
+      icon: 'package',
+      color: 'cyan',
+      description: 'Materialen en voorraadbeheer'
+    },
+    {
+      key: 'documenten',
+      label: 'Documenten',
+      route: '/documenten',
+      icon: 'files',
+      color: 'yellow',
+      description: 'Bestanden en documentatie'
+    }
+  ]
 
-    async function checkAndLoadData() {
+  // Fallback recente activiteiten
+  const fallbackActivities = [
+    {
+      id: 1,
+      title: 'Nieuw project aangemaakt',
+      description: 'Woningbouw Amsterdam Noord',
+      icon: 'building',
+      color: 'blue',
+      created_at: new Date().toISOString(),
+      type: 'project'
+    },
+    {
+      id: 2,
+      title: 'Calculatie voltooid',
+      description: 'Kantoorrenovatie Rotterdam',
+      icon: 'calculator',
+      color: 'green',
+      created_at: new Date(Date.now() - 86400000).toISOString(),
+      type: 'calculatie'
+    },
+    {
+      id: 3,
+      title: 'BIM model geüpload',
+      description: 'Nieuw ziekenhuis Utrecht',
+      icon: 'cube',
+      color: 'purple',
+      created_at: new Date(Date.now() - 172800000).toISOString(),
+      type: 'bim'
+    },
+    {
+      id: 4,
+      title: 'Factuur verzonden',
+      description: 'Factuur #2023-045',
+      icon: 'receipt',
+      color: 'teal',
+      created_at: new Date(Date.now() - 259200000).toISOString(),
+      type: 'finance'
+    }
+  ]
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      setLoading(true)
+      
       try {
-        setLoading(true)
-        
-        // 1. EERST: Check of gebruiker is ingelogd
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-        
-        console.log("Auth sessie:", { session, sessionError })
-        
-        if (sessionError) {
-          console.error("Auth error:", sessionError)
-          if (!cancelled) {
-            router.push("/login")
-          }
-          return
-        }
+        // Check auth
+        const { data: { session } } = await supabase.auth.getSession()
         
         if (!session) {
-          console.log("Geen sessie gevonden, redirect naar login")
-          if (!cancelled) {
-            router.push(`/login?returnTo=${encodeURIComponent(router.pathname)}`)
-          }
+          router.push('/login')
           return
         }
-
-        console.log("Ingelogd als:", session.user.email)
         
-        if (!cancelled) {
-          setAuthChecked(true)
+        setUser(session.user)
+        
+        // Probeer modules te laden
+        try {
+          const { data: modulesData, error } = await supabase
+            .from('modules')
+            .select('*')
+            .eq('active', true)
+            .order('sort_order')
+          
+          if (error) throw error
+          
+          if (modulesData && modulesData.length > 0) {
+            setModules(modulesData)
+          } else {
+            setModules(fallbackModules)
+          }
+        } catch (error) {
+          console.log('Using fallback modules')
+          setModules(fallbackModules)
         }
-
-        // 2. Nu data laden MET auth token
-        const { data: modulesData, error: modulesError } = await supabase
-          .from("modules")
-          .select("key,label,route,icon,sort_order,color,description")
-          .eq("active", true)
-          .not("route", "like", "%/%/%")
-          .neq("route", "/dashboard")
-          .order("sort_order", { ascending: true })
-
-        if (modulesError) {
-          console.error("Error loading modules:", modulesError)
-          return
+        
+        // Probeer activiteiten te laden
+        try {
+          const { data: activitiesData, error } = await supabase
+            .from('activities')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(5)
+          
+          if (!error && activitiesData && activitiesData.length > 0) {
+            setRecentActivity(activitiesData)
+          } else {
+            setRecentActivity(fallbackActivities)
+          }
+        } catch (error) {
+          setRecentActivity(fallbackActivities)
         }
-
-        // Load stats
-        const { count: activeProjectsCount } = await supabase
-          .from("projects")
-          .select("*", { count: 'exact', head: true })
-          .eq("status", "active")
-
-        // Load recent activity
-        const { data: activityData } = await supabase
-          .from("activities")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(5)
-
-        if (!cancelled) {
-          setModules(modulesData || [])
-          setStats(prev => ({
-            ...prev,
-            activeProjects: activeProjectsCount || 0
-          }))
-          setRecentActivity(activityData || [])
+        
+        // Laad echte statistieken
+        try {
+          const { count: projectCount } = await supabase
+            .from('projects')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'active')
+          
+          if (projectCount !== null) {
+            setStats(prev => ({ ...prev, activeProjects: projectCount }))
+          }
+        } catch (error) {
+          console.log('Using default stats')
         }
-      } catch (err) {
-        console.error("Unexpected error:", err)
+        
+      } catch (error) {
+        console.error('Dashboard error:', error)
       } finally {
-        if (!cancelled) {
-          setLoading(false)
-        }
+        setLoading(false)
       }
     }
-
-    checkAndLoadData()
     
-    return () => {
-      cancelled = true
-    }
-  }, [router])
-
-  // Luister naar auth state changes
-  useEffect(() => {
+    loadDashboardData()
+    
+    // Luister naar auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log("Auth state changed:", event)
-        
-        if (!session && event === 'SIGNED_OUT') {
+        if (!session) {
           router.push('/login')
-        }
-        
-        if (session && event === 'SIGNED_IN') {
-          // Herlaad data als gebruiker opnieuw inlogt
-          window.location.reload()
         }
       }
     )
@@ -132,568 +223,449 @@ export default function DashboardPage() {
     }).format(amount)
   }
 
-  const getColorClass = (color) => {
-    const colorMap = {
-      blue: 'bg-blue',
-      green: 'bg-green',
-      orange: 'bg-orange',
-      red: 'bg-red',
-      purple: 'bg-purple',
-      teal: 'bg-teal',
-      cyan: 'bg-cyan',
-      pink: 'bg-pink'
+  const getIconClass = (iconName) => {
+    return `ti ti-${iconName}`
+  }
+
+  const handleQuickAction = (action) => {
+    switch(action) {
+      case 'calculatie':
+        router.push('/calculatie')
+        break
+      case 'new-project':
+        router.push('/projecten/nieuw')
+        break
+      case 'financiering':
+        router.push('/financien/aanvraag')
+        break
+      case 'inspectie':
+        router.push('/bouwplaats/inspectie')
+        break
+      default:
+        console.log('Action not defined:', action)
     }
-    return colorMap[color] || 'bg-blue'
-  }
-
-  // Toon loading of redirect
-  if (loading && !authChecked) {
-    return (
-      <div className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '70vh' }}>
-        <div className="spinner-border text-primary mb-3" style={{ width: '3rem', height: '3rem' }} role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-        <h3 className="text-muted">Beveiliging controleren...</h3>
-      </div>
-    )
-  }
-
-  if (!authChecked) {
-    return null // Wordt al doorgestuurd
   }
 
   if (loading) {
     return (
-      <div className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: '70vh' }}>
-        <div className="spinner-border text-primary mb-3" style={{ width: '3rem', height: '3rem' }} role="status">
-          <span className="visually-hidden">Loading...</span>
+      <Layout>
+        <div className="container-fluid">
+          <div className="row justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
+            <div className="col-12 text-center">
+              <div className="spinner-border text-primary mb-3" style={{ width: '3rem', height: '3rem' }}>
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <h3 className="text-muted">Dashboard laden...</h3>
+            </div>
+          </div>
         </div>
-        <h3 className="text-muted">Dashboard laden...</h3>
-      </div>
+      </Layout>
     )
   }
 
-  // Vind specifieke modules voor snelle links
-  const calculatieModule = modules.find(m => m.key === 'calculaties' || m.label.toLowerCase().includes('calculatie'))
-  const bimModule = modules.find(m => m.key === 'bim' || m.label.toLowerCase().includes('bim'))
-  const bouwplaatsModule = modules.find(m => m.key === 'bouwplaats' || m.label.toLowerCase().includes('bouwplaats'))
-
   return (
-    <div className="container-fluid px-lg-4 px-xl-5">
-      {/* Page Header with Welcome */}
-      <div className="page-header d-print-none mb-4 pt-4">
-        <div className="row align-items-center g-3">
-          <div className="col">
-            <div className="page-pretitle">Overzicht</div>
-            <h1 className="page-title">Dashboard</h1>
+    <Layout>
+      <div className="container-fluid px-4 py-3">
+        
+        {/* Dashboard Header */}
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h1 className="h2 mb-1">Dashboard</h1>
             <p className="text-muted mb-0">
-              Welkom terug! Hier is een overzicht van al je bouwprojecten en activiteiten
+              Welkom terug{user ? `, ${user.email}` : ''}! Hier is een overzicht van je bouwprojecten.
             </p>
           </div>
-          <div className="col-auto">
-            <div className="btn-list">
-              <Link href="/projects/new">
-                <a className="btn btn-primary">
-                  <i className="ti ti-plus me-2"></i>
-                  Nieuw Project
-                </a>
-              </Link>
-              <button className="btn btn-outline-secondary">
-                <i className="ti ti-report-analytics me-2"></i>
-                Rapportage
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="row row-deck row-cards mb-4">
-        <div className="col-md-3 col-sm-6">
-          <div className="card card-sm card-borderless bg-primary-lt">
-            <div className="card-body">
-              <div className="d-flex align-items-center">
-                <div className="flex-shrink-0">
-                  <div className="bg-primary text-white avatar avatar-lg rounded">
-                    <i className="ti ti-building-community fs-2"></i>
-                  </div>
-                </div>
-                <div className="flex-fill ms-3">
-                  <div className="h2 mb-1">{stats.activeProjects}</div>
-                  <div className="text-muted">Actieve projecten</div>
-                </div>
-                <div className="flex-shrink-0">
-                  <span className="badge bg-primary">+2 deze maand</span>
-                </div>
-              </div>
-            </div>
-            <div className="card-footer">
-              <Link href="/projects">
-                <a className="text-primary text-decoration-none">
-                  Bekijk alle projecten <i className="ti ti-arrow-right ms-1"></i>
-                </a>
-              </Link>
-            </div>
+          <div className="d-flex gap-2">
+            <button 
+              className="btn btn-primary"
+              onClick={() => handleQuickAction('calculatie')}
+            >
+              <i className="ti ti-calculator me-2"></i>
+              Calculatie
+            </button>
+            <button 
+              className="btn btn-success"
+              onClick={() => handleQuickAction('new-project')}
+            >
+              <i className="ti ti-plus me-2"></i>
+              Nieuw Project
+            </button>
           </div>
         </div>
 
-        <div className="col-md-3 col-sm-6">
-          <div className="card card-sm card-borderless bg-green-lt">
-            <div className="card-body">
-              <div className="d-flex align-items-center">
-                <div className="flex-shrink-0">
-                  <div className="bg-green text-white avatar avatar-lg rounded">
-                    <i className="ti ti-cash fs-2"></i>
-                  </div>
-                </div>
-                <div className="flex-fill ms-3">
-                  <div className="h2 mb-1">{formatCurrency(stats.cashflow)}</div>
-                  <div className="text-muted">Totale cashflow</div>
-                </div>
-                <div className="flex-shrink-0">
-                  <span className="text-success">
-                    <i className="ti ti-trending-up me-1"></i> 12%
-                  </span>
-                </div>
-              </div>
-              <div className="mt-3">
-                <div className="progress progress-sm">
-                  <div className="progress-bar bg-green" style={{ width: `${stats.budgetUtilization}%` }}></div>
-                </div>
-                <small className="text-muted">{stats.budgetUtilization}% van budget gebruikt</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-3 col-sm-6">
-          <div className="card card-sm card-borderless bg-orange-lt">
-            <div className="card-body">
-              <div className="d-flex align-items-center">
-                <div className="flex-shrink-0">
-                  <div className="bg-orange text-white avatar avatar-lg rounded">
-                    <i className="ti ti-checklist fs-2"></i>
-                  </div>
-                </div>
-                <div className="flex-fill ms-3">
-                  <div className="h2 mb-1">{stats.ongoingTasks}</div>
-                  <div className="text-muted">Lopende taken</div>
-                </div>
-                <div className="flex-shrink-0">
-                  <span className="badge bg-orange">5 hoog prioriteit</span>
-                </div>
-              </div>
-              <div className="mt-3">
-                <div className="d-flex justify-content-between">
-                  <small>Vandaag: 3 taken</small>
-                  <small className="text-muted">2 achterstand</small>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-3 col-sm-6">
-          <div className="card card-sm card-borderless bg-red-lt">
-            <div className="card-body">
-              <div className="d-flex align-items-center">
-                <div className="flex-shrink-0">
-                  <div className="bg-red text-white avatar avatar-lg rounded">
-                    <i className="ti ti-alert-triangle fs-2"></i>
-                  </div>
-                </div>
-                <div className="flex-fill ms-3">
-                  <div className="h2 mb-1">{stats.openIssues}</div>
-                  <div className="text-muted">Open issues</div>
-                </div>
-                <div className="flex-shrink-0">
-                  <span className="badge bg-danger">2 kritisch</span>
-                </div>
-              </div>
-              <div className="mt-3">
-                <Link href="/issues">
-                  <a className="text-danger text-decoration-none">
-                    <i className="ti ti-alert-circle me-1"></i>
-                    Dringende actie nodig
-                  </a>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Access Section */}
-      <div className="row mb-4">
-        <div className="col-12">
-          <div className="card">
-            <div className="card-header">
-              <h3 className="card-title">
-                <i className="ti ti-bolt me-2"></i>
-                Snelle toegang
-              </h3>
-              <div className="card-actions">
-                <span className="text-muted">Belangrijke functies direct bereikbaar</span>
-              </div>
-            </div>
-            <div className="card-body">
-              <div className="row g-3">
-                {/* Calculatie Module */}
-                {calculatieModule && (
-                  <div className="col-xl-3 col-lg-4 col-md-6">
-                    <Link href={calculatieModule.route}>
-                      <a className="card card-link card-borderless hover-shadow-sm" style={{ textDecoration: 'none' }}>
-                        <div className="card-body">
-                          <div className="d-flex align-items-center">
-                            <div className="flex-shrink-0">
-                              <div className="bg-blue text-white avatar">
-                                <i className={`ti ti-${calculatieModule.icon || 'calculator'}`}></i>
-                              </div>
-                            </div>
-                            <div className="flex-fill ms-3">
-                              <h4 className="mb-1">{calculatieModule.label}</h4>
-                              <div className="text-muted small">
-                                <i className="ti ti-arrow-right me-1"></i>
-                                Kostenberekeningen
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </a>
-                    </Link>
-                  </div>
-                )}
-
-                {/* BIM Module */}
-                {bimModule && (
-                  <div className="col-xl-3 col-lg-4 col-md-6">
-                    <Link href={bimModule.route}>
-                      <a className="card card-link card-borderless hover-shadow-sm" style={{ textDecoration: 'none' }}>
-                        <div className="card-body">
-                          <div className="d-flex align-items-center">
-                            <div className="flex-shrink-0">
-                              <div className="bg-purple text-white avatar">
-                                <i className={`ti ti-${bimModule.icon || 'drafting-compass'}`}></i>
-                              </div>
-                            </div>
-                            <div className="flex-fill ms-3">
-                              <h4 className="mb-1">{bimModule.label}</h4>
-                              <div className="text-muted small">
-                                <i className="ti ti-arrow-right me-1"></i>
-                                Bouwinformatiemodellen
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </a>
-                    </Link>
-                  </div>
-                )}
-
-                {/* Bouwplaats App */}
-                <div className="col-xl-3 col-lg-4 col-md-6">
-                  <Link href="/bouwplaats">
-                    <a className="card card-link card-borderless hover-shadow-sm" style={{ textDecoration: 'none' }}>
-                      <div className="card-body">
-                        <div className="d-flex align-items-center">
-                          <div className="flex-shrink-0">
-                            <div className="bg-green text-white avatar">
-                              <i className="ti ti-building"></i>
-                            </div>
-                          </div>
-                          <div className="flex-fill ms-3">
-                            <h4 className="mb-1">AI Bouwplaats</h4>
-                            <div className="text-muted small">
-                              <i className="ti ti-arrow-right me-1"></i>
-                              Inspectie & Uitvoering
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                  </Link>
-                </div>
-
-                {/* Projectontwikkeling */}
-                <div className="col-xl-3 col-lg-4 col-md-6">
-                  <Link href="/projectontwikkeling">
-                    <a className="card card-link card-borderless hover-shadow-sm" style={{ textDecoration: 'none' }}>
-                      <div className="card-body">
-                        <div className="d-flex align-items-center">
-                          <div className="flex-shrink-0">
-                            <div className="bg-orange text-white avatar">
-                              <i className="ti ti-trending-up"></i>
-                            </div>
-                          </div>
-                          <div className="flex-fill ms-3">
-                            <h4 className="mb-1">Projectontwikkeling</h4>
-                            <div className="text-muted small">
-                              <i className="ti ti-arrow-right me-1"></i>
-                              Nieuwe projecten
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Grid */}
-      <div className="row">
-        <div className="col-lg-8">
-          {/* Modules Grid */}
-          <div className="card mb-4">
-            <div className="card-header">
-              <h3 className="card-title">
-                <i className="ti ti-apps me-2"></i>
-                Alle Modules
-              </h3>
-              <div className="card-actions">
-                <span className="text-muted">Directe toegang tot alle functionaliteiten</span>
-              </div>
-            </div>
-            <div className="card-body">
-              {modules.length === 0 ? (
-                <div className="text-center py-5">
-                  <i className="ti ti-package-off text-muted mb-3" style={{ fontSize: '3rem' }}></i>
-                  <h3 className="text-muted">Geen modules beschikbaar</h3>
-                  <p className="text-muted mb-0">
-                    Configureer modules in de admininstellingen
-                  </p>
-                </div>
-              ) : (
-                <div className="row g-3">
-                  {modules.map((module) => (
-                    <div key={module.key} className="col-xl-3 col-lg-4 col-md-6">
-                      <Link href={module.route}>
-                        <a className="card card-link card-borderless hover-shadow-sm" style={{ textDecoration: 'none' }}>
-                          <div className="card-body">
-                            <div className="d-flex align-items-center">
-                              <div className="flex-shrink-0">
-                                <div className={`${getColorClass(module.color)} text-white avatar`}>
-                                  <i className={`ti ti-${module.icon || 'box'}`}></i>
-                                </div>
-                              </div>
-                              <div className="flex-fill ms-3">
-                                <h4 className="mb-1">{module.label}</h4>
-                                <div className="text-muted small">
-                                  <i className="ti ti-arrow-right me-1"></i>
-                                  {module.description || 'Open module'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </a>
-                      </Link>
+        {/* Statistics Row */}
+        <div className="row mb-4">
+          <div className="col-xl-3 col-md-6 mb-4">
+            <div className="card border-start border-primary border-3 shadow h-100 py-2">
+              <div className="card-body">
+                <div className="row no-gutters align-items-center">
+                  <div className="col mr-2">
+                    <div className="text-xs fw-bold text-primary text-uppercase mb-1">
+                      Actieve Projecten
                     </div>
-                  ))}
+                    <div className="h5 mb-0 fw-bold text-gray-800">{stats.activeProjects}</div>
+                    <div className="mt-2 mb-0 text-muted">
+                      <span className="text-success me-2">
+                        <i className="ti ti-trending-up me-1"></i>12%
+                      </span>
+                      <span className="text-nowrap">Sinds vorige maand</span>
+                    </div>
+                  </div>
+                  <div className="col-auto">
+                    <i className="ti ti-building-community text-primary fs-1"></i>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
-          {/* Recent Activity */}
-          <div className="card">
-            <div className="card-header">
-              <h3 className="card-title">
-                <i className="ti ti-history me-2"></i>
-                Recente activiteit
-              </h3>
-              <div className="card-actions">
-                <Link href="/activities">
-                  <a className="btn btn-outline-primary btn-sm">
-                    Bekijk alles
-                  </a>
-                </Link>
+          <div className="col-xl-3 col-md-6 mb-4">
+            <div className="card border-start border-success border-3 shadow h-100 py-2">
+              <div className="card-body">
+                <div className="row no-gutters align-items-center">
+                  <div className="col mr-2">
+                    <div className="text-xs fw-bold text-success text-uppercase mb-1">
+                      Totale Cashflow
+                    </div>
+                    <div className="h5 mb-0 fw-bold text-gray-800">{formatCurrency(stats.cashflow)}</div>
+                    <div className="mt-2 mb-0 text-muted">
+                      <span className="text-success me-2">
+                        <i className="ti ti-trending-up me-1"></i>8%
+                      </span>
+                      <span className="text-nowrap">Sinds vorige kwartaal</span>
+                    </div>
+                  </div>
+                  <div className="col-auto">
+                    <i className="ti ti-cash text-success fs-1"></i>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="card-body">
-              {recentActivity.length === 0 ? (
-                <div className="text-center py-4">
-                  <i className="ti ti-notes-off text-muted mb-3" style={{ fontSize: '2rem' }}></i>
-                  <h4 className="text-muted">Geen recente activiteit</h4>
-                  <p className="text-muted mb-0">
-                    Er is nog geen activiteit geregistreerd in het systeem.
-                  </p>
-                </div>
-              ) : (
-                <div className="timeline timeline-activity">
-                  {recentActivity.map((activity, index) => (
-                    <div key={index} className="timeline-item">
-                      <div className="timeline-line"></div>
-                      <div className="timeline-icon">
-                        <i className={`ti ti-${activity.icon || 'circle'} ${activity.color || 'text-blue'}`}></i>
+          </div>
+
+          <div className="col-xl-3 col-md-6 mb-4">
+            <div className="card border-start border-warning border-3 shadow h-100 py-2">
+              <div className="card-body">
+                <div className="row no-gutters align-items-center">
+                  <div className="col mr-2">
+                    <div className="text-xs fw-bold text-warning text-uppercase mb-1">
+                      Lopende Taken
+                    </div>
+                    <div className="h5 mb-0 fw-bold text-gray-800">{stats.ongoingTasks}</div>
+                    <div className="mt-2 mb-0">
+                      <div className="progress progress-sm">
+                        <div 
+                          className="progress-bar bg-warning" 
+                          style={{ width: '75%' }}
+                        ></div>
                       </div>
-                      <div className="timeline-content">
-                        <div className="timeline-date text-muted">
-                          {new Date(activity.created_at).toLocaleDateString('nl-NL')}
+                    </div>
+                  </div>
+                  <div className="col-auto">
+                    <i className="ti ti-checklist text-warning fs-1"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-xl-3 col-md-6 mb-4">
+            <div className="card border-start border-danger border-3 shadow h-100 py-2">
+              <div className="card-body">
+                <div className="row no-gutters align-items-center">
+                  <div className="col mr-2">
+                    <div className="text-xs fw-bold text-danger text-uppercase mb-1">
+                      Open Issues
+                    </div>
+                    <div className="h5 mb-0 fw-bold text-gray-800">{stats.openIssues}</div>
+                    <div className="mt-2 mb-0 text-muted">
+                      <span className="text-danger me-2">
+                        <i className="ti ti-alert-triangle me-1"></i>2 kritisch
+                      </span>
+                    </div>
+                  </div>
+                  <div className="col-auto">
+                    <i className="ti ti-alert-octagon text-danger fs-1"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions Row */}
+        <div className="row mb-4">
+          <div className="col-12">
+            <div className="card shadow">
+              <div className="card-header py-3">
+                <h6 className="m-0 fw-bold text-primary">
+                  <i className="ti ti-bolt me-2"></i>
+                  Snelle Acties
+                </h6>
+              </div>
+              <div className="card-body">
+                <div className="row g-3">
+                  <div className="col-xl-3 col-lg-4 col-md-6">
+                    <div 
+                      className="card card-hover shadow-sm border-0 rounded-3 cursor-pointer"
+                      onClick={() => handleQuickAction('calculatie')}
+                    >
+                      <div className="card-body text-center p-4">
+                        <div className="icon-shape icon-lg bg-blue text-white rounded-circle mb-3 mx-auto">
+                          <i className="ti ti-calculator fs-2"></i>
                         </div>
-                        <div className="d-flex align-items-center">
-                          <div className="flex-fill">
-                            <div className="fw-bold">{activity.title}</div>
-                            <div className="text-muted">{activity.description}</div>
+                        <h5 className="card-title mb-2">Nieuwe Calculatie</h5>
+                        <p className="card-text text-muted small">
+                          Start een nieuwe kostenberekening
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-xl-3 col-lg-4 col-md-6">
+                    <div 
+                      className="card card-hover shadow-sm border-0 rounded-3 cursor-pointer"
+                      onClick={() => handleQuickAction('new-project')}
+                    >
+                      <div className="card-body text-center p-4">
+                        <div className="icon-shape icon-lg bg-green text-white rounded-circle mb-3 mx-auto">
+                          <i className="ti ti-plus fs-2"></i>
+                        </div>
+                        <h5 className="card-title mb-2">Nieuw Project</h5>
+                        <p className="card-text text-muted small">
+                          Creëer een nieuw bouwproject
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-xl-3 col-lg-4 col-md-6">
+                    <div 
+                      className="card card-hover shadow-sm border-0 rounded-3 cursor-pointer"
+                      onClick={() => handleQuickAction('financiering')}
+                    >
+                      <div className="card-body text-center p-4">
+                        <div className="icon-shape icon-lg bg-purple text-white rounded-circle mb-3 mx-auto">
+                          <i className="ti ti-pig-money fs-2"></i>
+                        </div>
+                        <h5 className="card-title mb-2">Financiering</h5>
+                        <p className="card-text text-muted small">
+                          Nieuwe financieringsaanvraag
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-xl-3 col-lg-4 col-md-6">
+                    <div 
+                      className="card card-hover shadow-sm border-0 rounded-3 cursor-pointer"
+                      onClick={() => handleQuickAction('inspectie')}
+                    >
+                      <div className="card-body text-center p-4">
+                        <div className="icon-shape icon-lg bg-orange text-white rounded-circle mb-3 mx-auto">
+                          <i className="ti ti-building-warehouse fs-2"></i>
+                        </div>
+                        <h5 className="card-title mb-2">Bouwinspectie</h5>
+                        <p className="card-text text-muted small">
+                          Start AI bouwinspectie
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Row */}
+        <div className="row">
+          {/* Modules Section */}
+          <div className="col-lg-8 mb-4">
+            <div className="card shadow">
+              <div className="card-header py-3">
+                <div className="d-flex justify-content-between align-items-center">
+                  <h6 className="m-0 fw-bold text-primary">
+                    <i className="ti ti-apps me-2"></i>
+                    Alle Modules
+                  </h6>
+                  <span className="badge bg-primary">{modules.length} modules</span>
+                </div>
+              </div>
+              <div className="card-body">
+                {modules.length === 0 ? (
+                  <div className="text-center py-5">
+                    <i className="ti ti-package-off text-muted mb-3" style={{ fontSize: '3rem' }}></i>
+                    <h5 className="text-muted">Geen modules beschikbaar</h5>
+                    <p className="text-muted mb-0">
+                      Er zijn momenteel geen modules geconfigureerd
+                    </p>
+                  </div>
+                ) : (
+                  <div className="row g-3">
+                    {modules.map((module) => (
+                      <div key={module.key} className="col-xl-3 col-lg-4 col-md-6">
+                        <Link href={module.route || '#'}>
+                          <a className="text-decoration-none">
+                            <div className="card card-hover border-0 shadow-sm h-100">
+                              <div className="card-body text-center p-3">
+                                <div className={`icon-shape bg-${module.color || 'primary'}-subtle text-${module.color || 'primary'} rounded-circle mb-3 mx-auto p-3`}>
+                                  <i className={`ti ti-${module.icon || 'box'} fs-3`}></i>
+                                </div>
+                                <h6 className="card-title mb-1">{module.label}</h6>
+                                <p className="card-text text-muted small mb-0">
+                                  {module.description || 'Open module'}
+                                </p>
+                              </div>
+                            </div>
+                          </a>
+                        </Link>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="card shadow mt-4">
+              <div className="card-header py-3">
+                <div className="d-flex justify-content-between align-items-center">
+                  <h6 className="m-0 fw-bold text-primary">
+                    <i className="ti ti-history me-2"></i>
+                    Recente Activiteit
+                  </h6>
+                  <Link href="/activiteiten">
+                    <a className="btn btn-sm btn-outline-primary">
+                      Bekijk alles
+                    </a>
+                  </Link>
+                </div>
+              </div>
+              <div className="card-body">
+                {recentActivity.length === 0 ? (
+                  <div className="text-center py-4">
+                    <i className="ti ti-notes-off text-muted mb-3" style={{ fontSize: '2rem' }}></i>
+                    <p className="text-muted mb-0">Geen recente activiteit</p>
+                  </div>
+                ) : (
+                  <div className="list-group list-group-flush">
+                    {recentActivity.map((activity) => (
+                      <div key={activity.id} className="list-group-item border-0 px-0 py-3">
+                        <div className="d-flex align-items-start">
+                          <div className={`icon-shape icon-sm bg-${activity.color || 'primary'}-subtle text-${activity.color || 'primary'} rounded-circle me-3`}>
+                            <i className={`ti ti-${activity.icon || 'circle'}`}></i>
                           </div>
-                          <div className="flex-shrink-0">
-                            <span className={`badge bg-${activity.type}-lt`}>
+                          <div className="flex-grow-1">
+                            <h6 className="mb-1">{activity.title}</h6>
+                            <p className="text-muted small mb-0">{activity.description}</p>
+                            <small className="text-muted">
+                              {new Date(activity.created_at).toLocaleString('nl-NL')}
+                            </small>
+                          </div>
+                          <div className="ms-auto">
+                            <span className={`badge bg-${activity.type || 'primary'}-subtle text-${activity.type || 'primary'}`}>
                               {activity.type}
                             </span>
                           </div>
                         </div>
                       </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar Section */}
+          <div className="col-lg-4 mb-4">
+            {/* Upcoming Deadlines */}
+            <div className="card shadow mb-4">
+              <div className="card-header py-3">
+                <h6 className="m-0 fw-bold text-primary">
+                  <i className="ti ti-calendar-time me-2"></i>
+                  Aankomende Deadlines
+                </h6>
+              </div>
+              <div className="card-body">
+                <div className="list-group list-group-flush">
+                  {[
+                    { title: 'Project offerte', date: '31 dec 2023', days: 1, color: 'danger' },
+                    { title: 'Constructieberekening', date: '3 jan 2024', days: 3, color: 'warning' },
+                    { title: 'Financiering rond', date: '8 jan 2024', days: 8, color: 'info' },
+                    { title: 'Bouwvergunning', date: '15 jan 2024', days: 15, color: 'success' }
+                  ].map((deadline, index) => (
+                    <div key={index} className="list-group-item border-0 px-0 py-3">
+                      <div className="d-flex align-items-center">
+                        <div className="flex-shrink-0">
+                          <span className={`badge bg-${deadline.color} me-2`}>
+                            {deadline.days} {deadline.days === 1 ? 'dag' : 'dagen'}
+                          </span>
+                        </div>
+                        <div className="flex-grow-1">
+                          <div className="fw-bold">{deadline.title}</div>
+                          <small className="text-muted">Deadline: {deadline.date}</small>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Sidebar */}
-        <div className="col-lg-4">
-          <div className="card mb-4">
-            <div className="card-header">
-              <h3 className="card-title">
-                <i className="ti ti-bolt me-2"></i>
-                Snelle acties
-              </h3>
-            </div>
-            <div className="card-body">
-              <div className="list-group list-group-flush">
-                <Link href="/projects/new">
-                  <a className="list-group-item list-group-item-action d-flex align-items-center">
-                    <i className="ti ti-plus text-blue me-3"></i>
-                    <div className="flex-fill">
-                      <div>Nieuw project aanmaken</div>
-                      <small className="text-muted">Start een nieuw bouwproject</small>
-                    </div>
-                  </a>
-                </Link>
-                
-                {calculatieModule && (
-                  <Link href={calculatieModule.route}>
-                    <a className="list-group-item list-group-item-action d-flex align-items-center">
-                      <i className="ti ti-calculator text-green me-3"></i>
-                      <div className="flex-fill">
-                        <div>Nieuwe calculatie</div>
-                        <small className="text-muted">Bereken projectkosten</small>
-                      </div>
+                <div className="mt-3 text-center">
+                  <Link href="/agenda">
+                    <a className="text-decoration-none">
+                      <i className="ti ti-calendar me-1"></i>
+                      Volledige agenda bekijken
                     </a>
                   </Link>
-                )}
-                
-                <Link href="/financiering/aanvraag">
-                  <a className="list-group-item list-group-item-action d-flex align-items-center">
-                    <i className="ti ti-pig-money text-purple me-3"></i>
-                    <div className="flex-fill">
-                      <div>Financiering aanvragen</div>
-                      <small className="text-muted">Nieuwe financieringsaanvraag</small>
-                    </div>
-                  </a>
-                </Link>
-                
-                <Link href="/bouwplaats">
-                  <a className="list-group-item list-group-item-action d-flex align-items-center">
-                    <i className="ti ti-building text-orange me-3"></i>
-                    <div className="flex-fill">
-                      <div>AI Bouwinspectie starten</div>
-                      <small className="text-muted">Bouwplaats controle</small>
-                    </div>
-                  </a>
-                </Link>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Upcoming Deadlines */}
-          <div className="card">
-            <div className="card-header">
-              <h3 className="card-title">
-                <i className="ti ti-calendar-time me-2"></i>
-                Aankomende deadlines
-              </h3>
-            </div>
-            <div className="card-body">
-              <div className="list-group list-group-flush">
-                <div className="list-group-item">
-                  <div className="row align-items-center">
-                    <div className="col-auto">
-                      <span className="badge bg-danger">Morgen</span>
-                    </div>
-                    <div className="col">
-                      <div className="fw-bold">Project offerte</div>
-                      <small className="text-muted">Einddatum: 31 dec 2023</small>
-                    </div>
+            {/* AI Bouwinspecteur */}
+            <div className="card shadow">
+              <div className="card-header py-3">
+                <h6 className="m-0 fw-bold text-primary">
+                  <i className="ti ti-robot me-2"></i>
+                  AI Bouwinspecteur
+                </h6>
+              </div>
+              <div className="card-body">
+                <div className="text-center mb-4">
+                  <div className="icon-shape icon-xl bg-success text-white rounded-circle mb-3 mx-auto">
+                    <i className="ti ti-shield-check fs-2"></i>
+                  </div>
+                  <h5 className="mb-2">Status: <span className="text-success">Actief</span></h5>
+                  <p className="text-muted mb-3">
+                    AI-inspecteur is actief op de bouwplaats
+                  </p>
+                </div>
+                
+                <div className="mb-4">
+                  <div className="d-flex justify-content-between mb-1">
+                    <span className="text-muted">Veiligheidsscore</span>
+                    <span className="fw-bold">92%</span>
+                  </div>
+                  <div className="progress" style={{ height: '8px' }}>
+                    <div 
+                      className="progress-bar bg-success" 
+                      style={{ width: '92%' }}
+                    ></div>
                   </div>
                 </div>
-                <div className="list-group-item">
-                  <div className="row align-items-center">
-                    <div className="col-auto">
-                      <span className="badge bg-warning">3 dagen</span>
-                    </div>
-                    <div className="col">
-                      <div>Constructieberekening</div>
-                      <small className="text-muted">Einddatum: 3 jan 2024</small>
-                    </div>
+                
+                <div className="mb-4">
+                  <div className="d-flex justify-content-between mb-1">
+                    <span className="text-muted">Voortgang inspectie</span>
+                    <span className="fw-bold">78%</span>
+                  </div>
+                  <div className="progress" style={{ height: '8px' }}>
+                    <div 
+                      className="progress-bar bg-info" 
+                      style={{ width: '78%' }}
+                    ></div>
                   </div>
                 </div>
-                <div className="list-group-item">
-                  <div className="row align-items-center">
-                    <div className="col-auto">
-                      <span className="badge bg-info">1 week</span>
-                    </div>
-                    <div className="col">
-                      <div>Financiering rond</div>
-                      <small className="text-muted">Einddatum: 8 jan 2024</small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-3 text-center">
-                <Link href="/calendar">
-                  <a className="text-primary text-decoration-none">
-                    <i className="ti ti-calendar me-1"></i>
-                    Volledige agenda bekijken
-                  </a>
-                </Link>
-              </div>
-            </div>
-          </div>
-          
-          {/* AI Bouwinspecteur Status */}
-          <div className="card">
-            <div className="card-header">
-              <h3 className="card-title">
-                <i className="ti ti-robot me-2"></i>
-                AI Inspecteur Status
-              </h3>
-            </div>
-            <div className="card-body">
-              <div className="d-flex align-items-center mb-3">
-                <div className="flex-shrink-0">
-                  <div className="bg-green text-white avatar">
-                    <i className="ti ti-shield-check"></i>
-                  </div>
-                </div>
-                <div className="flex-fill ms-3">
-                  <div className="fw-bold">AI Bouwinspecteur</div>
-                  <div className="text-muted small">Actief op bouwplaats</div>
-                </div>
-                <div className="flex-shrink-0">
-                  <span className="badge bg-success">Live</span>
-                </div>
-              </div>
-              
-              <div className="progress mb-2">
-                <div className="progress-bar bg-success" style={{ width: '92%' }}></div>
-              </div>
-              <small className="text-muted">Veiligheidsscore: 92%</small>
-              
-              <div className="mt-3">
+                
                 <Link href="/bouwplaats">
                   <a className="btn btn-primary w-100">
                     <i className="ti ti-arrow-right me-2"></i>
@@ -705,6 +677,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   )
 }
