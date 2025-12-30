@@ -1,26 +1,29 @@
-// pages/_app.js - GECORRIGEERDE VERSIE
-import '@/styles/globals.css'
-import { useEffect, useState } from 'react'
+// pages/_app.js
+import { useEffect } from 'react'
 import { useRouter } from 'next/router'
+import Head from 'next/head'
+
+// Externe libraries
 import { Toaster } from 'react-hot-toast'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import Head from 'next/head'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
-// Mantine Provider
+// UI frameworks
 import { MantineProvider } from '@mantine/core'
 import '@mantine/core/styles.css'
 
-// Tabler CSS imports
+// Tabler CSS
 import '@tabler/core/dist/css/tabler.min.css'
 import '@tabler/core/dist/css/tabler-vendors.min.css'
 import '@tabler/icons-webfont/dist/tabler-icons.min.css'
 
-// ✅ VERANDER DIT: importeer van lib/auth ipv contexts/AuthContext
+// Eigen imports
+import '@/styles/globals.css'
+import Layout from '@/components/Layout'
 import { AuthProvider } from '@/lib/auth'
 
-// Query Client
+// Query Client configuratie
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -81,7 +84,6 @@ export default function App({ Component, pageProps }) {
 
       <QueryClientProvider client={queryClient}>
         <MantineProvider>
-          {/* ✅ NU importeert dit van lib/auth */}
           <AuthProvider>
             <Toaster
               position="top-right"
@@ -94,7 +96,9 @@ export default function App({ Component, pageProps }) {
               }}
             />
             
-            <Component {...pageProps} />
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
           </AuthProvider>
         </MantineProvider>
       </QueryClientProvider>
