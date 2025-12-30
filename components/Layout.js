@@ -1,193 +1,200 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { useAuth } from '@/contexts/AuthContext'
-import { useTheme } from '@/contexts/ThemeContext'
+import supabase from '@/lib/supabase'
 
-const Layout = ({ children }) => {
+export default function Layout({ children }) {
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [user, setUser] = useState(null)
   const router = useRouter()
-  const { user, signOut } = useAuth()
-  const { theme, toggleTheme } = useTheme()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const navigation = [
-    { name: 'Dashboard', href: '/', icon: 'fas fa-home' },
-    { name: 'Projecten', href: '/projects', icon: 'fas fa-project-diagram' },
-    { name: 'Inspecties', href: '/inspections', icon: 'fas fa-clipboard-check' },
-    { name: 'Calculaties', href: '/calculaties', icon: 'fas fa-calculator' },
-    { name: 'BIM', href: '/bim', icon: 'fas fa-cube' },
-    { name: 'Rapporten', href: '/reports', icon: 'fas fa-chart-bar' },
-    { name: 'Gebruikers', href: '/users', icon: 'fas fa-users' },
-    { name: 'Instellingen', href: '/settings', icon: 'fas fa-cog' },
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setUser(session?.user || null)
+    }
+    
+    getUser()
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user || null)
+      }
+    )
+    
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
+
+  const menuItems = [
+    { name: 'Dashboard', icon: 'layout-dashboard', path: '/dashboard' },
+    { name: 'Calculatie', icon: 'calculator', path: '/calculatie' },
+    { name: 'Projecten', icon: 'building', path: '/projecten' },
+    { name: 'BIM Modellen', icon: 'cube', path: '/bim' },
+    { name: 'Financiën', icon: 'currency-euro', path: '/financien' },
+    { name: 'Bouwplaats', icon: 'building-warehouse', path: '/bouwplaats' },
+    { name: 'Documenten', icon: 'files', path: '/documenten' },
+    { name: 'Instellingen', icon: 'settings', path: '/instellingen' },
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Mobile sidebar */}
-      {sidebarOpen && (
-        <div className="lg:hidden">
-          <div className="fixed inset-0 flex z-40">
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-            <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-gray-800">
-              <div className="absolute top-0 right-0 -mr-12 pt-2">
-                <button
-                  className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <i className="fas fa-times text-white text-lg"></i>
-                </button>
-              </div>
-              <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-                <div className="flex-shrink-0 flex items-center px-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                      <i className="fas fa-building text-white text-sm"></i>
-                    </div>
-                    <span className="text-xl font-bold text-gray-900 dark:text-white">Sterkbouw</span>
-                  </div>
-                </div>
-                <nav className="mt-5 px-2 space-y-1">
-                  {navigation.map((item) => {
-                    const isActive = router.pathname === item.href
-                    return (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${
-                          isActive
-                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                        }`}
-                        onClick={() => setSidebarOpen(false)}
-                      >
-                        <i className={`${item.icon} mr-4 flex-shrink-0 h-6 w-6`}></i>
-                        {item.name}
-                      </Link>
-                    )
-                  })}
-                </nav>
-              </div>
-              <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
-                <div className="flex items-center">
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {user?.email || 'Gebruiker'}
-                    </p>
-                    <button
-                      onClick={signOut}
-                      className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                    >
-                      Uitloggen
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
-          <div className="flex items-center flex-shrink-0 px-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <i className="fas fa-building text-white text-sm"></i>
-              </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">Sterkbouw</span>
-            </div>
-          </div>
-          <div className="mt-8 flex-grow flex flex-col">
-            <nav className="flex-1 px-2 space-y-1">
-              {navigation.map((item) => {
-                const isActive = router.pathname === item.href
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                      isActive
-                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                    }`}
-                  >
-                    <i className={`${item.icon} mr-3 flex-shrink-0 h-6 w-6`}></i>
-                    {item.name}
-                  </Link>
-                )
-              })}
-            </nav>
-          </div>
-          <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
-            <div className="flex items-center">
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {user?.email || 'Gebruiker'}
-                </p>
-                <button
-                  onClick={signOut}
-                  className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                >
-                  Uitloggen
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="lg:pl-64 flex flex-col flex-1">
-        <div className="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <div className="d-flex flex-column min-vh-100 bg-light">
+      {/* Top Navigation Bar */}
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+        <div className="container-fluid">
           <button
+            className="navbar-toggler"
             type="button"
-            className="px-4 border-r border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 lg:hidden"
-            onClick={() => setSidebarOpen(true)}
+            onClick={() => setSidebarOpen(!sidebarOpen)}
           >
-            <i className="fas fa-bars h-6 w-6"></i>
+            <span className="navbar-toggler-icon"></span>
           </button>
-          <div className="flex-1 flex justify-between px-4">
-            <div className="flex-1 flex">
-              <div className="w-full flex md:ml-0">
-                <div className="relative w-full text-gray-400 focus-within:text-gray-600 dark:focus-within:text-gray-300">
-                  <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-                    <i className="fas fa-search h-5 w-5 ml-3"></i>
-                  </div>
-                  <input
-                    className="block w-full h-full pl-10 pr-3 py-2 border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:placeholder-gray-400 dark:focus:placeholder-gray-500 focus:ring-0 focus:border-transparent bg-transparent"
-                    placeholder="Zoeken..."
-                    type="search"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="ml-4 flex items-center md:ml-6 space-x-4">
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-full text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                {theme === 'dark' ? (
-                  <i className="fas fa-sun h-5 w-5"></i>
-                ) : (
-                  <i className="fas fa-moon h-5 w-5"></i>
-                )}
-              </button>
-              <button className="p-2 rounded-full text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                <i className="fas fa-bell h-5 w-5"></i>
-              </button>
+          
+          <Link href="/dashboard">
+            <a className="navbar-brand fw-bold">
+              <i className="ti ti-building me-2"></i>
+              Bouw Management Systeem
+            </a>
+          </Link>
+          
+          <div className="collapse navbar-collapse">
+            <ul className="navbar-nav me-auto">
+              <li className="nav-item">
+                <Link href="/dashboard">
+                  <a className={`nav-link ${router.pathname === '/dashboard' ? 'active' : ''}`}>
+                    Dashboard
+                  </a>
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link href="/projecten">
+                  <a className={`nav-link ${router.pathname.startsWith('/projecten') ? 'active' : ''}`}>
+                    Projecten
+                  </a>
+                </Link>
+              </li>
+            </ul>
+            
+            <div className="d-flex align-items-center">
+              {user && (
+                <>
+                  <span className="text-white me-3">
+                    Welkom, {user.email}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="btn btn-outline-light btn-sm"
+                  >
+                    <i className="ti ti-logout me-1"></i>
+                    Uitloggen
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
+      </nav>
 
-        <main className="flex-1">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              {children}
+      {/* Main Container */}
+      <div className="d-flex flex-grow-1">
+        {/* Sidebar */}
+        {sidebarOpen && (
+          <div className="bg-white border-end shadow-sm" style={{ width: '250px' }}>
+            <div className="p-3 border-bottom">
+              <h6 className="mb-0 text-muted">NAVIGATIE</h6>
+            </div>
+            <div className="list-group list-group-flush">
+              {menuItems.map((item) => (
+                <Link key={item.path} href={item.path}>
+                  <a className={`list-group-item list-group-item-action border-0 py-3 ${
+                    router.pathname === item.path ? 'active text-white' : ''
+                  }`}>
+                    <i className={`ti ti-${item.icon} me-2`}></i>
+                    {item.name}
+                  </a>
+                </Link>
+              ))}
+            </div>
+            
+            {/* Quick Stats in Sidebar */}
+            <div className="p-3 border-top">
+              <h6 className="mb-2 text-muted">SNELLE INFO</h6>
+              <div className="small">
+                <div className="d-flex justify-content-between mb-1">
+                  <span>Actieve projecten:</span>
+                  <span className="fw-bold">12</span>
+                </div>
+                <div className="d-flex justify-content-between mb-1">
+                  <span>Open taken:</span>
+                  <span className="fw-bold">47</span>
+                </div>
+                <div className="d-flex justify-content-between">
+                  <span>Deadlines:</span>
+                  <span className="fw-bold text-danger">3</span>
+                </div>
+              </div>
             </div>
           </div>
-        </main>
+        )}
+
+        {/* Main Content */}
+        <div className="flex-grow-1 overflow-auto">
+          {children}
+        </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-dark text-white py-3 mt-auto">
+        <div className="container-fluid">
+          <div className="row align-items-center">
+            <div className="col-md-6">
+              <p className="mb-0">
+                &copy; {new Date().getFullYear()} Bouw Management Systeem. Alle rechten voorbehouden.
+              </p>
+            </div>
+            <div className="col-md-6 text-md-end">
+              <span className="text-muted">Versie 2.0.1</span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      <style jsx>{`
+        .list-group-item.active {
+          background-color: #0d6efd;
+          border-color: #0d6efd;
+        }
+        .card-hover:hover {
+          transform: translateY(-2px);
+          transition: transform 0.2s;
+        }
+        .cursor-pointer {
+          cursor: pointer;
+        }
+        .icon-shape {
+          width: 3rem;
+          height: 3rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .icon-shape.icon-lg {
+          width: 4rem;
+          height: 4rem;
+        }
+        .icon-shape.icon-xl {
+          width: 5rem;
+          height: 5rem;
+        }
+        .icon-shape.icon-sm {
+          width: 2.5rem;
+          height: 2.5rem;
+        }
+      `}</style>
     </div>
   )
 }
