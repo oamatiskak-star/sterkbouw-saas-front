@@ -1,0 +1,62 @@
+/* components/AdminLayout.css */
+.admin-layout {
+  min-height: 100vh;
+}
+
+/* Responsive aanpassingen */
+@media (max-width: 768px) {
+  .ant-layout-sider {
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+  }
+  
+  .ant-layout-sider-collapsed {
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+  }
+  
+  .ant-layout-header {
+    padding: 0 12px !important;
+  }
+}
+
+/* Custom scrollbar */
+.ant-layout-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ant-layout-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.ant-layout-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.ant-layout-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Donkere modus scrollbar */
+.dark-mode .ant-layout-content::-webkit-scrollbar-track {
+  background: #2f2f2f;
+}
+
+.dark-mode .ant-layout-content::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+/* Menu item hover effects */
+.ant-menu-item:hover {
+  background: rgba(24, 144, 255, 0.1) !important;
+}
+
+.ant-menu-submenu:hover > .ant-menu-submenu-title {
+  background: rgba(24, 144, 255, 0.1) !important;
+}
