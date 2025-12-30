@@ -1,0 +1,28 @@
+/* Frontend/pages/projectportaal/components/ExtraWorkSection.css */
+.extra-work-section {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.section-header {
+  margin-bottom: 2rem;
+}
+
+.section-header h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.section-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Control bar */
+.control-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin
