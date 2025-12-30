@@ -1,8 +1,7 @@
-import supabase from "@/lib/supabase"
+kun je dit samen voegen import supabase from "@/lib/supabase"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/router"
-import Layout from "@/components/Layout"
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(false)
@@ -481,4 +480,153 @@ export default function DashboardPage() {
       `}</style>
     </Layout>
   )
+}import Link from 'next/link';
+
+export default function Home() {
+  return (
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-12">
+          <h1 className="text-4xl font-bold text-gray-900">
+            Bouwproffs Financieel Commandocentrum
+          </h1>
+          <p className="text-gray-600 mt-2">
+            AI-gestuurd cashflow management voor meerdere bedrijven
+          </p>
+        </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Dashboard Card */}
+          <Link 
+            href="/administratie" 
+            className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow"
+          >
+            <div className="text-blue-600 text-2xl mb-4">📊</div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              Dashboard
+            </h3>
+            <p className="text-gray-600">
+              Realtime cashflow overzicht per week en per bedrijf
+            </p>
+            <div className="mt-4 text-sm text-blue-500 font-medium">
+              Bekijk cashflow →
+            </div>
+          </Link>
+
+          {/* Projecten Card */}
+          <Link 
+            href="/administratie/projects" 
+            className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow"
+          >
+            <div className="text-green-600 text-2xl mb-4">🏗️</div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              Projecten
+            </h3>
+            <p className="text-gray-600">
+              Projectadministratie met financiële monitoring
+            </p>
+            <div className="mt-4 text-sm text-green-500 font-medium">
+              Beheer projecten →
+            </div>
+          </Link>
+
+          {/* Moneybird Card */}
+          <Link 
+            href="/administratie/moneybird" 
+            className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow"
+          >
+            <div className="text-purple-600 text-2xl mb-4">🔄</div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              Moneybird Koppeling
+            </h3>
+            <p className="text-gray-600">
+              Synchroniseer facturen en openstaande posten
+            </p>
+            <div className="mt-4 text-sm text-purple-500 font-medium">
+              Configureer sync →
+            </div>
+          </Link>
+
+          {/* Cashflow Card */}
+          <Link 
+            href="/administratie/cashflow" 
+            className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow"
+          >
+            <div className="text-red-600 text-2xl mb-4">💰</div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              Cashflow Forecast
+            </h3>
+            <p className="text-gray-600">
+              8-weken forecast met risico signalering
+            </p>
+            <div className="mt-4 text-sm text-red-500 font-medium">
+              Bekijk forecast →
+            </div>
+          </Link>
+
+          {/* Bedrijven Card */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="text-orange-600 text-2xl mb-4">🏢</div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              Bedrijfsstructuur
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Holding: Bouwproffs Holding BV<br/>
+              Werk-BV: Bouwproffs BV<br/>
+              Financieel: Modiwerijo Financial Management BV
+            </p>
+            <div className="text-sm text-gray-500">
+              Geconsolideerde rapportage
+            </div>
+          </div>
+
+          {/* AI Signals Card */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="text-yellow-600 text-2xl mb-4">🤖</div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              AI Signalering
+            </h3>
+            <ul className="text-gray-600 space-y-2">
+              <li className="flex items-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                Cashflow risico's gedetecteerd
+              </li>
+              <li className="flex items-center">
+                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                Besparingskosten geïdentificeerd
+              </li>
+              <li className="flex items-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                Project marges gemonitord
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Status Bar */}
+        <div className="mt-12 bg-white rounded-xl shadow-lg p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium text-gray-800">Systeem Status</h4>
+              <p className="text-sm text-gray-600">Alle systemen operationeel</p>
+            </div>
+            <div className="flex space-x-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-800">3</div>
+                <div className="text-sm text-gray-600">Bedrijven</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-800">12</div>
+                <div className="text-sm text-gray-600">Projecten</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-800">0</div>
+                <div className="text-sm text-gray-600">Risico's</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
