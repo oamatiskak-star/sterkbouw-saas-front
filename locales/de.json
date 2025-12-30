@@ -1,0 +1,35 @@
+{
+  "common": {
+    "welcome": "Willkommen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "search": "Suchen",
+    "loading": "Laden...",
+    "error": "Ein Fehler ist aufgetreten"
+  },
+  "navigation": {
+    "home": "Startseite",
+    "dashboard": "Dashboard",
+    "settings": "Einstellungen",
+    "profile": "Profil",
+    "logout": "Abmelden"
+  },
+  "auth": {
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "forgotPassword": "Passwort vergessen?"
+  },
+  "bouwplaatsApp": {
+    "title": "Baustellen Anwendung",
+    "projects": "Projekte",
+    "materials": "Materialien",
+    "workers": "Mitarbeiter",
+    "planning": "Planung",
+    "reports": "Berichte"
+  }
+}
