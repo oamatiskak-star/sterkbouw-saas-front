@@ -1,48 +1,77 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useCallback } from 'react';
+import { toast } from 'react-toastify';
 
-const WebSocketContext = createContext(null);
+const WebSocketContext = createContext();
 
 export const WebSocketProvider = ({ children }) => {
-  const [ws, setWs] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
+const ws = useRef(null);
+const [isConnected, setIsConnected] = useState(false);
+const [messages, setMessages] = useState([]);
 
-  useEffect(() => {
-    // Simuleer WebSocket verbinding voor nu
-    const simulateConnection = () => {
-      setTimeout(() => {
-        setIsConnected(true);
-        console.log('WebSocket verbinding gesimuleerd');
-      }, 1000);
-    };
+const connect = useCallback(() => {
+try {
+// For development, use mock. In production: wss://api.example.com/ws
+ws.current = new WebSocket('ws://localhost:3001');
 
-    simulateConnection();
+text
+  ws.current.onopen = () => {
+    setIsConnected(true);
+    toast.success('Verbonden met real-time updates');
+  };
 
-    return () => {
-      if (ws) {
-        ws.close();
-      }
-    };
-  }, []);
-
-  const value = {
-    ws,
-    isConnected,
-    sendMessage: (message) => {
-      console.log('Bericht verzonden:', message);
+  ws.current.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    setMessages(prev => [...prev, data]);
+    
+    // Show notifications for important updates
+    if (data.type === 'inspection_update') {
+      toast.info(`Inspectie geüpdatet: ${data.title}`);
     }
   };
 
-  return (
-    <WebSocketContext.Provider value={value}>
-      {children}
-    </WebSocketContext.Provider>
-  );
+  ws.current.onclose = () => {
+    setIsConnected(false);
+    toast.warning('Verbinding verbroken, probeer opnieuw...');
+  };
+
+  ws.current.onerror = (error) => {
+    console.error('WebSocket error:', error);
+    toast.error('WebSocket fout');
+  };
+} catch (error) {
+  console.error('Connection error:', error);
+}
+}, []);
+
+const sendMessage = useCallback((message) => {
+if (ws.current && isConnected) {
+ws.current.send(JSON.stringify(message));
+}
+}, [isConnected]);
+
+useEffect(() => {
+connect();
+return () => {
+if (ws.current) {
+ws.current.close();
+}
+};
+}, [connect]);
+
+return (
+<WebSocketContext.Provider value={{
+isConnected,
+messages,
+sendMessage,
+reconnect: connect,
+}}>
+{children}
+</WebSocketContext.Provider>
+);
 };
 
 export const useWebSocket = () => {
-  const context = useContext(WebSocketContext);
-  if (!context) {
-    throw new Error('useWebSocket must be used within WebSocketProvider');
-  }
-  return context;
-};
+const context = useContext(WebSocketContext);
+if (!context) throw new Error('useWebSocket must be used within WebSocketProvider');
+return context;
+  };
