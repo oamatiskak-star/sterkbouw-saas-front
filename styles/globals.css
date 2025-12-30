@@ -363,6 +363,46 @@
     @apply animate-spin rounded-full border-4 border-gray-200 border-t-blue-600;
   }
 }
+/* =========================
+   7A. PROJECTPORTAAL MENU
+   ========================= */
+@layer components {
+  .menu {
+    @apply w-[250px] min-h-screen bg-gray-100 border-r border-gray-300;
+  }
+
+  .menu-link {
+    @apply flex items-center gap-3 px-4 py-3
+           text-gray-700 no-underline
+           border-l-[3px] border-transparent
+           transition-all duration-200;
+  }
+
+  .menu-link:hover {
+    @apply bg-gray-200 text-blue-600 border-blue-600;
+  }
+
+  .menu-link.active {
+    @apply bg-blue-50 text-blue-600 font-medium border-blue-600;
+  }
+
+  /* Dark mode */
+  .dark .menu {
+    @apply bg-gray-900 border-gray-700;
+  }
+
+  .dark .menu-link {
+    @apply text-gray-300;
+  }
+
+  .dark .menu-link:hover {
+    @apply bg-gray-800 text-blue-400 border-blue-400;
+  }
+
+  .dark .menu-link.active {
+    @apply bg-blue-900/20 text-blue-400 border-blue-400;
+  }
+}
 
 /* 8. CUSTOM UTILITIES */
 @layer utilities {
