@@ -1,0 +1,39 @@
+/* components/ContractSection.css */
+.contract-section .ant-table-expanded-row .ant-descriptions-row > td {
+  padding-bottom: 8px;
+}
+
+.contract-section .ant-card {
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.contract-section .ant-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+}
+
+.contract-section .ant-tag {
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.contract-section .ant-statistic-content {
+  font-size: 24px;
+}
+
+/* Responsive aanpassingen */
+@media (max-width: 768px) {
+  .contract-section .ant-table {
+    overflow-x: auto;
+  }
+  
+  .contract-section .ant-table-thead > tr > th,
+  .contract-section .ant-table-tbody > tr > td {
+    white-space: nowrap;
+  }
+  
+  .contract-section .ant-space {
+    flex-wrap: wrap;
+  }
+}
