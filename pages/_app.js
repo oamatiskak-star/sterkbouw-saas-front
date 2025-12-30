@@ -1,4 +1,3 @@
-// pages/_app.js
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
@@ -22,7 +21,11 @@ import '@tabler/icons-webfont/dist/tabler-icons.min.css'
 import '@/styles/globals.css'
 import Layout from '@/components/Layout'
 import AdminLayout from '@/components/AdminLayout'
-import { AuthProvider, useAuth } from '@/lib/auth'
+
+// Contexts / Providers
+import { AuthProvider, useAuth } from '@/contexts/AuthContext'
+import { ProjectProvider } from '@/context/ProjectContext'
+import { WebSocketProvider } from '@/context/WebSocketContext'
 
 // -------------------------
 // React Query
@@ -52,14 +55,8 @@ function AdminGuard({ children }) {
     return null
   }
 
-  const roleRank = {
-    PROJECT_MANAGER: 0,
-    ADMIN: 1,
-    SUPER_ADMIN: 2,
-  }
-
-  const allowed = ['PROJECT_MANAGER', 'ADMIN', 'SUPER_ADMIN']
-  if (!allowed.includes(user.role)) {
+  const allowedRoles = ['PROJECT_MANAGER', 'ADMIN', 'SUPER_ADMIN']
+  if (!allowedRoles.includes(user.role)) {
     router.replace('/')
     return null
   }
@@ -130,25 +127,29 @@ export default function App({ Component, pageProps }) {
             withNormalizeCSS
           >
             <AuthProvider>
-              <Toaster position="top-right" />
+              <ProjectProvider>
+                <WebSocketProvider>
+                  <Toaster position="top-right" />
 
-              {isAdminRoute ? (
-                <AdminGuard>
-                  <AdminLayout
-                    enableThemeToggle
-                    enableNotifications
-                    enableQuickActions
-                    enableBreadcrumbs
-                    responsiveSidebar
-                  >
-                    <Component {...pageProps} />
-                  </AdminLayout>
-                </AdminGuard>
-              ) : (
-                <Layout>
-                  <Component {...pageProps} />
-                </Layout>
-              )}
+                  {isAdminRoute ? (
+                    <AdminGuard>
+                      <AdminLayout
+                        enableThemeToggle
+                        enableNotifications
+                        enableQuickActions
+                        enableBreadcrumbs
+                        responsiveSidebar
+                      >
+                        <Component {...pageProps} />
+                      </AdminLayout>
+                    </AdminGuard>
+                  ) : (
+                    <Layout>
+                      <Component {...pageProps} />
+                    </Layout>
+                  )}
+                </WebSocketProvider>
+              </ProjectProvider>
             </AuthProvider>
           </MantineProvider>
         </ColorSchemeProvider>
