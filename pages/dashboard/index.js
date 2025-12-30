@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useState } from "react"
+import AppShell from "@/components/layout/AppShell"
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -33,34 +34,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r">
-        <div className="p-4 font-bold text-lg border-b">Bouw Management</div>
-        <nav className="flex flex-col p-2 gap-1">
-          {[
-            "dashboard","administratie","bim","bouwplaats","calculatie",
-            "constructie","documenten","financien","financieringen",
-            "inkoop","kopersportaal","mail","planning","projecten",
-            "projectportaal","instellingen"
-          ].map(route => (
-            <Link
-              key={route}
-              href={`/${route}`}
-              className={`px-4 py-2 rounded text-sm ${
-                router.pathname.startsWith(`/${route}`)
-                  ? "bg-blue-600 text-white"
-                  : "hover:bg-gray-100"
-              }`}
-            >
-              {route.charAt(0).toUpperCase() + route.slice(1)}
-            </Link>
-          ))}
-        </nav>
-      </aside>
-
-      {/* Main */}
-      <main className="flex-1 p-6 space-y-8 overflow-y-auto">
+    <AppShell>
+      <main className="p-6 space-y-8 overflow-y-auto">
 
         {/* Header */}
         <div className="flex justify-between items-start">
@@ -69,8 +44,18 @@ export default function DashboardPage() {
             <p className="text-gray-500">Overzicht van je bouwprojecten</p>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => router.push("/calculatie")} className="btn-primary">Calculatie</button>
-            <button onClick={() => router.push("/projecten/nieuw")} className="btn-success">Nieuw project</button>
+            <button
+              onClick={() => router.push("/calculatie")}
+              className="btn-primary"
+            >
+              Calculatie
+            </button>
+            <button
+              onClick={() => router.push("/projecten/nieuw")}
+              className="btn-success"
+            >
+              Nieuw project
+            </button>
           </div>
         </div>
 
@@ -122,16 +107,22 @@ export default function DashboardPage() {
           </div>
         </div>
 
-      </main>
+        <style jsx>{`
+          .btn-primary {
+            background:#2563eb;
+            color:#fff;
+            padding:0.5rem 1rem;
+            border-radius:0.375rem;
+          }
+          .btn-success {
+            background:#16a34a;
+            color:#fff;
+            padding:0.5rem 1rem;
+            border-radius:0.375rem;
+          }
+        `}</style>
 
-      <style jsx>{`
-        .btn-primary {
-          background:#2563eb;color:#fff;padding:0.5rem 1rem;border-radius:0.375rem
-        }
-        .btn-success {
-          background:#16a34a;color:#fff;padding:0.5rem 1rem;border-radius:0.375rem
-        }
-      `}</style>
-    </div>
+      </main>
+    </AppShell>
   )
 }
