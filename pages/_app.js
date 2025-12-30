@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 
@@ -8,24 +8,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
-// UI frameworks
-import { MantineProvider, ColorSchemeProvider } from '@mantine/core'
-import '@mantine/core/styles.css'
-
-// Tabler CSS
-import '@tabler/core/dist/css/tabler.min.css'
-import '@tabler/core/dist/css/tabler-vendors.min.css'
-import '@tabler/icons-webfont/dist/tabler-icons.min.css'
-
-// Eigen imports
+// Eigen styles
 import '@/styles/globals.css'
-import Layout from '@/components/Layout'
-import AdminLayout from '@/components/AdminLayout'
+
+// Core Shell
+import CoreShell from '@/components/core/CoreShell'
 
 // Contexts / Providers
 import { ProjectProvider } from '@/contexts/ProjectContext'
 import { WebSocketProvider } from '@/contexts/WebSocketContext'
-import { AuthProvider, useAuth } from '@/contexts/AuthContext'
+import { AuthProvider } from '@/contexts/AuthContext'
 
 // -------------------------
 // React Query
@@ -41,39 +33,8 @@ const queryClient = new QueryClient({
   },
 })
 
-// -------------------------
-// Admin role guard
-// -------------------------
-function AdminGuard({ children }) {
-  const { user, loading } = useAuth()
-  const router = useRouter()
-
-  if (loading) return null
-
-  if (!user) {
-    router.replace('/login')
-    return null
-  }
-
-  const allowedRoles = ['PROJECT_MANAGER', 'ADMIN', 'SUPER_ADMIN']
-  if (!allowedRoles.includes(user.role)) {
-    router.replace('/')
-    return null
-  }
-
-  return children
-}
-
 export default function App({ Component, pageProps }) {
   const router = useRouter()
-
-  // -------------------------
-  // Theme (dark / light)
-  // -------------------------
-  const [colorScheme, setColorScheme] = useState('light')
-
-  const toggleColorScheme = () =>
-    setColorScheme((current) => (current === 'dark' ? 'light' : 'dark'))
 
   // -------------------------
   // NProgress
@@ -94,65 +55,36 @@ export default function App({ Component, pageProps }) {
   }, [router])
 
   // -------------------------
-  // Admin route detectie
+  // Host detectie (voor app_scope)
   // -------------------------
-  const isAdminRoute = useMemo(
-    () => router.pathname.startsWith('/admin'),
-    [router.pathname]
-  )
+  const host =
+    typeof window !== 'undefined'
+      ? window.location.host
+      : ''
 
   return (
     <>
       <Head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta
-          name="theme-color"
-          content={colorScheme === 'dark' ? '#1d273b' : '#206bc4'}
-        />
+        <meta name="theme-color" content="#facc15" />
         <link rel="icon" href="/favicon-32x32.png" />
       </Head>
 
       <QueryClientProvider client={queryClient}>
-        <ColorSchemeProvider
-          colorScheme={colorScheme}
-          toggleColorScheme={toggleColorScheme}
-        >
-          <MantineProvider
-            theme={{
-              colorScheme,
-              primaryColor: 'blue',
-            }}
-            withGlobalStyles
-            withNormalizeCSS
-          >
-            <AuthProvider>
-              <ProjectProvider>
-                <WebSocketProvider>
-                  <Toaster position="top-right" />
+        <AuthProvider>
+          <ProjectProvider>
+            <WebSocketProvider>
+              <Toaster position="top-right" />
 
-                  {isAdminRoute ? (
-                    <AdminGuard>
-                      <AdminLayout
-                        enableThemeToggle
-                        enableNotifications
-                        enableQuickActions
-                        enableBreadcrumbs
-                        responsiveSidebar
-                      >
-                        <Component {...pageProps} />
-                      </AdminLayout>
-                    </AdminGuard>
-                  ) : (
-                    <Layout>
-                      <Component {...pageProps} />
-                    </Layout>
-                  )}
-                </WebSocketProvider>
-              </ProjectProvider>
-            </AuthProvider>
-          </MantineProvider>
-        </ColorSchemeProvider>
+              {/* CORE SHELL – altijd actief */}
+              <CoreShell host={host}>
+                <Component {...pageProps} />
+              </CoreShell>
+
+            </WebSocketProvider>
+          </ProjectProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </>
   )
