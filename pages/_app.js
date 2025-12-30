@@ -39,17 +39,28 @@ const queryClient = new QueryClient({
 })
 
 // -------------------------
-// Role guard voor admin
+// Admin role guard
 // -------------------------
 function AdminGuard({ children }) {
   const { user, loading } = useAuth()
+  const router = useRouter()
 
   if (loading) return null
 
-  if (!user) return null
+  if (!user) {
+    router.replace('/login')
+    return null
+  }
 
-  const allowedRoles = ['ADMIN', 'SUPER_ADMIN', 'PROJECT_MANAGER']
-  if (!allowedRoles.includes(user.role)) {
+  const roleRank = {
+    PROJECT_MANAGER: 0,
+    ADMIN: 1,
+    SUPER_ADMIN: 2,
+  }
+
+  const allowed = ['PROJECT_MANAGER', 'ADMIN', 'SUPER_ADMIN']
+  if (!allowed.includes(user.role)) {
+    router.replace('/')
     return null
   }
 
@@ -88,38 +99,28 @@ export default function App({ Component, pageProps }) {
   // -------------------------
   // Admin route detectie
   // -------------------------
-  const isAdminRoute = useMemo(() => {
-    return router.pathname.startsWith('/admin')
-  }, [router.pathname])
+  const isAdminRoute = useMemo(
+    () => router.pathname.startsWith('/admin'),
+    [router.pathname]
+  )
 
   return (
     <>
       <Head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content={colorScheme === 'dark' ? '#1d273b' : '#206bc4'} />
-
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-
-        <style jsx global>{`
-          #nprogress {
-            pointer-events: none;
-          }
-          #nprogress .bar {
-            background: #206bc4;
-            position: fixed;
-            z-index: 1031;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-          }
-        `}</style>
+        <meta
+          name="theme-color"
+          content={colorScheme === 'dark' ? '#1d273b' : '#206bc4'}
+        />
+        <link rel="icon" href="/favicon-32x32.png" />
       </Head>
 
       <QueryClientProvider client={queryClient}>
-        <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
+        <ColorSchemeProvider
+          colorScheme={colorScheme}
+          toggleColorScheme={toggleColorScheme}
+        >
           <MantineProvider
             theme={{
               colorScheme,
@@ -129,20 +130,8 @@ export default function App({ Component, pageProps }) {
             withNormalizeCSS
           >
             <AuthProvider>
-              <Toaster
-                position="top-right"
-                toastOptions={{
-                  duration: 4000,
-                  style: {
-                    background: '#363636',
-                    color: '#fff',
-                  },
-                }}
-              />
+              <Toaster position="top-right" />
 
-              {/* =========================
-                  ADMIN LAYOUT
-                  ========================= */}
               {isAdminRoute ? (
                 <AdminGuard>
                   <AdminLayout
@@ -156,9 +145,6 @@ export default function App({ Component, pageProps }) {
                   </AdminLayout>
                 </AdminGuard>
               ) : (
-                /* =========================
-                   DEFAULT LAYOUT
-                   ========================= */
                 <Layout>
                   <Component {...pageProps} />
                 </Layout>
