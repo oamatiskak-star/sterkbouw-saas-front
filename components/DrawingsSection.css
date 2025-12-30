@@ -1,0 +1,50 @@
+/* components/DrawingsSection.css */
+.drawings-section .ant-tree {
+  background: transparent;
+}
+
+.drawings-section .ant-tree .ant-tree-node-content-wrapper {
+  padding: 4px 8px;
+}
+
+.drawings-section .ant-tree .ant-tree-node-content-wrapper:hover {
+  background-color: rgba(24, 144, 255, 0.1);
+}
+
+.drawings-section .ant-upload.ant-upload-drag {
+  border-radius: 8px;
+  border: 2px dashed #d9d9d9;
+}
+
+.drawings-section .ant-upload.ant-upload-drag:hover {
+  border-color: #1890ff;
+}
+
+.drawings-section .ant-timeline {
+  padding-left: 0;
+}
+
+.drawings-section .ant-timeline-item {
+  padding-bottom: 8px;
+}
+
+.drawings-section .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.drawings-section .ant-card-extra {
+  padding: 0;
+}
+
+/* Responsive aanpassingen */
+@media (max-width: 768px) {
+  .drawings-section .ant-col-md-8,
+  .drawings-section .ant-col-md-16 {
+    max-width: 100%;
+    flex: 0 0 100%;
+  }
+  
+  .drawings-section .ant-table {
+    overflow-x: auto;
+  }
+}
