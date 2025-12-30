@@ -1150,5 +1150,5 @@ function getSupplierQuote(request, supplierId) {
   const response = request.responses?.find(r => r.supplier_id === supplierId)
   return response?.total_price || 0
 }
-}
+
 export default InkoopPage
