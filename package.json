@@ -36,7 +36,7 @@
     "bootstrap": "5.3.3",
 
     "@supabase/supabase-js": "2.45.1",
-    "@supabase/auth-helpers-react": "^0.2.6",
+    "@supabase/auth-helpers-react": "^0.2.7",
     "next-connect": "^1.0.0",
     "@supabase/ssr": "0.4.0",
 
