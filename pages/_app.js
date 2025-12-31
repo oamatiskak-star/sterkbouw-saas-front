@@ -8,11 +8,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
-// Mantine v7 (CORRECT)
+// Mantine v7 (GEEN globale CSS import)
 import { MantineProvider } from '@mantine/core'
-import '@mantine/core/styles.css'
 
-// Tabler (ongewijzigd)
+// Tabler (bewust nog aanwezig)
 import '@tabler/core/dist/css/tabler.min.css'
 import '@tabler/core/dist/css/tabler-vendors.min.css'
 import '@tabler/icons-webfont/dist/tabler-icons.min.css'
