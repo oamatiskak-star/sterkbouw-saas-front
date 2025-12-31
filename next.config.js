@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // TRANSPILE Ant Design packages (CRITIEK voor build)
+  transpilePackages: ['@ant-design/icons', '@ant-design/icons-svg', 'rc-util', 'rc-picker'],
+  
   // Standalone build voor Docker / Railway
   output: 'standalone',
 
@@ -7,22 +10,21 @@ const nextConfig = {
   swcMinify: true,
 
   images: {
-    // Behoud huidige remotePatterns
     remotePatterns: [
       {
         protocol: 'https',
         hostname: '**',
       },
     ],
-    // Samengevoegd: localhost + Supabase
     domains: [
       'localhost',
       'your-supabase-domain.supabase.co',
     ],
   },
 
-  // Experimentele features geminimaliseerd
+  // Experimentele features
   experimental: {
+    esmExternals: 'loose',  // VOEG DIT TOE voor Ant Design
     optimizeCss: false,
   },
 
@@ -40,13 +42,11 @@ const nextConfig = {
   },
 
   compiler: {
-    // Debugging toegestaan
     removeConsole: false,
   },
 
   async headers() {
     return [
-      // Security headers (globaal)
       {
         source: '/(.*)',
         headers: [
@@ -58,7 +58,6 @@ const nextConfig = {
           { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
         ],
       },
-      // CORS headers voor API-routes
       {
         source: '/api/:path*',
         headers: [
