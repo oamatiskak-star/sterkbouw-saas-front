@@ -1147,8 +1147,19 @@ function calculateTargetPrice(request, supplier) {
 }
 
 function getSupplierQuote(request, supplierId) {
-  const response = request.responses?.find(r => r.supplier_id === supplierId)
-  return response?.total_price || 0
+  if (!request || !Array.isArray(request.responses)) {
+    return 0
+  }
+
+  const response = request.responses.find(
+    (r) => r.supplier_id === supplierId
+  )
+
+  return typeof response?.total_price === 'number'
+    ? response.total_price
+    : 0
 }
 
 export default function InkoopPage() {
+  return null
+}
