@@ -63,7 +63,6 @@ export default function MailDashboard() {
       bericht: ""
     })
 
-    // inbox lokaal verversen, GEEN reload
     const { data } = await supabase
       .from("project_mail")
       .select("*")
@@ -133,9 +132,7 @@ export default function MailDashboard() {
       <section>
         <h2>Inbox</h2>
 
-        {mails.length === 0 && (
-          <p>Geen berichten aanwezig.</p>
-        )}
+        {mails.length === 0 && <p>Geen berichten aanwezig.</p>}
 
         {mails.length > 0 && (
           <table width="100%" cellPadding="8">
@@ -164,4 +161,12 @@ export default function MailDashboard() {
       </section>
     </div>
   )
+}
+
+/**
+ * ⛔ VERPLICHT
+ * Forceert SSR en voorkomt prerender errors (React #130)
+ */
+export async function getServerSideProps() {
+  return { props: {} }
 }
