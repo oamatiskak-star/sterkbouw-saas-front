@@ -1,171 +1,138 @@
 /* =========================================================
    STERKBOUW DASHBOARD SKIN
-   Centraal afdwingbare layout + cards + spacing
+   Afdwingt uiterlijk op AntD DOM (zonder JSX-wijzigingen)
    ========================================================= */
 
 /* ---------- Basis ---------- */
-body {
+html, body {
   background-color: #f5f7fb;
   color: #1f2937;
+  margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, Helvetica, Arial, sans-serif;
 }
 
-h1, h2, h3, h4 {
-  font-weight: 600;
-  margin: 0;
-}
-
-/* ---------- Layout ---------- */
-.layout {
-  padding: 24px;
-  background: #f5f7fb;
+/* ---------- AntD Layout ---------- */
+.ant-layout {
+  background: #f5f7fb !important;
   min-height: 100vh;
 }
 
-.layout-inner {
-  max-width: 1400px;
-  margin: 0 auto;
+.ant-layout-content {
+  padding: 24px;
 }
 
-/* ---------- Cards (globaal) ---------- */
-.card {
+/* ---------- Content max width ---------- */
+.ant-layout-content > * {
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------- Cards (KERN) ---------- */
+.ant-card {
   background: #ffffff;
   border-radius: 14px;
-  padding: 20px;
   border: 1px solid #eef0f4;
   box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
 
-.card + .card {
+.ant-card + .ant-card {
   margin-top: 16px;
 }
 
-/* ---------- KPI Cards ---------- */
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+.ant-card-head {
+  border-bottom: none;
+  padding: 16px 20px 0;
 }
 
-.kpi-card {
+.ant-card-body {
+  padding: 20px;
+}
+
+/* ---------- KPI gevoel ---------- */
+.ant-card-body > div {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.kpi-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
+/* ---------- Grid spacing ---------- */
+.ant-row {
+  margin-left: -10px;
+  margin-right: -10px;
 }
 
-.kpi-blue   { background: #e8f0ff; color: #2563eb; }
-.kpi-green  { background: #eaf7ee; color: #16a34a; }
-.kpi-orange { background: #fff3e6; color: #ea580c; }
-.kpi-red    { background: #feecec; color: #dc2626; }
-
-/* ---------- Secties ---------- */
-.section {
-  margin-top: 28px;
+.ant-col {
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
-.section-title {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* ---------- Snelle acties ---------- */
-.action-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
-}
-
-.action-card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 22px;
-  text-align: center;
-  border: 1px solid #eef0f4;
+/* ---------- Snelle acties / hover ---------- */
+.ant-card-hoverable {
   transition: transform .15s ease, box-shadow .15s ease;
 }
 
-.action-card:hover {
+.ant-card-hoverable:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0,0,0,0.06);
 }
 
-.action-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 999px;
-  margin: 0 auto 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-}
-
-/* ---------- Modules ---------- */
-.module-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
-}
-
-.module-card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 20px;
-  border: 1px solid #eef0f4;
-}
-
-.module-title {
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.module-desc {
-  font-size: 13px;
-  color: #6b7280;
-}
-
 /* ---------- Sidebar ---------- */
-.sidebar {
-  background: #ffffff;
+.ant-layout-sider {
+  background: #ffffff !important;
   border-right: 1px solid #eef0f4;
 }
 
-.sidebar a {
-  display: block;
-  padding: 10px 14px;
-  border-radius: 10px;
-  color: #1f2937;
-  text-decoration: none;
+.ant-menu {
+  background: transparent !important;
 }
 
-.sidebar a.active {
-  background: #2563eb;
-  color: #ffffff;
+.ant-menu-item {
+  border-radius: 10px;
+  margin: 4px 8px;
+}
+
+.ant-menu-item-selected {
+  background: #2563eb !important;
+  color: #ffffff !important;
 }
 
 /* ---------- Topbar ---------- */
-.topbar {
-  background: #1f2937;
+.ant-layout-header {
+  background: #1f2937 !important;
   color: #ffffff;
-  padding: 14px 20px;
+  border-bottom: 1px solid #111827;
 }
 
-/* ---------- Utilities ---------- */
-.mt-16 { margin-top: 16px; }
-.mt-24 { margin-top: 24px; }
-.text-muted { color: #6b7280; }
+/* ---------- Typography ---------- */
+.ant-typography,
+.ant-card-head-title {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* ---------- Buttons ---------- */
+.ant-btn-primary {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+/* ---------- Tables ---------- */
+.ant-table {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #eef0f4;
+}
+
+/* ---------- Forms ---------- */
+.ant-input,
+.ant-select-selector {
+  border-radius: 10px !important;
+}
+
+/* ---------- Remove HTML feeling ---------- */
+.ant-space,
+.ant-space-item {
+  width: 100%;
+}
