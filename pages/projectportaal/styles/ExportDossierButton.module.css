@@ -1,0 +1,157 @@
+.container {
+position: relative;
+}
+
+.dropdown {
+position: relative;
+display: inline-block;
+}
+
+.exportButton {
+padding: 10px 20px;
+background: #28a745;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-size: 0.95rem;
+display: flex;
+align-items: center;
+gap: 8px;
+transition: background 0.3s;
+}
+
+.exportButton:hover {
+background: #1e7e34;
+}
+
+.exportButton:disabled {
+background: #cccccc;
+cursor: not-allowed;
+}
+
+.spinner {
+width: 16px;
+height: 16px;
+border: 2px solid rgba(255, 255, 255, 0.3);
+border-top: 2px solid white;
+border-radius: 50%;
+animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+
+.dropdownContent {
+position: absolute;
+top: 100%;
+right: 0;
+margin-top: 5px;
+min-width: 300px;
+background: white;
+border-radius: 8px;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+padding: 20px;
+z-index: 100;
+display: none;
+}
+
+.dropdown:hover .dropdownContent {
+display: block;
+}
+
+.formatSelector {
+margin-bottom: 20px;
+}
+
+.formatSelector p {
+font-weight: 600;
+color: #555;
+margin-bottom: 10px;
+font-size: 0.9rem;
+}
+
+.formatOption {
+display: flex;
+align-items: center;
+padding: 10px;
+margin-bottom: 5px;
+border-radius: 4px;
+cursor: pointer;
+transition: background 0.3s;
+}
+
+.formatOption:hover {
+background: #f8f9fa;
+}
+
+.formatOption input[type="radio"] {
+margin-right: 10px;
+}
+
+.formatIcon {
+margin-right: 8px;
+font-size: 1.2rem;
+}
+
+.options {
+margin-bottom: 20px;
+padding-bottom: 20px;
+border-bottom: 1px solid #eee;
+}
+
+.option {
+display: flex;
+align-items: center;
+margin-bottom: 10px;
+font-size: 0.9rem;
+color: #555;
+}
+
+.option input[type="checkbox"] {
+margin-right: 10px;
+}
+
+.actions {
+display: flex;
+gap: 10px;
+justify-content: flex-end;
+}
+
+.cancelButton {
+padding: 8px 16px;
+background: #6c757d;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-size: 0.9rem;
+transition: background 0.3s;
+}
+
+.cancelButton:hover {
+background: #545b62;
+}
+
+.confirmButton {
+padding: 8px 20px;
+background: #0070f3;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-size: 0.9rem;
+transition: background 0.3s;
+}
+
+.confirmButton:hover {
+background: #0051a8;
+}
+
+.confirmButton:disabled {
+background: #cccccc;
+cursor: not-allowed;
+}
+
