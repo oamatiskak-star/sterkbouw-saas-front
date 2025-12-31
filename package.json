@@ -59,7 +59,7 @@
     "react-leaflet": "4.2.1",
 
     "three": "0.164.1",
-    "@react-three/fiber": "8.15.24",
+    "@react-three/fiber": "^8.15.23",
     "@react-three/drei": "9.92.7",
 
     "file-saver": "2.0.5",
