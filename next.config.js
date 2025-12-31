@@ -5,23 +5,14 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
 
-  transpilePackages: [
-    'antd',
-    '@ant-design/icons',
-    '@ant-design/icons-svg',
-    'rc-util',
-    'rc-picker',
-    'rc-motion',
-    'rc-trigger',
-  ],
-
+  // ❌ Static prerendering UIT
   experimental: {
-    esmExternals: false, // CRUCIAAL
+    esmExternals: false,
   },
 
+  // 🚫 Blokkeer Ant Design tijdens server prerender
   webpack: (config, { isServer }) => {
     if (isServer) {
-      // 🔒 Forceer Ant Design naar client-only
       config.resolve.alias = {
         ...config.resolve.alias,
         antd: false,
@@ -31,6 +22,7 @@ const nextConfig = {
         'rc-trigger': false,
       }
     }
+
     return config
   },
 
