@@ -1,3 +1,4 @@
+import App from 'next/app'
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
@@ -19,6 +20,9 @@ import { WebSocketProvider } from '@/contexts/WebSocketContext'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import { NavigationProvider } from '@/contexts/NavigationContext'
 
+/* -----------------------------
+   React Query
+-------------------------------- */
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -29,11 +33,15 @@ const queryClient = new QueryClient({
   },
 })
 
+/* -----------------------------
+   Admin Guard
+-------------------------------- */
 function AdminGuard({ children }) {
   const { user, loading } = useAuth()
   const router = useRouter()
 
   if (loading) return null
+
   if (!user) {
     router.replace('/login')
     return null
@@ -42,7 +50,10 @@ function AdminGuard({ children }) {
   return children
 }
 
-export default function AppClient({ Component, pageProps }) {
+/* -----------------------------
+   App Component
+-------------------------------- */
+function AppClient({ Component, pageProps }) {
   const router = useRouter()
   const [colorScheme] = useState('light')
 
@@ -100,3 +111,15 @@ export default function AppClient({ Component, pageProps }) {
     </>
   )
 }
+
+/* ----------------------------------------------------
+   🔒 DEFINITIEVE PLATFORM-FIX
+   → forceert SSR
+   → schakelt ALLE static prerendering uit
+----------------------------------------------------- */
+AppClient.getInitialProps = async (appContext) => {
+  const appProps = await App.getInitialProps(appContext)
+  return { ...appProps }
+}
+
+export default AppClient
