@@ -1,0 +1,190 @@
+.container {
+background: white;
+border-radius: 8px;
+padding: 30px;
+}
+
+.container h2 {
+font-size: 1.5rem;
+margin-bottom: 25px;
+color: #333;
+}
+
+.communicationWrapper {
+display: flex;
+gap: 20px;
+height: 600px;
+}
+
+.contactsPanel {
+width: 250px;
+background: #f8f9fa;
+border-radius: 6px;
+padding: 20px;
+overflow-y: auto;
+}
+
+.contactsPanel h3 {
+font-size: 1.1rem;
+margin-bottom: 15px;
+color: #555;
+}
+
+.contactList {
+list-style: none;
+padding: 0;
+margin: 0;
+}
+
+.contactList li {
+padding: 12px 15px;
+cursor: pointer;
+border-radius: 4px;
+margin-bottom: 5px;
+transition: background 0.3s;
+}
+
+.contactList li:hover {
+background: #e9ecef;
+}
+
+.chatPanel {
+flex: 1;
+display: flex;
+flex-direction: column;
+background: white;
+border: 1px solid #dee2e6;
+border-radius: 6px;
+overflow: hidden;
+}
+
+.chatHeader {
+padding: 15px 20px;
+background: #f8f9fa;
+border-bottom: 1px solid #dee2e6;
+}
+
+.chatHeader h3 {
+margin: 0;
+font-size: 1.1rem;
+color: #555;
+}
+
+.messagesContainer {
+flex: 1;
+padding: 20px;
+overflow-y: auto;
+background: #fafafa;
+}
+
+.message {
+max-width: 70%;
+margin-bottom: 15px;
+padding: 12px 15px;
+border-radius: 18px;
+position: relative;
+}
+
+.message.sent {
+background: #0070f3;
+color: white;
+margin-left: auto;
+border-bottom-right-radius: 4px;
+}
+
+.message.received {
+background: #e9ecef;
+color: #333;
+margin-right: auto;
+border-bottom-left-radius: 4px;
+}
+
+.messageHeader {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 5px;
+font-size: 0.85rem;
+}
+
+.messageHeader strong {
+font-weight: 600;
+}
+
+.timestamp {
+opacity: 0.8;
+font-size: 0.8rem;
+}
+
+.messageBody {
+line-height: 1.4;
+}
+
+.attachments {
+margin-top: 8px;
+display: flex;
+flex-wrap: wrap;
+gap: 5px;
+}
+
+.attachment {
+font-size: 0.85rem;
+padding: 2px 8px;
+background: rgba(255, 255, 255, 0.2);
+border-radius: 10px;
+}
+
+.messageInput {
+padding: 15px;
+background: white;
+border-top: 1px solid #dee2e6;
+}
+
+.messageInput textarea {
+width: 100%;
+padding: 12px;
+border: 1px solid #ddd;
+border-radius: 4px;
+resize: none;
+font-family: inherit;
+margin-bottom: 10px;
+}
+
+.inputActions {
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.attachButton {
+padding: 8px 16px;
+background: #6c757d;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+transition: background 0.3s;
+}
+
+.attachButton:hover {
+background: #545b62;
+}
+
+.sendButton {
+padding: 8px 24px;
+background: #28a745;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+transition: background 0.3s;
+}
+
+.sendButton:disabled {
+background: #cccccc;
+cursor: not-allowed;
+}
+
+.sendButton:hover:not(:disabled) {
+background: #1e7e34;
+}
