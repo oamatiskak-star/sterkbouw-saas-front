@@ -1,6 +1,6 @@
 // Frontend/pages/planning/index.js
 import React, { useState, useEffect, useMemo } from 'react';
-import { useProjects } from '../../../context/ProjectsContext';
+import { useProject } from '@/contexts/ProjectContext';
 import {
   Box,
   Grid,
