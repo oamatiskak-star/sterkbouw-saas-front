@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
+import App from 'next/app'
 
 // Externe libraries
 import { Toaster } from 'react-hot-toast'
@@ -66,9 +67,9 @@ function AdminGuard({ children }) {
   return children
 }
 
-export default function App({ Component, pageProps }) {
+function MyApp({ Component, pageProps }) {
   const router = useRouter()
-  const [colorScheme, setColorScheme] = useState('light')
+  const [colorScheme] = useState('light')
 
   // -------------------------
   // NProgress
@@ -138,3 +139,15 @@ export default function App({ Component, pageProps }) {
     </>
   )
 }
+
+/**
+ * 🔴 CRUCIAAL
+ * Dit schakelt SSG / prerendering GLOBAAL uit
+ * en forceert SSR voor de hele app
+ */
+MyApp.getInitialProps = async (appContext) => {
+  const appProps = await App.getInitialProps(appContext)
+  return { ...appProps }
+}
+
+export default MyApp
