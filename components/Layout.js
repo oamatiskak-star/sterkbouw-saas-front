@@ -1,5 +1,3 @@
-'use client'
-
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
@@ -41,7 +39,9 @@ export default function Layout({ children }) {
       (_event, session) => setUser(session?.user ?? null)
     )
 
-    return () => listener.subscription.unsubscribe()
+    return () => {
+      listener?.subscription?.unsubscribe()
+    }
   }, [])
 
   const logout = async () => {
@@ -52,7 +52,6 @@ export default function Layout({ children }) {
   return (
     <div className="flex min-h-screen bg-gray-100">
 
-      {/* Sidebar */}
       {sidebarOpen && (
         <aside className="w-64 bg-white border-r flex flex-col">
           <div className="px-4 py-4 border-b font-bold text-lg">
@@ -91,10 +90,8 @@ export default function Layout({ children }) {
         </aside>
       )}
 
-      {/* Main */}
       <div className="flex-1 flex flex-col">
 
-        {/* Topbar */}
         <header className="h-14 bg-white border-b flex items-center justify-between px-4">
           <div className="flex items-center gap-2">
             <button
@@ -121,7 +118,6 @@ export default function Layout({ children }) {
           </div>
         </header>
 
-        {/* Page content */}
         <main className="flex-1 overflow-y-auto p-6">
           {children}
         </main>
