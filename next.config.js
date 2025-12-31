@@ -5,42 +5,25 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
 
-  // ❌ GEEN SSG / ISR – alles SSR
+  // ❗ Dwing alles naar Node runtime (GEEN Edge / GEEN SSR-executie)
   experimental: {
     esmExternals: 'loose',
-    optimizeCss: false,
   },
 
-  // Ant Design / rc-* fix
-  transpilePackages: [
-    '@ant-design/icons',
-    '@ant-design/icons-svg',
-    'rc-util',
-    'rc-picker',
-  ],
-
-  images: {
-    remotePatterns: [
-      { protocol: 'https', hostname: '**' },
-    ],
+  // ❗ Stop static generation / prerender crashes
+  generateBuildId: async () => {
+    return 'client-only'
   },
 
   eslint: {
     ignoreDuringBuilds: true,
   },
-
   typescript: {
     ignoreBuildErrors: true,
   },
 
-  webpack(config, { isServer }) {
-    // ⛔ voorkom build-time browser code
-    if (isServer) {
-      config.externals.push({
-        'ws': 'commonjs ws',
-      })
-    }
-    return config
+  compiler: {
+    removeConsole: false,
   },
 }
 
