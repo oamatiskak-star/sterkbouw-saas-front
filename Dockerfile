@@ -18,49 +18,39 @@ RUN if [ -f package-lock.json ] && [ -s package-lock.json ]; then \
 # Applicatiecode
 COPY . .
 
-# === CRITICAL: REPLACE je next.config.js met een clean versie ===
-RUN cat > next.config.js << 'EOF'
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  output: "standalone",
-  
-  // Schakel ALLE static features uit
-  images: { 
-    unoptimized: true 
-  },
-  
-  // Negeer ALLE build errors
-  typescript: { 
-    ignoreBuildErrors: true 
-  },
-  
-  eslint: { 
-    ignoreDuringBuilds: true 
-  },
-  
-  staticPageGenerationTimeout: 3600,
-  
-  // Forceer dynamisch gedrag
-  experimental: {
-    esmExternals: false,
-    optimizeCss: false,
-  },
-  
-  // Webpack config zonder string-replace-loader
-  webpack: (config, { isServer }) => {
-    // Voorkom build errors voor rc-* packages
-    config.resolve.fallback = {
-      fs: false,
-      path: false,
-      os: false,
-    };
-    
-    return config;
-  }
-};
+# === VEILIGE PATCH: Maak een script dat de config aanpast ===
+RUN cat > patch-config.js << 'EOF'
+const fs = require('fs');
 
-module.exports = nextConfig;
-EOF'
+console.log('Patching next.config.js for build...');
+
+// Lees originele config
+let config = {};
+try {
+  const original = require('./next.config.js');
+  config = typeof original === 'function' ? original({}) : original;
+} catch (e) {
+  console.log('No next.config.js found or error reading, using defaults');
+}
+
+// Apply safe patches
+config.output = "standalone";
+config.images = { unoptimized: true };
+config.typescript = { ignoreBuildErrors: true };
+config.eslint = { ignoreDuringBuilds: true };
+config.experimental = config.experimental || {};
+config.experimental.esmExternals = false;
+
+// Remove problematic webpack config if it exists
+delete config.webpack;
+
+// Write patched config
+fs.writeFileSync('next.config.js', `module.exports = ${JSON.stringify(config, null, 2)}`);
+console.log('Config patched successfully');
+EOF
+
+# Voer patch uit
+RUN node patch-config.js
 
 # Build de applicatie
 RUN npm run build
