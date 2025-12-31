@@ -18,39 +18,16 @@ RUN if [ -f package-lock.json ] && [ -s package-lock.json ]; then \
 # Applicatiecode
 COPY . .
 
-# === VEILIGE PATCH: Maak een script dat de config aanpast ===
-RUN cat > patch-config.js << 'EOF'
-const fs = require('fs');
-
-console.log('Patching next.config.js for build...');
-
-// Lees originele config
-let config = {};
-try {
-  const original = require('./next.config.js');
-  config = typeof original === 'function' ? original({}) : original;
-} catch (e) {
-  console.log('No next.config.js found or error reading, using defaults');
-}
-
-// Apply safe patches
-config.output = "standalone";
-config.images = { unoptimized: true };
-config.typescript = { ignoreBuildErrors: true };
-config.eslint = { ignoreDuringBuilds: true };
-config.experimental = config.experimental || {};
-config.experimental.esmExternals = false;
-
-// Remove problematic webpack config if it exists
-delete config.webpack;
-
-// Write patched config
-fs.writeFileSync('next.config.js', `module.exports = ${JSON.stringify(config, null, 2)}`);
-console.log('Config patched successfully');
-EOF
-
-# Voer patch uit
-RUN node patch-config.js
+# === DIRECTE OPLOSSING: Creëer getServerSideProps voor alle pagina's ===
+# Dit forceert server-side rendering ipv static generation
+RUN find pages -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" | \
+    xargs -I {} sh -c 'if ! grep -q "getServerSideProps\|getInitialProps" "{}"; then \
+      echo "Adding getServerSideProps to {}"; \
+      mv "{}" "{}.bak" && \
+      echo "export async function getServerSideProps() { return { props: {} } }" > "{}" && \
+      cat "{}.bak" >> "{}" && \
+      rm "{}.bak"; \
+    fi' 2>/dev/null || true
 
 # Build de applicatie
 RUN npm run build
