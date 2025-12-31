@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // API configuratie
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 const API_VERSION = 'v2'; // Gebruik de nieuwe portal API
 
 // Axios instance met default config
@@ -169,6 +169,13 @@ export const validatePortalToken = async (projectId, token) => {
 /**
  * PROJECTEN
  */
+export const fetchProjectData = async (projectId, options = {}) => {
+  const response = await apiClient.get(`/projects/${projectId}/portal`, {
+    params: options,
+  });
+  return response.data;
+};
+
 export const fetchProjects = async (filters = {}) => {
   const params = new URLSearchParams();
   
@@ -683,12 +690,12 @@ export const exportAuditLogs = async (projectId, startDate, endDate, format = 'c
  */
 let realtimeConnection = null;
 
-export const subscribeToProjectUpdates = (projectId, callback) => {
-  // Check of browser WebSocket ondersteunt
-  if (!window.WebSocket) {
-    console.warn('WebSocket not supported');
-    return null;
+export const unsubscribeFromProjectUpdates = (unsubscribeFn) => {
+  if (typeof unsubscribeFn === 'function') {
+    unsubscribeFn();
   }
+};
+
   
   // Maak WebSocket verbinding
   const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
