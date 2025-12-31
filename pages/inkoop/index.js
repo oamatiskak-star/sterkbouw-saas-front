@@ -1044,3 +1044,12 @@ export default function InkoopPage() {
     </Layout>
   )
 }
+
+/**
+ * ⛔ VERPLICHT
+ * Voorkomt static prerendering en React error #130
+ */
+export async function getServerSideProps() {
+  return { props: {} }
+}
+
