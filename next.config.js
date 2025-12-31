@@ -4,36 +4,29 @@ const nextConfig = {
 
   reactStrictMode: false,
 
+  // ❗ GEEN rc-util hier
   transpilePackages: [
     '@ant-design/icons',
     '@ant-design/icons-svg',
-    'rc-picker'
-    // ❌ rc-util HIER NIET MEER
+    'rc-picker',
   ],
 
   experimental: {
-    esmExternals: false, // 🔑 DIT IS DE KERN
+    esmExternals: false, // 🔑 ABSOLUUT VERPLICHT
   },
 
   webpack: (config, { isServer }) => {
     if (isServer) {
-      // Forceer Ant Design stack naar CJS
+      // ❗ Dwing rc-util naar pure CJS runtime
       config.externals = config.externals || []
-      config.externals.push({
-        'rc-util': 'commonjs rc-util',
-      })
+      config.externals.push('rc-util')
     }
 
     return config
   },
 
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
 }
 
 module.exports = nextConfig
