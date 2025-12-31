@@ -1,23 +1,15 @@
-import { useState, type ReactNode } from "react"
+import { useState } from "react"
 import { Edit2, Trash2, Plus } from "lucide-react"
 
 import Button from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
-  Table as UiTable,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-
-/* ================================
-   CORRECT GETYPEDE WRAPPER
-   ================================ */
-function Table({ children }: { children: ReactNode }) {
-  return <UiTable>{children}</UiTable>
-}
 
 interface PostItem {
   id: string
@@ -60,10 +52,7 @@ export default function PostTabel() {
       prev.map((post) => {
         if (post.id !== id) return post
 
-        const updated: PostItem = {
-          ...post,
-          [field]: value,
-        } as PostItem
+        const updated = { ...post, [field]: value } as PostItem
 
         if (field === "aantal" || field === "prijs") {
           updated.totaal =
@@ -98,8 +87,8 @@ export default function PostTabel() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
-        <Table>
+      <div className="rounded-md border overflow-x-auto">
+        <table className="w-full text-sm">
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px]">Code</TableHead>
@@ -187,7 +176,6 @@ export default function PostTabel() {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-
                     <Button variant="ghost" size="sm">
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -196,7 +184,7 @@ export default function PostTabel() {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </table>
       </div>
 
       <div className="flex justify-between items-center">
