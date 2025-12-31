@@ -8,11 +8,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
-// Mantine v6 (CORRECT)
-import { MantineProvider, ColorSchemeProvider } from '@mantine/core'
-import '@mantine/core/dist/styles.css'
+// Mantine v7 (CORRECT)
+import { MantineProvider } from '@mantine/core'
+import '@mantine/core/styles.css'
 
-// Tabler (ongewijzigd, zoals afgesproken)
+// Tabler (ongewijzigd)
 import '@tabler/core/dist/css/tabler.min.css'
 import '@tabler/core/dist/css/tabler-vendors.min.css'
 import '@tabler/icons-webfont/dist/tabler-icons.min.css'
@@ -24,7 +24,7 @@ import '@/styles/globals.css'
 import Layout from '@/components/Layout'
 import AdminLayout from '@/components/AdminLayout'
 
-// Contexts / Providers
+// Contexts
 import { ProjectProvider } from '@/contexts/ProjectContext'
 import { WebSocketProvider } from '@/contexts/WebSocketContext'
 import { AuthProvider, useAuth } from '@/contexts/AuthContext'
@@ -69,36 +69,26 @@ function AdminGuard({ children }) {
 
 export default function App({ Component, pageProps }) {
   const router = useRouter()
-
-  // -------------------------
-  // Theme (dark / light)
-  // -------------------------
   const [colorScheme, setColorScheme] = useState('light')
-
-  const toggleColorScheme = () =>
-    setColorScheme((current) => (current === 'dark' ? 'light' : 'dark'))
 
   // -------------------------
   // NProgress
   // -------------------------
   useEffect(() => {
-    const handleStart = () => NProgress.start()
-    const handleComplete = () => NProgress.done()
+    const start = () => NProgress.start()
+    const done = () => NProgress.done()
 
-    router.events.on('routeChangeStart', handleStart)
-    router.events.on('routeChangeComplete', handleComplete)
-    router.events.on('routeChangeError', handleComplete)
+    router.events.on('routeChangeStart', start)
+    router.events.on('routeChangeComplete', done)
+    router.events.on('routeChangeError', done)
 
     return () => {
-      router.events.off('routeChangeStart', handleStart)
-      router.events.off('routeChangeComplete', handleComplete)
-      router.events.off('routeChangeError', handleComplete)
+      router.events.off('routeChangeStart', start)
+      router.events.off('routeChangeComplete', done)
+      router.events.off('routeChangeError', done)
     }
   }, [router])
 
-  // -------------------------
-  // Admin route detectie
-  // -------------------------
   const isAdminRoute = useMemo(
     () => router.pathname.startsWith('/admin'),
     [router.pathname]
@@ -117,47 +107,34 @@ export default function App({ Component, pageProps }) {
       </Head>
 
       <QueryClientProvider client={queryClient}>
-        <ColorSchemeProvider
-          colorScheme={colorScheme}
-          toggleColorScheme={toggleColorScheme}
+        <MantineProvider
+          theme={{
+            colorScheme,
+            primaryColor: 'blue',
+          }}
         >
-          <MantineProvider
-            theme={{
-              colorScheme,
-              primaryColor: 'blue',
-            }}
-            withGlobalStyles
-            withNormalizeCSS
-          >
-            <AuthProvider>
-              <ProjectProvider>
-                <WebSocketProvider>
-                  <NavigationProvider>
-                    <Toaster position="top-right" />
+          <AuthProvider>
+            <ProjectProvider>
+              <WebSocketProvider>
+                <NavigationProvider>
+                  <Toaster position="top-right" />
 
-                    {isAdminRoute ? (
-                      <AdminGuard>
-                        <AdminLayout
-                          enableThemeToggle
-                          enableNotifications
-                          enableQuickActions
-                          enableBreadcrumbs
-                          responsiveSidebar
-                        >
-                          <Component {...pageProps} />
-                        </AdminLayout>
-                      </AdminGuard>
-                    ) : (
-                      <Layout>
+                  {isAdminRoute ? (
+                    <AdminGuard>
+                      <AdminLayout>
                         <Component {...pageProps} />
-                      </Layout>
-                    )}
-                  </NavigationProvider>
-                </WebSocketProvider>
-              </ProjectProvider>
-            </AuthProvider>
-          </MantineProvider>
-        </ColorSchemeProvider>
+                      </AdminLayout>
+                    </AdminGuard>
+                  ) : (
+                    <Layout>
+                      <Component {...pageProps} />
+                    </Layout>
+                  )}
+                </NavigationProvider>
+              </WebSocketProvider>
+            </ProjectProvider>
+          </AuthProvider>
+        </MantineProvider>
       </QueryClientProvider>
     </>
   )
