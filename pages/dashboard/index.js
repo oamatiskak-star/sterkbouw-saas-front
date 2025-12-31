@@ -1,51 +1,41 @@
-import React from 'react';
-import { Card, Row, Col, Statistic, Alert, Button, Progress, Tag, List, Avatar } from 'antd';
-import { 
-  ProjectOutlined, 
-  CalculatorOutlined, 
-  WarningOutlined, 
-  EuroCircleOutlined,
-  PlusOutlined,
-  SafetyOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  FileTextOutlined,
-  DashboardOutlined,
-  BankOutlined,
-  ShopOutlined,
-  MailOutlined,
-  CalendarOutlined,
-  SettingOutlined,
-  TeamOutlined
-} from '@ant-design/icons';
+// pages/dashboard/index.js
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
-const Dashboard = () => {
-  // Mock data - vervang dit met je echte API calls
-  const kpiData = {
-    activeProjects: 12,
-    ongoingCalculations: 8,
-    openChangeOrders: 5,
-    pendingApprovals: 3,
-    financialExposure: '€2.8M',
-    alerts: 2,
-    blocks: 1,
-  };
+export default function Dashboard() {
+  const [kpiData, setKpiData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Initial data
+  useEffect(() => {
+    // Dit zou normaal een API call zijn
+    setKpiData({
+      activeProjects: 12,
+      ongoingCalculations: 8,
+      openChangeOrders: 5,
+      pendingApprovals: 3,
+      financialExposure: '€2.8M',
+      alerts: 2,
+      blocks: 1,
+    });
+    setIsLoading(false);
+  }, []);
 
   const moduleStatus = [
-    { name: 'Administratie', status: 'success', color: 'green' },
-    { name: 'BIM', status: 'warning', color: 'orange' },
-    { name: 'Bouwplaats', status: 'success', color: 'green' },
-    { name: 'Calculatie', status: 'error', color: 'red' },
-    { name: 'Constructie', status: 'success', color: 'green' },
-    { name: 'Documenten', status: 'success', color: 'green' },
-    { name: 'Financiën', status: 'warning', color: 'orange' },
-    { name: 'Financieringen', status: 'success', color: 'green' },
-    { name: 'Inkoop', status: 'success', color: 'green' },
-    { name: 'Kopersportaal', status: 'success', color: 'green' },
-    { name: 'Mail', status: 'success', color: 'green' },
-    { name: 'Planning', status: 'warning', color: 'orange' },
-    { name: 'Projecten', status: 'success', color: 'green' },
-    { name: 'Projectportaal', status: 'success', color: 'green' },
+    { name: 'Administratie', status: 'success', color: 'bg-green-100 text-green-800 border-green-300' },
+    { name: 'BIM', status: 'warning', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+    { name: 'Bouwplaats', status: 'success', color: 'bg-green-100 text-green-800 border-green-300' },
+    { name: 'Calculatie', status: 'error', color: 'bg-red-100 text-red-800 border-red-300' },
+    { name: 'Constructie', status: 'success', color: 'bg-green-100 text-green-800 border-green-300' },
+    { name: 'Documenten', status: 'success', color: 'bg-green-100 text-green-800 border-green-300' },
+    { name: 'Financiën', status: 'warning', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+    { name: 'Financieringen', status: 'success', color: 'bg-green-100 text-green-800 border-green-300' },
+    { name: 'Inkoop', status: 'success', color: 'bg-green-100 text-green-800 border-green-300' },
+    { name: 'Kopersportaal', status: 'success', color: 'bg-green-100 text-green-800 border-green-300' },
+    { name: 'Mail', status: 'success', color: 'bg-green-100 text-green-800 border-green-300' },
+    { name: 'Planning', status: 'warning', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
+    { name: 'Projecten', status: 'success', color: 'bg-green-100 text-green-800 border-green-300' },
+    { name: 'Projectportaal', status: 'success', color: 'bg-green-100 text-green-800 border-green-300' },
   ];
 
   const recentEvents = [
@@ -56,220 +46,237 @@ const Dashboard = () => {
   ];
 
   const quickActions = [
-    { icon: <PlusOutlined />, label: 'Nieuw project', link: '/projects/new' },
-    { icon: <CalculatorOutlined />, label: 'Nieuwe calculatie', link: '/calculations/new' },
-    { icon: <SafetyOutlined />, label: 'Open bouwplaats', link: '/construction-site' },
-    { icon: <BankOutlined />, label: 'Financiering', link: '/financing' },
-    { icon: <CheckCircleOutlined />, label: 'Bouwinspectie', link: '/inspections' },
+    { label: 'Nieuw project', link: '/projects/new', icon: '📁' },
+    { label: 'Nieuwe calculatie', link: '/calculations/new', icon: '🧮' },
+    { label: 'Open bouwplaats', link: '/construction-site', icon: '🏗️' },
+    { label: 'Financiering', link: '/financing', icon: '💰' },
+    { label: 'Bouwinspectie', link: '/inspections', icon: '🔍' },
   ];
 
+  const allModules = [
+    { name: 'Dashboard', link: '/dashboard', icon: '📊' },
+    { name: 'Administratie', link: '/administration', icon: '📋' },
+    { name: 'BIM', link: '/bim', icon: '🏢' },
+    { name: 'Bouwplaats', link: '/construction-site', icon: '🚧' },
+    { name: 'Calculatie', link: '/calculation', icon: '🧮' },
+    { name: 'Constructie', link: '/construction', icon: '⚙️' },
+    { name: 'Documenten', link: '/documents', icon: '📄' },
+    { name: 'Financiën', link: '/finance', icon: '💶' },
+    { name: 'Financieringen', link: '/financing', icon: '🏦' },
+    { name: 'Inkoop', link: '/procurement', icon: '📦' },
+    { name: 'Kopersportaal', link: '/buyer-portal', icon: '👥' },
+    { name: 'Mail', link: '/mail', icon: '✉️' },
+    { name: 'Planning', link: '/planning', icon: '📅' },
+    { name: 'Projecten', link: '/projects', icon: '📁' },
+    { name: 'Projectportaal', link: '/client-portal', icon: '👨‍💼' },
+    { name: 'Instellingen', link: '/settings', icon: '⚙️' },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-32 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ padding: '24px' }}>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '28px', marginBottom: '8px' }}>
-          <DashboardOutlined /> Dashboard
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Dashboard
         </h1>
-        <p style={{ color: '#666' }}>
+        <p className="text-gray-600">
           Totaaloverzicht en directe sturing van het SterkBouw platform
         </p>
       </div>
 
       {/* Alerts & Blokkades */}
       {(kpiData.alerts > 0 || kpiData.blocks > 0) && (
-        <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           {kpiData.alerts > 0 && (
-            <Col xs={24} sm={12}>
-              <Alert
-                message={`${kpiData.alerts} actieve alert(s)`}
-                type="warning"
-                showIcon
-                action={<Button size="small">Bekijken</Button>}
-              />
-            </Col>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <span className="text-yellow-600 mr-2">⚠️</span>
+                  <span className="font-medium text-yellow-800">
+                    {kpiData.alerts} actieve alert(s)
+                  </span>
+                </div>
+                <Link href="/alerts" className="px-4 py-2 bg-yellow-500 text-white text-sm font-medium rounded hover:bg-yellow-600 transition">
+                  Bekijken
+                </Link>
+              </div>
+            </div>
           )}
           {kpiData.blocks > 0 && (
-            <Col xs={24} sm={12}>
-              <Alert
-                message={`${kpiData.blocks} blokkade(s)`}
-                type="error"
-                showIcon
-                action={<Button size="small">Oplossen</Button>}
-              />
-            </Col>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <span className="text-red-600 mr-2">🚨</span>
+                  <span className="font-medium text-red-800">
+                    {kpiData.blocks} blokkade(s)
+                  </span>
+                </div>
+                <Link href="/blocks" className="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition">
+                  Oplossen
+                </Link>
+              </div>
+            </div>
           )}
-        </Row>
+        </div>
       )}
 
       {/* KPI Tegels */}
-      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card>
-            <Statistic
-              title="Actieve projecten"
-              value={kpiData.activeProjects}
-              prefix={<ProjectOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card>
-            <Statistic
-              title="Lopende calculaties"
-              value={kpiData.ongoingCalculations}
-              prefix={<CalculatorOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card>
-            <Statistic
-              title="Open meerwerk"
-              value={kpiData.openChangeOrders}
-              prefix={<WarningOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card>
-            <Statistic
-              title="Openstaande akkoorden"
-              value={kpiData.pendingApprovals}
-              prefix={<CheckCircleOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card>
-            <Statistic
-              title="Financiële exposure"
-              value={kpiData.financialExposure}
-              prefix={<EuroCircleOutlined />}
-              valueStyle={{ color: '#cf1322' }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card>
-            <Statistic
-              title="Systeemevents (laatste 24u)"
-              value={recentEvents.length}
-              prefix={<ClockCircleOutlined />}
-            />
-          </Card>
-        </Col>
-      </Row>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+        <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          <div className="text-gray-500 text-sm font-medium mb-2">Actieve projecten</div>
+          <div className="text-3xl font-bold text-gray-900">{kpiData.activeProjects}</div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          <div className="text-gray-500 text-sm font-medium mb-2">Lopende calculaties</div>
+          <div className="text-3xl font-bold text-gray-900">{kpiData.ongoingCalculations}</div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          <div className="text-gray-500 text-sm font-medium mb-2">Open meerwerk</div>
+          <div className="text-3xl font-bold text-gray-900">{kpiData.openChangeOrders}</div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          <div className="text-gray-500 text-sm font-medium mb-2">Openstaande akkoorden</div>
+          <div className="text-3xl font-bold text-gray-900">{kpiData.pendingApprovals}</div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          <div className="text-gray-500 text-sm font-medium mb-2">Financiële exposure</div>
+          <div className="text-3xl font-bold text-red-600">{kpiData.financialExposure}</div>
+        </div>
+        
+        <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
+          <div className="text-gray-500 text-sm font-medium mb-2">Systeemevents</div>
+          <div className="text-3xl font-bold text-gray-900">{recentEvents.length}</div>
+        </div>
+      </div>
 
       {/* Snelle Acties */}
-      <Card title="Snelle acties" style={{ marginBottom: '24px' }}>
-        <Row gutter={[16, 16]}>
-          {quickActions.map((action, index) => (
-            <Col xs={12} sm={8} md={6} lg={4} key={index}>
-              <Button 
-                type="primary" 
-                icon={action.icon} 
-                block
-                style={{ height: '80px' }}
-                onClick={() => window.location.href = action.link}
+      <div className="bg-white rounded-lg shadow border border-gray-200 mb-8">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-800">Snelle acties</h2>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            {quickActions.map((action, index) => (
+              <Link
+                key={index}
+                href={action.link}
+                className="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 hover:shadow transition duration-150"
               >
-                {action.label}
-              </Button>
-            </Col>
-          ))}
-        </Row>
-      </Card>
+                <span className="text-2xl mb-2">{action.icon}</span>
+                <span className="text-sm font-medium text-gray-700 text-center">{action.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Twee kolommen onderaan */}
-      <Row gutter={[16, 16]}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Laatste systeemevents */}
-        <Col xs={24} lg={12}>
-          <Card 
-            title="Laatste systeemevents (executor / builder)" 
-            style={{ height: '100%' }}
-          >
-            <List
-              dataSource={recentEvents}
-              renderItem={item => (
-                <List.Item>
-                  <List.Item.Meta
-                    avatar={<Avatar icon={<FileTextOutlined />} />}
-                    title={item.title}
-                    description={`${item.project} • ${item.time} • Door: ${item.user}`}
-                  />
-                </List.Item>
-              )}
-            />
-          </Card>
-        </Col>
+        <div className="bg-white rounded-lg shadow border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Laatste systeemevents (executor / builder)
+            </h2>
+          </div>
+          <div className="p-6">
+            <div className="space-y-4">
+              {recentEvents.map((event) => (
+                <div key={event.id} className="flex items-start space-x-4 pb-4 border-b border-gray-100 last:border-0 last:pb-0">
+                  <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span className="text-blue-600">📋</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">{event.title}</div>
+                    <div className="text-sm text-gray-500">
+                      {event.project} • {event.time} • Door: {event.user}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* Status per module */}
-        <Col xs={24} lg={12}>
-          <Card title="Status per module" style={{ height: '100%' }}>
-            <Row gutter={[8, 8]}>
+        <div className="bg-white rounded-lg shadow border border-gray-200">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-800">Status per module</h2>
+          </div>
+          <div className="p-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {moduleStatus.map((module, index) => (
-                <Col xs={12} sm={8} key={index}>
-                  <Card 
-                    size="small"
-                    style={{ 
-                      borderLeft: `4px solid ${module.color}`,
-                      marginBottom: '8px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span>{module.name}</span>
-                      <Tag color={module.color}>
-                        {module.status === 'success' ? '✓' : 
-                         module.status === 'warning' ? '⚠' : '✗'}
-                      </Tag>
-                    </div>
-                  </Card>
-                </Col>
+                <div
+                  key={index}
+                  className={`p-3 border rounded-lg text-center ${module.color}`}
+                >
+                  <div className="font-medium text-sm">{module.name}</div>
+                  <div className="text-xs mt-1">
+                    {module.status === 'success' && '✓ Actief'}
+                    {module.status === 'warning' && '⚠ Waarschuwing'}
+                    {module.status === 'error' && '✗ Probleem'}
+                  </div>
+                </div>
               ))}
-            </Row>
-            <div style={{ marginTop: '16px', textAlign: 'center' }}>
-              <Tag color="green">Actief</Tag>
-              <Tag color="orange">Waarschuwing</Tag>
-              <Tag color="red">Probleem</Tag>
             </div>
-          </Card>
-        </Col>
-      </Row>
+            <div className="flex justify-center space-x-4 mt-6 pt-6 border-t border-gray-200">
+              <span className="inline-flex items-center text-sm">
+                <span className="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+                Actief
+              </span>
+              <span className="inline-flex items-center text-sm">
+                <span className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
+                Waarschuwing
+              </span>
+              <span className="inline-flex items-center text-sm">
+                <span className="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                Probleem
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      {/* Navigatie naar andere modules */}
-      <Card title="Direct naar modules" style={{ marginTop: '24px' }}>
-        <Row gutter={[8, 8]}>
-          {[
-            { name: 'Administratie', icon: <FileTextOutlined />, link: '/administration' },
-            { name: 'BIM', icon: <ProjectOutlined />, link: '/bim' },
-            { name: 'Bouwplaats', icon: <SafetyOutlined />, link: '/construction-site' },
-            { name: 'Calculatie', icon: <CalculatorOutlined />, link: '/calculation' },
-            { name: 'Constructie', icon: <ProjectOutlined />, link: '/construction' },
-            { name: 'Documenten', icon: <FileTextOutlined />, link: '/documents' },
-            { name: 'Financiën', icon: <EuroCircleOutlined />, link: '/finance' },
-            { name: 'Financieringen', icon: <BankOutlined />, link: '/financing' },
-            { name: 'Inkoop', icon: <ShopOutlined />, link: '/procurement' },
-            { name: 'Kopersportaal', icon: <TeamOutlined />, link: '/buyer-portal' },
-            { name: 'Mail', icon: <MailOutlined />, link: '/mail' },
-            { name: 'Planning', icon: <CalendarOutlined />, link: '/planning' },
-            { name: 'Projecten', icon: <ProjectOutlined />, link: '/projects' },
-            { name: 'Projectportaal', icon: <TeamOutlined />, link: '/client-portal' },
-            { name: 'Instellingen', icon: <SettingOutlined />, link: '/settings' },
-          ].map((module, index) => (
-            <Col xs={12} sm={8} md={6} lg={4} key={index}>
-              <Button 
-                icon={module.icon}
-                block
-                style={{ marginBottom: '8px' }}
-                onClick={() => window.location.href = module.link}
+      {/* Alle modules */}
+      <div className="bg-white rounded-lg shadow border border-gray-200">
+        <div className="p-6 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-gray-800">Alle modules</h2>
+        </div>
+        <div className="p-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+            {allModules.map((module, index) => (
+              <Link
+                key={index}
+                href={module.link}
+                className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 hover:shadow transition duration-150"
               >
-                {module.name}
-              </Button>
-            </Col>
-          ))}
-        </Row>
-      </Card>
+                <span className="text-2xl mb-2">{module.icon}</span>
+                <span className="text-sm font-medium text-gray-700 text-center">{module.name}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
-};
-
-export default Dashboard;
+}
