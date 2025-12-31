@@ -1,7 +1,7 @@
 // components/calculatie/post-tabel.tsx
 import { useState } from "react"
 import { Edit2, Trash2, Plus } from "lucide-react"
-import Button from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Table,
