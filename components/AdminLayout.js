@@ -1,4 +1,4 @@
-// components/AdminLayout.js
+import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
 import { 
   Layout, Menu, Button, Avatar, Dropdown, Space, 
@@ -15,8 +15,6 @@ import {
   CalendarOutlined, MessageOutlined, BellOutlined,
   SearchOutlined, PlusCircleOutlined, UploadOutlined
 } from '@ant-design/icons';
-import { useNavigate, useLocation } from 'react-router-dom';
-import './AdminLayout.css';
 
 const { Header, Sider, Content } = Layout;
 const { SubMenu } = Menu;
@@ -31,8 +29,8 @@ const AdminLayout = ({ children }) => {
     { id: 3, message: 'Tekening revisie beschikbaar', time: '2 uur geleden', read: true, type: 'drawing' },
   ]);
   
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const location = router;
   const { token } = theme.useToken();
   
   // Simuleer gebruikersdata
@@ -45,37 +43,37 @@ const AdminLayout = ({ children }) => {
   const handleLogout = () => {
     localStorage.removeItem('userRole');
     localStorage.removeItem('authToken');
-    navigate('/login');
+    router.push('/login');
   };
   
   const handleMenuClick = ({ key }) => {
     switch(key) {
       case 'dashboard':
-        navigate('/admin/dashboard');
+        router.push('/admin/dashboard');
         break;
       case 'projects':
-        navigate('/admin/projects');
+        router.push('/admin/projects');
         break;
       case 'project-overview':
-        navigate('/admin/project-overview');
+        router.push('/admin/project-overview');
         break;
       case 'contracts':
-        navigate('/admin/contracts');
+        router.push('/admin/contracts');
         break;
       case 'drawings':
-        navigate('/admin/drawings');
+        router.push('/admin/drawings');
         break;
       case 'users':
-        navigate('/admin/users');
+        router.push('/admin/users');
         break;
       case 'settings':
-        navigate('/admin/settings');
+        router.push('/admin/settings');
         break;
       case 'reports':
-        navigate('/admin/reports');
+        router.push('/admin/reports');
         break;
       case 'calendar':
-        navigate('/admin/calendar');
+        router.push('/admin/calendar');
         break;
       default:
         break;
