@@ -8,18 +8,19 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
-// UI frameworks
+// Mantine v6 (CORRECT)
 import { MantineProvider, ColorSchemeProvider } from '@mantine/core'
-import '@mantine/core/styles.css'
+import '@mantine/core/dist/styles.css'
 
-// ❌ Tabler is NIET meer gebruikt in dashboard,
-// maar import blijft hier onaangeroerd tot volledige cleanup
+// Tabler (ongewijzigd, zoals afgesproken)
 import '@tabler/core/dist/css/tabler.min.css'
 import '@tabler/core/dist/css/tabler-vendors.min.css'
 import '@tabler/icons-webfont/dist/tabler-icons.min.css'
 
-// Eigen imports
+// Eigen styles
 import '@/styles/globals.css'
+
+// Layouts
 import Layout from '@/components/Layout'
 import AdminLayout from '@/components/AdminLayout'
 
