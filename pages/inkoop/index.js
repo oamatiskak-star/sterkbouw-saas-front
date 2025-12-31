@@ -7,16 +7,16 @@ import supabase from "@/lib/supabase"
 // =========================
 // SUB-COMPONENTS
 // =========================
-import DashboardTab from "./components/DashboardTab"
-import PriceRequestTab from "./components/PriceRequestTab"
-import DecisionsTab from "./components/DecisionsTab"
-import NegotiationTab from "./components/NegotiationTab"
-import CashflowTab from "./components/CashflowTab"
-import OrdersTab from "./components/OrdersTab"
-import SuppliersTab from "./components/SuppliersTab"
-import PlanningTab from "./components/PlanningTab"
-import DocumentsTab from "./components/DocumentsTab"
-import NotificationsTab from "./components/NotificationsTab"
+import DashboardTab from "@/components/inkoop/DashboardTab"
+import PriceRequestTab from "@/components/inkoop/PriceRequestTab"
+import DecisionsTab from "@/components/inkoop/DecisionsTab"
+import NegotiationTab from "@/components/inkoop/NegotiationTab"
+import CashflowTab from "@/components/inkoop/CashflowTab"
+import OrdersTab from "@/components/inkoop/OrdersTab"
+import SuppliersTab from "@/components/inkoop/SuppliersTab"
+import PlanningTab from "@/components/inkoop/PlanningTab"
+import DocumentsTab from "@/components/inkoop/DocumentsTab"
+import NotificationsTab from "@/components/inkoop/NotificationsTab"
 
 // =========================
 // HELPER FUNCTIES
