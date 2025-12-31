@@ -14,9 +14,8 @@ RUN npm ci --legacy-peer-deps
 # Applicatiecode
 COPY . .
 
-# === CRITICAL: SCHAKEL STATIC EXPORT UIT ===
-# Vervang next.config.js met een config die NOOIT prerenders
-RUN rm -f next.config.js
+# === MAKEN VAN next.config.js ZONDER heredoc ===
+# Creëer een next.config.js die prerendering uitschakelt
 RUN echo 'module.exports = {' > next.config.js
 RUN echo '  output: "standalone",' >> next.config.js
 RUN echo '  images: { unoptimized: true },' >> next.config.js
@@ -33,106 +32,29 @@ RUN echo '  webpack: (config) => {' >> next.config.js
 RUN echo '    config.resolve.fallback = { fs: false, path: false, os: false };' >> next.config.js
 RUN echo '    return config;' >> next.config.js
 RUN echo '  }' >> next.config.js
-RUN echo '}' >> next.config.js
+RUN echo '};' >> next.config.js
 
-# === EXTREME: Voeg getServerSideProps toe aan ALLE pagina files ===
-# Gebruik een Node.js script omdat shell te complex wordt
-RUN cat > add-gssp.js << 'EOF'
-const fs = require('fs');
-const path = require('path');
+# === MAKEN VAN _app.js ZONDER heredoc ===
+# Forceer SSR via _app.js
+RUN mkdir -p pages
+RUN echo 'import React from "react";' > pages/_app.js
+RUN echo '' >> pages/_app.js
+RUN echo 'function MyApp({ Component, pageProps }) {' >> pages/_app.js
+RUN echo '  return <Component {...pageProps} />;' >> pages/_app.js
+RUN echo '}' >> pages/_app.js
+RUN echo '' >> pages/_app.js
+RUN echo '// FORCE SERVER-SIDE RENDERING FOR ALL PAGES' >> pages/_app.js
+RUN echo 'MyApp.getInitialProps = async () => ({});' >> pages/_app.js
+RUN echo '' >> pages/_app.js
+RUN echo 'export default MyApp;' >> pages/_app.js
 
-function processFile(filePath) {
-  try {
-    let content = fs.readFileSync(filePath, 'utf8');
-    
-    // Skip als het al getServerSideProps heeft
-    if (content.includes('getServerSideProps') || content.includes('getInitialProps')) {
-      return false;
-    }
-    
-    // Skip API routes
-    if (filePath.includes('/api/') || filePath.includes('/pages/api/')) {
-      return false;
-    }
-    
-    // Voeg getServerSideProps toe na imports
-    const lines = content.split('\n');
-    let newLines = [];
-    let importsDone = false;
-    
-    for (const line of lines) {
-      newLines.push(line);
-      
-      // Na imports, voor de eerste component/function
-      if (!importsDone && !line.trim().startsWith('import ') && !line.trim().startsWith('//') && line.trim() !== '') {
-        newLines.push('');
-        newLines.push('export async function getServerSideProps() {');
-        newLines.push('  return {');
-        newLines.push('    props: {}');
-        newLines.push('  }');
-        newLines.push('}');
-        newLines.push('');
-        importsDone = true;
-      }
-    }
-    
-    fs.writeFileSync(filePath, newLines.join('\n'));
-    return true;
-  } catch (err) {
-    console.error(`Error processing ${filePath}:`, err.message);
-    return false;
-  }
-}
-
-// Process all pages
-const pagesDir = 'pages';
-if (fs.existsSync(pagesDir)) {
-  const files = [];
-  
-  function walk(dir) {
-    const items = fs.readdirSync(dir);
-    for (const item of items) {
-      const fullPath = path.join(dir, item);
-      const stat = fs.statSync(fullPath);
-      if (stat.isDirectory()) {
-        walk(fullPath);
-      } else if (item.match(/\.(js|jsx|ts|tsx)$/) && 
-                 !item.includes('_app') && 
-                 !item.includes('_document') &&
-                 !item.includes('.test.') &&
-                 !item.includes('.spec.')) {
-        files.push(fullPath);
-      }
-    }
-  }
-  
-  walk(pagesDir);
-  
-  console.log(`Found ${files.length} page files`);
-  let modified = 0;
-  
-  for (const file of files) {
-    if (processFile(file)) {
-      modified++;
-      console.log(`Added getServerSideProps to ${file}`);
-    }
-  }
-  
-  console.log(`Modified ${modified} files`);
-}
-EOF'
-
-# Voer het script uit
-RUN node add-gssp.js
-
-# === FORCEER BUILD ZONDER PRERENDERING ===
+# === ENVIRONMENT VARIABLES ===
 ENV NEXT_PUBLIC_SKIP_PRERENDER=true
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-# Build commando dat errors negeert
-RUN set +e
-RUN npm run build 2>&1 | grep -v "prerender-error" || echo "Build completed"
+# Build de applicatie
+RUN npm run build
 
 # =========================
 # RUNTIME STAGE
