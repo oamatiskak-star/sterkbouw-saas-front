@@ -1,0 +1,148 @@
+.header {
+display: flex;
+background: white;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+min-height: 100vh;
+}
+
+.mobileOnly {
+display: none;
+}
+
+.desktopOnly {
+display: block;
+}
+
+.mainContent {
+flex: 1;
+padding: 20px;
+}
+
+.topBar {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 30px;
+padding-bottom: 20px;
+border-bottom: 1px solid #e0e0e0;
+}
+
+.projectInfo h1 {
+font-size: 1.8rem;
+color: #333;
+margin-bottom: 5px;
+}
+
+.breadcrumb {
+color: #666;
+font-size: 0.9rem;
+}
+
+.userActions {
+display: flex;
+align-items: center;
+gap: 20px;
+}
+
+.userProfile {
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.avatar {
+width: 40px;
+height: 40px;
+background: #0070f3;
+color: white;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: bold;
+font-size: 1rem;
+}
+
+.userInfo {
+display: flex;
+flex-direction: column;
+}
+
+.userName {
+font-weight: 600;
+color: #333;
+}
+
+.userRole {
+font-size: 0.85rem;
+color: #666;
+}
+
+.utilityNav {
+display: flex;
+gap: 10px;
+margin-bottom: 20px;
+}
+
+.navButton {
+padding: 10px 20px;
+background: #f8f9fa;
+border: 1px solid #dee2e6;
+border-radius: 4px;
+cursor: pointer;
+font-size: 0.9rem;
+transition: all 0.3s;
+}
+
+.navButton:hover {
+background: #e9ecef;
+border-color: #ced4da;
+}
+
+.menuButton {
+display: none;
+padding: 10px;
+font-size: 1.5rem;
+background: none;
+border: none;
+cursor: pointer;
+}
+
+@media (max-width: 768px) {
+.mobileOnly {
+display: block;
+}
+
+text
+.desktopOnly {
+    display: none;
+}
+
+.menuButton {
+    display: block;
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 1001;
+}
+
+.header {
+    flex-direction: column;
+}
+
+.topBar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    margin-top: 60px;
+}
+
+.userActions {
+    width: 100%;
+    justify-content: space-between;
+}
+
+.utilityNav {
+    flex-wrap: wrap;
+}
+}
