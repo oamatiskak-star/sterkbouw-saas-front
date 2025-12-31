@@ -1,0 +1,274 @@
+mkdir -p pages/projectportaal
+cat > pages/projectportaal/ProjectPortaal.css << 'EOF'
+/* pages/projectportaal/ProjectPortaal.css */
+
+.project-portaal {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.portaal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+}
+
+.project-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  overflow: hidden;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.project-card .card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+.project-status-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 1;
+}
+
+.project-search {
+  max-width: 500px;
+  margin: 0 auto 2rem;
+}
+
+.project-filters {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.project-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.stat-card .stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #667eea;
+  margin-bottom: 0.5rem;
+}
+
+.stat-card .stat-label {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.project-detail-modal .modal-content {
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.project-timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.project-timeline::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #dee2e6;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #667eea;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.project-actions {
+  position: sticky;
+  top: 20px;
+  z-index: 100;
+}
+
+.action-button {
+  width: 100%;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px 15px;
+}
+
+.action-button i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .project-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .portaal-header {
+    padding: 1rem 0;
+  }
+  
+  .portaal-header h1 {
+    font-size: 1.5rem;
+  }
+}
+
+.project-phase {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.phase-planning {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.phase-execution {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.phase-completed {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.phase-on-hold {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.project-budget {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.budget-over {
+  color: #f44336;
+}
+
+.budget-under {
+  color: #4caf50;
+}
+
+.budget-on-target {
+  color: #2196f3;
+}
+
+.project-progress {
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  background-color: #e9ecef;
+}
+
+.progress-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.progress-low {
+  background-color: #f44336;
+}
+
+.progress-medium {
+  background-color: #ff9800;
+}
+
+.progress-high {
+  background-color: #4caf50;
+}
+
+.project-team {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.team-avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: -10px;
+  border: 2px solid white;
+  background-color: #f8f9fa;
+}
+
+.team-avatar:last-child {
+  margin-right: 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+EOF
