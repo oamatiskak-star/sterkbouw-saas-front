@@ -1,125 +1,45 @@
-import App from 'next/app'
-import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/router'
-import Head from 'next/head'
-
-import { Toaster } from 'react-hot-toast'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import NProgress from 'nprogress'
-import 'nprogress/nprogress.css'
-
-import { MantineProvider } from '@mantine/core'
-
+// pages/_app.js
 import '@/styles/globals.css'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react'
+import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import { SessionContextProvider } from '@supabase/auth-helpers-react'
 
-import Layout from '@/components/Layout'
-import AdminLayout from '@/components/AdminLayout'
+const supabase = createBrowserSupabaseClient()
 
-import { ProjectProvider } from '@/contexts/ProjectContext'
-import { WebSocketProvider } from '@/contexts/WebSocketContext'
-import { AuthProvider, useAuth } from '@/contexts/AuthContext'
-import { NavigationProvider } from '@/contexts/NavigationContext'
+const PROTECTED_ROUTES = [
+  '/dashboard',
+  '/admin',
+  '/bouwplaatsApp',
+]
 
-/* -----------------------------
-   React Query
--------------------------------- */
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-})
-
-/* -----------------------------
-   Admin Guard
--------------------------------- */
-function AdminGuard({ children }) {
-  const { user, loading } = useAuth()
+export default function App({ Component, pageProps }) {
   const router = useRouter()
-
-  if (loading) return null
-
-  if (!user) {
-    router.replace('/login')
-    return null
-  }
-
-  return children
-}
-
-/* -----------------------------
-   App Component
--------------------------------- */
-function AppClient({ Component, pageProps }) {
-  const router = useRouter()
-  const [colorScheme] = useState('light')
 
   useEffect(() => {
-    const start = () => NProgress.start()
-    const done = () => NProgress.done()
+    const checkAuth = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
 
-    router.events.on('routeChangeStart', start)
-    router.events.on('routeChangeComplete', done)
-    router.events.on('routeChangeError', done)
+      const isProtected = PROTECTED_ROUTES.some(route =>
+        router.pathname.startsWith(route)
+      )
 
-    return () => {
-      router.events.off('routeChangeStart', start)
-      router.events.off('routeChangeComplete', done)
-      router.events.off('routeChangeError', done)
+      if (isProtected && !session) {
+        router.replace('/auth/login')
+      }
     }
-  }, [router])
 
-  const isAdminRoute = useMemo(
-    () => router.pathname.startsWith('/admin'),
-    [router.pathname]
-  )
+    checkAuth()
+  }, [router.pathname])
 
   return (
-    <>
-      <Head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-
-      <QueryClientProvider client={queryClient}>
-        <MantineProvider>
-          <AuthProvider>
-            <ProjectProvider>
-              <WebSocketProvider>
-                <NavigationProvider>
-                  <Toaster position="top-right" />
-
-                  {isAdminRoute ? (
-                    <AdminGuard>
-                      <AdminLayout>
-                        <Component {...pageProps} />
-                      </AdminLayout>
-                    </AdminGuard>
-                  ) : (
-                    <Layout>
-                      <Component {...pageProps} />
-                    </Layout>
-                  )}
-                </NavigationProvider>
-              </WebSocketProvider>
-            </ProjectProvider>
-          </AuthProvider>
-        </MantineProvider>
-      </QueryClientProvider>
-    </>
+    <SessionContextProvider
+      supabaseClient={supabase}
+      initialSession={pageProps.initialSession}
+    >
+      <Component {...pageProps} />
+    </SessionContextProvider>
   )
 }
-
-/* ----------------------------------------------------
-   🔒 DEFINITIEVE PLATFORM-FIX
-   → forceert SSR
-   → schakelt ALLE static prerendering uit
------------------------------------------------------ */
-AppClient.getInitialProps = async (appContext) => {
-  const appProps = await App.getInitialProps(appContext)
-  return { ...appProps }
-}
-
-export default AppClient
