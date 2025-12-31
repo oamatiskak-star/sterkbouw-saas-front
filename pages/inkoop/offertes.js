@@ -165,3 +165,11 @@ export default function Offertes() {
     </>
   )
 }
+
+/**
+ * ⛔ VERPLICHT
+ * Voorkomt static prerendering en React error #130
+ */
+export async function getServerSideProps() {
+  return { props: {} }
+}
