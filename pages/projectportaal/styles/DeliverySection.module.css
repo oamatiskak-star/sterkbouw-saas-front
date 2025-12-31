@@ -1,0 +1,152 @@
+.container {
+background: white;
+border-radius: 8px;
+padding: 30px;
+}
+
+.container h2 {
+font-size: 1.5rem;
+margin-bottom: 25px;
+color: #333;
+}
+
+.addForm {
+background: #f8f9fa;
+padding: 20px;
+border-radius: 6px;
+margin-bottom: 30px;
+}
+
+.addForm h3 {
+font-size: 1.1rem;
+margin-bottom: 15px;
+color: #555;
+}
+
+.formRow {
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+align-items: center;
+}
+
+.formRow input {
+padding: 10px;
+border: 1px solid #ddd;
+border-radius: 4px;
+flex: 1;
+min-width: 150px;
+}
+
+.addButton {
+padding: 10px 20px;
+background: #0070f3;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+transition: background 0.3s;
+}
+
+.addButton:hover {
+background: #0051a8;
+}
+
+.deliveryList h3 {
+font-size: 1.1rem;
+margin-bottom: 20px;
+color: #555;
+}
+
+.grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: 20px;
+}
+
+.card {
+background: white;
+border: 1px solid #dee2e6;
+border-radius: 8px;
+padding: 20px;
+transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card.pending {
+border-left: 4px solid #ffc107;
+}
+
+.card.delivered {
+border-left: 4px solid #28a745;
+}
+
+.card.installed {
+border-left: 4px solid #0070f3;
+}
+
+.cardHeader {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 15px;
+}
+
+.cardHeader h4 {
+margin: 0;
+font-size: 1.1rem;
+color: #333;
+}
+
+.status {
+padding: 4px 12px;
+border-radius: 20px;
+font-size: 0.8rem;
+font-weight: 600;
+}
+
+.status.pending {
+background: #fff3cd;
+color: #856404;
+}
+
+.status.delivered {
+background: #d4edda;
+color: #155724;
+}
+
+.status.installed {
+background: #cce5ff;
+color: #004085;
+}
+
+.cardBody p {
+margin: 8px 0;
+color: #666;
+}
+
+.cardActions {
+margin-top: 15px;
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+}
+
+.statusButton {
+padding: 6px 12px;
+background: #6c757d;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-size: 0.85rem;
+transition: background 0.3s;
+}
+
+.statusButton:hover {
+background: #545b62;
+}
