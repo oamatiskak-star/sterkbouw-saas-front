@@ -1,11 +1,13 @@
 // pages/_app.js
 import '@/styles/globals.css'
 import { useRouter } from 'next/router'
-import { useEffect } from 'react'
-import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
-import { SessionContextProvider } from '@supabase/auth-helpers-react'
+import { useEffect, useState } from 'react'
+import { createBrowserClient } from '@supabase/ssr'
 
-const supabase = createBrowserSupabaseClient()
+const supabase = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 
 const PROTECTED_ROUTES = [
   '/dashboard',
@@ -15,6 +17,17 @@ const PROTECTED_ROUTES = [
 
 export default function App({ Component, pageProps }) {
   const router = useRouter()
+  const [session, setSession] = useState(null)
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -34,12 +47,5 @@ export default function App({ Component, pageProps }) {
     checkAuth()
   }, [router.pathname])
 
-  return (
-    <SessionContextProvider
-      supabaseClient={supabase}
-      initialSession={pageProps.initialSession}
-    >
-      <Component {...pageProps} />
-    </SessionContextProvider>
-  )
+  return <Component {...pageProps} />
 }
