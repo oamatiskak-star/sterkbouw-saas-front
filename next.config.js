@@ -2,32 +2,38 @@
 const nextConfig = {
   output: 'standalone',
 
-  reactStrictMode: true,
-  swcMinify: true,
+  reactStrictMode: false,
 
-  // ❌ Static prerendering UIT
+  transpilePackages: [
+    '@ant-design/icons',
+    '@ant-design/icons-svg',
+    'rc-picker'
+    // ❌ rc-util HIER NIET MEER
+  ],
+
   experimental: {
-    esmExternals: false,
+    esmExternals: false, // 🔑 DIT IS DE KERN
   },
 
-  // 🚫 Blokkeer Ant Design tijdens server prerender
   webpack: (config, { isServer }) => {
     if (isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        antd: false,
-        'rc-util': false,
-        'rc-picker': false,
-        'rc-motion': false,
-        'rc-trigger': false,
-      }
+      // Forceer Ant Design stack naar CJS
+      config.externals = config.externals || []
+      config.externals.push({
+        'rc-util': 'commonjs rc-util',
+      })
     }
 
     return config
   },
 
-  eslint: { ignoreDuringBuilds: true },
-  typescript: { ignoreBuildErrors: true },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 }
 
 module.exports = nextConfig
