@@ -25,7 +25,6 @@ import ExportDossierButton from './components/ExportDossierButton';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../hooks/useNotifications';
 import { auditLog } from '../../utils/auditLogger';
-import './ProjectPortaal.css';
 
 /**
  * Hoofdcomponent voor het Opdrachtgever Projectportaal
