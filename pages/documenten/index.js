@@ -64,7 +64,7 @@ import {
   LockOpen,
   Download
 } from '@mui/icons-material';
-import { useProject } from '../../context/ProjectContext';
+import { useProject } from '@/contexts/ProjectContext';
 import { useLiveDeliveryPoints } from '../../hooks/useLiveDeliveryPoints';
 import DocumentGenerator from '../../components/documenten/DocumentGenerator';
 import AIReportGenerator from '../../components/documenten/AIReportGenerator';
