@@ -10,7 +10,6 @@ import {
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNotifications } from '../../../hooks/useNotifications';
 import { formatCurrency, formatDate, formatFileSize } from '../../../utils/formatters';
-import './ExtraWorkSection.css';
 
 const ExtraWorkSection = ({ 
   requests: initialRequests = [], 
