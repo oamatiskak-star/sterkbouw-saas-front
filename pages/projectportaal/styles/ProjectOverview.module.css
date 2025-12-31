@@ -1,0 +1,55 @@
+.container {
+max-width: 1200px;
+margin: 0 auto;
+padding: 20px;
+}
+
+.header {
+margin-bottom: 30px;
+padding-bottom: 20px;
+border-bottom: 2px solid #e0e0e0;
+}
+
+.header h1 {
+font-size: 2rem;
+color: #333;
+margin-bottom: 8px;
+}
+
+.projectId {
+color: #666;
+font-size: 0.9rem;
+}
+
+.tabNav {
+display: flex;
+gap: 10px;
+margin-bottom: 30px;
+flex-wrap: wrap;
+}
+
+.tabButton {
+padding: 12px 24px;
+border: none;
+background: #f5f5f5;
+border-radius: 6px;
+cursor: pointer;
+font-size: 0.95rem;
+transition: all 0.3s ease;
+}
+
+.tabButton:hover {
+background: #e0e0e0;
+}
+
+.tabButton.active {
+background: #0070f3;
+color: white;
+}
+
+.content {
+background: white;
+border-radius: 8px;
+padding: 30px;
+box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
