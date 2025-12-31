@@ -690,23 +690,20 @@ export const exportAuditLogs = async (projectId, startDate, endDate, format = 'c
  */
 let realtimeConnection = null;
 
-export const unsubscribeFromProjectUpdates = (unsubscribeFn) => {
-  if (typeof unsubscribeFn === 'function') {
-    unsubscribeFn();
+export const subscribeToProjectUpdates = (projectId, callback) => {
+  if (typeof window === 'undefined' || !window.WebSocket) {
+    console.warn('WebSocket not supported');
+    return null;
   }
-};
 
-  
-  // Maak WebSocket verbinding
   const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const wsUrl = `${wsProtocol}//${API_BASE_URL.replace(/^https?:\/\//, '')}/ws/project/${projectId}`;
-  
+
   realtimeConnection = new WebSocket(wsUrl);
-  
+
   realtimeConnection.onopen = () => {
     console.log('WebSocket connected for project updates');
-    
-    // Authenticatie sturen
+
     const token = localStorage.getItem('portal_token');
     if (token) {
       realtimeConnection.send(JSON.stringify({
@@ -715,7 +712,7 @@ export const unsubscribeFromProjectUpdates = (unsubscribeFn) => {
       }));
     }
   };
-  
+
   realtimeConnection.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
@@ -724,20 +721,13 @@ export const unsubscribeFromProjectUpdates = (unsubscribeFn) => {
       console.error('Error parsing WebSocket message:', error);
     }
   };
-  
+
   realtimeConnection.onerror = (error) => {
     console.error('WebSocket error:', error);
   };
-  
+
   realtimeConnection.onclose = () => {
     console.log('WebSocket disconnected');
-  };
-  
-  return () => {
-    if (realtimeConnection) {
-      realtimeConnection.close();
-      realtimeConnection = null;
-    }
   };
 };
 
