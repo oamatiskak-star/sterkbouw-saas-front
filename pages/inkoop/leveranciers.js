@@ -55,7 +55,7 @@ export default function Leveranciers() {
     setNaam("")
     setDiscipline("")
 
-    // lijst lokaal verversen i.p.v. reload
+    // lijst lokaal verversen (geen reload)
     const { data } = await supabase
       .from("leveranciers")
       .select("*")
@@ -124,4 +124,12 @@ export default function Leveranciers() {
       </section>
     </>
   )
+}
+
+/**
+ * ⛔ VERPLICHT
+ * Voorkomt static prerendering en React error #130
+ */
+export async function getServerSideProps() {
+  return { props: {} }
 }
