@@ -53,7 +53,7 @@ import {
   generateOpeningMessage,
   getMarketAverage,
   getSupplierHistory
-} from "./helpers"
+} from "@/lib/inkoop/helpers"
 
 // =========================
 // HOOFD COMPONENT
