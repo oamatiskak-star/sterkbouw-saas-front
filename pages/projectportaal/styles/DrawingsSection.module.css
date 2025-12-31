@@ -1,0 +1,124 @@
+.container {
+background: white;
+border-radius: 8px;
+padding: 30px;
+}
+
+.container h2 {
+font-size: 1.5rem;
+margin-bottom: 25px;
+color: #333;
+}
+
+.uploadSection {
+background: #f8f9fa;
+padding: 20px;
+border-radius: 6px;
+margin-bottom: 30px;
+}
+
+.uploadSection h3 {
+font-size: 1.1rem;
+margin-bottom: 15px;
+color: #555;
+}
+
+.uploadForm {
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+align-items: center;
+}
+
+.uploadForm input[type="text"] {
+padding: 10px;
+border: 1px solid #ddd;
+border-radius: 4px;
+flex: 1;
+min-width: 150px;
+}
+
+.uploadForm input[type="file"] {
+flex: 1;
+min-width: 200px;
+padding: 10px 0;
+}
+
+.uploadButton {
+padding: 10px 20px;
+background: #0070f3;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+transition: background 0.3s;
+}
+
+.uploadButton:hover {
+background: #0051a8;
+}
+
+.drawingList h3 {
+font-size: 1.1rem;
+margin-bottom: 15px;
+color: #555;
+}
+
+.table {
+width: 100%;
+border-collapse: collapse;
+background: white;
+border-radius: 6px;
+overflow: hidden;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table thead {
+background: #f8f9fa;
+}
+
+.table th {
+padding: 12px 15px;
+text-align: left;
+font-weight: 600;
+color: #555;
+border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+padding: 12px 15px;
+border-bottom: 1px solid #dee2e6;
+}
+
+.table tr:hover {
+background: #f8f9fa;
+}
+
+.viewButton,
+.downloadButton {
+padding: 6px 12px;
+margin-right: 8px;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-size: 0.85rem;
+transition: all 0.3s;
+}
+
+.viewButton {
+background: #6c757d;
+color: white;
+}
+
+.viewButton:hover {
+background: #545b62;
+}
+
+.downloadButton {
+background: #28a745;
+color: white;
+}
+
+.downloadButton:hover {
+background: #1e7e34;
+}
