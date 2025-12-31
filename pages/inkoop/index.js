@@ -1160,6 +1160,15 @@ function getSupplierQuote(request, supplierId) {
     : 0
 }
 
+// helper — GEEN default
+export function getSupplierQuote(request, supplierId) {
+  const response = request?.responses?.find(
+    r => r.supplier_id === supplierId
+  )
+  return response?.total_price || 0
+}
+
+// ENIGE default export in dit bestand
 export default function InkoopPage() {
   return null
 }
