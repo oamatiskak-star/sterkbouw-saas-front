@@ -21,6 +21,63 @@ export default function Dashboard() {
     setIsLoading(false);
   }, []);
 
+  const [timeframe, setTimeframe] = useState({
+    days: false,
+    weeks: false,
+    months: true,
+    quarters: false,
+    years: false,
+    disableNotifications: false
+  });
+
+  const projects = [
+    {
+      id: 1,
+      name: 'Waterfall - Implementation',
+      manager: 'Easy Admin',
+      status: 'active',
+      priority: 'Regular',
+      startDate: '08 Jul 2022',
+      dueDate: '01 May 2024'
+    },
+    {
+      id: 2,
+      name: 'Client Zone Development',
+      manager: 'Easy Admin',
+      status: 'active',
+      priority: 'High',
+      startDate: '15 Mar 2023',
+      dueDate: '30 Dec 2023'
+    },
+    {
+      id: 3,
+      name: 'Building a house',
+      manager: 'Easy Admin',
+      status: 'on-hold',
+      priority: 'Medium',
+      startDate: '01 Jan 2023',
+      dueDate: '01 Jun 2024'
+    },
+    {
+      id: 4,
+      name: 'Company Processes',
+      manager: 'V Franzen Finance Director',
+      status: 'completed',
+      priority: 'Low',
+      startDate: '10 Nov 2022',
+      dueDate: '15 Sep 2023'
+    },
+    {
+      id: 5,
+      name: 'GDPR Implementation',
+      manager: 'Franz Finance Director',
+      status: 'active',
+      priority: 'High',
+      startDate: '05 Feb 2023',
+      dueDate: '05 Feb 2024'
+    }
+  ];
+
   const moduleStatus = [
     { name: 'Administratie', status: 'success', color: 'bg-green-100 text-green-800 border-green-300' },
     { name: 'BIM', status: 'warning', color: 'bg-yellow-100 text-yellow-800 border-yellow-300' },
@@ -53,6 +110,26 @@ export default function Dashboard() {
     { label: 'Bouwinspectie', link: '/inspections', icon: '🔍' },
   ];
 
+  const pmTechniques = [
+    { id: 1, name: 'Client Zone Development', manager: 'Easy Admin' },
+    { id: 2, name: 'Building a house', manager: 'Easy Admin' },
+    { id: 3, name: 'Waterfall - Implement', manager: 'Easy Admin' },
+    { id: 4, name: 'Company Processes', manager: 'V Franzen Finance Director' },
+    { id: 5, name: 'GDPR', manager: 'Franz Finance Director' }
+  ];
+
+  const financialData = [
+    { id: 1, month: 'Feb', amount: -120000 },
+    { id: 2, month: 'Mar', amount: -352000 },
+    { id: 3, month: 'Apr May', amount: -350000 },
+    { id: 4, month: 'Jun Jul', amount: -400000 },
+    { id: 5, month: 'Aug Sep', amount: -400000 },
+    { id: 6, month: 'Sep Oct', amount: -300000 },
+    { id: 7, month: 'Nov Dec', amount: -300000 },
+    { id: 8, month: 'Jan Feb', amount: -400000 },
+    { id: 9, month: 'Mar Apr', amount: -300000 }
+  ];
+
   const allModules = [
     { name: 'Dashboard', link: '/dashboard', icon: '📊' },
     { name: 'Administratie', link: '/administration', icon: '📋' },
@@ -71,6 +148,15 @@ export default function Dashboard() {
     { name: 'Projectportaal', link: '/client-portal', icon: '👨‍💼' },
     { name: 'Instellingen', link: '/settings', icon: '⚙️' },
   ];
+
+  const handleTimeframeChange = (key) => {
+    setTimeframe(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }))
+  }
+
+  const maxAmount = Math.max(...financialData.map(item => Math.abs(item.amount)))
 
   if (isLoading) {
     return (
@@ -91,13 +177,42 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Dashboard
-        </h1>
-        <p className="text-gray-600">
-          Totaaloverzicht en directe sturing van het SterkBouw platform
-        </p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Projects I manage <span className="text-blue-600">({projects.length})</span>
+          </h1>
+          <p className="text-gray-600">
+            Totaaloverzicht en directe sturing van het SterkBouw platform
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium">
+            New Project
+          </button>
+          <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm font-medium">
+            Export
+          </button>
+        </div>
+      </div>
+
+      {/* Timeframe Selector */}
+      <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+        <div className="flex flex-wrap gap-4 items-center">
+          {Object.entries(timeframe).map(([key, value]) => (
+            <label key={key} className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={value}
+                onChange={() => handleTimeframeChange(key)}
+                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              />
+              <span className="text-sm text-gray-700 capitalize">
+                {key.replace(/([A-Z])/g, ' $1').trim()}
+              </span>
+            </label>
+          ))}
+        </div>
       </div>
 
       {/* Alerts & Blokkades */}
@@ -186,6 +301,170 @@ export default function Dashboard() {
                 <span className="text-sm font-medium text-gray-700 text-center">{action.label}</span>
               </Link>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        {/* Financial Overview */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white rounded-lg border border-gray-200 shadow">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-800">Financial Overview</h2>
+              <p className="text-sm text-gray-600 mt-1">Cash flow per month</p>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {financialData.map((item) => {
+                  const percentage = (Math.abs(item.amount) / maxAmount) * 100
+                  return (
+                    <div key={item.id} className="flex items-center gap-4">
+                      <div className="w-20 text-sm text-gray-600 font-medium">
+                        {item.month}
+                      </div>
+                      <div className="flex-1">
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-600 rounded-full"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div className={`text-sm font-medium ${item.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                        {item.amount < 0 ? '-' : '+'}€{Math.abs(item.amount / 1000)}k
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Projects Table */}
+          <div className="bg-white rounded-lg border border-gray-200 shadow">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-800">
+                Projects I manage <span className="text-blue-600">({projects.length})</span>
+              </h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      NAME
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      PROJECT MANAGER
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      STATUS
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      PRIORITY
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      START DATE
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      DUE DATE
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {projects.map((project) => (
+                    <tr key={project.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-gray-900">{project.name}</div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">{project.manager}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          project.status === 'active' ? 'bg-green-100 text-green-800' :
+                          project.status === 'on-hold' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-blue-100 text-blue-800'
+                        }`}>
+                          {project.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          project.priority === 'High' ? 'bg-red-100 text-red-800' :
+                          project.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-blue-100 text-blue-800'
+                        }`}>
+                          {project.priority}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">{project.startDate}</td>
+                      <td className="px-6 py-4 text-gray-600">{project.dueDate}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Sidebar */}
+        <div className="space-y-6">
+          {/* PM Techniques */}
+          <div className="bg-white rounded-lg border border-gray-200 shadow">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-800">PM techniques examples</h2>
+            </div>
+            <div className="p-6">
+              <div className="space-y-4">
+                {pmTechniques.map((tech) => (
+                  <div key={tech.id} className="flex justify-between items-center group hover:bg-gray-50 p-2 -mx-2 rounded">
+                    <div>
+                      <div className="font-medium text-gray-900">{tech.name}</div>
+                      <div className="text-sm text-gray-500">{tech.manager}</div>
+                    </div>
+                    <Link 
+                      href={`/projecten/${tech.id}`}
+                      className="text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition"
+                    >
+                      →
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Print Button */}
+          <div className="bg-white rounded-lg border border-gray-200 shadow p-6">
+            <button className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-800 transition flex items-center justify-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              Print Report
+            </button>
+          </div>
+
+          {/* Quick Stats */}
+          <div className="bg-white rounded-lg border border-gray-200 shadow p-6">
+            <h3 className="font-medium text-gray-800 mb-4">Quick Stats</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-600">12</div>
+                <div className="text-sm text-gray-600">Active</div>
+              </div>
+              <div className="text-center p-3 bg-green-50 rounded-lg">
+                <div className="text-2xl font-bold text-green-600">8</div>
+                <div className="text-sm text-gray-600">Calculations</div>
+              </div>
+              <div className="text-center p-3 bg-yellow-50 rounded-lg">
+                <div className="text-2xl font-bold text-yellow-600">3</div>
+                <div className="text-sm text-gray-600">Pending</div>
+              </div>
+              <div className="text-center p-3 bg-red-50 rounded-lg">
+                <div className="text-2xl font-bold text-red-600">€2.8M</div>
+                <div className="text-sm text-gray-600">Exposure</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
