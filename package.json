@@ -10,6 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "rc-picker": "^7.15.2",
     "next": "^14.2.35",
     "next-connect": "^0.13.0",
     "react": "^18.3.1",
