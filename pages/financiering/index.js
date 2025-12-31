@@ -1,6 +1,6 @@
 // SAAS Frontend/pages/financiering/index.js
 import React, { useState, useEffect } from 'react';
-import { useProject } from '../../../context/ProjectContext';
+import { useProject } from '@/contexts/ProjectContext';
 import {
   Card,
   Grid,
