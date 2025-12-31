@@ -9,7 +9,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
 // UI frameworks
-import { MantineProvider, ColorSchemeProvider } from '@mantine/core'
+import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css'
 
 // ❌ Tabler is NIET meer gebruikt in dashboard,
