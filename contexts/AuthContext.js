@@ -15,6 +15,7 @@ export function AuthProvider({ children }) {
   const [appScope, setAppScope] = useState('dashboard')
 
   useEffect(() => {
+    // App scope bepalen (client)
     if (typeof window !== 'undefined') {
       setAppScope(detectAppScope(window.location.host))
     }
@@ -42,7 +43,6 @@ export function AuthProvider({ children }) {
     const { data: sub } = supabase.auth.onAuthStateChange(
       async (_event, newSession) => {
         if (!mounted) return
-
         setSession(newSession)
         setUser(newSession?.user || null)
 
@@ -61,34 +61,37 @@ export function AuthProvider({ children }) {
   }, [])
 
   const loadRoles = async (userId) => {
+    // Verwacht tabel: user_roles (user_id, role)
     const { data, error } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', userId)
 
     if (!error && Array.isArray(data)) {
-      setRoles(data.map(r => r.role))
+      const r = data.map(x => x.role)
+      setRoles(r)
     } else {
       setRoles([])
     }
   }
 
-  const value = useMemo(
-    () => ({
-      user,
-      session,
-      roles,
-      appScope,
-      loading,
-      isAdmin: isAdmin(user),
-      signInWithPassword: (email, password) =>
-        supabase.auth.signInWithPassword({ email, password }),
-      signOut: () => supabase.auth.signOut(),
-    }),
-    [user, session, roles, appScope, loading]
-  )
+  const value = useMemo(() => ({
+    user,
+    session,
+    roles,
+    appScope,
+    loading,
+    isAdmin: isAdmin(user),
+    signInWithPassword: (email, password) =>
+      supabase.auth.signInWithPassword({ email, password }),
+    signOut: () => supabase.auth.signOut(),
+  }), [user, session, roles, appScope, loading])
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth() {
