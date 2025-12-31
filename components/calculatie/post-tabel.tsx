@@ -79,7 +79,7 @@ export default function PostTabel() {
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
-        <Table>
+        
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px]">Code</TableHead>
