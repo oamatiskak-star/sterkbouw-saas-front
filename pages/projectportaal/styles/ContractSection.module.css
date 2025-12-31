@@ -1,0 +1,81 @@
+.container {
+background: white;
+border-radius: 8px;
+padding: 30px;
+}
+
+.container h2 {
+font-size: 1.5rem;
+margin-bottom: 25px;
+color: #333;
+}
+
+.form {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+gap: 20px;
+margin-bottom: 30px;
+}
+
+.formGroup {
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+
+.formGroup label {
+font-weight: 600;
+color: #555;
+font-size: 0.9rem;
+}
+
+.formGroup input,
+.formGroup select {
+padding: 10px 12px;
+border: 1px solid #ddd;
+border-radius: 4px;
+font-size: 0.95rem;
+transition: border-color 0.3s;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+outline: none;
+border-color: #0070f3;
+}
+
+.actions {
+display: flex;
+gap: 15px;
+margin-top: 20px;
+}
+
+.saveButton {
+padding: 12px 24px;
+background: #0070f3;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-size: 0.95rem;
+transition: background 0.3s;
+}
+
+.saveButton:hover {
+background: #0051a8;
+}
+
+.pdfButton {
+padding: 12px 24px;
+background: #28a745;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-size: 0.95rem;
+transition: background 0.3s;
+}
+
+.pdfButton:hover {
+background: #1e7e34;
+}
