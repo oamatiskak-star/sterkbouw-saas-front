@@ -1,7 +1,4 @@
-mkdir -p utils
-cat > utils/auditLogger.js << 'EOF'
 // utils/auditLogger.js
-
 const supabase = require('../lib/supabase')
 
 class AuditLogger {
@@ -15,7 +12,7 @@ class AuditLogger {
           entity_type: entityType,
           entity_id: entityId,
           details: JSON.stringify(details),
-          ip_address: '127.0.0.1', // In productie zou dit van de request komen
+          ip_address: '127.0.0.1',
           user_agent: 'Next.js Server',
           created_at: new Date().toISOString()
         }])
@@ -101,4 +98,3 @@ class AuditLogger {
 }
 
 module.exports = AuditLogger
-EOF
