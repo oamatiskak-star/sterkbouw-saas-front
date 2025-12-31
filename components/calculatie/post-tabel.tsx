@@ -1,16 +1,23 @@
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import { Edit2, Trash2, Plus } from "lucide-react"
 
 import Button from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
-  Table,
+  Table as UiTable,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+
+/* ================================
+   CORRECT GETYPEDE WRAPPER
+   ================================ */
+function Table({ children }: { children: ReactNode }) {
+  return <UiTable>{children}</UiTable>
+}
 
 interface PostItem {
   id: string
@@ -176,17 +183,13 @@ export default function PostTabel() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => console.log("edit", post.id)}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="sm"
                       onClick={() => deletePost(post.id)}
                     >
                       <Trash2 className="h-4 w-4" />
+                    </Button>
+
+                    <Button variant="ghost" size="sm">
+                      <Edit2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </TableCell>
