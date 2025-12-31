@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
-import { createClient } from '@/lib/supabase';
-const supabase = createClient();
+import { getSupabase } from '@/lib/supabase';
+
+const supabase = getSupabase();
 
 export default function OntwerpBIMDashboard() {
   const [projecten, setProjecten] = useState([])
