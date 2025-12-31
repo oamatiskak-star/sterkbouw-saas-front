@@ -1,5 +1,4 @@
-# Maak het bestand aan als het niet bestaat
-cat > pages/inkoop/components/NotificationsTab.js << 'EOF'
+// pages/inkoop/components/NotificationsTab.js
 export default function NotificationsTab({ notifications, setNotifications }) {
   const markAsRead = (id) => {
     setNotifications(prev => prev.map(notif => 
@@ -86,4 +85,3 @@ export default function NotificationsTab({ notifications, setNotifications }) {
     </div>
   )
 }
-EOF
