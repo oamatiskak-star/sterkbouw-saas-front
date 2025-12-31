@@ -166,3 +166,12 @@ export default function Bestellingen() {
     </>
   )
 }
+
+/**
+ * ⛔ VERPLICHT
+ * Voorkomt static prerendering en React error #130
+ */
+export async function getServerSideProps() {
+  return { props: {} }
+}
+
