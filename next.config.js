@@ -4,23 +4,16 @@ const nextConfig = {
 
   reactStrictMode: false,
 
-  // ❗ GEEN rc-util hier
-  transpilePackages: [
-    '@ant-design/icons',
-    '@ant-design/icons-svg',
-    'rc-picker',
-  ],
-
   experimental: {
-    esmExternals: false, // 🔑 ABSOLUUT VERPLICHT
+    esmExternals: false, // ❗ ABSOLUUT VERPLICHT
   },
 
   webpack: (config, { isServer }) => {
-    if (isServer) {
-      // ❗ Dwing rc-util naar pure CJS runtime
-      config.externals = config.externals || []
-      config.externals.push('rc-util')
-    }
+    // ❗ forceer rc-util naar runtime require (NOOIT bundlen)
+    config.externals = [
+      ...(config.externals || []),
+      'rc-util',
+    ]
 
     return config
   },
