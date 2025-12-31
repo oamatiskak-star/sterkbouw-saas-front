@@ -9,7 +9,6 @@ import {
   postClientAction
 } from '@/services/api';
 import { formatCurrency, formatDate, formatFileSize } from '@/utils/formatters';
-import './ProjectOverview.css';
 
 const ProjectOverview = ({ 
   data: initialData = null, 
