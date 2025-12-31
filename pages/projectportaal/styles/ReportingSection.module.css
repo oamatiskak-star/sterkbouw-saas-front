@@ -1,0 +1,190 @@
+.container {
+background: white;
+border-radius: 8px;
+padding: 30px;
+}
+
+.container h2 {
+font-size: 1.5rem;
+margin-bottom: 25px;
+color: #333;
+}
+
+.generator {
+background: #f8f9fa;
+padding: 20px;
+border-radius: 6px;
+margin-bottom: 30px;
+}
+
+.generator h3 {
+font-size: 1.1rem;
+margin-bottom: 15px;
+color: #555;
+}
+
+.form {
+display: flex;
+flex-direction: column;
+gap: 15px;
+}
+
+.formGroup {
+display: flex;
+flex-direction: column;
+gap: 5px;
+}
+
+.formGroup label {
+font-weight: 600;
+color: #555;
+font-size: 0.9rem;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+padding: 10px 12px;
+border: 1px solid #ddd;
+border-radius: 4px;
+font-size: 0.95rem;
+font-family: inherit;
+}
+
+.formGroup textarea {
+resize: vertical;
+}
+
+.generateButton {
+padding: 12px 24px;
+background: #0070f3;
+color: white;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-size: 0.95rem;
+transition: background 0.3s;
+align-self: flex-start;
+}
+
+.generateButton:hover {
+background: #0051a8;
+}
+
+.reportsList h3 {
+font-size: 1.1rem;
+margin-bottom: 20px;
+color: #555;
+}
+
+.grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+gap: 20px;
+}
+
+.reportCard {
+background: white;
+border: 1px solid #dee2e6;
+border-radius: 8px;
+padding: 20px;
+transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.reportCard:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cardHeader {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 15px;
+}
+
+.cardHeader h4 {
+margin: 0;
+font-size: 1.1rem;
+color: #333;
+flex: 1;
+}
+
+.type {
+padding: 4px 12px;
+border-radius: 20px;
+font-size: 0.8rem;
+font-weight: 600;
+margin-left: 10px;
+}
+
+.type.weekly {
+background: #cce5ff;
+color: #004085;
+}
+
+.type.monthly {
+background: #d4edda;
+color: #155724;
+}
+
+.type.progress {
+background: #fff3cd;
+color: #856404;
+}
+
+.type.financial {
+background: #f8d7da;
+color: #721c24;
+}
+
+.cardBody p {
+color: #666;
+line-height: 1.5;
+margin-bottom: 10px;
+}
+
+.meta {
+display: flex;
+justify-content: space-between;
+font-size: 0.85rem;
+color: #888;
+margin-top: 15px;
+padding-top: 10px;
+border-top: 1px solid #eee;
+}
+
+.cardActions {
+display: flex;
+gap: 10px;
+margin-top: 15px;
+}
+
+.downloadButton,
+.viewButton {
+flex: 1;
+padding: 8px 16px;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+font-size: 0.9rem;
+transition: background 0.3s;
+}
+
+.downloadButton {
+background: #28a745;
+color: white;
+}
+
+.downloadButton:hover {
+background: #1e7e34;
+}
+
+.viewButton {
+background: #6c757d;
+color: white;
+}
+
+.viewButton:hover {
+background: #545b62;
+}
