@@ -6,21 +6,22 @@ import {
   subscribeToProjectUpdates,
   unsubscribeFromProjectUpdates
 } from '../../services/api';
-import { 
-  ProjectOverview, 
-  ContractSection, 
-  DrawingsSection, 
-  DeliverySection,
-  ExtraWorkSection,
-  CommunicationSection,
-  ReportingSection,
-  LoadingSpinner,
-  ErrorDisplay,
-  PortalHeader,
-  MobileNavigation,
-  DesktopSidebar,
-  ExportDossierButton
-} from './components';
+import ProjectOverview from './components/ProjectOverview';
+import ContractSection from './components/ContractSection';
+import DrawingsSection from './components/DrawingsSection';
+import DeliverySection from './components/DeliverySection';
+import ExtraWorkSection from './components/ExtraWorkSection';
+import CommunicationSection from './components/CommunicationSection';
+import ReportingSection from './components/ReportingSection';
+
+import LoadingSpinner from './components/LoadingSpinner';
+import ErrorDisplay from './components/ErrorDisplay';
+
+import PortalHeader from './components/PortalHeader';
+import MobileNavigation from './components/MobileNavigation';
+import DesktopSidebar from './components/DesktopSidebar';
+
+import ExportDossierButton from './components/ExportDossierButton';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotifications } from '../../hooks/useNotifications';
 import { auditLog } from '../../utils/auditLogger';
