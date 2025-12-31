@@ -15,12 +15,10 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     
-    // Ant Design core
     "antd": "^5.16.1",
     "@ant-design/icons-svg": "4.4.2",
     "@ant-design/icons": "5.3.6",
     
-    // Ant Design peer dependencies (CRITIEK)
     "rc-util": "5.38.1",
     "rc-picker": "^7.15.2",
     "rc-table": "^7.36.2",
@@ -48,7 +46,6 @@
     "rc-collapse": "^3.6.0",
     "rc-tabs": "^12.9.0",
     
-    // UI Libraries
     "@mui/material": "^5.15.10",
     "@mui/icons-material": "^5.15.10",
     "@emotion/react": "^11.11.5",
@@ -62,51 +59,42 @@
     "@tabler/icons-webfont": "^3.15.0",
     "bootstrap": "^5.3.3",
     
-    // Database & Auth
     "@supabase/supabase-js": "^2.45.1",
     "@supabase/auth-helpers-nextjs": "^0.8.7",
     "@supabase/ssr": "^0.4.0",
     
-    // State Management
     "@tanstack/react-query": "^5.17.19",
     "@tanstack/react-query-devtools": "^5.17.19",
     "react-hot-toast": "^2.4.1",
     "react-hook-form": "^7.51.3",
     "zod": "^3.22.4",
     
-    // Utilities
     "nprogress": "^0.2.0",
     "react-dropzone": "^14.2.3",
     "date-fns": "^3.6.0",
     "lodash": "^4.17.21",
     "axios": "^1.7.2",
     
-    // Charts
     "chart.js": "^4.4.3",
     "react-chartjs-2": "^5.2.0",
     "recharts": "^2.10.4",
     
-    // Maps
     "leaflet": "^1.9.4",
     "react-leaflet": "^4.2.1",
     
-    // 3D
     "three": "^0.164.1",
     "@react-three/fiber": "^8.15.24",
     "@react-three/drei": "^9.94.3",
     
-    // File handling
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "pdf-lib": "^1.17.1",
     "jspdf": "^2.5.1",
     "html2canvas": "^1.4.1",
     
-    // Data processing
     "papaparse": "^5.4.1",
     "xlsx": "^0.18.5",
     
-    // Misc
     "uuid": "^9.0.1",
     "clsx": "^2.0.0",
     "tailwind-merge": "^2.1.0",
