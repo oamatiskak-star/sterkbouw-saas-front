@@ -18,11 +18,11 @@
     "antd": "5.16.1",
     "@ant-design/icons": "5.3.6",
 
-    "@mui/material": "^5.15.10",           // CARET terug
-    "@mui/icons-material": "^5.15.10",     // CARET terug
+    "@mui/material": "^5.15.10",           
+    "@mui/icons-material": "^5.15.10",     
 
-    "@emotion/react": "^11.11.5",          // CARET
-    "@emotion/styled": "^11.11.5",         // CARET
+    "@emotion/react": "^11.11.5",          
+    "@emotion/styled": "^11.11.5",         
 
     "@mantine/core": "7.10.1",
     "@mantine/hooks": "7.10.1",
