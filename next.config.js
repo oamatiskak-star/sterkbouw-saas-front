@@ -2,28 +2,28 @@
 const nextConfig = {
   output: 'standalone',
 
-  reactStrictMode: true,
+  reactStrictMode: false,
   swcMinify: true,
 
-  // ❗ Dwing alles naar Node runtime (GEEN Edge / GEEN SSR-executie)
+  // ❌ ESM UIT — dit is de oorzaak
   experimental: {
-    esmExternals: 'loose',
+    esmExternals: false,
   },
 
-  // ❗ Stop static generation / prerender crashes
-  generateBuildId: async () => {
-    return 'client-only'
-  },
+  // ❗ Ant Design / rc-* correct transpilen
+  transpilePackages: [
+    'antd',
+    '@ant-design/icons',
+    '@ant-design/icons-svg',
+    'rc-util',
+    'rc-picker',
+  ],
 
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: true,
-  },
-
-  compiler: {
-    removeConsole: false,
   },
 }
 
