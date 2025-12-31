@@ -1,7 +1,7 @@
-// components/calculatie/post-tabel.tsx
 import { useState } from "react"
 import { Edit2, Trash2, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
+
+import Button from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Table,
@@ -10,7 +10,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table"
 
 interface PostItem {
   id: string
@@ -44,34 +44,47 @@ export default function PostTabel() {
     },
   ])
 
-  const updatePost = (id: string, field: keyof PostItem, value: string | number) => {
-    setPosts(posts.map(post => {
-      if (post.id === id) {
-        const updated = { ...post, [field]: value }
-        if (field === 'aantal' || field === 'prijs') {
-          updated.totaal = Number(updated.aantal) * Number(updated.prijs)
+  const updatePost = (
+    id: string,
+    field: keyof PostItem,
+    value: string | number
+  ) => {
+    setPosts((prev) =>
+      prev.map((post) => {
+        if (post.id !== id) return post
+
+        const updated: PostItem = {
+          ...post,
+          [field]: value,
+        } as PostItem
+
+        if (field === "aantal" || field === "prijs") {
+          updated.totaal =
+            Number(updated.aantal) * Number(updated.prijs)
         }
+
         return updated
-      }
-      return post
-    }))
+      })
+    )
   }
 
   const addNewPost = () => {
-    const newPost: PostItem = {
-      id: Date.now().toString(),
-      code: "",
-      omschrijving: "",
-      eenheid: "stuk",
-      aantal: 1,
-      prijs: 0,
-      totaal: 0,
-    }
-    setPosts([...posts, newPost])
+    setPosts((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        code: "",
+        omschrijving: "",
+        eenheid: "stuk",
+        aantal: 1,
+        prijs: 0,
+        totaal: 0,
+      },
+    ])
   }
 
   const deletePost = (id: string) => {
-    setPosts(posts.filter(post => post.id !== id))
+    setPosts((prev) => prev.filter((p) => p.id !== id))
   }
 
   const totaal = posts.reduce((sum, post) => sum + post.totaal, 0)
@@ -79,7 +92,7 @@ export default function PostTabel() {
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
-        
+        <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px]">Code</TableHead>
@@ -91,58 +104,83 @@ export default function PostTabel() {
               <TableHead className="w-[80px]">Acties</TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {posts.map((post) => (
               <TableRow key={post.id}>
                 <TableCell>
                   <Input
                     value={post.code}
-                    onChange={(e) => updatePost(post.id, 'code', e.target.value)}
-                    className="w-full"
+                    onChange={(e) =>
+                      updatePost(post.id, "code", e.target.value)
+                    }
                   />
                 </TableCell>
+
                 <TableCell>
                   <Input
                     value={post.omschrijving}
-                    onChange={(e) => updatePost(post.id, 'omschrijving', e.target.value)}
-                    className="w-full"
+                    onChange={(e) =>
+                      updatePost(
+                        post.id,
+                        "omschrijving",
+                        e.target.value
+                      )
+                    }
                   />
                 </TableCell>
+
                 <TableCell>
                   <Input
                     value={post.eenheid}
-                    onChange={(e) => updatePost(post.id, 'eenheid', e.target.value)}
-                    className="w-full"
+                    onChange={(e) =>
+                      updatePost(post.id, "eenheid", e.target.value)
+                    }
                   />
                 </TableCell>
+
                 <TableCell>
                   <Input
                     type="number"
                     value={post.aantal}
-                    onChange={(e) => updatePost(post.id, 'aantal', Number(e.target.value))}
-                    className="w-full"
+                    onChange={(e) =>
+                      updatePost(
+                        post.id,
+                        "aantal",
+                        Number(e.target.value)
+                      )
+                    }
                   />
                 </TableCell>
+
                 <TableCell>
                   <Input
                     type="number"
                     value={post.prijs}
-                    onChange={(e) => updatePost(post.id, 'prijs', Number(e.target.value))}
-                    className="w-full"
+                    onChange={(e) =>
+                      updatePost(
+                        post.id,
+                        "prijs",
+                        Number(e.target.value)
+                      )
+                    }
                   />
                 </TableCell>
+
                 <TableCell className="font-medium">
                   €{post.totaal.toFixed(2)}
                 </TableCell>
+
                 <TableCell>
-                  <div className="flex space-x-2">
+                  <div className="flex gap-2">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => console.log('Edit', post.id)}
+                      onClick={() => console.log("edit", post.id)}
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
+
                     <Button
                       variant="ghost"
                       size="sm"
@@ -159,14 +197,11 @@ export default function PostTabel() {
       </div>
 
       <div className="flex justify-between items-center">
-        <div>
-          <p className="text-sm text-gray-500">Totaal: €{totaal.toFixed(2)}</p>
-        </div>
-        <Button
-          onClick={addNewPost}
-          size="sm"
-          className="gap-2"
-        >
+        <span className="text-sm text-muted-foreground">
+          Totaal: €{totaal.toFixed(2)}
+        </span>
+
+        <Button size="sm" onClick={addNewPost} className="gap-2">
           <Plus className="h-4 w-4" />
           Post toevoegen
         </Button>
