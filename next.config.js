@@ -52,23 +52,8 @@ const nextConfig = {
     ];
   },
 
-  // 5. Webpack config om prerendering te blokkeren
+  // 5. Webpack config ZONDER string-replace-loader
   webpack: (config, { isServer, dev }) => {
-    // Forceer dat ALLE pagina's als dynamisch worden gemarkeerd
-    config.module.rules.push({
-      test: /\.(js|jsx|ts|tsx)$/,
-      use: [
-        {
-          loader: 'string-replace-loader',
-          options: {
-            search: /export\s+(const|let|var)\s+(getStaticProps|getStaticPaths|getServerSideProps)/g,
-            replace: '// $& // DISABLED BY NEXT CONFIG',
-            flags: 'g',
-          },
-        },
-      ],
-    });
-
     config.resolve.fallback = {
       fs: false,
       path: false,
