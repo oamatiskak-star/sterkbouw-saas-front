@@ -5,8 +5,8 @@ WORKDIR /app
 # Kopieer package files
 COPY package.json package-lock.json* ./
 
-# Installeer dependencies
-RUN if [ -f package-lock.json ] && [ -s package-lock.json ]; then npm ci; else npm install; fi
+# Installeer dependencies MET legacy-peer-deps
+RUN if [ -f package-lock.json ] && [ -s package-lock.json ]; then npm ci --legacy-peer-deps; else npm install --legacy-peer-deps; fi
 
 # Kopieer rest
 COPY . .
