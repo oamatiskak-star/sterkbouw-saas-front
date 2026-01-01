@@ -1,9 +1,7 @@
-// pages/auth/login/index.js — VOLLEDIG DEFINITIEF BESTAND (TABLER-NATIVE)
-
 import { useState } from 'react'
 import { useRouter } from 'next/router'
-import { getSupabase } from '@/lib/supabase'
-import TablerAuthLayout from '@/components/TablerAuthLayout'
+import { getSupabase } from '../../../lib/supabase'
+import TablerAuthLayout from '../../../components/TablerAuthLayout'
 
 export default function LoginPage() {
   const supabase = getSupabase()
