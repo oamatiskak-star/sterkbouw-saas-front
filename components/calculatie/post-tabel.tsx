@@ -90,9 +90,9 @@ export default function PostTabel() {
       <div className="rounded-md border overflow-x-auto">
         <table className="w-full text-sm">
           <TableHeader className="">
-            <TableRow>
+            <TableRow className="">
               <TableHead className="w-[100px]">Code</TableHead>
-              <TableHead>Omschrijving</TableHead>
+              <TableHead className="">Omschrijving</TableHead>
               <TableHead className="w-[100px]">Eenheid</TableHead>
               <TableHead className="w-[100px]">Aantal</TableHead>
               <TableHead className="w-[100px]">Prijs</TableHead>
@@ -103,8 +103,8 @@ export default function PostTabel() {
 
           <TableBody className="">
             {posts.map((post) => (
-              <TableRow key={post.id}>
-                <TableCell>
+              <TableRow key={post.id} className="">
+                <TableCell className="">
                   <Input
                     value={post.code}
                     onChange={(e) =>
@@ -113,7 +113,7 @@ export default function PostTabel() {
                   />
                 </TableCell>
 
-                <TableCell>
+                <TableCell className="">
                   <Input
                     value={post.omschrijving}
                     onChange={(e) =>
@@ -126,7 +126,7 @@ export default function PostTabel() {
                   />
                 </TableCell>
 
-                <TableCell>
+                <TableCell className="">
                   <Input
                     value={post.eenheid}
                     onChange={(e) =>
@@ -135,7 +135,7 @@ export default function PostTabel() {
                   />
                 </TableCell>
 
-                <TableCell>
+                <TableCell className="">
                   <Input
                     type="number"
                     value={post.aantal}
@@ -149,7 +149,7 @@ export default function PostTabel() {
                   />
                 </TableCell>
 
-                <TableCell>
+                <TableCell className="">
                   <Input
                     type="number"
                     value={post.prijs}
@@ -167,7 +167,7 @@ export default function PostTabel() {
                   €{post.totaal.toFixed(2)}
                 </TableCell>
 
-                <TableCell>
+                <TableCell className="">
                   <div className="flex gap-2">
                     <Button
                       variant="ghost"
