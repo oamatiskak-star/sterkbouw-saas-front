@@ -54,22 +54,9 @@ const AdminLayout = ({ children }) => {
     const routes = {
       'dashboard': '/dashboard',
       'administratie': '/administratie',
-      'administratie-contracten': '/administratie/contracten',
-      'administratie-klanten': '/administratie/klanten',
-      'administratie-dossiers': '/administratie/dossiers',
-      'administratie-auditlog': '/administratie/auditlog',
-      'administratie-compliance': '/administratie/compliance',
       'bim': '/bim',
-      'bim-modellen': '/bim/modellen',
-      'bim-versiebeheer': '/bim/versiebeheer',
-      'bim-clash-detection': '/bim/clash-detection',
-      'bim-export': '/bim/export',
       'bouwplaats': 'https://github.com/oamatiskak-star/bouwplaatsweb/blob/main/pages/bouwplaatsApp/index.js',
       'calculatie': '/calculaties',
-      'calculatie-nieuw': '/calculaties/nieuw',
-      'calculatie-meerwerk': '/calculaties/meerwerk',
-      'calculatie-offertes': '/calculaties/offertes',
-      'calculatie-historie': '/calculaties/historie',
       'constructie': '/constructie',
       'documenten': '/documenten',
       'financien': '/financien',
@@ -103,24 +90,11 @@ const AdminLayout = ({ children }) => {
       key: 'administratie',
       icon: <FileTextOutlined />,
       label: 'Administratie',
-      children: [
-        { key: 'administratie-contracten', label: 'Contractbeheer' },
-        { key: 'administratie-klanten', label: 'Klantgegevens' },
-        { key: 'administratie-dossiers', label: 'Dossierstructuur' },
-        { key: 'administratie-auditlog', label: 'Auditlog' },
-        { key: 'administratie-compliance', label: 'Compliance' }
-      ]
     },
     {
       key: 'bim',
       icon: <ApartmentOutlined />,
       label: 'BIM',
-      children: [
-        { key: 'bim-modellen', label: 'BIM-modellen' },
-        { key: 'bim-versiebeheer', label: 'Versiebeheer' },
-        { key: 'bim-clash-detection', label: 'Clash detection' },
-        { key: 'bim-export', label: 'Export' }
-      ]
     },
     {
       key: 'bouwplaats',
@@ -131,12 +105,6 @@ const AdminLayout = ({ children }) => {
       key: 'calculatie',
       icon: <CalculatorOutlined />,
       label: 'Calculatie',
-      children: [
-        { key: 'calculatie-nieuw', label: 'Nieuwe Calculatie' },
-        { key: 'calculatie-meerwerk', label: 'Meerwerk' },
-        { key: 'calculatie-offertes', label: 'Offertegeneratie' },
-        { key: 'calculatie-historie', label: 'Historie' }
-      ]
     },
     {
       key: 'constructie',
