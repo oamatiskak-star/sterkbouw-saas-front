@@ -89,7 +89,7 @@ export default function PostTabel() {
     <div className="space-y-4">
       <div className="rounded-md border overflow-x-auto">
         <table className="w-full text-sm">
-          <TableHeader>
+          <TableHeader className="">
             <TableRow>
               <TableHead className="w-[100px]">Code</TableHead>
               <TableHead>Omschrijving</TableHead>
@@ -101,7 +101,7 @@ export default function PostTabel() {
             </TableRow>
           </TableHeader>
 
-          <TableBody>
+          <TableBody className="">
             {posts.map((post) => (
               <TableRow key={post.id}>
                 <TableCell>
