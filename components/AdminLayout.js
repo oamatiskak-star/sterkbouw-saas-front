@@ -50,14 +50,14 @@ const AdminLayout = ({ children }) => {
     setMounted(true);
   }, []);
 
-  // 🔥 ALLE JUISTE ROUTES volgens je laatste update
+  
   const ALL_ROUTES = {
     // Hoofdmenu items - navigeren naar index pagina's
     'dashboard': '/dashboard',
     'administratie': '/administratie',
     'bim': '/bim',
     'bouwplaats': 'https://github.com/oamatiskak-star/bouwplaatsweb/blob/main/pages/bouwplaatsApp/index.js',
-    'calculatie': '/calculaties', // 🔥 NAAR /calculaties
+    'calculatie': '/calculaties', 
     'constructie': '/constructie',
     'documenten': '/documenten',
     'financien': '/financien',
@@ -311,7 +311,7 @@ const AdminLayout = ({ children }) => {
           <Menu
             mode="inline"
             selectedKeys={[router.pathname.split('/')[1] || 'dashboard']}
-            defaultOpenKeys={[]} // 🔥 GEEN uitgeklapte submenu's
+            defaultOpenKeys={[]} 
             style={{
               borderRight: 0,
               background: '#fff',
@@ -319,7 +319,7 @@ const AdminLayout = ({ children }) => {
             }}
             items={menuItems}
             onClick={handleMenuClick}
-            expandIcon={null} // 🔥 Verberg pijltjes
+            expandIcon={null} 
             inlineIndent={16}
           />
         </Sider>
