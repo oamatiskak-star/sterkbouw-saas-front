@@ -30,11 +30,7 @@ import {
   Alert,
   Tooltip,
   Drawer,
-  Empty,
-  UploadProps,
-  DatePicker,
-  Rate,
-  Comment
+  Empty
 } from "antd";
 import {
   HomeOutlined,
@@ -173,7 +169,7 @@ export default function KopersPortaal() {
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState(null);
   const [purchaseData, setPurchaseData] = useState(SAMPLE_PURCHASE);
-  const [messages, setMessages] = useState([]);  // GEEN TypeScript type
+  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [documents, setDocuments] = useState(DOCUMENTS);
   const [extraWorkRequests, setExtraWorkRequests] = useState(EXTRA_WORK_REQUESTS);
@@ -182,7 +178,7 @@ export default function KopersPortaal() {
   const [notifications, setNotifications] = useState(3);
   const [searchQuery, setSearchQuery] = useState("");
   
-  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef(null);
   const [extraWorkForm] = Form.useForm();
   const [supportTicketForm] = Form.useForm();
   const [contactForm] = Form.useForm();
@@ -211,7 +207,7 @@ export default function KopersPortaal() {
   }, [messages]);
   
   // Functies voor modals
-  const openModal = (modalType: string) => {
+  const openModal = (modalType) => {
     setShowModal(modalType);
   };
   
@@ -254,7 +250,7 @@ export default function KopersPortaal() {
   };
   
   // Meerwerk aanvragen
-  const submitExtraWorkRequest = (values: any) => {
+  const submitExtraWorkRequest = (values) => {
     const newRequest = {
       id: extraWorkRequests.length + 1,
       omschrijving: values.omschrijving,
@@ -273,7 +269,7 @@ export default function KopersPortaal() {
   };
   
   // Support ticket aanmaken
-  const submitSupportTicket = (values: any) => {
+  const submitSupportTicket = (values) => {
     const newTicket = {
       id: supportTickets.length + 1,
       onderwerp: values.onderwerp,
@@ -290,12 +286,12 @@ export default function KopersPortaal() {
   };
   
   // Document downloaden
-  const downloadDocument = (doc: any) => {
+  const downloadDocument = (doc) => {
     message.success(`Download gestart: ${doc.naam}`);
   };
   
   // Status badge renderen
-  const renderStatusBadge = (status: string) => {
+  const renderStatusBadge = (status) => {
     let color = "default";
     let text = "In afwachting";
     let icon = <ClockCircleOutlined />;
@@ -343,7 +339,7 @@ export default function KopersPortaal() {
   };
   
   // Upload props
-  const uploadProps: UploadProps = {
+  const uploadProps = {
     name: 'file',
     action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
     headers: {
@@ -372,7 +368,7 @@ export default function KopersPortaal() {
       title: 'Document',
       dataIndex: 'naam',
       key: 'naam',
-      render: (text: string, record: any) => (
+      render: (text, record) => (
         <Space>
           {record.type === 'pdf' ? <FilePdfOutlined style={{ color: '#ff4d4f' }} /> : 
            record.type === 'docx' ? <FileWordOutlined style={{ color: '#1890ff' }} /> : 
@@ -385,7 +381,7 @@ export default function KopersPortaal() {
       title: 'Type',
       dataIndex: 'type',
       key: 'type',
-      render: (type: string) => type.toUpperCase(),
+      render: (type) => type.toUpperCase(),
     },
     {
       title: 'Grootte',
@@ -401,12 +397,12 @@ export default function KopersPortaal() {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (status: string) => renderStatusBadge(status),
+      render: (status) => renderStatusBadge(status),
     },
     {
       title: 'Acties',
       key: 'acties',
-      render: (_: any, record: any) => (
+      render: (_, record) => (
         <Space>
           <Tooltip title="Voorbeeld">
             <Button type="text" icon={<EyeOutlined />} onClick={() => message.info(`Voorbeeld: ${record.naam}`)} />
@@ -435,18 +431,18 @@ export default function KopersPortaal() {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (status: string) => renderStatusBadge(status),
+      render: (status) => renderStatusBadge(status),
     },
     {
       title: 'Kosten',
       dataIndex: 'kosten',
       key: 'kosten',
-      render: (kosten: number) => kosten > 0 ? `€${kosten}` : 'Nog niet geprijsd',
+      render: (kosten) => kosten > 0 ? `€${kosten}` : 'Nog niet geprijsd',
     },
     {
       title: 'Acties',
       key: 'acties',
-      render: (_: any, record: any) => (
+      render: (_, record) => (
         <Space>
           <Button size="small" onClick={() => message.info(`Details: ${record.omschrijving}`)}>
             Details
@@ -478,7 +474,7 @@ export default function KopersPortaal() {
       title: 'Categorie',
       dataIndex: 'categorie',
       key: 'categorie',
-      render: (categorie: string) => (
+      render: (categorie) => (
         <Tag color="blue">{categorie}</Tag>
       ),
     },
@@ -491,64 +487,16 @@ export default function KopersPortaal() {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (status: string) => renderStatusBadge(status),
+      render: (status) => renderStatusBadge(status),
     },
     {
       title: 'Prioriteit',
       dataIndex: 'prioriteit',
       key: 'prioriteit',
-      render: (prioriteit: string) => {
+      render: (prioriteit) => {
         let color = prioriteit === 'hoog' ? 'red' : prioriteit === 'gemiddeld' ? 'orange' : 'green';
         return <Tag color={color}>{prioriteit}</Tag>;
       },
-    },
-  ];
-  
-  // Bouwfase kolommen
-  const constructionPhaseColumns = [
-    {
-      title: 'Fase',
-      dataIndex: 'fase',
-      key: 'fase',
-      render: (fase: string, record: any) => (
-        <div>
-          <strong>{fase}</strong>
-          <div style={{ fontSize: '12px', color: '#999' }}>
-            {record.start} - {record.eind}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: 'Voortgang',
-      dataIndex: 'voortgang',
-      key: 'voortgang',
-      render: (voortgang: number) => (
-        <div>
-          <Progress percent={voortgang} size="small" />
-          <div style={{ fontSize: '12px', textAlign: 'center' }}>{voortgang}%</div>
-        </div>
-      ),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => renderStatusBadge(status),
-    },
-    {
-      title: 'Acties',
-      key: 'acties',
-      render: (_: any, record: any) => (
-        <Space>
-          <Button type="link" size="small" onClick={() => openModal("phaseDetails")}>
-            Details
-          </Button>
-          <Button type="link" size="small" icon={<EyeOutlined />}>
-            Foto's
-          </Button>
-        </Space>
-      ),
     },
   ];
   
@@ -810,26 +758,22 @@ export default function KopersPortaal() {
                     }}
                   >
                     {messages.map((msg) => (
-                      <Comment
+                      <div
                         key={msg.id}
-                        author={msg.sender === 'user' ? 'U' : 'Projectmanager'}
-                        avatar={
-                          <Avatar
-                            style={{ backgroundColor: msg.sender === 'user' ? '#1890ff' : '#52c41a' }}
-                            icon={msg.sender === 'user' ? <UserOutlined /> : <TeamOutlined />}
-                          />
-                        }
-                        content={<p>{msg.text}</p>}
-                        datetime={
-                          <Tooltip title={msg.timestamp}>
-                            <span>{msg.timestamp}</span>
-                          </Tooltip>
-                        }
                         style={{
-                          textAlign: msg.sender === 'user' ? 'right' : 'left',
-                          marginBottom: '16px'
+                          padding: '8px 12px',
+                          marginBottom: '8px',
+                          background: msg.sender === 'user' ? '#e6f7ff' : '#f6ffed',
+                          borderRadius: '6px',
+                          border: '1px solid #91d5ff',
+                          textAlign: msg.sender === 'user' ? 'right' : 'left'
                         }}
-                      />
+                      >
+                        <div>{msg.text}</div>
+                        <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>
+                          {msg.timestamp}
+                        </div>
+                      </div>
                     ))}
                   </div>
                   <Space.Compact style={{ width: '100%' }}>
@@ -912,8 +856,54 @@ export default function KopersPortaal() {
               />
               
               <Table
-                columns={constructionPhaseColumns}
+                columns={[
+                  {
+                    title: 'Fase',
+                    dataIndex: 'fase',
+                    key: 'fase',
+                    render: (fase, record) => (
+                      <div>
+                        <strong>{fase}</strong>
+                        <div style={{ fontSize: '12px', color: '#999' }}>
+                          {record.start} - {record.eind}
+                        </div>
+                      </div>
+                    ),
+                  },
+                  {
+                    title: 'Voortgang',
+                    dataIndex: 'voortgang',
+                    key: 'voortgang',
+                    render: (voortgang) => (
+                      <div>
+                        <Progress percent={voortgang} size="small" />
+                        <div style={{ fontSize: '12px', textAlign: 'center' }}>{voortgang}%</div>
+                      </div>
+                    ),
+                  },
+                  {
+                    title: 'Status',
+                    dataIndex: 'status',
+                    key: 'status',
+                    render: (status) => renderStatusBadge(status),
+                  },
+                  {
+                    title: 'Acties',
+                    key: 'acties',
+                    render: (_, record) => (
+                      <Space>
+                        <Button type="link" size="small" onClick={() => openModal("phaseDetails")}>
+                          Details
+                        </Button>
+                        <Button type="link" size="small" icon={<EyeOutlined />}>
+                          Foto's
+                        </Button>
+                      </Space>
+                    ),
+                  },
+                ]}
                 dataSource={constructionPhases}
+                rowKey="id"
                 pagination={false}
                 style={{ marginBottom: 32 }}
                 onRow={(record) => ({
