@@ -1,5 +1,4 @@
 // components/ui/alert.js
-
 export function Alert({ 
   children, 
   variant = 'default',
@@ -39,5 +38,5 @@ export function AlertDescription({ children, className = '', ...props }) {
   );
 }
 
-// Optioneel: default export van het hoofd Alert component
+// Voor backward compatibility
 export default Alert;
