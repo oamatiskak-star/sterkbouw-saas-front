@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* ./
-RUN if [ ! -f package-lock.json ]; then npm install --legacy-peer-deps --package-lock-only; fi && npm ci --legacy-peer-deps
+RUN npm install --legacy-peer-deps --no-audit --progress=false
 
 # 2. Rebuild the source code only when needed
 FROM base AS builder
