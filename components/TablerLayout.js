@@ -17,7 +17,7 @@ export default function TablerLayout({ children }) {
 
   return (
     <div className="page">
-      <aside className="navbar navbar-vertical navbar-expand-lg">
+      <aside className="navbar navbar-vertical navbar-expand-lg navbar-dark">
         <div className="container-fluid">
           <button
             className="navbar-toggler"
@@ -28,18 +28,18 @@ export default function TablerLayout({ children }) {
             <span className="navbar-toggler-icon"></span>
           </button>
 
-          <div className="navbar-brand navbar-brand-autodark">
-            Admin Main
-          </div>
+          <h1 className="navbar-brand navbar-brand-autodark">
+            <Link href="/" className="navbar-brand-link">
+              Admin Main
+            </Link>
+          </h1>
 
           <div className="collapse navbar-collapse" id="sidebar-menu">
             <ul className="navbar-nav pt-lg-3">
               {menu.map(item => (
                 <li className="nav-item" key={item.key}>
                   <Link href={item.href} className="nav-link">
-                    <span className="nav-link-title">
-                      {item.label}
-                    </span>
+                    <span className="nav-link-title">{item.label}</span>
                   </Link>
                 </li>
               ))}
