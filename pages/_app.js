@@ -6,7 +6,6 @@
 import '@tabler/core/dist/css/tabler.min.css'
 import '@tabler/core/dist/css/tabler-vendors.min.css'
 import '@tabler/icons-webfont/dist/tabler-icons.min.css'
-import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 // ===============================
 // TAILWIND – TOEVOEGLAAG (GESCOPE)
@@ -81,6 +80,15 @@ export default function App({ Component, pageProps }) {
     })
     setSupabaseClient(supabase)
   }, [])
+
+  // -------------------------------
+// Bootstrap JS – CLIENT ONLY
+// -------------------------------
+useEffect(() => {
+  if (typeof window !== 'undefined') {
+    import('bootstrap/dist/js/bootstrap.bundle.min.js')
+  }
+}, [])
 
   // -------------------------------
   // Auth + route guard
