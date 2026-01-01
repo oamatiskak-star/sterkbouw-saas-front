@@ -199,7 +199,8 @@ const AdminLayout = ({ children }) => {
   if (routes[key]) {
     router.push(routes[key]);
   }
-};// components/AdminLayout.js
+};
+  // components/AdminLayout.js
 import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
 import { 
