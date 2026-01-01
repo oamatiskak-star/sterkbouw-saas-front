@@ -50,40 +50,40 @@ const AdminLayout = ({ children }) => {
     setMounted(true);
   }, []);
 
-  const ALL_ROUTES = {
-    'dashboard': '/dashboard',
-    'administratie': '/administratie',
-    'bim': '/bim',
-    'bouwplaats': 'https://github.com/oamatiskak-star/bouwplaatsweb/blob/main/pages/bouwplaatsApp/index.js',
-    'calculatie': '/calculaties',
-    'constructie': '/constructie',
-    'documenten': '/documenten',
-    'financien': '/financien',
-    'financieringen': '/financiering',
-    'inkoop': '/inkoop',
-    'kopersportaal': '/kopersportaal',
-    'mail': '/mail',
-    'planning': '/planning',
-    'projecten': '/projecten',
-    'projectportaal': '/projectportaal',
-    'instellingen': '/instellingen',
-    'administratie-contracten': '/administratie/contracten',
-    'administratie-klanten': '/administratie/klanten',
-    'administratie-dossiers': '/administratie/dossiers',
-    'administratie-auditlog': '/administratie/auditlog',
-    'administratie-compliance': '/administratie/compliance',
-    'bim-modellen': '/bim/modellen',
-    'bim-versiebeheer': '/bim/versiebeheer',
-    'bim-clash-detection': '/bim/clash-detection',
-    'bim-export': '/bim/export',
-    'calculatie-nieuw': '/calculaties/nieuw',
-    'calculatie-meerwerk': '/calculaties/meerwerk',
-    'calculatie-offertes': '/calculaties/offertes',
-    'calculatie-historie': '/calculaties/historie'
-  };
-
   const handleMenuClick = ({ key }) => {
-    const target = ALL_ROUTES[key];
+    const routes = {
+      'dashboard': '/dashboard',
+      'administratie': '/administratie',
+      'administratie-contracten': '/administratie/contracten',
+      'administratie-klanten': '/administratie/klanten',
+      'administratie-dossiers': '/administratie/dossiers',
+      'administratie-auditlog': '/administratie/auditlog',
+      'administratie-compliance': '/administratie/compliance',
+      'bim': '/bim',
+      'bim-modellen': '/bim/modellen',
+      'bim-versiebeheer': '/bim/versiebeheer',
+      'bim-clash-detection': '/bim/clash-detection',
+      'bim-export': '/bim/export',
+      'bouwplaats': 'https://github.com/oamatiskak-star/bouwplaatsweb/blob/main/pages/bouwplaatsApp/index.js',
+      'calculatie': '/calculaties',
+      'calculatie-nieuw': '/calculaties/nieuw',
+      'calculatie-meerwerk': '/calculaties/meerwerk',
+      'calculatie-offertes': '/calculaties/offertes',
+      'calculatie-historie': '/calculaties/historie',
+      'constructie': '/constructie',
+      'documenten': '/documenten',
+      'financien': '/financien',
+      'financieringen': '/financiering',
+      'inkoop': '/inkoop',
+      'kopersportaal': '/kopersportaal',
+      'mail': '/mail',
+      'planning': '/planning',
+      'projecten': '/projecten',
+      'projectportaal': '/projectportaal',
+      'instellingen': '/instellingen'
+    };
+    
+    const target = routes[key];
     if (!target) return;
     
     if (target.startsWith('http')) {
