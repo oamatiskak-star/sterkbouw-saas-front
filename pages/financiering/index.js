@@ -1,31 +1,46 @@
-// SAAS Frontend/pages/financiering/index.js
+// pages/financiering/index.js
 import React, { useState, useEffect } from 'react';
-import { useProject } from '@/contexts/ProjectContext';
 import {
   Card,
-  Grid,
+  Row,
+  Col,
   Typography,
   Divider,
-  Box,
-  Chip,
+  Tag,
   Alert,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Switch,
-  FormControlLabel,
   Button,
-  LinearProgress,
+  Progress,
   Tabs,
-  Tab
-} from '@mui/material';
+  Form,
+  List,
+  Space,
+  Modal,
+  Input,
+  Select,
+  Spin
+} from 'antd';
+import {
+  CalculatorOutlined,
+  BankOutlined,
+  LineChartOutlined,
+  StarOutlined,
+  WarningOutlined,
+  InfoCircleOutlined,
+  CheckCircleOutlined,
+  DollarOutlined,
+  HomeOutlined,
+  SettingOutlined,
+  SyncOutlined,
+  FileTextOutlined
+} from '@ant-design/icons';
+
+const { Title, Text, Paragraph } = Typography;
+const { Option } = Select;
+const { TabPane } = Tabs;
 
 const FinancieringModule = () => {
-  const { selectedProject } = useProject();
   const [analyses, setAnalyses] = useState({
     ontwikkelenVerkopen: false,
     aankopenVerhuren: false,
@@ -37,9 +52,23 @@ const FinancieringModule = () => {
   });
   const [results, setResults] = useState(null);
   const [financieringsVergelijking, setFinancieringsVergelijking] = useState([]);
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState('0');
+  const [loading, setLoading] = useState(false);
+  
+  // Demo project data
+  const selectedProject = {
+    id: 1,
+    name: 'Demo Project',
+    purchasePrice: 500000,
+    acquisitionCosts: 25000,
+    constructionCosts: 300000,
+    duration: 12,
+    expectedRent: 2000,
+    expectedSaleValue: 900000,
+    equity: 200000,
+    existingFinancing: null
+  };
 
-  // --- DEEL 1: PROJECT INGANG ---
   const projectData = selectedProject ? {
     aankoopprijs: selectedProject.purchasePrice || 0,
     verwervingskosten: selectedProject.acquisitionCosts || 0,
@@ -51,7 +80,6 @@ const FinancieringModule = () => {
     bestaandeFinanciering: selectedProject.existingFinancing || null
   } : null;
 
-  // --- DEEL 2: ANALYSE SELECTOR ---
   const analyseOpties = [
     { id: 'ontwikkelenVerkopen', label: 'Ontwikkelen & Verkopen' },
     { id: 'aankopenVerhuren', label: 'Aankopen & Verhuren' },
@@ -62,9 +90,9 @@ const FinancieringModule = () => {
     { id: 'waardeOptimalisatie', label: 'Waarde-vermeerdering optimalisatie' }
   ];
 
-  // --- DEEL 3: KERNBERKEKINGEN ---
   const runAnalyses = async () => {
     if (!projectData) return;
+    setLoading(true);
     
     const calculatedResults = {};
     
@@ -72,7 +100,7 @@ const FinancieringModule = () => {
     if (analyses.ontwikkelenVerkopen) {
       const totaleInvestering = projectData.aankoopprijs + projectData.verwervingskosten + projectData.bouwkosten;
       const brutowinst = projectData.verkoopwaarde - totaleInvestering;
-      const nettowinst = brutowinst * 0.79; // Belasting correctie
+      const nettowinst = brutowinst * 0.79;
       
       calculatedResults.ontwikkelenVerkopen = {
         totaleInvestering,
@@ -94,8 +122,8 @@ const FinancieringModule = () => {
       
       calculatedResults.aankopenVerhuren = {
         bar,
-        nettoRendement: bar * 0.75, // Kosten correctie
-        dscr: jaarlijkseHuur / (totaleInvestering * 0.07), // Schuldservice
+        nettoRendement: bar * 0.75,
+        dscr: jaarlijkseHuur / (totaleInvestering * 0.07),
         ltv: (totaleInvestering - projectData.eigenVermogen) / totaleInvestering * 100,
         cashflowPerMaand: jaarlijkseHuur/12 - (totaleInvestering * 0.005),
         houdbaarheidRente: `Max +${(bar - 2).toFixed(1)}%`,
@@ -103,7 +131,7 @@ const FinancieringModule = () => {
       };
     }
 
-    // C. Ontwikkelen & Aanhouden (combinatie)
+    // C. Ontwikkelen & Aanhouden
     if (analyses.ontwikkelenAanhouden) {
       const totaleInvestering = projectData.aankoopprijs + projectData.verwervingskosten + projectData.bouwkosten;
       const waardesprong = projectData.verkoopwaarde - totaleInvestering;
@@ -120,87 +148,8 @@ const FinancieringModule = () => {
 
     setResults(calculatedResults);
     await runFinancieringsVergelijking();
+    setLoading(false);
   };
-
-  // --- FINANCIERINGSVERGELIJKING ENGINE ---
-  const nederlandseFinanciers = [
-    // Non-bank financiers
-    { 
-      naam: 'Mogelijk Vastgoedfinancieringen',
-      categorie: 'non-bank',
-      minTicket: 500000,
-      maxTicket: 10000000,
-      ltvRange: '70-80%',
-      rente: '4.5-6.5%',
-      looptijd: '12-60 maanden',
-      specialisatie: 'ontwikkeling, transformatie',
-      acceptatieSnelheid: 'snel',
-      kans: 'hoog'
-    },
-    { 
-      naam: 'Domivest',
-      categorie: 'non-bank',
-      minTicket: 250000,
-      maxTicket: 5000000,
-      ltvRange: '65-75%',
-      rente: '5.0-7.0%',
-      looptijd: '12-36 maanden',
-      specialisatie: 'brugfinanciering',
-      acceptatieSnelheid: 'snel',
-      kans: 'hoog'
-    },
-    // Crowdfunding
-    { 
-      naam: 'Collin Crowdfund',
-      categorie: 'crowdfunding',
-      minTicket: 100000,
-      maxTicket: 3000000,
-      ltvRange: '60-70%',
-      rente: '6.0-8.0%',
-      looptijd: '6-24 maanden',
-      specialisatie: 'korte projecten',
-      acceptatieSnelheid: 'zeer snel',
-      kans: 'middel'
-    },
-    { 
-      naam: 'Duurzaaminvesteren',
-      categorie: 'crowdfunding',
-      minTicket: 50000,
-      maxTicket: 2000000,
-      ltvRange: '50-65%',
-      rente: '5.5-7.5%',
-      looptijd: '12-48 maanden',
-      specialisatie: 'duurzame projecten',
-      acceptatieSnelheid: 'snel',
-      kans: 'middel'
-    },
-    // Mezzanine
-    { 
-      naam: 'NIBC Mezzanine',
-      categorie: 'mezzanine',
-      minTicket: 1000000,
-      maxTicket: 20000000,
-      ltvRange: '85-90%',
-      rente: '8.0-12.0%',
-      looptijd: '24-60 maanden',
-      specialisatie: 'grote ontwikkelingen',
-      acceptatieSnelheid: 'middel',
-      kans: 'laag'
-    },
-    // Family offices (geanonimiseerd)
-    { 
-      naam: 'FO Capital Partners',
-      categorie: 'private',
-      minTicket: 2000000,
-      maxTicket: 15000000,
-      ltvRange: '60-70%',
-      rente: '4.0-5.5%',
-      looptijd: '36-120 maanden',
-      specialisatie: 'core+ vastgoed',
-      acceptatieSnelheid: 'traag',
-      kans: 'middel'
-    }
-  ];
 
   const runFinancieringsVergelijking = async () => {
     if (!projectData) return;
@@ -208,71 +157,96 @@ const FinancieringModule = () => {
     const totaleInvestering = projectData.aankoopprijs + projectData.verwervingskosten + projectData.bouwkosten;
     const eigenInbreng = projectData.eigenVermogen;
     const benodigdeFinanciering = totaleInvestering - eigenInbreng;
+    
+    const nederlandseFinanciers = [
+      { 
+        naam: 'Mogelijk Vastgoedfinancieringen',
+        categorie: 'non-bank',
+        minTicket: 500000,
+        maxTicket: 10000000,
+        ltvRange: '70-80%',
+        rente: '4.5-6.5%',
+        looptijd: '12-60 maanden',
+        specialisatie: 'ontwikkeling, transformatie',
+        acceptatieSnelheid: 'snel',
+        kans: 'hoog'
+      },
+      { 
+        naam: 'Domivest',
+        categorie: 'non-bank',
+        minTicket: 250000,
+        maxTicket: 5000000,
+        ltvRange: '65-75%',
+        rente: '5.0-7.0%',
+        looptijd: '12-36 maanden',
+        specialisatie: 'brugfinanciering',
+        acceptatieSnelheid: 'snel',
+        kans: 'hoog'
+      },
+      { 
+        naam: 'Collin Crowdfund',
+        categorie: 'crowdfunding',
+        minTicket: 100000,
+        maxTicket: 3000000,
+        ltvRange: '60-70%',
+        rente: '6.0-8.0%',
+        looptijd: '6-24 maanden',
+        specialisatie: 'korte projecten',
+        acceptatieSnelheid: 'zeer snel',
+        kans: 'middel'
+      }
+    ];
+    
     const ltv = (benodigdeFinanciering / totaleInvestering) * 100;
     
-    // Filter financiers op basis van project criteria
     const geschikteFinanciers = nederlandseFinanciers.filter(financier => {
-      // Ticket size match
       const ticketMatch = benodigdeFinanciering >= financier.minTicket && 
                          benodigdeFinanciering <= financier.maxTicket;
-      
-      // LTV match (vereenvoudigd)
       const ltvMatch = ltv <= parseInt(financier.ltvRange.split('-')[1]);
-      
-      // Project fase match
-      const isOntwikkeling = analyses.ontwikkelenVerkopen || analyses.ontwikkelenAanhouden;
-      const isExploitatie = analyses.aankopenVerhuren;
-      
-      let faseMatch = true;
-      if (isOntwikkeling && financier.specialisatie.includes('ontwikkeling')) faseMatch = true;
-      if (isExploitatie && financier.specialisatie.includes('core')) faseMatch = true;
-      
-      return ticketMatch && ltvMatch && faseMatch;
+      return ticketMatch && ltvMatch;
     });
     
-    // Sorteer op kans (hoog naar laag)
     const gesorteerd = [...geschikteFinanciers].sort((a, b) => {
       const kansWaarde = { 'hoog': 3, 'middel': 2, 'laag': 1 };
       return kansWaarde[b.kans] - kansWaarde[a.kans];
     });
     
-    setFinancieringsVergelijking(gesorteerd.slice(0, 5)); // Top 5
+    setFinancieringsVergelijking(gesorteerd.slice(0, 5));
   };
 
-  // --- DEEL 4: STIKO ANALYSE ---
   const StikoAnalyseComponent = () => (
-    <Card sx={{ p: 3, mt: 2 }}>
-      <Typography variant="h6" gutterBottom>STIKO Structuur Analyse</Typography>
-      <Alert severity="info" sx={{ mb: 2 }}>
-        Alleen beschikbaar indien expliciet geselecteerd
-      </Alert>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
-          <Typography variant="subtitle2">Economisch vs Juridisch eigendom</Typography>
-          <Typography variant="body2" color="textSecondary">
-            Certificaathouders hebben economisch recht, BV juridisch eigendom
-          </Typography>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Typography variant="subtitle2">Cashflow distributie</Typography>
-          <Typography variant="body2" color="textSecondary">
-            Na rente en aflossing → certificaathouders
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <Divider sx={{ my: 2 }} />
-          <Typography variant="subtitle2">Financierbaarheid per banktype</Typography>
-          <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-            <Chip label="Niet-banken: Acceptabel" color="success" size="small" />
-            <Chip label="Grootbanken: Moeilijk" color="warning" size="small" />
-            <Chip label="Fondsen: Zeer geschikt" color="success" size="small" />
-          </Box>
-        </Grid>
-      </Grid>
+    <Card style={{ marginTop: 16 }}>
+      <Title level={5}><SettingOutlined /> STIKO Structuur Analyse</Title>
+      <Alert 
+        message="Alleen beschikbaar indien expliciet geselecteerd" 
+        type="info" 
+        showIcon 
+        style={{ marginBottom: 16 }}
+      />
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={12}>
+          <Text strong>Economisch vs Juridisch eigendom</Text>
+          <br />
+          <Text type="secondary">Certificaathouders hebben economisch recht, BV juridisch eigendom</Text>
+        </Col>
+        <Col xs={24} md={12}>
+          <Text strong>Cashflow distributie</Text>
+          <br />
+          <Text type="secondary">Na rente en aflossing → certificaathouders</Text>
+        </Col>
+        <Col xs={24}>
+          <Divider />
+          <Text strong>Financierbaarheid per banktype</Text>
+          <Space style={{ marginTop: 8 }}>
+            <Tag color="green">Niet-banken: Acceptabel</Tag>
+            <Tag color="orange">Grootbanken: Moeilijk</Tag>
+            <Tag color="green">Fondsen: Zeer geschikt</Tag>
+          </Space>
+        </Col>
+      </Row>
     </Card>
   );
 
-  // --- DEEL 5: WAARDE VERMEERDERING ---
   const WaardeOptimalisatieComponent = () => {
     const optimalisaties = [
       { ingreep: 'Extra m² toevoegen', investering: 1500, waarde: 2500, verhouding: 1.67 },
@@ -282,283 +256,351 @@ const FinancieringModule = () => {
       { ingreep: 'Fasering ontwikkeltraject', investering: -300, waarde: 500, verhouding: 2.67 }
     ];
     
-    return (
-      <Card sx={{ p: 3, mt: 2 }}>
-        <Typography variant="h6" gutterBottom>Waarde-vermeerdering optimalisatie</Typography>
-        <Typography variant="body2" color="textSecondary" paragraph>
-          "€1 extra investering levert €X waarde" - gebaseerd op marktdata
-        </Typography>
-        <TableContainer component={Paper} variant="outlined">
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Ingreep</TableCell>
-                <TableCell align="right">Investering p/m²</TableCell>
-                <TableCell align="right">Waarde p/m²</TableCell>
-                <TableCell align="right">Verhouding</TableCell>
-                <TableCell align="right">Rang</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {optimalisaties.sort((a,b) => b.verhouding - a.verhouding).map((row, idx) => (
-                <TableRow key={row.ingreep}>
-                  <TableCell>{row.ingreep}</TableCell>
-                  <TableCell align="right">€{row.investering}</TableCell>
-                  <TableCell align="right">€{row.waarde}</TableCell>
-                  <TableCell align="right">1:{row.verhouding.toFixed(2)}</TableCell>
-                  <TableCell align="right">
-                    <Chip label={`#${idx + 1}`} size="small" color="primary" />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Card>
-    );
-  };
-
-  // --- DEEL 6: VERGELIJKINGSMATRIX ---
-  const VergelijkingsMatrix = () => {
-    const rows = [
-      { strategie: 'Verkopen', irr: results?.ontwikkelenVerkopen?.roi || '-', nettoWinst: results?.ontwikkelenVerkopen?.nettowinst || '-', cashflow: 'Eenmalig', risico: 'Hoog', kapitaal: 'Volledig' },
-      { strategie: 'Verhuren', irr: results?.aankopenVerhuren?.nettoRendement || '-', nettoWinst: 'Jaarlijks', cashflow: results?.aankopenVerhuren?.cashflowPerMaand || '-', risico: 'Middel', kapitaal: 'Deels' },
-      { strategie: 'Aanhouden', irr: results?.ontwikkelenAanhouden?.waardesprongPercentage || '-', nettoWinst: results?.ontwikkelenAanhouden?.ontwikkelwinst || '-', cashflow: 'Gecombineerd', risico: 'Hoog', kapitaal: 'Volledig' }
+    const columns = [
+      {
+        title: 'Ingreep',
+        dataIndex: 'ingreep',
+        key: 'ingreep',
+      },
+      {
+        title: 'Investering p/m²',
+        dataIndex: 'investering',
+        key: 'investering',
+        render: (value) => `€${value.toLocaleString()}`,
+        align: 'right',
+      },
+      {
+        title: 'Waarde p/m²',
+        dataIndex: 'waarde',
+        key: 'waarde',
+        render: (value) => `€${value.toLocaleString()}`,
+        align: 'right',
+      },
+      {
+        title: 'Verhouding',
+        dataIndex: 'verhouding',
+        key: 'verhouding',
+        render: (value) => `1:${value.toFixed(2)}`,
+        align: 'right',
+      },
+      {
+        title: 'Rang',
+        key: 'rang',
+        render: (_, record, index) => (
+          <Tag color="blue">#{index + 1}</Tag>
+        ),
+        align: 'right',
+      },
     ];
 
     return (
-      <Card sx={{ p: 3, mt: 2 }}>
-        <Typography variant="h6" gutterBottom>Vergelijkingsmatrix Strategieën</Typography>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell><strong>Strategie</strong></TableCell>
-                <TableCell align="right"><strong>IRR</strong></TableCell>
-                <TableCell align="right"><strong>Netto winst</strong></TableCell>
-                <TableCell align="right"><strong>Cashflow</strong></TableCell>
-                <TableCell align="right"><strong>Risico</strong></TableCell>
-                <TableCell align="right"><strong>Kapitaalbeslag</strong></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows.map((row) => (
-                <TableRow key={row.strategie}>
-                  <TableCell>{row.strategie}</TableCell>
-                  <TableCell align="right">
-                    {typeof row.irr === 'number' ? `${row.irr.toFixed(1)}%` : row.irr}
-                  </TableCell>
-                  <TableCell align="right">
-                    {typeof row.nettoWinst === 'number' ? `€${Math.round(row.nettoWinst).toLocaleString()}` : row.nettoWinst}
-                  </TableCell>
-                  <TableCell align="right">
-                    {typeof row.cashflow === 'number' ? `€${Math.round(row.cashflow).toLocaleString()}` : row.cashflow}
-                  </TableCell>
-                  <TableCell align="right">
-                    <Chip 
-                      label={row.risico} 
-                      size="small" 
-                      color={row.risico === 'Hoog' ? 'error' : row.risico === 'Middel' ? 'warning' : 'success'}
-                    />
-                  </TableCell>
-                  <TableCell align="right">{row.kapitaal}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+      <Card style={{ marginTop: 16 }}>
+        <Title level={5}><LineChartOutlined /> Waarde-vermeerdering optimalisatie</Title>
+        <Paragraph type="secondary">
+          "€1 extra investering levert €X waarde" - gebaseerd op marktdata
+        </Paragraph>
+        <Table 
+          columns={columns}
+          dataSource={optimalisaties.sort((a,b) => b.verhouding - a.verhouding)}
+          size="small"
+          rowKey="ingreep"
+          pagination={false}
+        />
       </Card>
     );
   };
 
-  // --- DEEL 7: FINANCIERINGSTECHNIEKEN ---
+  const VergelijkingsMatrix = () => {
+    const dataSource = [
+      { 
+        key: '1',
+        strategie: 'Verkopen', 
+        irr: results?.ontwikkelenVerkopen?.roi || '-', 
+        nettoWinst: results?.ontwikkelenVerkopen?.nettowinst || '-', 
+        cashflow: 'Eenmalig', 
+        risico: 'Hoog', 
+        kapitaal: 'Volledig' 
+      },
+      { 
+        key: '2',
+        strategie: 'Verhuren', 
+        irr: results?.aankopenVerhuren?.nettoRendement || '-', 
+        nettoWinst: 'Jaarlijks', 
+        cashflow: results?.aankopenVerhuren?.cashflowPerMaand || '-', 
+        risico: 'Middel', 
+        kapitaal: 'Deels' 
+      },
+      { 
+        key: '3',
+        strategie: 'Aanhouden', 
+        irr: results?.ontwikkelenAanhouden?.waardesprongPercentage || '-', 
+        nettoWinst: results?.ontwikkelenAanhouden?.ontwikkelwinst || '-', 
+        cashflow: 'Gecombineerd', 
+        risico: 'Hoog', 
+        kapitaal: 'Volledig' 
+      }
+    ];
+
+    const columns = [
+      {
+        title: 'Strategie',
+        dataIndex: 'strategie',
+        key: 'strategie',
+      },
+      {
+        title: 'IRR',
+        dataIndex: 'irr',
+        key: 'irr',
+        render: (value) => typeof value === 'number' ? `${value.toFixed(1)}%` : value,
+        align: 'right',
+      },
+      {
+        title: 'Netto winst',
+        dataIndex: 'nettoWinst',
+        key: 'nettoWinst',
+        render: (value) => typeof value === 'number' ? `€${Math.round(value).toLocaleString()}` : value,
+        align: 'right',
+      },
+      {
+        title: 'Cashflow',
+        dataIndex: 'cashflow',
+        key: 'cashflow',
+        render: (value) => typeof value === 'number' ? `€${Math.round(value).toLocaleString()}` : value,
+        align: 'right',
+      },
+      {
+        title: 'Risico',
+        dataIndex: 'risico',
+        key: 'risico',
+        render: (value) => (
+          <Tag 
+            color={value === 'Hoog' ? 'red' : value === 'Middel' ? 'orange' : 'green'}
+          >
+            {value}
+          </Tag>
+        ),
+        align: 'right',
+      },
+      {
+        title: 'Kapitaalbeslag',
+        dataIndex: 'kapitaal',
+        key: 'kapitaal',
+        align: 'right',
+      },
+    ];
+
+    return (
+      <Card style={{ marginTop: 16 }}>
+        <Title level={5}>Vergelijkingsmatrix Strategieën</Title>
+        <Table 
+          columns={columns}
+          dataSource={dataSource}
+          pagination={false}
+        />
+      </Card>
+    );
+  };
+
   const Financieringstechnieken = () => (
-    <Card sx={{ p: 3, mt: 2 }}>
-      <Typography variant="h6" gutterBottom>Financieringstechnieken (suggesties)</Typography>
-      <Grid container spacing={2}>
+    <Card style={{ marginTop: 16 }}>
+      <Title level={5}>Financieringstechnieken (suggesties)</Title>
+      <Row gutter={[16, 16]}>
         {[
           { techniek: 'Bankfinanciering', haalbaarheid: 'Laag', kosten: '4-5%', risico: 'Laag', zeggenschap: 'Hoog' },
           { techniek: 'Mezzanine', haalbaarheid: 'Middel', kosten: '8-12%', risico: 'Middel', zeggenschap: 'Middel' },
           { techniek: 'Private investeerders', haalbaarheid: 'Hoog', kosten: '6-9%', risico: 'Middel', zeggenschap: 'Variabel' },
           { techniek: 'STIKO', haalbaarheid: 'Middel', kosten: '1-2% extra', risico: 'Complexiteit', zeggenschap: 'Behouden' },
           { techniek: 'Gefaseerde funding', haalbaarheid: 'Hoog', kosten: '+0.5-1%', risico: 'Uitvoering', zeggenschap: 'Behouden' }
-        ].map((tech) => (
-          <Grid item xs={12} sm={6} md={4} key={tech.techniek}>
-            <Paper variant="outlined" sx={{ p: 2, height: '100%' }}>
-              <Typography variant="subtitle2">{tech.techniek}</Typography>
-              <Box sx={{ mt: 1 }}>
-                <Typography variant="caption" color="textSecondary">Haalbaarheid: </Typography>
-                <Chip label={tech.haalbaarheid} size="small" color={tech.haalbaarheid === 'Hoog' ? 'success' : 'warning'} />
-              </Box>
-              <Typography variant="body2" sx={{ mt: 1 }}>Kosten: {tech.kosten}</Typography>
-              <Typography variant="body2">Risico: {tech.risico}</Typography>
-            </Paper>
-          </Grid>
+        ].map((tech, index) => (
+          <Col xs={24} sm={12} md={8} key={index}>
+            <Card size="small">
+              <Text strong>{tech.techniek}</Text>
+              <div style={{ marginTop: 8 }}>
+                <Text type="secondary">Haalbaarheid: </Text>
+                <Tag color={tech.haalbaarheid === 'Hoog' ? 'green' : 'orange'}>{tech.haalbaarheid}</Tag>
+              </div>
+              <Text style={{ display: 'block', marginTop: 8 }}>Kosten: {tech.kosten}</Text>
+              <Text style={{ display: 'block' }}>Risico: {tech.risico}</Text>
+            </Card>
+          </Col>
         ))}
-      </Grid>
+      </Row>
     </Card>
   );
 
-  // --- DEEL 8: ZEKERHEIDSLABELS ---
-  const ZekerheidsLabels = () => (
-    <Box sx={{ mt: 2, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
-      <Typography variant="subtitle2" gutterBottom>Output zekerheidsniveau:</Typography>
-      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-        <Chip label="Hard (data-gedreven)" color="success" variant="outlined" />
-        <Chip label="Modelmatig" color="warning" variant="outlined" />
-        <Chip label="Scenario-afhankelijk" color="info" variant="outlined" />
-      </Box>
-      <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
-        Geen absolute waarheden - altijd professioneel advies inwinnen
-      </Typography>
-    </Box>
-  );
-
-  // --- HOOFD RENDER ---
   if (!selectedProject) {
     return (
-      <Box sx={{ p: 3, textAlign: 'center' }}>
-        <Alert severity="warning">
-          Selecteer eerst een project om financieringsanalyses uit te voeren.
-        </Alert>
-      </Box>
+      <div style={{ padding: 24, textAlign: 'center' }}>
+        <Alert 
+          message="Selecteer eerst een project" 
+          description="Selecteer eerst een project om financieringsanalyses uit te voeren."
+          type="warning"
+          showIcon
+        />
+      </div>
     );
   }
 
   if (!projectData) {
     return (
-      <Box sx={{ p: 3, textAlign: 'center' }}>
-        <Alert severity="error">
-          Onvoldoende projectdata beschikbaar voor analyse.
-        </Alert>
-      </Box>
+      <div style={{ padding: 24, textAlign: 'center' }}>
+        <Alert 
+          message="Onvoldoende projectdata" 
+          description="Onvoldoende projectdata beschikbaar voor analyse."
+          type="error"
+          showIcon
+        />
+      </div>
     );
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>Financiering & Vastgoedstrategie (AI-gestuurd)</Typography>
+    <div style={{ padding: 24 }}>
+      <Title level={2} style={{ marginBottom: 16 }}>
+        <BankOutlined /> Financiering & Vastgoedstrategie (AI-gestuurd)
+      </Title>
       
       {/* Project info */}
-      <Card sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>Ingang: Geselecteerd Project</Typography>
-        <Grid container spacing={2}>
+      <Card style={{ marginBottom: 24 }}>
+        <Title level={4}>Ingang: Geselecteerd Project</Title>
+        <Row gutter={[16, 16]}>
           {Object.entries(projectData).map(([key, value]) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={key}>
-              <Paper variant="outlined" sx={{ p: 1.5 }}>
-                <Typography variant="caption" color="textSecondary" display="block">
+            <Col xs={24} sm={12} md={8} lg={6} key={key}>
+              <Card size="small">
+                <Text type="secondary" style={{ display: 'block' }}>
                   {key.replace(/([A-Z])/g, ' $1').toUpperCase()}
-                </Typography>
-                <Typography variant="body1">
+                </Text>
+                <Text strong style={{ fontSize: '16px' }}>
                   {typeof value === 'number' ? `€${Math.round(value).toLocaleString()}` : value || '-'}
-                </Typography>
-              </Paper>
-            </Grid>
+                </Text>
+              </Card>
+            </Col>
           ))}
-        </Grid>
-        <Alert severity="info" sx={{ mt: 2 }}>
-          AI mag niets aanvullen of raden. Alleen berekeningen op basis van bovenstaande data.
-        </Alert>
+        </Row>
+        <Alert 
+          message="AI mag niets aanvullen of raden" 
+          description="Alleen berekeningen op basis van bovenstaande data."
+          type="info"
+          showIcon
+          style={{ marginTop: 16 }}
+        />
       </Card>
 
       {/* Analyse selector */}
-      <Card sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>Selecteer analyses (expliciete keuze vereist)</Typography>
-        <Grid container spacing={2}>
+      <Card style={{ marginBottom: 24 }}>
+        <Title level={4}>Selecteer analyses (expliciete keuze vereist)</Title>
+        <Row gutter={[16, 16]}>
           {analyseOpties.map((optie) => (
-            <Grid item xs={12} sm={6} md={4} key={optie.id}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={analyses[optie.id]}
-                    onChange={(e) => setAnalyses({...analyses, [optie.id]: e.target.checked})}
-                  />
-                }
-                label={optie.label}
-              />
-            </Grid>
+            <Col xs={24} sm={12} md={8} key={optie.id}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Switch
+                  checked={analyses[optie.id]}
+                  onChange={(checked) => setAnalyses({...analyses, [optie.id]: checked})}
+                  style={{ marginRight: 8 }}
+                />
+                <Text>{optie.label}</Text>
+              </div>
+            </Col>
           ))}
-        </Grid>
-        <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+        </Row>
+        <Space style={{ marginTop: 16 }}>
           <Button 
-            variant="contained" 
+            type="primary" 
             onClick={runAnalyses}
-            disabled={!Object.values(analyses).some(v => v)}
+            disabled={!Object.values(analyses).some(v => v) || loading}
+            loading={loading}
+            icon={<CalculatorOutlined />}
           >
             Uitgekozen analyses uitvoeren
           </Button>
           <Button 
-            variant="outlined"
             onClick={() => setAnalyses(Object.keys(analyses).reduce((acc, key) => ({...acc, [key]: true}), {}))}
+            icon={<CheckCircleOutlined />}
           >
             Alles selecteren
           </Button>
-        </Box>
+        </Space>
       </Card>
 
       {results && (
         <>
-          <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} sx={{ mb: 2 }}>
-            <Tab label="Kernresultaten" />
-            <Tab label="Financieringsmatch" />
-            <Tab label="Vergelijking" />
-            <Tab label="Optimalisatie" />
+          <Tabs activeKey={activeTab} onChange={setActiveTab} style={{ marginBottom: 24 }}>
+            <TabPane tab="Kernresultaten" key="0" />
+            <TabPane tab="Financieringsmatch" key="1" />
+            <TabPane tab="Vergelijking" key="2" />
+            <TabPane tab="Optimalisatie" key="3" />
           </Tabs>
 
-          {activeTab === 0 && (
+          {activeTab === '0' && (
             <>
-              {/* Resultaten per analyse */}
               {analyses.ontwikkelenVerkopen && results.ontwikkelenVerkopen && (
-                <Card sx={{ p: 3, mb: 2 }}>
-                  <Typography variant="h6" gutterBottom>Ontwikkelen & Verkopen</Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={6}>
-                      <Typography variant="subtitle2">Financiële haalbaarheid:</Typography>
-                      <Chip 
-                        label={results.ontwikkelenVerkopen.haalbaarheid} 
-                        color={results.ontwikkelenVerkopen.haalbaarheid === 'JA' ? 'success' : results.ontwikkelenVerkopen.haalbaarheid === 'MARGINAAL' ? 'warning' : 'error'}
-                        sx={{ mt: 1 }}
+                <Card style={{ marginBottom: 16 }}>
+                  <Title level={5}>Ontwikkelen & Verkopen</Title>
+                  <Row gutter={[16, 16]}>
+                    <Col xs={24} md={12}>
+                      <Text strong>Financiële haalbaarheid:</Text>
+                      <br />
+                      <Tag 
+                        color={results.ontwikkelenVerkopen.haalbaarheid === 'JA' ? 'green' : 
+                               results.ontwikkelenVerkopen.haalbaarheid === 'MARGINAAL' ? 'orange' : 'red'}
+                        style={{ marginTop: 8 }}
+                      >
+                        {results.ontwikkelenVerkopen.haalbaarheid}
+                      </Tag>
+                    </Col>
+                    <Col xs={24} md={12}>
+                      <Text strong>ROI: {results.ontwikkelenVerkopen.roi.toFixed(1)}%</Text>
+                      <br />
+                      <Progress 
+                        percent={Math.min(results.ontwikkelenVerkopen.roi, 50)} 
+                        style={{ marginTop: 8 }}
                       />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <Typography variant="subtitle2">ROI: {results.ontwikkelenVerkopen.roi.toFixed(1)}%</Typography>
-                      <LinearProgress 
-                        variant="determinate" 
-                        value={Math.min(results.ontwikkelenVerkopen.roi, 50)} 
-                        sx={{ mt: 1 }}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="subtitle2" color="error">Risico's:</Typography>
-                      <Typography variant="body2">{results.ontwikkelenVerkopen.risicos.join(', ')}</Typography>
-                    </Grid>
-                  </Grid>
+                    </Col>
+                    <Col xs={24}>
+                      <Text strong type="danger">Risico's:</Text>
+                      <br />
+                      <Text>{results.ontwikkelenVerkopen.risicos.join(', ')}</Text>
+                    </Col>
+                  </Row>
                 </Card>
               )}
 
               {analyses.aankopenVerhuren && results.aankopenVerhuren && (
-                <Card sx={{ p: 3, mb: 2 }}>
-                  <Typography variant="h6" gutterBottom>Aankopen & Verhuren</Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={6} md={3}>
-                      <Typography variant="subtitle2">BAR</Typography>
-                      <Typography variant="h6">{results.aankopenVerhuren.bar.toFixed(1)}%</Typography>
-                    </Grid>
-                    <Grid item xs={6} md={3}>
-                      <Typography variant="subtitle2">LTV</Typography>
-                      <Typography variant="h6">{results.aankopenVerhuren.ltv.toFixed(0)}%</Typography>
-                    </Grid>
-                    <Grid item xs={6} md={3}>
-                      <Typography variant="subtitle2">DSCR</Typography>
-                      <Typography variant="h6">{results.aankopenVerhuren.dscr.toFixed(2)}</Typography>
-                    </Grid>
-                    <Grid item xs={6} md={3}>
-                      <Typography variant="subtitle2">Cashflow/maand</Typography>
-                      <Typography variant="h6" color={results.aankopenVerhuren.cashflowPerMaand > 0 ? 'success.main' : 'error.main'}>
+                <Card style={{ marginBottom: 16 }}>
+                  <Title level={5}>Aankopen & Verhuren</Title>
+                  <Row gutter={[16, 16]}>
+                    <Col xs={12} md={6}>
+                      <Text strong>BAR</Text>
+                      <br />
+                      <Title level={3} style={{ margin: 0 }}>
+                        {results.aankopenVerhuren.bar.toFixed(1)}%
+                      </Title>
+                    </Col>
+                    <Col xs={12} md={6}>
+                      <Text strong>LTV</Text>
+                      <br />
+                      <Title level={3} style={{ margin: 0 }}>
+                        {results.aankopenVerhuren.ltv.toFixed(0)}%
+                      </Title>
+                    </Col>
+                    <Col xs={12} md={6}>
+                      <Text strong>DSCR</Text>
+                      <br />
+                      <Title level={3} style={{ margin: 0 }}>
+                        {results.aankopenVerhuren.dscr.toFixed(2)}
+                      </Title>
+                    </Col>
+                    <Col xs={12} md={6}>
+                      <Text strong>Cashflow/maand</Text>
+                      <br />
+                      <Title level={3} style={{ 
+                        margin: 0,
+                        color: results.aankopenVerhuren.cashflowPerMaand > 0 ? '#52c41a' : '#f5222d'
+                      }}>
                         €{Math.round(results.aankopenVerhuren.cashflowPerMaand).toLocaleString()}
-                      </Typography>
-                    </Grid>
-                  </Grid>
+                      </Title>
+                    </Col>
+                  </Row>
                 </Card>
               )}
 
@@ -566,104 +608,148 @@ const FinancieringModule = () => {
             </>
           )}
 
-          {activeTab === 1 && (
-            <Card sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
+          {activeTab === '1' && (
+            <Card>
+              <Title level={4}>
                 Financieringsmatch - Nederlandse non-bank markt
-                <Chip label="Grootbanken standaard uitgesloten" color="warning" size="small" sx={{ ml: 2 }} />
-              </Typography>
+                <Tag color="orange" style={{ marginLeft: 8 }}>Grootbanken standaard uitgesloten</Tag>
+              </Title>
               
               {financieringsVergelijking.length > 0 ? (
                 <>
-                  <TableContainer component={Paper} variant="outlined" sx={{ mt: 2 }}>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell><strong>Financier</strong></TableCell>
-                          <TableCell align="right"><strong>Categorie</strong></TableCell>
-                          <TableCell align="right"><strong>LTV range</strong></TableCell>
-                          <TableCell align="right"><strong>Rente</strong></TableCell>
-                          <TableCell align="right"><strong>Looptijd</strong></TableCell>
-                          <TableCell align="right"><strong>Acceptatie</strong></TableCell>
-                          <TableCell align="right"><strong>Kans</strong></TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {financieringsVergelijking.map((financier) => (
-                          <TableRow key={financier.naam}>
-                            <TableCell>
-                              <Typography variant="subtitle2">{financier.naam}</Typography>
-                              <Typography variant="caption" color="textSecondary">
-                                {financier.specialisatie}
-                              </Typography>
-                            </TableCell>
-                            <TableCell align="right">
-                              <Chip 
-                                label={financier.categorie} 
-                                size="small" 
-                                variant="outlined"
-                              />
-                            </TableCell>
-                            <TableCell align="right">{financier.ltvRange}</TableCell>
-                            <TableCell align="right">{financier.rente}</TableCell>
-                            <TableCell align="right">{financier.looptijd}</TableCell>
-                            <TableCell align="right">
-                              <Chip 
-                                label={financier.acceptatieSnelheid} 
-                                size="small"
-                                color={financier.acceptatieSnelheid === 'snel' ? 'success' : 'default'}
-                              />
-                            </TableCell>
-                            <TableCell align="right">
-                              <Chip 
-                                label={financier.kans} 
-                                size="small"
-                                color={financier.kans === 'hoog' ? 'success' : financier.kans === 'middel' ? 'warning' : 'error'}
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
+                  <Table 
+                    dataSource={financieringsVergelijking}
+                    columns={[
+                      {
+                        title: 'Financier',
+                        dataIndex: 'naam',
+                        key: 'naam',
+                        render: (text, record) => (
+                          <div>
+                            <Text strong>{text}</Text>
+                            <br />
+                            <Text type="secondary">{record.specialisatie}</Text>
+                          </div>
+                        ),
+                      },
+                      {
+                        title: 'Categorie',
+                        dataIndex: 'categorie',
+                        key: 'categorie',
+                        render: (text) => <Tag>{text}</Tag>,
+                        align: 'center',
+                      },
+                      {
+                        title: 'LTV range',
+                        dataIndex: 'ltvRange',
+                        key: 'ltvRange',
+                        align: 'center',
+                      },
+                      {
+                        title: 'Rente',
+                        dataIndex: 'rente',
+                        key: 'rente',
+                        align: 'center',
+                      },
+                      {
+                        title: 'Looptijd',
+                        dataIndex: 'looptijd',
+                        key: 'looptijd',
+                        align: 'center',
+                      },
+                      {
+                        title: 'Acceptatie',
+                        dataIndex: 'acceptatieSnelheid',
+                        key: 'acceptatieSnelheid',
+                        render: (text) => (
+                          <Tag color={text === 'snel' ? 'green' : 'default'}>{text}</Tag>
+                        ),
+                        align: 'center',
+                      },
+                      {
+                        title: 'Kans',
+                        dataIndex: 'kans',
+                        key: 'kans',
+                        render: (text) => (
+                          <Tag 
+                            color={text === 'hoog' ? 'green' : text === 'middel' ? 'orange' : 'red'}
+                          >
+                            {text}
+                          </Tag>
+                        ),
+                        align: 'center',
+                      },
+                    ]}
+                    rowKey="naam"
+                    style={{ marginTop: 16 }}
+                  />
                   
-                  <Alert severity="info" sx={{ mt: 3 }}>
-                    <Typography variant="subtitle2">Praktische output:</Typography>
-                    <ul>
-                      <li>Shortlist van {financieringsVergelijking.length} financiers</li>
-                      <li>Verwachte dealstructuur: {financieringsVergelijking[0]?.ltvRange} LTV</li>
-                      <li>Documenten nodig: Projectplan, Begroting, Toelichting</li>
-                    </ul>
-                  </Alert>
+                  <Alert 
+                    type="info"
+                    message="Praktische output:"
+                    description={
+                      <div>
+                        <ul>
+                          <li>Shortlist van {financieringsVergelijking.length} financiers</li>
+                          <li>Verwachte dealstructuur: {financieringsVergelijking[0]?.ltvRange} LTV</li>
+                          <li>Documenten nodig: Projectplan, Begroting, Toelichting</li>
+                        </ul>
+                      </div>
+                    }
+                    style={{ marginTop: 16 }}
+                  />
                 </>
               ) : (
-                <Alert severity="warning" sx={{ mt: 2 }}>
-                  Geen match gevonden met niet-bank financiers. Overweeg:
-                  <ul>
-                    <li>Eigen vermogen verhogen met 10-15%</li>
-                    <li>Project faseren voor betere acceptatie</li>
-                    <li>Private equity benaderen</li>
-                  </ul>
-                </Alert>
+                <Alert 
+                  type="warning"
+                  message="Geen match gevonden"
+                  description={
+                    <div>
+                      Geen match gevonden met niet-bank financiers. Overweeg:
+                      <ul>
+                        <li>Eigen vermogen verhogen met 10-15%</li>
+                        <li>Project faseren voor betere acceptatie</li>
+                        <li>Private equity benaderen</li>
+                      </ul>
+                    </div>
+                  }
+                  style={{ marginTop: 16 }}
+                />
               )}
             </Card>
           )}
 
-          {activeTab === 2 && (
+          {activeTab === '2' && (
             <>
               <VergelijkingsMatrix />
               <Financieringstechnieken />
             </>
           )}
 
-          {activeTab === 3 && analyses.waardeOptimalisatie && (
+          {activeTab === '3' && analyses.waardeOptimalisatie && (
             <WaardeOptimalisatieComponent />
           )}
 
-          <ZekerheidsLabels />
+          <div style={{ 
+            marginTop: 24, 
+            padding: 16, 
+            backgroundColor: '#f6ffed', 
+            borderRadius: 8,
+            border: '1px solid #b7eb8f'
+          }}>
+            <Text strong>Output zekerheidsniveau:</Text>
+            <Space style={{ marginTop: 8 }}>
+              <Tag color="green">Hard (data-gedreven)</Tag>
+              <Tag color="orange">Modelmatig</Tag>
+              <Tag color="blue">Scenario-afhankelijk</Tag>
+            </Space>
+            <Text type="secondary" style={{ display: 'block', marginTop: 8 }}>
+              Geen absolute waarheden - altijd professioneel advies inwinnen
+            </Text>
+          </div>
         </>
       )}
-    </Box>
+    </div>
   );
 };
 
