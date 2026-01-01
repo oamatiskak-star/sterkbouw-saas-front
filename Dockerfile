@@ -1,7 +1,7 @@
 # =========================
 # BUILD STAGE
 # =========================
-FROM node:20-alpine AS builder
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
@@ -29,7 +29,7 @@ RUN npm run build
 # =========================
 # RUNTIME STAGE
 # =========================
-FROM node:20-alpine
+FROM node:18-alpine
 
 WORKDIR /app
 ENV NODE_ENV=production
