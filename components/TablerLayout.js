@@ -2,59 +2,55 @@ import Link from "next/link"
 
 export default function TablerLayout({ children }) {
   const menu = [
-    { key: "nieuw_project", label: "Nieuw project", href: "/nieuw-project" },
-    { key: "projecten", label: "Projecten", href: "/projecten" },
-    { key: "calculaties", label: "Calculaties", href: "/calculaties" },
-    { key: "financiering", label: "Financiering", href: "/financiering" },
-    { key: "projectontwikkeling", label: "Projectontwikkeling", href: "/projectontwikkeling" },
-    { key: "bim", label: "Ontwerp & BIM", href: "/bim" },
+    { key: "dashboard", label: "Dashboard", href: "/dashboard" },
+    { key: "administratie", label: "Administratie", href: "/administratie" },
+    { key: "bim", label: "BIM", href: "/bim" },
+    { key: "bouwplaats", label: "Bouwplaats", href: "/bouwplaats" },
+    { key: "calculatie", label: "Calculatie", href: "/calculatie" },
     { key: "constructie", label: "Constructie", href: "/constructie" },
+    { key: "documenten", label: "Documenten", href: "/documenten" },
     { key: "financien", label: "Financiën", href: "/financien" },
-    { key: "investeringen", label: "Investeringen", href: "/investeringen" },
+    { key: "financieringen", label: "Financieringen", href: "/financieringen" },
+    { key: "inkoop", label: "Inkoop", href: "/inkoop" },
+    { key: "kopersportaal", label: "Kopersportaal", href: "/kopersportaal" },
     { key: "mail", label: "Mail", href: "/mail" },
+    { key: "planning", label: "Planning", href: "/planning" },
+    { key: "projecten", label: "Projecten", href: "/projecten" },
+    { key: "projectportaal", label: "Projectportaal", href: "/projectportaal" },
     { key: "instellingen", label: "Instellingen", href: "/instellingen" }
   ]
 
   return (
-    <div className="page">
-      <aside className="navbar navbar-vertical navbar-expand-lg navbar-dark">
-        <div className="container-fluid">
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#sidebar-menu"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-
-          <h1 className="navbar-brand navbar-brand-autodark">
-            <Link href="/" className="navbar-brand-link">
-              Admin Main
-            </Link>
-          </h1>
-
-          <div className="collapse navbar-collapse" id="sidebar-menu">
-            <ul className="navbar-nav pt-lg-3">
-              {menu.map(item => (
-                <li className="nav-item" key={item.key}>
-                  <Link href={item.href} className="nav-link">
-                    <span className="nav-link-title">{item.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+    <div className="flex min-h-screen">
+      {/* SIDEBAR */}
+      <aside className="menu">
+        <div className="px-4 py-4 border-b border-gray-300 font-semibold text-lg">
+          SterkBouw
         </div>
+
+        <nav className="flex flex-col mt-2">
+          {menu.map(item => (
+            <Link
+              key={item.key}
+              href={item.href}
+              className="menu-link"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
       </aside>
 
-      <div className="page-wrapper">
-        <div className="page-body">
-          <div className="container-xl">
-            {children}
+      {/* CONTENT */}
+      <main className="flex-1 overflow-auto">
+        <div className="page-wrapper">
+          <div className="page-body">
+            <div className="container-xl">
+              {children}
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }
