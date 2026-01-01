@@ -1,43 +1,45 @@
-# =========================
-# BUILD STAGE
-# =========================
-FROM node:18-alpine AS builder
+FROM node:18-alpine AS base
 
+# 1. Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Package files eerst
+# Copy package files
 COPY package.json package-lock.json* ./
+RUN npm ci
 
-# Dependencies installeren
-RUN if [ -f package-lock.json ]; then npm ci --legacy-peer-deps; else npm install --legacy-peer-deps; fi
-
-# Applicatiecode
+# 2. Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Maak een simpele next.config.js
-RUN echo 'module.exports={output:"standalone",images:{unoptimized:true},typescript:{ignoreBuildErrors:true},eslint:{ignoreDuringBuilds:true}}' > next.config.js
-
-# Maak _app.js met getInitialProps
-
-# Environment variables
-ENV NEXT_PUBLIC_SKIP_PRERENDER=true
+# Set environment variables for build
+ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Build
 RUN npm run build
 
-# =========================
-# RUNTIME STAGE
-# =========================
-FROM node:18-alpine
-
+# 3. Production image, copy all the files and run next
+FROM base AS runner
 WORKDIR /app
-ENV NODE_ENV=production
 
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy standalone build
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
 
 EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
 CMD ["node", "server.js"]
