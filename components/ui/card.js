@@ -1,89 +1,50 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import clsx from 'clsx'
-
-// Default export Card component
-const Card = React.forwardRef(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={clsx(
-      'rounded-lg border bg-card text-card-foreground shadow-sm',
-      className
-    )}
-    {...props}
-  />
-))
-Card.displayName = 'Card'
-Card.propTypes = {
-  className: PropTypes.string,
+// components/ui/card.js
+export function Card({ children, className = '', ...props }) {
+  return (
+    <div className={`rounded-lg border bg-card text-card-foreground shadow-sm ${className}`} {...props}>
+      {children}
+    </div>
+  );
 }
 
-// Named exports voor Card sub-components
-const CardHeader = React.forwardRef(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={clsx('flex flex-col space-y-1.5 p-6', className)}
-    {...props}
-  />
-))
-CardHeader.displayName = 'CardHeader'
-CardHeader.propTypes = {
-  className: PropTypes.string,
+export function CardHeader({ children, className = '', ...props }) {
+  return (
+    <div className={`flex flex-col space-y-1.5 p-6 ${className}`} {...props}>
+      {children}
+    </div>
+  );
 }
 
-const CardTitle = React.forwardRef(({ className, ...props }, ref) => (
-  <h3
-    ref={ref}
-    className={clsx(
-      'text-2xl font-semibold leading-none tracking-tight',
-      className
-    )}
-    {...props}
-  />
-))
-CardTitle.displayName = 'CardTitle'
-CardTitle.propTypes = {
-  className: PropTypes.string,
+export function CardTitle({ children, className = '', ...props }) {
+  return (
+    <h3 className={`text-2xl font-semibold leading-none tracking-tight ${className}`} {...props}>
+      {children}
+    </h3>
+  );
 }
 
-const CardDescription = React.forwardRef(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={clsx('text-sm text-muted-foreground', className)}
-    {...props}
-  />
-))
-CardDescription.displayName = 'CardDescription'
-CardDescription.propTypes = {
-  className: PropTypes.string,
+export function CardDescription({ children, className = '', ...props }) {
+  return (
+    <p className={`text-sm text-muted-foreground ${className}`} {...props}>
+      {children}
+    </p>
+  );
 }
 
-const CardContent = React.forwardRef(({ className, ...props }, ref) => (
-  <div ref={ref} className={clsx('p-6 pt-0', className)} {...props} />
-))
-CardContent.displayName = 'CardContent'
-CardContent.propTypes = {
-  className: PropTypes.string,
+export function CardContent({ children, className = '', ...props }) {
+  return (
+    <div className={`p-6 pt-0 ${className}`} {...props}>
+      {children}
+    </div>
+  );
 }
 
-const CardFooter = React.forwardRef(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={clsx('flex items-center p-6 pt-0', className)}
-    {...props}
-  />
-))
-CardFooter.displayName = 'CardFooter'
-CardFooter.propTypes = {
-  className: PropTypes.string,
+export function CardFooter({ children, className = '', ...props }) {
+  return (
+    <div className={`flex items-center p-6 pt-0 ${className}`} {...props}>
+      {children}
+    </div>
+  );
 }
 
-// Export both default and named
-export default Card
-export {
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardDescription,
-  CardContent,
-}
+export default Card;
