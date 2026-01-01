@@ -32,7 +32,6 @@ import { useEffect, useState } from 'react'
 // ===============================
 // SUPABASE
 // ===============================
-import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
 
 // ===============================
 // LAYOUTS
