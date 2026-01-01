@@ -1,4 +1,4 @@
-// components/AdminLayout.js
+// components/AdminLayout.js - Aangepaste versie met onTitleClick voor alle hoofdmenu-items
 import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
 import { 
@@ -54,10 +54,38 @@ const AdminLayout = ({ children }) => {
     setUserRole(role);
   }, []);
   
-  const handleLogout = () => {
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('authToken');
-    router.push('/login');
+  // ========== HOOFDMENU TITEL KLIK HANDLER ==========
+  const handleMainMenuClick = (key) => {
+    console.log('Hoofdmenu title clicked:', key);
+    
+    // Mapping van hoofdmenu keys naar hun landing pagina's
+    const MAIN_ROUTES = {
+      dashboard: '/dashboard',
+      administratie: '/administratie',
+      bim: '/bim',
+      bouwplaats: 'https://bouwplaats.sterkbouw.nl',
+      calculatie: '/calculaties/nieuw',  // Specifiek naar /calculaties/nieuw
+      constructie: '/constructie',
+      documenten: '/documenten',
+      financien: '/financien',
+      financieringen: '/financiering',
+      inkoop: '/inkoop',
+      kopersportaal: '/kopersportaal',
+      mail: '/mail',
+      planning: '/planning',
+      projecten: '/projecten',
+      projectportaal: '/projectportaal',
+      instellingen: '/instellingen',
+    };
+    
+    const target = MAIN_ROUTES[key];
+    if (!target) return;
+
+    if (target.startsWith('http')) {
+      window.open(target, '_blank');
+    } else {
+      router.push(target);
+    }
   };
   
   const handleMenuClick = ({ key }) => {
@@ -304,12 +332,14 @@ const AdminLayout = ({ children }) => {
     return ['dashboard'];
   };
   
+  // ========== MENU ITEMS MET onTitleClick ==========
   const menuItems = [
     // 1. Dashboard
     {
       key: 'dashboard',
       icon: <DashboardOutlined />,
       label: 'Dashboard',
+      onClick: () => handleMenuClick({ key: 'dashboard' })
     },
     
     // 2. Administratie
@@ -317,6 +347,7 @@ const AdminLayout = ({ children }) => {
       key: 'administratie',
       icon: <FileDoneOutlined />,
       label: 'Administratie',
+      onTitleClick: () => handleMainMenuClick('administratie'),
       children: [
         { key: 'administratie-contracten', label: 'Contractbeheer' },
         { key: 'administratie-klanten', label: 'Klant- en bedrijfsgegevens' },
@@ -331,6 +362,7 @@ const AdminLayout = ({ children }) => {
       key: 'bim',
       icon: <ApartmentOutlined />,
       label: 'BIM',
+      onTitleClick: () => handleMainMenuClick('bim'),
       children: [
         { key: 'bim-modellen', label: 'BIM-modellen (viewer)' },
         { key: 'bim-versiebeheer', label: 'Versiebeheer' },
@@ -344,6 +376,7 @@ const AdminLayout = ({ children }) => {
       key: 'bouwplaats',
       icon: <BuildOutlined />,
       label: 'Bouwplaats',
+      onTitleClick: () => handleMainMenuClick('bouwplaats'),
       children: [
         { 
           key: 'bouwplaats-projecten', 
@@ -383,6 +416,7 @@ const AdminLayout = ({ children }) => {
       key: 'calculatie',
       icon: <CalculatorOutlined />,
       label: 'Calculatie',
+      onTitleClick: () => handleMainMenuClick('calculatie'),
       children: [
         { key: 'calculatie-overzicht', label: 'Calculaties per project' },
         { key: 'calculatie-nieuw', label: 'Nieuwe Calculatie' },
@@ -397,6 +431,7 @@ const AdminLayout = ({ children }) => {
       key: 'constructie',
       icon: <SafetyCertificateOutlined />,
       label: 'Constructie',
+      onTitleClick: () => handleMainMenuClick('constructie'),
       children: [
         { key: 'constructie-berekeningen', label: 'Constructieberekeningen' },
         { key: 'constructie-rapportages', label: 'Rapportages' },
@@ -410,6 +445,7 @@ const AdminLayout = ({ children }) => {
       key: 'documenten',
       icon: <FolderOutlined />,
       label: 'Documenten',
+      onTitleClick: () => handleMainMenuClick('documenten'),
       children: [
         { key: 'documenten-overzicht', label: 'Alle projectdocumenten' },
         { key: 'documenten-versiebeheer', label: 'Versiebeheer' },
@@ -424,6 +460,7 @@ const AdminLayout = ({ children }) => {
       key: 'financien',
       icon: <WalletOutlined />,
       label: 'Financiën',
+      onTitleClick: () => handleMainMenuClick('financien'),
       children: [
         { key: 'financien-overzicht', label: 'Projectresultaten' },
         { key: 'financien-kosten', label: 'Kosten vs begroting' },
@@ -438,6 +475,7 @@ const AdminLayout = ({ children }) => {
       key: 'financieringen',
       icon: <PercentageOutlined />,
       label: 'Financieringen',
+      onTitleClick: () => handleMainMenuClick('financieringen'),
       children: [
         { key: 'financieringen-leningen', label: 'Leningen' },
         { key: 'financieringen-ltv', label: 'LTV per project' },
@@ -452,6 +490,7 @@ const AdminLayout = ({ children }) => {
       key: 'inkoop',
       icon: <ShoppingOutlined />,
       label: 'Inkoop',
+      onTitleClick: () => handleMainMenuClick('inkoop'),
       children: [
         { key: 'inkoop-orders', label: 'Inkooporders' },
         { key: 'inkoop-leveranciers', label: 'Leveranciers' },
@@ -466,6 +505,7 @@ const AdminLayout = ({ children }) => {
       key: 'kopersportaal',
       icon: <SolutionOutlined />,
       label: 'Kopersportaal',
+      onTitleClick: () => handleMainMenuClick('kopersportaal'),
       children: [
         { key: 'kopersportaal-projecten', label: 'Projecten met kopers/huurders' },
         { key: 'kopersportaal-status', label: 'Status per woning' },
@@ -481,6 +521,7 @@ const AdminLayout = ({ children }) => {
       key: 'mail',
       icon: <MailOutlined />,
       label: 'Mail',
+      onTitleClick: () => handleMainMenuClick('mail'),
       children: [
         { key: 'mail-overzicht', label: 'Projectgebonden mails' },
         { key: 'mail-notificaties', label: 'Automatische notificaties' },
@@ -494,6 +535,7 @@ const AdminLayout = ({ children }) => {
       key: 'planning',
       icon: <ScheduleOutlined />,
       label: 'Planning',
+      onTitleClick: () => handleMainMenuClick('planning'),
       children: [
         { key: 'planning-overzicht', label: 'Projectplanningen' },
         { key: 'planning-mijlpalen', label: 'Mijlpalen' },
@@ -507,6 +549,7 @@ const AdminLayout = ({ children }) => {
       key: 'projecten',
       icon: <ProjectOutlined />,
       label: 'Projecten',
+      onTitleClick: () => handleMainMenuClick('projecten'),
       children: [
         { key: 'projecten-overzicht', label: 'Alle projecten' },
         { key: 'projecten-status', label: 'Projectstatus' },
@@ -521,6 +564,7 @@ const AdminLayout = ({ children }) => {
       key: 'projectportaal',
       icon: <ContainerOutlined />,
       label: 'Projectportaal',
+      onTitleClick: () => handleMainMenuClick('projectportaal'),
       children: [
         { key: 'projectportaal-overzicht', label: 'Actieve opdrachtgever-projecten' },
         { key: 'projectportaal-akkoorden', label: 'Akkoorden' },
@@ -536,6 +580,7 @@ const AdminLayout = ({ children }) => {
       key: 'instellingen',
       icon: <SettingOutlined />,
       label: 'Instellingen',
+      onTitleClick: () => handleMainMenuClick('instellingen'),
       children: [
         { key: 'instellingen-gebruikers', label: 'Gebruikers & rollen' },
         { key: 'instellingen-rollen', label: 'Rechtenstructuur' },
