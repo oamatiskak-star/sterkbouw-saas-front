@@ -169,11 +169,11 @@ const TEAM_MEMBERS = [
 export default function KopersPortaal() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [showModal, setShowModal] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState(null);
   const [purchaseData, setPurchaseData] = useState(SAMPLE_PURCHASE);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState([]);  // GEEN TypeScript type
   const [newMessage, setNewMessage] = useState("");
   const [documents, setDocuments] = useState(DOCUMENTS);
   const [extraWorkRequests, setExtraWorkRequests] = useState(EXTRA_WORK_REQUESTS);
