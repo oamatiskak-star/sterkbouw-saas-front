@@ -1,84 +1,76 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
-
-  // ===============================
-  // BUILD / RUNTIME STABILITEIT
-  // ===============================
-  reactStrictMode: false,
-  swcMinify: false,
-
-  images: {
-    unoptimized: true,
-  },
-
-  trailingSlash: false,
-
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-
-  // ===============================
-  // CRUCIAAL: ESM / CJS OVERRULE
-  // ===============================
-  experimental: {
-    /**
-     * Laat Next.js ESM packages losjes behandelen
-     * i.p.v. hard in CJS forceren (dit voorkomt Context.js crash)
-     */
-    esmExternals: 'loose',
-  },
-
-  /**
-   * DIT IS DE KERNOPLOSSING
-   * ----------------------
-   * Ant Design en icons worden NU mee-gecompileerd
-   * alsof het eigen broncode is.
-   */
+  output: 'standalone', // Voor Docker
   transpilePackages: [
     'antd',
     '@ant-design/icons',
-    '@ant-design/icons-svg',
+    '@ant-design/cssinjs',
     'rc-util',
+    'rc-pagination',
     'rc-picker',
+    'rc-tree',
+    'rc-table',
+    'rc-input',
+    'rc-input-number',
+    'rc-select',
+    'rc-slider',
+    'rc-switch',
+    'rc-checkbox',
+    'rc-radio',
+    'rc-tooltip',
+    'rc-dropdown',
+    'rc-motion',
+    'rc-field-form',
+    'rc-notification',
+    'rc-progress',
+    'rc-rate',
+    'rc-tabs',
+    'rc-textarea',
+    'rc-upload',
+    'rc-collapse',
+    'rc-menu',
+    'rc-drawer',
+    'rc-image',
+    'rc-resize-observer',
+    'rc-steps',
+    'rc-virtual-list',
   ],
-
-  // ===============================
-  // WEBPACK – GEEN NODE POLYFILLS
-  // ===============================
-  webpack: (config) => {
-    config.resolve.fallback = {
-      fs: false,
-      path: false,
-      os: false,
-      crypto: false,
-    };
-
+  compiler: {
+    styledComponents: true, // Als je styled-components gebruikt
+  },
+  experimental: {
+    // Forceer ESM handling voor bepaalde packages
+    esmExternals: 'loose',
+  },
+  // Zorg dat Webpack AntD correct transpileert
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      };
+    }
+    
+    // AntD icon transform
+    config.module.rules.push({
+      test: /\.(js|jsx|ts|tsx)$/,
+      include: [
+        /node_modules\/@ant-design/,
+        /node_modules\/rc-/,
+      ],
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['next/babel'],
+          plugins: [
+            ['import', { libraryName: 'antd', style: true }],
+          ],
+        },
+      },
+    });
+    
     return config;
   },
+}
 
-  // ===============================
-  // FORCE DYNAMIC RENDERING
-  // ===============================
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-store, max-age=0',
-          },
-        ],
-      },
-    ];
-  },
-
-  distDir: '.next',
-};
-
-module.exports = nextConfig;
+module.exports = nextConfig
