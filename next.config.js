@@ -1,76 +1,41 @@
+const withTM = require('next-transpile-modules')([
+  'antd', '@ant-design/icons', '@ant-design/cssinjs',
+  'rc-util', 'rc-picker', 'rc-select', 'rc-table',
+  'rc-tree', 'rc-tooltip', 'rc-field-form',
+  '@mui/material', '@emotion/react', '@emotion/styled',
+  '@mantine/core', '@mantine/hooks', 'recharts',
+  'three', '@react-three/fiber', 'leaflet',
+  'react-leaflet', 'jspdf', 'html2canvas',
+  'xlsx', 'papaparse'
+]);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone', // Voor Docker
+  output: 'standalone',
   transpilePackages: [
-    'antd',
-    '@ant-design/icons',
-    '@ant-design/cssinjs',
-    'rc-util',
-    'rc-pagination',
-    'rc-picker',
-    'rc-tree',
-    'rc-table',
-    'rc-input',
-    'rc-input-number',
-    'rc-select',
-    'rc-slider',
-    'rc-switch',
-    'rc-checkbox',
-    'rc-radio',
-    'rc-tooltip',
-    'rc-dropdown',
-    'rc-motion',
-    'rc-field-form',
-    'rc-notification',
-    'rc-progress',
-    'rc-rate',
-    'rc-tabs',
-    'rc-textarea',
-    'rc-upload',
-    'rc-collapse',
-    'rc-menu',
-    'rc-drawer',
-    'rc-image',
-    'rc-resize-observer',
-    'rc-steps',
-    'rc-virtual-list',
+    'antd', '@ant-design/icons', '@ant-design/cssinjs',
+    '@mui/material', '@emotion/react', '@emotion/styled',
+    '@mantine/core', '@mantine/hooks'
   ],
   compiler: {
-    styledComponents: true, // Als je styled-components gebruikt
+    emotion: true
   },
   experimental: {
-    // Forceer ESM handling voor bepaalde packages
     esmExternals: 'loose',
+    serverComponentsExternalPackages: [
+      'antd', '@ant-design/icons', '@ant-design/cssinjs'
+    ]
   },
-  // Zorg dat Webpack AntD correct transpileert
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
-        ...config.resolve.fallback,
         fs: false,
+        path: false,
+        os: false
       };
     }
-    
-    // AntD icon transform
-    config.module.rules.push({
-      test: /\.(js|jsx|ts|tsx)$/,
-      include: [
-        /node_modules\/@ant-design/,
-        /node_modules\/rc-/,
-      ],
-      use: {
-        loader: 'babel-loader',
-        options: {
-          presets: ['next/babel'],
-          plugins: [
-            ['import', { libraryName: 'antd', style: true }],
-          ],
-        },
-      },
-    });
-    
     return config;
-  },
-}
+  }
+};
 
-module.exports = nextConfig
+module.exports = withTM(nextConfig);
