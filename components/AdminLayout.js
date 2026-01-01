@@ -71,7 +71,12 @@ const AdminLayout = ({ children }) => {
     };
     
     const target = routes[key];
-    if (!target) return;
+    if (!target) {
+      console.warn('No route found for key:', key);
+      return;
+    }
+    
+    console.log('Navigating to:', target);
     
     if (target.startsWith('http')) {
       window.open(target, '_blank');
@@ -122,7 +127,7 @@ const AdminLayout = ({ children }) => {
       label: 'Financiën'
     },
     {
-      key: 'financieringen',
+      key: 'financiering',
       icon: <PercentageOutlined />,
       label: 'Financieringen'
     },
@@ -163,7 +168,7 @@ const AdminLayout = ({ children }) => {
     }
   ];
 
-  const getBreadcrumbItems = () => {
+ const getBreadcrumbItems = () => {
     const path = router.pathname;
     const parts = path.split('/').filter(p => p);
     
@@ -277,7 +282,7 @@ const AdminLayout = ({ children }) => {
             padding: '0 24px',
             background: '#fff',
             borderBottom: '1px solid #f0f0f0',
-            display: 'flex',
+            display: '-flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             height: 64
