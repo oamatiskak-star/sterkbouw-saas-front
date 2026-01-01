@@ -2,114 +2,26 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/router"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth"
-// UI Components - alle correct geïmporteerd
-import Card from "@/components/ui/card"
-import Button from "@/components/ui/button"
-import Input from "@/components/ui/input"
-import Label from "@/components/ui/label"
-import Textarea from "@/components/ui/textarea"
-import Select from "@/components/ui/select"
-import Badge from "@/components/ui/badge"
-import Progress from "@/components/ui/progress"
-import Separator from "@/components/ui/separator"
-import Alert from "@/components/ui/alert"
+
+// UI Components - CORRECT GELET OP IMPORTS
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { Separator } from "@/components/ui/separator"
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Upload, FileText, Building, Calculator, Download, Plus, Trash2, CheckCircle, AlertCircle } from "lucide-react"
-
-// Card subcomponents - toegevoegd
-const CardHeader = ({ className, children, ...props }) => (
-  <div className={`flex flex-col space-y-1.5 p-6 ${className || ''}`} {...props}>
-    {children}
-  </div>
-)
-
-const CardTitle = ({ className, children, ...props }) => (
-  <h3 className={`text-2xl font-semibold leading-none tracking-tight ${className || ''}`} {...props}>
-    {children}
-  </h3>
-)
-
-const CardDescription = ({ className, children, ...props }) => (
-  <p className={`text-sm text-muted-foreground ${className || ''}`} {...props}>
-    {children}
-  </p>
-)
-
-const CardContent = ({ className, children, ...props }) => (
-  <div className={`p-6 pt-0 ${className || ''}`} {...props}>
-    {children}
-  </div>
-)
-
-// Alert subcomponents - toegevoegd
-const AlertTitle = ({ className, children, ...props }) => (
-  <h5 className={`mb-1 font-medium leading-none tracking-tight ${className || ''}`} {...props}>
-    {children}
-  </h5>
-)
-
-const AlertDescription = ({ className, children, ...props }) => (
-  <div className={`text-sm ${className || ''}`} {...props}>
-    {children}
-  </div>
-)
-
-// Select subcomponents - toegevoegd
-const SelectTrigger = ({ className, children, ...props }) => (
-  <div className={`flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className || ''}`} {...props}>
-    {children}
-  </div>
-)
-
-const SelectValue = ({ placeholder, children, ...props }) => (
-  <span className={`${!children ? 'text-muted-foreground' : ''}`} {...props}>
-    {children || placeholder}
-  </span>
-)
-
-const SelectContent = ({ className, children, ...props }) => (
-  <div className={`relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ${className || ''}`} {...props}>
-    <div className="p-1">{children}</div>
-  </div>
-)
-
-const SelectItem = ({ className, children, value, ...props }) => (
-  <div className={`relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 ${className || ''}`} {...props}>
-    {children}
-  </div>
-)
 
 // API endpoints
 const API_ENDPOINTS = {
   EXECUTOR_API: process.env.NEXT_PUBLIC_EXECUTOR_API || "https://sterkbouw-saas-executor-production.up.railway.app",
   BACKEND_API: process.env.NEXT_PUBLIC_BACKEND_API || "https://sterkbouw-saas-backend-production.up.railway.app",
-}
-
-// Types
-const PostType = {
-  id: "",
-  code: "",
-  omschrijving: "",
-  eenheid: "",
-  aantal: 0,
-  eenheidsprijs: 0,
-  arbeidsuren: 0,
-  materiaal: 0,
-  opmerking: "",
-  categorie: ""
-}
-
-const AnalyseResultaatType = {
-  oppervlakte_m2: 0,
-  bouwjaar: 0,
-  aantal_kamers: 0,
-  project_type: 'onbekend',
-  materiaal_suggesties: [],
-  risico_indicatoren: [],
-  verduurzamingspotentieel: [],
-  geschatte_totale_kosten: 0,
-  confidence_score: 0
 }
 
 export default function NieuweCalculatiePage() {
