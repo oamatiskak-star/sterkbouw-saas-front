@@ -1,21 +1,6 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useAuth } from '@/contexts/AuthContext'
-import {
-  Container,
-  Grid,
-  Paper,
-  Typography,
-  Box,
-  Card,
-  CardContent,
-} from '@mui/material'
-import {
-  Assessment,
-  MonetizationOn,
-  People,
-  Engineering,
-} from '@mui/icons-material'
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -33,53 +18,65 @@ export default function AdminDashboard() {
   }
 
   const stats = [
-    { title: 'Active Projects', value: '12', icon: <Assessment />, color: '#1976d2' },
-    { title: 'Revenue', value: '€245,380', icon: <MonetizationOn />, color: '#2e7d32' },
-    { title: 'Total Users', value: '48', icon: <People />, color: '#ed6c02' },
-    { title: 'Field Teams', value: '8', icon: <Engineering />, color: '#9c27b0' },
+    { title: 'Active Projects', value: '12', icon: 'ti ti-chart-bar', color: 'text-primary' },
+    { title: 'Revenue', value: '€245.380', icon: 'ti ti-currency-euro', color: 'text-success' },
+    { title: 'Total Users', value: '48', icon: 'ti ti-users', color: 'text-warning' },
+    { title: 'Field Teams', value: '8', icon: 'ti ti-tools', color: 'text-purple' },
   ]
 
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h4" component="h1" gutterBottom>
-        Admin Dashboard
-      </Typography>
+    <div className="container-xl">
+      <div className="page-header mb-4">
+        <h2 className="page-title">Admin Dashboard</h2>
+      </div>
 
-      <Grid container spacing={3}>
+      {/* KPI CARDS */}
+      <div className="row row-deck row-cards">
         {stats.map((stat) => (
-          <Grid item xs={12} sm={6} md={3} key={stat.title}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Box sx={{ color: stat.color, mr: 2 }}>
-                    {stat.icon}
-                  </Box>
-                  <Typography variant="h6">
-                    {stat.title}
-                  </Typography>
-                </Box>
-                <Typography variant="h4">
-                  {stat.value}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+          <div className="col-sm-6 col-lg-3" key={stat.title}>
+            <div className="card">
+              <div className="card-body">
+                <div className="d-flex align-items-center">
+                  <span className={`avatar avatar-md me-3 ${stat.color}`}>
+                    <i className={stat.icon} />
+                  </span>
+                  <div>
+                    <div className="text-muted">{stat.title}</div>
+                    <div className="h2 mb-0">{stat.value}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         ))}
+      </div>
 
-        <Grid item xs={12}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Recent Activity
-            </Typography>
-            <Typography component="div">
-              • New inspection submitted by Team A<br />
-              • BIM model updated for Project Gamma<br />
-              • Material delivery confirmed for Site 3<br />
-              • Financial report Q3 generated
-            </Typography>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Container>
+      {/* RECENT ACTIVITY */}
+      <div className="row mt-4">
+        <div className="col-12">
+          <div className="card">
+            <div className="card-header">
+              <h3 className="card-title">Recent Activity</h3>
+            </div>
+            <div className="card-body">
+              <ul className="list list-timeline">
+                <li className="list-timeline-item">
+                  New inspection submitted by Team A
+                </li>
+                <li className="list-timeline-item">
+                  BIM model updated for Project Gamma
+                </li>
+                <li className="list-timeline-item">
+                  Material delivery confirmed for Site 3
+                </li>
+                <li className="list-timeline-item">
+                  Financial report Q3 generated
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
