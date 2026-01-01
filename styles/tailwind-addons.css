@@ -1,0 +1,4 @@
+/* Tailwind mag ALLEEN werken binnen .tw */
+.tw {
+  @tailwind utilities;
+}
