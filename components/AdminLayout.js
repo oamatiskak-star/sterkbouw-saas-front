@@ -46,26 +46,6 @@ import {
 
 const { Header, Sider, Content } = Layout;
 
-// Simpele route mapping voor hoofdmenu's
-const MAIN_ROUTES = {
-  'dashboard': '/dashboard',
-  'administratie': '/administratie',
-  'bim': '/bim',
-  'bouwplaats': 'https://bouwplaats.sterkbouw.nl',
-  'calculatie': '/calculaties/nieuw',
-  'constructie': '/constructie',
-  'documenten': '/documenten',
-  'financien': '/financien',
-  'financieringen': '/financiering',
-  'inkoop': '/inkoop',
-  'kopersportaal': '/kopersportaal',
-  'mail': '/mail',
-  'planning': '/planning',
-  'projecten': '/projecten',
-  'projectportaal': '/projectportaal',
-  'instellingen': '/instellingen'
-};
-
 const AdminLayout = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -74,28 +54,51 @@ const AdminLayout = ({ children }) => {
   const router = useRouter();
   const { token } = theme.useToken();
 
-  // Mount effect
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // SIMPELE click handler
-  const handleMenuClick = ({ key }) => {
-    console.log('Menu clicked:', key);
+  // 1. Hoofdmenu click handler (voor titels van menu's met children)
+  const handleMainMenuTitleClick = (key) => {
+    console.log('Hoofdmenu titel geklikt:', key);
     
-    // Check of het een hoofdmenu item is
-    if (MAIN_ROUTES[key]) {
-      const target = MAIN_ROUTES[key];
-      if (target.startsWith('http')) {
-        window.open(target, '_blank');
-      } else {
-        router.push(target);
-      }
-      return;
+    const mainRoutes = {
+      'dashboard': '/dashboard',
+      'administratie': '/administratie',
+      'bim': '/bim',
+      'bouwplaats': 'https://bouwplaats.sterkbouw.nl',
+      'calculatie': '/calculaties/nieuw',
+      'constructie': '/constructie',
+      'documenten': '/documenten',
+      'financien': '/financien',
+      'financieringen': '/financiering',
+      'inkoop': '/inkoop',
+      'kopersportaal': '/kopersportaal',
+      'mail': '/mail',
+      'planning': '/planning',
+      'projecten': '/projecten',
+      'projectportaal': '/projectportaal',
+      'instellingen': '/instellingen'
+    };
+    
+    const target = mainRoutes[key];
+    if (!target) return;
+    
+    if (target.startsWith('http')) {
+      window.open(target, '_blank');
+    } else {
+      router.push(target);
     }
+  };
+
+  // 2. Normale menu click handler (voor leaf items en items zonder children)
+  const handleMenuClick = ({ key }) => {
+    console.log('Menu item geklikt:', key);
     
-    // Submenu items
-    const subRoutes = {
+    const routes = {
+      // Dashboard
+      'dashboard': '/dashboard',
+      
       // Administratie subitems
       'administratie-contracten': '/administratie/contracten',
       'administratie-klanten': '/administratie/klanten',
@@ -124,30 +127,66 @@ const AdminLayout = ({ children }) => {
       'calculatie-offertes': '/calculaties/offertes',
       'calculatie-historie': '/calculaties/historie',
       
-      // Andere subitems blijven werken zoals voorheen
+      // Constructie (werkt al)
+      'constructie': '/constructie',
+      
+      // Documenten (werkt niet)
+      'documenten': '/documenten',
+      
+      // Financiën (werkt al)
+      'financien': '/financien',
+      
+      // Financieringen (werkt niet)
+      'financieringen': '/financiering',
+      
+      // Inkoop (werkt al)
+      'inkoop': '/inkoop',
+      
+      // Kopersportaal (werkt al)
+      'kopersportaal': '/kopersportaal',
+      
+      // Mail (werkt al)
+      'mail': '/mail',
+      
+      // Planning (werkt niet)
+      'planning': '/planning',
+      
+      // Projecten (werkt al)
+      'projecten': '/projecten',
+      
+      // Projectportaal (werkt niet)
+      'projectportaal': '/projectportaal',
+      
+      // Instellingen (werkt al)
+      'instellingen': '/instellingen'
     };
     
-    if (subRoutes[key]) {
-      const target = subRoutes[key];
-      if (target.startsWith('http')) {
-        window.open(target, '_blank');
-      } else {
-        router.push(target);
-      }
+    const target = routes[key];
+    if (!target) return;
+    
+    if (target.startsWith('http')) {
+      window.open(target, '_blank');
+    } else {
+      router.push(target);
     }
   };
 
-  // SIMPELE menu items
+  // Menu items - VOLLEDIG GECORRIGEERD
   const menuItems = [
+    // 1. Dashboard - GEEN CHILDREN, dus onClick
     {
       key: 'dashboard',
       icon: <DashboardOutlined />,
-      label: 'Dashboard'
+      label: 'Dashboard',
+      onClick: () => handleMenuClick({ key: 'dashboard' })
     },
+    
+    // 2. Administratie - MET CHILDREN, dus onTitleClick voor de titel
     {
       key: 'administratie',
       icon: <FileTextOutlined />,
       label: 'Administratie',
+      onTitleClick: () => handleMainMenuTitleClick('administratie'),
       children: [
         { key: 'administratie-contracten', label: 'Contractbeheer' },
         { key: 'administratie-klanten', label: 'Klant- en bedrijfsgegevens' },
@@ -156,10 +195,13 @@ const AdminLayout = ({ children }) => {
         { key: 'administratie-compliance', label: 'Compliance' }
       ]
     },
+    
+    // 3. BIM - MET CHILDREN
     {
       key: 'bim',
       icon: <ApartmentOutlined />,
       label: 'BIM',
+      onTitleClick: () => handleMainMenuTitleClick('bim'),
       children: [
         { key: 'bim-modellen', label: 'BIM-modellen' },
         { key: 'bim-versiebeheer', label: 'Versiebeheer' },
@@ -167,15 +209,21 @@ const AdminLayout = ({ children }) => {
         { key: 'bim-export', label: 'Export' }
       ]
     },
+    
+    // 4. Bouwplaats - GEEN CHILDREN in de nieuwe versie, dus onClick
     {
       key: 'bouwplaats',
       icon: <BuildOutlined />,
-      label: 'Bouwplaats'
+      label: 'Bouwplaats',
+      onClick: () => handleMenuClick({ key: 'bouwplaats' })
     },
+    
+    // 5. Calculatie - MET CHILDREN
     {
       key: 'calculatie',
       icon: <CalculatorOutlined />,
       label: 'Calculatie',
+      onTitleClick: () => handleMainMenuTitleClick('calculatie'),
       children: [
         { key: 'calculatie-overzicht', label: 'Calculaties' },
         { key: 'calculatie-nieuw', label: 'Nieuwe Calculatie' },
@@ -184,64 +232,97 @@ const AdminLayout = ({ children }) => {
         { key: 'calculatie-historie', label: 'Historie' }
       ]
     },
+    
+    // 6. Constructie - GEEN CHILDREN (werkt al)
     {
       key: 'constructie',
       icon: <SettingOutlined />,
-      label: 'Constructie'
+      label: 'Constructie',
+      onClick: () => handleMenuClick({ key: 'constructie' })
     },
+    
+    // 7. Documenten - GEEN CHILDREN (werkt nu NIET, moet WEL)
     {
       key: 'documenten',
       icon: <FolderOutlined />,
-      label: 'Documenten'
+      label: 'Documenten',
+      onClick: () => handleMenuClick({ key: 'documenten' })
     },
+    
+    // 8. Financiën - GEEN CHILDREN (werkt al)
     {
       key: 'financien',
       icon: <WalletOutlined />,
-      label: 'Financiën'
+      label: 'Financiën',
+      onClick: () => handleMenuClick({ key: 'financien' })
     },
+    
+    // 9. Financieringen - GEEN CHILDREN (werkt nu NIET, moet WEL)
     {
       key: 'financieringen',
       icon: <PercentageOutlined />,
-      label: 'Financieringen'
+      label: 'Financieringen',
+      onClick: () => handleMenuClick({ key: 'financieringen' })
     },
+    
+    // 10. Inkoop - GEEN CHILDREN (werkt al)
     {
       key: 'inkoop',
       icon: <ShoppingOutlined />,
-      label: 'Inkoop'
+      label: 'Inkoop',
+      onClick: () => handleMenuClick({ key: 'inkoop' })
     },
+    
+    // 11. Kopersportaal - GEEN CHILDREN (werkt al)
     {
       key: 'kopersportaal',
       icon: <UserOutlined />,
-      label: 'Kopersportaal'
+      label: 'Kopersportaal',
+      onClick: () => handleMenuClick({ key: 'kopersportaal' })
     },
+    
+    // 12. Mail - GEEN CHILDREN (werkt al)
     {
       key: 'mail',
       icon: <MailOutlined />,
-      label: 'Mail'
+      label: 'Mail',
+      onClick: () => handleMenuClick({ key: 'mail' })
     },
+    
+    // 13. Planning - GEEN CHILDREN (werkt nu NIET, moet WEL)
     {
       key: 'planning',
       icon: <ScheduleOutlined />,
-      label: 'Planning'
+      label: 'Planning',
+      onClick: () => handleMenuClick({ key: 'planning' })
     },
+    
+    // 14. Projecten - GEEN CHILDREN (werkt al)
     {
       key: 'projecten',
       icon: <ProjectOutlined />,
-      label: 'Projecten'
+      label: 'Projecten',
+      onClick: () => handleMenuClick({ key: 'projecten' })
     },
+    
+    // 15. Projectportaal - GEEN CHILDREN (werkt nu NIET, moet WEL)
     {
       key: 'projectportaal',
       icon: <ContainerOutlined />,
-      label: 'Projectportaal'
+      label: 'Projectportaal',
+      onClick: () => handleMenuClick({ key: 'projectportaal' })
     },
+    
+    // 16. Instellingen - GEEN CHILDREN (werkt al)
     {
       key: 'instellingen',
       icon: <SettingOutlined />,
-      label: 'Instellingen'
+      label: 'Instellingen',
+      onClick: () => handleMenuClick({ key: 'instellingen' })
     }
   ];
 
-  // SIMPELE breadcrumb
+  // Breadcrumb
   const getBreadcrumbItems = () => {
     const path = router.pathname;
     const parts = path.split('/').filter(p => p);
@@ -256,15 +337,14 @@ const AdminLayout = ({ children }) => {
     parts.forEach(part => {
       const title = part.charAt(0).toUpperCase() + part.slice(1);
       items.push({
-        title: title,
-        onClick: () => router.push(`/${part}`)
+        title: title
       });
     });
     
     return items;
   };
 
-  // SIMPELE selected keys
+  // Selected keys
   const getSelectedKeys = () => {
     const path = router.pathname;
     
@@ -287,7 +367,6 @@ const AdminLayout = ({ children }) => {
     return [];
   };
 
-  // Loading state
   if (!mounted) {
     return (
       <div style={{ 
@@ -359,7 +438,7 @@ const AdminLayout = ({ children }) => {
           <Menu
             mode="inline"
             selectedKeys={getSelectedKeys()}
-            defaultOpenKeys={['administratie', 'bim', 'calculatie']}
+            defaultOpenKeys={collapsed ? [] : ['administratie', 'bim', 'calculatie']}
             style={{
               borderRight: 0,
               background: darkTheme ? '#141414' : '#fff',
@@ -380,14 +459,15 @@ const AdminLayout = ({ children }) => {
             borderBottom: `1px solid ${darkTheme ? '#303030' : '#f0f0f0'}`,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            height: 64
           }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <Button
                 type="text"
                 icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                 onClick={() => setCollapsed(!collapsed)}
-                style={{ fontSize: '18px' }}
+                style={{ fontSize: '18px', width: 48, height: 48 }}
               />
               
               <Breadcrumb
