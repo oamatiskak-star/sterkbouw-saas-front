@@ -1,14 +1,14 @@
 // pages/_app.js
 
 // ===============================
-// TABLER – BASIS (EERST LADEN)
+// TABLER – BASIS (ALLEEN CSS)
 // ===============================
 import '@tabler/core/dist/css/tabler.min.css'
 import '@tabler/core/dist/css/tabler-vendors.min.css'
 import '@tabler/icons-webfont/dist/tabler-icons.min.css'
 
 // ===============================
-// TAILWIND – TOEVOEGLAAG (GESCOPE)
+// TAILWIND – TOEVOEGLAAG
 // ===============================
 import '@/styles/tailwind-addons.css'
 
@@ -18,9 +18,15 @@ import '@/styles/tailwind-addons.css'
 import '@/styles/globals.css'
 
 // ===============================
-// NEXT / REACT
+// NEXT
 // ===============================
 import { useRouter } from 'next/router'
+
+// ===============================
+// CLIENT WRAPPERS (VERPLICHT)
+// ===============================
+import ClientOnly from '@/components/ClientOnly'
+import AntdClientRoot from '@/components/AntdClientRoot'
 
 // ===============================
 // LAYOUTS
@@ -58,7 +64,7 @@ const TABLER_ROUTES = [
 // ===============================
 // APP
 // ===============================
-export default function MyApp({ Component, pageProps }) {
+export default function App({ Component, pageProps }) {
   const router = useRouter()
 
   const isAdminRoute = ADMIN_ROUTES.some(route =>
@@ -77,5 +83,11 @@ export default function MyApp({ Component, pageProps }) {
     content = <TablerLayout>{content}</TablerLayout>
   }
 
-  return content
+  return (
+    <ClientOnly>
+      <AntdClientRoot>
+        {content}
+      </AntdClientRoot>
+    </ClientOnly>
+  )
 }
