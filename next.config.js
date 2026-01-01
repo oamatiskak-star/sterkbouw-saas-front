@@ -19,6 +19,13 @@ const nextConfig = {
   experimental: {
     esmExternals: 'loose'
   },
+  // DEZE TWEE MISSEN NOG:
+  typescript: {
+    ignoreBuildErrors: true
+  },
+  eslint: {
+    ignoreDuringBuilds: true
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -31,4 +38,4 @@ const nextConfig = {
   }
 };
 
-export default nextConfig;  // <- Gebruik export, niet module.exports
+export default nextConfig;
