@@ -10,13 +10,8 @@ import {
   Space,
   Breadcrumb,
   theme,
-  Tag,
   Badge,
   Tooltip,
-  Switch,
-  Card,
-  Row,
-  Col,
   ConfigProvider
 } from 'antd';
 import {
@@ -30,7 +25,6 @@ import {
   LogoutOutlined,
   BellOutlined,
   SearchOutlined,
-  PlusCircleOutlined,
   HomeOutlined,
   ApartmentOutlined,
   BuildOutlined,
@@ -49,8 +43,6 @@ const { Header, Sider, Content } = Layout;
 const AdminLayout = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [darkTheme, setDarkTheme] = useState(false);
-  
   const router = useRouter();
   const { token } = theme.useToken();
 
@@ -58,111 +50,55 @@ const AdminLayout = ({ children }) => {
     setMounted(true);
   }, []);
 
-  // 1. Hoofdmenu click handler (voor titels van menu's met children)
-  const handleMainMenuTitleClick = (key) => {
-    console.log('Hoofdmenu titel geklikt:', key);
+  // 🔥 ALLE JUISTE ROUTES volgens je laatste update
+  const ALL_ROUTES = {
+    // Hoofdmenu items - navigeren naar index pagina's
+    'dashboard': '/dashboard',
+    'administratie': '/administratie',
+    'bim': '/bim',
+    'bouwplaats': 'https://github.com/oamatiskak-star/bouwplaatsweb/blob/main/pages/bouwplaatsApp/index.js',
+    'calculatie': '/calculaties', // 🔥 NAAR /calculaties
+    'constructie': '/constructie',
+    'documenten': '/documenten',
+    'financien': '/financien',
+    'financieringen': '/financiering',
+    'inkoop': '/inkoop',
+    'kopersportaal': '/kopersportaal',
+    'mail': '/mail',
+    'planning': '/planning',
+    'projecten': '/projecten',
+    'projectportaal': '/projectportaal',
+    'instellingen': '/instellingen',
     
-    const mainRoutes = {
-      'dashboard': '/dashboard',
-      'administratie': '/administratie',
-      'bim': '/bim',
-      'bouwplaats': 'https://bouwplaats.sterkbouw.nl',
-      'calculatie': '/calculaties/nieuw',
-      'constructie': '/constructie',
-      'documenten': '/documenten',
-      'financien': '/financien',
-      'financieringen': '/financiering',
-      'inkoop': '/inkoop',
-      'kopersportaal': '/kopersportaal',
-      'mail': '/mail',
-      'planning': '/planning',
-      'projecten': '/projecten',
-      'projectportaal': '/projectportaal',
-      'instellingen': '/instellingen'
-    };
+    // Submenu items (optioneel, als je die pagina's hebt)
+    'administratie-contracten': '/administratie/contracten',
+    'administratie-klanten': '/administratie/klanten',
+    'administratie-dossiers': '/administratie/dossiers',
+    'administratie-auditlog': '/administratie/auditlog',
+    'administratie-compliance': '/administratie/compliance',
     
-    const target = mainRoutes[key];
-    if (!target) return;
+    'bim-modellen': '/bim/modellen',
+    'bim-versiebeheer': '/bim/versiebeheer',
+    'bim-clash-detection': '/bim/clash-detection',
+    'bim-export': '/bim/export',
     
-    if (target.startsWith('http')) {
-      window.open(target, '_blank');
-    } else {
-      router.push(target);
-    }
+    'calculatie-nieuw': '/calculaties/nieuw',
+    'calculatie-meerwerk': '/calculaties/meerwerk',
+    'calculatie-offertes': '/calculaties/offertes',
+    'calculatie-historie': '/calculaties/historie'
   };
 
-  // 2. Normale menu click handler (voor leaf items en items zonder children)
+  // Simpele click handler voor ALLES
   const handleMenuClick = ({ key }) => {
-    console.log('Menu item geklikt:', key);
+    console.log('Menu clicked:', key);
     
-    const routes = {
-      // Dashboard
-      'dashboard': '/dashboard',
-      
-      // Administratie subitems
-      'administratie-contracten': '/administratie/contracten',
-      'administratie-klanten': '/administratie/klanten',
-      'administratie-dossiers': '/administratie/dossiers',
-      'administratie-auditlog': '/administratie/auditlog',
-      'administratie-compliance': '/administratie/compliance',
-      
-      // BIM subitems
-      'bim-modellen': '/bim/modellen',
-      'bim-versiebeheer': '/bim/versiebeheer',
-      'bim-clash-detection': '/bim/clash-detection',
-      'bim-export': '/bim/export',
-      
-      // Bouwplaats subitems
-      'bouwplaats-projecten': 'https://bouwplaats.sterkbouw.nl/projecten',
-      'bouwplaats-taken': 'https://bouwplaats.sterkbouw.nl/taken',
-      'bouwplaats-opleverpunten': 'https://bouwplaats.sterkbouw.nl/opleverpunten',
-      'bouwplaats-fotos': 'https://bouwplaats.sterkbouw.nl/fotos',
-      'bouwplaats-veiligheid': 'https://bouwplaats.sterkbouw.nl/veiligheid',
-      'bouwplaats-meerwerk': 'https://bouwplaats.sterkbouw.nl/meerwerk',
-      
-      // Calculatie subitems
-      'calculatie-overzicht': '/calculaties',
-      'calculatie-nieuw': '/calculaties/nieuw',
-      'calculatie-meerwerk': '/calculaties/meerwerk',
-      'calculatie-offertes': '/calculaties/offertes',
-      'calculatie-historie': '/calculaties/historie',
-      
-      // Constructie (werkt al)
-      'constructie': '/constructie',
-      
-      // Documenten (werkt niet)
-      'documenten': '/documenten',
-      
-      // Financiën (werkt al)
-      'financien': '/financien',
-      
-      // Financieringen (werkt niet)
-      'financieringen': '/financiering',
-      
-      // Inkoop (werkt al)
-      'inkoop': '/inkoop',
-      
-      // Kopersportaal (werkt al)
-      'kopersportaal': '/kopersportaal',
-      
-      // Mail (werkt al)
-      'mail': '/mail',
-      
-      // Planning (werkt niet)
-      'planning': '/planning',
-      
-      // Projecten (werkt al)
-      'projecten': '/projecten',
-      
-      // Projectportaal (werkt niet)
-      'projectportaal': '/projectportaal',
-      
-      // Instellingen (werkt al)
-      'instellingen': '/instellingen'
-    };
+    const target = ALL_ROUTES[key];
+    if (!target) {
+      console.warn('Geen route gevonden voor:', key);
+      return;
+    }
     
-    const target = routes[key];
-    if (!target) return;
+    console.log('Navigating to:', target);
     
     if (target.startsWith('http')) {
       window.open(target, '_blank');
@@ -171,37 +107,29 @@ const AdminLayout = ({ children }) => {
     }
   };
 
-  // Menu items - VOLLEDIG GECORRIGEERD
+  // 🔥 Menu items - ALLEEN voor hoofdmenu's die submenu's hebben
   const menuItems = [
-    // 1. Dashboard - GEEN CHILDREN, dus onClick
     {
       key: 'dashboard',
       icon: <DashboardOutlined />,
-      label: 'Dashboard',
-      onClick: () => handleMenuClick({ key: 'dashboard' })
+      label: 'Dashboard'
     },
-    
-    // 2. Administratie - MET CHILDREN, dus onTitleClick voor de titel
     {
       key: 'administratie',
       icon: <FileTextOutlined />,
       label: 'Administratie',
-      onTitleClick: () => handleMainMenuTitleClick('administratie'),
       children: [
         { key: 'administratie-contracten', label: 'Contractbeheer' },
-        { key: 'administratie-klanten', label: 'Klant- en bedrijfsgegevens' },
+        { key: 'administratie-klanten', label: 'Klantgegevens' },
         { key: 'administratie-dossiers', label: 'Dossierstructuur' },
         { key: 'administratie-auditlog', label: 'Auditlog' },
         { key: 'administratie-compliance', label: 'Compliance' }
       ]
     },
-    
-    // 3. BIM - MET CHILDREN
     {
       key: 'bim',
       icon: <ApartmentOutlined />,
       label: 'BIM',
-      onTitleClick: () => handleMainMenuTitleClick('bim'),
       children: [
         { key: 'bim-modellen', label: 'BIM-modellen' },
         { key: 'bim-versiebeheer', label: 'Versiebeheer' },
@@ -209,120 +137,80 @@ const AdminLayout = ({ children }) => {
         { key: 'bim-export', label: 'Export' }
       ]
     },
-    
-    // 4. Bouwplaats - GEEN CHILDREN in de nieuwe versie, dus onClick
     {
       key: 'bouwplaats',
       icon: <BuildOutlined />,
-      label: 'Bouwplaats',
-      onClick: () => handleMenuClick({ key: 'bouwplaats' })
+      label: 'Bouwplaats'
     },
-    
-    // 5. Calculatie - MET CHILDREN
     {
       key: 'calculatie',
       icon: <CalculatorOutlined />,
       label: 'Calculatie',
-      onTitleClick: () => handleMainMenuTitleClick('calculatie'),
       children: [
-        { key: 'calculatie-overzicht', label: 'Calculaties' },
         { key: 'calculatie-nieuw', label: 'Nieuwe Calculatie' },
-        { key: 'calculatie-meerwerk', label: 'Meer- en minderwerk' },
+        { key: 'calculatie-meerwerk', label: 'Meerwerk' },
         { key: 'calculatie-offertes', label: 'Offertegeneratie' },
         { key: 'calculatie-historie', label: 'Historie' }
       ]
     },
-    
-    // 6. Constructie - GEEN CHILDREN (werkt al)
     {
       key: 'constructie',
       icon: <SettingOutlined />,
-      label: 'Constructie',
-      onClick: () => handleMenuClick({ key: 'constructie' })
+      label: 'Constructie'
     },
-    
-    // 7. Documenten - GEEN CHILDREN (werkt nu NIET, moet WEL)
     {
       key: 'documenten',
       icon: <FolderOutlined />,
-      label: 'Documenten',
-      onClick: () => handleMenuClick({ key: 'documenten' })
+      label: 'Documenten'
     },
-    
-    // 8. Financiën - GEEN CHILDREN (werkt al)
     {
       key: 'financien',
       icon: <WalletOutlined />,
-      label: 'Financiën',
-      onClick: () => handleMenuClick({ key: 'financien' })
+      label: 'Financiën'
     },
-    
-    // 9. Financieringen - GEEN CHILDREN (werkt nu NIET, moet WEL)
     {
       key: 'financieringen',
       icon: <PercentageOutlined />,
-      label: 'Financieringen',
-      onClick: () => handleMenuClick({ key: 'financieringen' })
+      label: 'Financieringen'
     },
-    
-    // 10. Inkoop - GEEN CHILDREN (werkt al)
     {
       key: 'inkoop',
       icon: <ShoppingOutlined />,
-      label: 'Inkoop',
-      onClick: () => handleMenuClick({ key: 'inkoop' })
+      label: 'Inkoop'
     },
-    
-    // 11. Kopersportaal - GEEN CHILDREN (werkt al)
     {
       key: 'kopersportaal',
       icon: <UserOutlined />,
-      label: 'Kopersportaal',
-      onClick: () => handleMenuClick({ key: 'kopersportaal' })
+      label: 'Kopersportaal'
     },
-    
-    // 12. Mail - GEEN CHILDREN (werkt al)
     {
       key: 'mail',
       icon: <MailOutlined />,
-      label: 'Mail',
-      onClick: () => handleMenuClick({ key: 'mail' })
+      label: 'Mail'
     },
-    
-    // 13. Planning - GEEN CHILDREN (werkt nu NIET, moet WEL)
     {
       key: 'planning',
       icon: <ScheduleOutlined />,
-      label: 'Planning',
-      onClick: () => handleMenuClick({ key: 'planning' })
+      label: 'Planning'
     },
-    
-    // 14. Projecten - GEEN CHILDREN (werkt al)
     {
       key: 'projecten',
       icon: <ProjectOutlined />,
-      label: 'Projecten',
-      onClick: () => handleMenuClick({ key: 'projecten' })
+      label: 'Projecten'
     },
-    
-    // 15. Projectportaal - GEEN CHILDREN (werkt nu NIET, moet WEL)
     {
       key: 'projectportaal',
       icon: <ContainerOutlined />,
-      label: 'Projectportaal',
-      onClick: () => handleMenuClick({ key: 'projectportaal' })
+      label: 'Projectportaal'
     },
-    
-    // 16. Instellingen - GEEN CHILDREN (werkt al)
     {
       key: 'instellingen',
       icon: <SettingOutlined />,
-      label: 'Instellingen',
-      onClick: () => handleMenuClick({ key: 'instellingen' })
+      label: 'Instellingen'
     }
   ];
 
-  // Breadcrumb
+  // Simpele breadcrumb
   const getBreadcrumbItems = () => {
     const path = router.pathname;
     const parts = path.split('/').filter(p => p);
@@ -336,35 +224,17 @@ const AdminLayout = ({ children }) => {
     
     parts.forEach(part => {
       const title = part.charAt(0).toUpperCase() + part.slice(1);
-      items.push({
-        title: title
-      });
+      items.push({ title });
     });
     
     return items;
   };
 
-  // Selected keys
-  const getSelectedKeys = () => {
-    const path = router.pathname;
-    
-    if (path === '/dashboard') return ['dashboard'];
-    if (path.startsWith('/administratie')) return ['administratie'];
-    if (path.startsWith('/bim')) return ['bim'];
-    if (path.startsWith('/calculaties')) return ['calculatie'];
-    if (path.startsWith('/constructie')) return ['constructie'];
-    if (path.startsWith('/documenten')) return ['documenten'];
-    if (path.startsWith('/financien')) return ['financien'];
-    if (path.startsWith('/financiering')) return ['financieringen'];
-    if (path.startsWith('/inkoop')) return ['inkoop'];
-    if (path.startsWith('/kopersportaal')) return ['kopersportaal'];
-    if (path.startsWith('/mail')) return ['mail'];
-    if (path.startsWith('/planning')) return ['planning'];
-    if (path.startsWith('/projecten')) return ['projecten'];
-    if (path.startsWith('/projectportaal')) return ['projectportaal'];
-    if (path.startsWith('/instellingen')) return ['instellingen'];
-    
-    return [];
+  // Simpele logout
+  const handleLogout = () => {
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('authToken');
+    router.push('/login');
   };
 
   if (!mounted) {
@@ -376,7 +246,7 @@ const AdminLayout = ({ children }) => {
         height: '100vh',
         background: '#f0f2f5'
       }}>
-        <div>Loading...</div>
+        Loading...
       </div>
     );
   }
@@ -384,7 +254,6 @@ const AdminLayout = ({ children }) => {
   return (
     <ConfigProvider
       theme={{
-        algorithm: darkTheme ? theme.darkAlgorithm : theme.defaultAlgorithm,
         token: {
           colorPrimary: '#1890ff',
           borderRadius: 6
@@ -398,8 +267,12 @@ const AdminLayout = ({ children }) => {
           collapsed={collapsed}
           width={250}
           style={{
-            background: darkTheme ? '#141414' : '#fff',
-            borderRight: `1px solid ${darkTheme ? '#303030' : '#f0f0f0'}`
+            background: '#fff',
+            borderRight: '1px solid #f0f0f0',
+            position: 'fixed',
+            height: '100vh',
+            zIndex: 1000,
+            overflow: 'auto'
           }}
         >
           {/* Logo */}
@@ -409,7 +282,7 @@ const AdminLayout = ({ children }) => {
             alignItems: 'center',
             justifyContent: collapsed ? 'center' : 'flex-start',
             padding: collapsed ? '0' : '0 20px',
-            borderBottom: `1px solid ${darkTheme ? '#303030' : '#f0f0f0'}`
+            borderBottom: '1px solid #f0f0f0'
           }}>
             <div style={{
               width: 36,
@@ -426,10 +299,10 @@ const AdminLayout = ({ children }) => {
               <span style={{ 
                 fontWeight: 'bold', 
                 fontSize: '18px',
-                color: darkTheme ? '#fff' : token.colorPrimary,
+                color: token.colorPrimary,
                 marginLeft: 12
               }}>
-                Sterkbouw
+                Sterkbouw Admin
               </span>
             )}
           </div>
@@ -437,26 +310,27 @@ const AdminLayout = ({ children }) => {
           {/* Menu */}
           <Menu
             mode="inline"
-            selectedKeys={getSelectedKeys()}
-            defaultOpenKeys={collapsed ? [] : ['administratie', 'bim', 'calculatie']}
+            selectedKeys={[router.pathname.split('/')[1] || 'dashboard']}
+            defaultOpenKeys={[]} // 🔥 GEEN uitgeklapte submenu's
             style={{
               borderRight: 0,
-              background: darkTheme ? '#141414' : '#fff',
+              background: '#fff',
               marginTop: '16px'
             }}
             items={menuItems}
             onClick={handleMenuClick}
-            theme={darkTheme ? 'dark' : 'light'}
+            expandIcon={null} // 🔥 Verberg pijltjes
+            inlineIndent={16}
           />
         </Sider>
 
         {/* Main Layout */}
-        <Layout>
+        <Layout style={{ marginLeft: collapsed ? 80 : 250 }}>
           {/* Header */}
           <Header style={{
             padding: '0 24px',
-            background: darkTheme ? '#1f1f1f' : '#fff',
-            borderBottom: `1px solid ${darkTheme ? '#303030' : '#f0f0f0'}`,
+            background: '#fff',
+            borderBottom: '1px solid #f0f0f0',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -477,14 +351,14 @@ const AdminLayout = ({ children }) => {
             </div>
 
             <Space>
-              <Tooltip title="Search">
+              <Tooltip title="Zoeken">
                 <Button 
                   type="text" 
                   icon={<SearchOutlined />}
                 />
               </Tooltip>
               
-              <Tooltip title="Notifications">
+              <Tooltip title="Notificaties">
                 <Badge count={3}>
                   <Button 
                     type="text" 
@@ -496,14 +370,22 @@ const AdminLayout = ({ children }) => {
               <Dropdown
                 menu={{
                   items: [
-                    { key: 'profile', label: 'Profile' },
-                    { key: 'settings', label: 'Settings' },
+                    { key: 'profile', label: 'Profiel', icon: <UserOutlined /> },
+                    { key: 'settings', label: 'Instellingen', icon: <SettingOutlined /> },
                     { type: 'divider' },
-                    { key: 'logout', label: 'Logout' }
+                    { 
+                      key: 'logout', 
+                      label: 'Uitloggen', 
+                      icon: <LogoutOutlined />,
+                      onClick: handleLogout
+                    }
                   ]
                 }}
               >
-                <Avatar icon={<UserOutlined />} />
+                <Avatar 
+                  icon={<UserOutlined />}
+                  style={{ cursor: 'pointer', background: token.colorPrimary }}
+                />
               </Dropdown>
             </Space>
           </Header>
@@ -512,9 +394,10 @@ const AdminLayout = ({ children }) => {
           <Content style={{ 
             margin: '24px 16px', 
             padding: 24,
-            background: darkTheme ? '#141414' : '#fff',
+            background: '#fff',
             borderRadius: 8,
-            minHeight: 'calc(100vh - 112px)'
+            minHeight: 'calc(100vh - 112px)',
+            overflow: 'auto'
           }}>
             {children}
           </Content>
