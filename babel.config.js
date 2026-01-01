@@ -1,0 +1,10 @@
+{
+  "name": "sterkbouw-frontend",
+  "version": "1.0.0",
+  "private": true,
+ 
+  // "type": "module",
+  "scripts": {
+    // ...
+  }
+}
