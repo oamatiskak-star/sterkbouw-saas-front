@@ -1,18 +1,14 @@
 // components/ui/label.js
-export default function Label({ children, htmlFor, ...props }) {
+export function Label({ children, className = '', htmlFor, ...props }) {
   return (
-    <label 
+    <label
       htmlFor={htmlFor}
-      style={{
-        display: 'block',
-        marginBottom: '8px',
-        fontWeight: '500',
-        fontSize: '14px',
-        color: '#333'
-      }}
+      className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${className}`}
       {...props}
     >
       {children}
     </label>
   );
 }
+
+export default Label;
