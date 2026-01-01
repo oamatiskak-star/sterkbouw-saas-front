@@ -1,14 +1,22 @@
 // pages/_app.js
 
-import '@/styles/globals.css'
-
 // ===============================
-// TABLER (VERPLICHT)
+// TABLER – BASIS (ALTIJD EERST)
 // ===============================
 import '@tabler/core/dist/css/tabler.min.css'
 import '@tabler/core/dist/css/tabler-vendors.min.css'
 import '@tabler/icons-webfont/dist/tabler-icons.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
+
+// ===============================
+// TAILWIND – TOEVOEGLAAG (GESCOPE)
+// ===============================
+import '@/styles/tailwind-addons.css'
+
+// ===============================
+// GLOBALS (GEEN TAILWIND HIERIN)
+// ===============================
+import '@/styles/globals.css'
 
 // ===============================
 // ANT DESIGN
@@ -33,17 +41,14 @@ import AdminLayout from '@/components/AdminLayout'
 import TablerLayout from '@/components/TablerLayout'
 
 // ===============================
-// ROUTE DEFINITIES
+// ROUTES
 // ===============================
-
-// Routes die authenticatie vereisen
 const PROTECTED_ROUTES = [
   '/admin',
   '/dashboard',
   '/bouwplaatsApp',
 ]
 
-// Routes die Tabler-layout gebruiken
 const TABLER_ROUTES = [
   '/dashboard',
   '/projecten',
@@ -79,7 +84,7 @@ export default function App({ Component, pageProps }) {
   }, [])
 
   // -------------------------------
-  // Auth check + route guard
+  // Auth + route guard
   // -------------------------------
   useEffect(() => {
     if (!supabaseClient) return
@@ -105,24 +110,25 @@ export default function App({ Component, pageProps }) {
 
     run()
 
-    const {
-      data: { subscription },
-    } = supabaseClient.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
+    const { data: { subscription } } =
+      supabaseClient.auth.onAuthStateChange((_event, session) => {
+        setSession(session)
+      })
 
     return () => subscription.unsubscribe()
   }, [router.pathname, supabaseClient])
 
   // -------------------------------
-  // Init / loading guard
+  // TABLER loading screen
   // -------------------------------
   if (!ready) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Initialiseren…</p>
+      <div className="page page-center">
+        <div className="container-tight py-4">
+          <div className="text-center">
+            <div className="spinner-border text-primary" />
+            <p className="mt-3 text-muted">Initialiseren…</p>
+          </div>
         </div>
       </div>
     )
