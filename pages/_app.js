@@ -1,5 +1,3 @@
-// pages/_app.js
-
 // ===============================
 // TABLER – BASIS (ALLEEN CSS)
 // ===============================
@@ -67,26 +65,32 @@ const TABLER_ROUTES = [
 export default function App({ Component, pageProps }) {
   const router = useRouter()
 
-  const isAdminRoute = ADMIN_ROUTES.some(route =>
-    router.pathname.startsWith(route)
-  )
-
-  const isTablerRoute = TABLER_ROUTES.some(route =>
-    router.pathname.startsWith(route)
-  )
-
-  let content = <Component {...pageProps} />
-
-  if (isAdminRoute) {
-    content = <AdminLayout>{content}</AdminLayout>
-  } else if (isTablerRoute) {
-    content = <TablerLayout>{content}</TablerLayout>
-  }
-
   return (
     <ClientOnly>
       <AntdClientRoot>
-        {content}
+        {(() => {
+          const path = router.asPath || '/'
+
+          const isAdminRoute = ADMIN_ROUTES.some(route =>
+            path.startsWith(route)
+          )
+
+          const isTablerRoute = TABLER_ROUTES.some(route =>
+            path.startsWith(route)
+          )
+
+          let content = <Component {...pageProps} />
+
+          if (isAdminRoute) {
+            return <AdminLayout>{content}</AdminLayout>
+          }
+
+          if (isTablerRoute) {
+            return <TablerLayout>{content}</TablerLayout>
+          }
+
+          return content
+        })()}
       </AntdClientRoot>
     </ClientOnly>
   )
