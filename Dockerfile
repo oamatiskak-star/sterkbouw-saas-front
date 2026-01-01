@@ -18,11 +18,6 @@ COPY . .
 RUN echo 'module.exports={output:"standalone",images:{unoptimized:true},typescript:{ignoreBuildErrors:true},eslint:{ignoreDuringBuilds:true}}' > next.config.js
 
 # Maak _app.js met getInitialProps
-RUN mkdir -p pages
-RUN echo 'import React from "react";' > pages/_app.js
-RUN echo 'function MyApp({Component,pageProps}){return<Component{...pageProps}/>}' >> pages/_app.js
-RUN echo 'MyApp.getInitialProps=async()=>({});' >> pages/_app.js
-RUN echo 'export default MyApp;' >> pages/_app.js
 
 # Environment variables
 ENV NEXT_PUBLIC_SKIP_PRERENDER=true
