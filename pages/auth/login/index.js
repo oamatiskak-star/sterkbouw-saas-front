@@ -1,17 +1,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
-import {
-  Container,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Box,
-  Alert,
-  CircularProgress,
-} from '@mui/material'
-import { Lock } from '@mui/icons-material'
 import { useAuth } from '@/contexts/AuthContext'
+import TablerAuthLayout from '@/components/TablerAuthLayout'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -30,8 +20,6 @@ export default function LoginPage() {
     try {
       const { error } = await signInWithPassword(email, password)
       if (error) throw error
-
-      // Na login ALTIJD naar SaaS dashboard
       router.push('/dashboard')
     } catch (err) {
       setError(err.message || 'Inloggen mislukt')
@@ -41,65 +29,62 @@ export default function LoginPage() {
   }
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          mt: 10,
-          display: 'flex',
-          justifyContent: 'center',
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-            <Lock sx={{ mr: 1, color: 'primary.main' }} />
-            <Typography variant="h5">Inloggen</Typography>
-          </Box>
+    <TablerAuthLayout>
+      <div className="card card-md">
+        <div className="card-body">
+          <h2 className="h2 text-center mb-4">Inloggen</h2>
 
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <div className="alert alert-danger mb-3">
               {error}
-            </Alert>
+            </div>
           )}
 
-          <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              required
-              label="E-mail"
-              type="email"
-              margin="normal"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+          <form onSubmit={handleSubmit} autoComplete="off">
+            <div className="mb-3">
+              <label className="form-label">E-mail</label>
+              <input
+                type="email"
+                className="form-control"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
 
-            <TextField
-              fullWidth
-              required
-              label="Wachtwoord"
-              type="password"
-              margin="normal"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="mb-3">
+              <label className="form-label">Wachtwoord</label>
+              <input
+                type="password"
+                className="form-control"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
 
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3 }}
-              disabled={loading}
-            >
-              {loading ? <CircularProgress size={24} /> : 'Inloggen'}
-            </Button>
-
-            <Box sx={{ textAlign: 'center', mt: 2 }}>
-              <Button onClick={() => router.push('/auth/register')}>
-                Nog geen account? Registreren
-              </Button>
-            </Box>
+            <div className="form-footer">
+              <button
+                type="submit"
+                className="btn btn-primary w-100"
+                disabled={loading}
+              >
+                {loading ? 'Bezig…' : 'Inloggen'}
+              </button>
+            </div>
           </form>
-        </Paper>
-      </Box>
-    </Container>
+        </div>
+
+        <div className="card-footer text-center">
+          <button
+            type="button"
+            className="btn btn-link"
+            onClick={() => router.push('/auth/register')}
+          >
+            Nog geen account? Registreren
+          </button>
+        </div>
+      </div>
+    </TablerAuthLayout>
   )
 }
