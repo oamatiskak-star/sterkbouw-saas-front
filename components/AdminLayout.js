@@ -50,14 +50,12 @@ const AdminLayout = ({ children }) => {
     setMounted(true);
   }, []);
 
-  
   const ALL_ROUTES = {
-    // Hoofdmenu items - navigeren naar index pagina's
     'dashboard': '/dashboard',
     'administratie': '/administratie',
     'bim': '/bim',
     'bouwplaats': 'https://github.com/oamatiskak-star/bouwplaatsweb/blob/main/pages/bouwplaatsApp/index.js',
-    'calculatie': '/calculaties', 
+    'calculatie': '/calculaties',
     'constructie': '/constructie',
     'documenten': '/documenten',
     'financien': '/financien',
@@ -69,36 +67,24 @@ const AdminLayout = ({ children }) => {
     'projecten': '/projecten',
     'projectportaal': '/projectportaal',
     'instellingen': '/instellingen',
-    
-    // Submenu items (optioneel, als je die pagina's hebt)
     'administratie-contracten': '/administratie/contracten',
     'administratie-klanten': '/administratie/klanten',
     'administratie-dossiers': '/administratie/dossiers',
     'administratie-auditlog': '/administratie/auditlog',
     'administratie-compliance': '/administratie/compliance',
-    
     'bim-modellen': '/bim/modellen',
     'bim-versiebeheer': '/bim/versiebeheer',
     'bim-clash-detection': '/bim/clash-detection',
     'bim-export': '/bim/export',
-    
     'calculatie-nieuw': '/calculaties/nieuw',
     'calculatie-meerwerk': '/calculaties/meerwerk',
     'calculatie-offertes': '/calculaties/offertes',
     'calculatie-historie': '/calculaties/historie'
   };
 
-  // Simpele click handler voor ALLES
   const handleMenuClick = ({ key }) => {
-    console.log('Menu clicked:', key);
-    
     const target = ALL_ROUTES[key];
-    if (!target) {
-      console.warn('Geen route gevonden voor:', key);
-      return;
-    }
-    
-    console.log('Navigating to:', target);
+    if (!target) return;
     
     if (target.startsWith('http')) {
       window.open(target, '_blank');
@@ -107,7 +93,6 @@ const AdminLayout = ({ children }) => {
     }
   };
 
-  // 🔥 Menu items - ALLEEN voor hoofdmenu's die submenu's hebben
   const menuItems = [
     {
       key: 'dashboard',
@@ -210,7 +195,6 @@ const AdminLayout = ({ children }) => {
     }
   ];
 
-  // Simpele breadcrumb
   const getBreadcrumbItems = () => {
     const path = router.pathname;
     const parts = path.split('/').filter(p => p);
@@ -230,7 +214,6 @@ const AdminLayout = ({ children }) => {
     return items;
   };
 
-  // Simpele logout
   const handleLogout = () => {
     localStorage.removeItem('userRole');
     localStorage.removeItem('authToken');
@@ -261,7 +244,6 @@ const AdminLayout = ({ children }) => {
       }}
     >
       <Layout style={{ minHeight: '100vh' }}>
-        {/* Sidebar */}
         <Sider
           collapsible
           collapsed={collapsed}
@@ -275,7 +257,6 @@ const AdminLayout = ({ children }) => {
             overflow: 'auto'
           }}
         >
-          {/* Logo */}
           <div style={{
             height: 64,
             display: 'flex',
@@ -307,11 +288,10 @@ const AdminLayout = ({ children }) => {
             )}
           </div>
 
-          {/* Menu */}
           <Menu
             mode="inline"
             selectedKeys={[router.pathname.split('/')[1] || 'dashboard']}
-            defaultOpenKeys={[]} 
+            defaultOpenKeys={[]}
             style={{
               borderRight: 0,
               background: '#fff',
@@ -319,14 +299,12 @@ const AdminLayout = ({ children }) => {
             }}
             items={menuItems}
             onClick={handleMenuClick}
-            expandIcon={null} 
+            expandIcon={null}
             inlineIndent={16}
           />
         </Sider>
 
-        {/* Main Layout */}
         <Layout style={{ marginLeft: collapsed ? 80 : 250 }}>
-          {/* Header */}
           <Header style={{
             padding: '0 24px',
             background: '#fff',
@@ -390,7 +368,6 @@ const AdminLayout = ({ children }) => {
             </Space>
           </Header>
 
-          {/* Content */}
           <Content style={{ 
             margin: '24px 16px', 
             padding: 24,
