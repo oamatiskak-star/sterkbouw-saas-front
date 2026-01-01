@@ -35,7 +35,7 @@ export default function LoginPage() {
     <TablerAuthLayout>
       <form onSubmit={handleLogin} autoComplete="off">
         <div className="mb-3">
-          <label className="form-label">E-mailadres</label>
+          <label className="form-label">E-mail</label>
           <input
             type="email"
             className="form-control"
