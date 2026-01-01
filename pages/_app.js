@@ -18,11 +18,6 @@ import '@/styles/tailwind-addons.css'
 import '@/styles/globals.css'
 
 // ===============================
-// ANT DESIGN
-// ===============================
-import { ConfigProvider, theme as antdTheme } from 'antd'
-
-// ===============================
 // NEXT / REACT
 // ===============================
 import { useRouter } from 'next/router'
@@ -166,12 +161,5 @@ useEffect(() => {
   // Render
   // -------------------------------
   return (
-    <ConfigProvider
-      theme={{
-        algorithm: antdTheme.defaultAlgorithm,
-      }}
-    >
-      {wrappedPage}
-    </ConfigProvider>
   )
 }
