@@ -1,8 +1,10 @@
 // components/ui/separator.js
-export default function Separator({ className = '', orientation = 'horizontal' }) {
+export function Separator({ orientation = 'horizontal', className = '', ...props }) {
   return orientation === 'horizontal' ? (
-    <div className={`h-px w-full bg-gray-200 ${className}`} />
+    <hr className={`shrink-0 bg-border h-[1px] w-full ${className}`} {...props} />
   ) : (
-    <div className={`h-full w-px bg-gray-200 ${className}`} />
+    <hr className={`shrink-0 bg-border h-full w-[1px] ${className}`} {...props} />
   );
 }
+
+export default Separator;
