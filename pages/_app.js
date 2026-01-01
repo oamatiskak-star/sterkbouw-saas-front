@@ -7,9 +7,6 @@ import '@tabler/core/dist/css/tabler.min.css'
 import '@tabler/core/dist/css/tabler-vendors.min.css'
 import '@tabler/icons-webfont/dist/tabler-icons.min.css'
 
-// ⚠️ GEEN bootstrap JS hier (veroorzaakt SSR crashes)
-// import 'bootstrap/dist/js/bootstrap.bundle.min.js'  ❌
-
 // ===============================
 // TAILWIND – TOEVOEGLAAG (GESCOPE)
 // ===============================
@@ -49,7 +46,7 @@ const TABLER_ROUTES = [
   '/documenten',
   '/financien',
   '/financieringen',
-  '/inkloop',
+  '/inkoop',
   '/kopersportaal',
   '/mail',
   '/planning',
