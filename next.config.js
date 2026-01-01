@@ -7,17 +7,39 @@ const nextConfig = {
     '@ant-design/cssinjs',
     'rc-util',
     'rc-picker',
-    '@mui/material',
-    '@emotion/react',
-    '@emotion/styled',
-    '@mantine/core',
-    '@mantine/hooks'
+    'rc-pagination',
+    'rc-table',
+    'rc-tree',
+    'rc-tooltip',
+    'rc-dropdown',
+    'rc-field-form',
+    'rc-input',
+    'rc-input-number',
+    'rc-select',
+    'rc-slider',
+    'rc-switch',
+    'rc-checkbox',
+    'rc-radio',
+    'rc-notification',
+    'rc-progress',
+    'rc-rate',
+    'rc-tabs',
+    'rc-textarea',
+    'rc-upload',
+    'rc-collapse',
+    'rc-menu',
+    'rc-drawer',
+    'rc-image',
+    'rc-steps',
+    'rc-virtual-list',
+    'rc-resize-observer',
+    'rc-motion',
   ],
   compiler: {
     emotion: true
   },
   experimental: {
-    esmExternals: false
+    esmExternals: 'loose'
   },
   typescript: {
     ignoreBuildErrors: true
@@ -25,6 +47,6 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true
   }
-};
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
