@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
-import { getSupabase } from '@/lib/supabase'
+import { getSupabase } from '../lib/supabase'
 
 export default function LoginPage() {
   const supabase = getSupabase()
@@ -33,18 +33,14 @@ export default function LoginPage() {
   return (
     <div className="page page-center">
       <div className="container container-tight py-4">
-
         <div className="text-center mb-4">
-          <h1 className="h2 mb-1">Welkom terug</h1>
-          <p className="text-muted">
-            Toegang tot projecten, calculaties en dashboards
-          </p>
+          <h1 className="h2">Inloggen</h1>
+          <p className="text-muted">SterkBouw Platform</p>
         </div>
 
-        <div className="card card-md shadow-sm">
+        <div className="card card-md">
           <div className="card-body">
             <form onSubmit={handleLogin} autoComplete="off">
-
               <div className="mb-3">
                 <label className="form-label">E-mailadres</label>
                 <input
@@ -70,9 +66,7 @@ export default function LoginPage() {
               </div>
 
               {error && (
-                <div className="alert alert-danger mb-3">
-                  {error}
-                </div>
+                <div className="alert alert-danger">{error}</div>
               )}
 
               <div className="form-footer">
@@ -84,7 +78,6 @@ export default function LoginPage() {
                   {loading ? 'Bezig…' : 'Inloggen'}
                 </button>
               </div>
-
             </form>
           </div>
         </div>
@@ -92,7 +85,6 @@ export default function LoginPage() {
         <div className="text-center text-muted mt-3">
           Geen account? Neem contact op met de beheerder.
         </div>
-
       </div>
     </div>
   )
