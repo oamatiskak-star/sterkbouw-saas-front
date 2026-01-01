@@ -15,26 +15,37 @@ import {
   HomeOutlined, BarChartOutlined, FolderOutlined,
   CalendarOutlined, MessageOutlined, BellOutlined,
   SearchOutlined, PlusCircleOutlined, UploadOutlined,
-  CalculatorOutlined, CustomerServiceOutlined, BankOutlined
+  CalculatorOutlined, CustomerServiceOutlined, BankOutlined,
+  BuildOutlined, FileSyncOutlined, ContainerOutlined,
+  ShopOutlined, MailOutlined, ScheduleOutlined,
+  WalletOutlined, PercentageOutlined, ShoppingOutlined,
+  SolutionOutlined, CheckCircleOutlined, SafetyCertificateOutlined,
+  FileDoneOutlined, FileProtectOutlined, CloudServerOutlined
 } from '@ant-design/icons';
 
 const { Header, Sider, Content } = Layout;
-const { SubMenu } = Menu;
 
 const AdminLayout = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [userRole, setUserRole] = useState('ADMIN'); // ADMIN, SUPER_ADMIN, PROJECT_MANAGER
+  const [userRole, setUserRole] = useState('ADMIN');
   const [darkTheme, setDarkTheme] = useState(false);
   const [notifications, setNotifications] = useState([
     { id: 1, message: 'Nieuw project aangemaakt', time: '10 min geleden', read: false, type: 'project' },
-    { id: 2, message: 'Contract #2345 vereist goedkeuring', time: '1 uur geleden', read: false, type: 'contract' },
-    { id: 3, message: 'Tekening revisie beschikbaar', time: '2 uur geleden', read: true, type: 'drawing' },
+    { id: 2, message: 'Calculatie #2345 vereist goedkeuring', time: '1 uur geleden', read: false, type: 'calculatie' },
+    { id: 3, message: 'Meerwerk gesignaleerd op bouwplaats', time: '2 uur geleden', read: true, type: 'bouwplaats' },
   ]);
   
   const router = useRouter();
   const { pathname, query } = router;
   const { token } = theme.useToken();
+  
+  // DEBUG logging
+  useEffect(() => {
+    console.log("✅ AdminLayout wordt gerenderd");
+    console.log("📍 Huidige route:", router.pathname);
+    console.log("📏 Collapsed:", collapsed);
+  }, [router.pathname, collapsed]);
   
   // Fix voor hydration error
   useEffect(() => {
@@ -49,62 +60,133 @@ const AdminLayout = ({ children }) => {
     router.push('/login');
   };
   
-  const handleMenuClick = ({ key, keyPath }) => {
-    console.log('Menu clicked:', key, keyPath);
+  const handleMenuClick = ({ key }) => {
+    console.log('Menu clicked:', key);
     
-    // Basis routing logica
     const routes = {
-      // Dashboard
+      // 1. Dashboard
       'dashboard': '/admin/dashboard',
       
-      // Projecten
-      'projects': '/admin/projects',
-      'projects-active': '/admin/projects?filter=active',
-      'projects-archived': '/admin/projects?filter=archived',
-      'projects-templates': '/admin/projects?filter=templates',
+      // 2. Administratie
+      'administratie': '/admin/administratie',
+      'administratie-contracten': '/admin/administratie/contracten',
+      'administratie-klanten': '/admin/administratie/klanten',
+      'administratie-dossiers': '/admin/administratie/dossiers',
+      'administratie-auditlog': '/admin/administratie/auditlog',
+      'administratie-compliance': '/admin/administratie/compliance',
       
-      // Contracten
-      'contracts': '/admin/contracts',
-      'contracts-all': '/admin/contracts',
-      'contracts-pending': '/admin/contracts?status=pending',
-      'contracts-expired': '/admin/contracts?status=expired',
+      // 3. BIM
+      'bim': '/admin/bim',
+      'bim-modellen': '/admin/bim/modellen',
+      'bim-versiebeheer': '/admin/bim/versiebeheer',
+      'bim-clash-detection': '/admin/bim/clash-detection',
+      'bim-export': '/admin/bim/export',
       
-      // Tekeningen
-      'drawings': '/admin/drawings',
-      'drawings-all': '/admin/drawings',
-      'drawings-revisions': '/admin/drawings?filter=revisions',
-      'drawings-uploads': '/admin/drawings?filter=today',
+      // 4. Bouwplaats
+      'bouwplaats': '/admin/bouwplaats',
+      'bouwplaats-projecten': '/admin/bouwplaats/projecten',
+      'bouwplaats-taken': '/admin/bouwplaats/taken',
+      'bouwplaats-opleverpunten': '/admin/bouwplaats/opleverpunten',
+      'bouwplaats-fotos': '/admin/bouwplaats/fotos',
+      'bouwplaats-veiligheid': '/admin/bouwplaats/veiligheid',
+      'bouwplaats-meerwerk': '/admin/bouwplaats/meerwerk',
       
-      // Calculaties
-      'calculaties': '/calculaties',
-      'calculaties-all': '/calculaties',
-      'calculaties-nieuw': '/calculaties/nieuw',
-      'calculaties-pending': '/calculaties?status=pending',
+      // 5. Calculatie
+      'calculatie': '/admin/calculatie',
+      'calculatie-overzicht': '/admin/calculatie/overzicht',
+      'calculatie-stabu': '/admin/calculatie/stabu',
+      'calculatie-optimalisatie': '/admin/calculatie/optimalisatie',
+      'calculatie-meerwerk': '/admin/calculatie/meerwerk',
+      'calculatie-offertes': '/admin/calculatie/offertes',
+      'calculatie-historie': '/admin/calculatie/historie',
       
-      // Klanten
-      'customers': '/admin/customers',
-      'customers-all': '/admin/customers',
-      'customers-new': '/admin/customers/new',
-      'customers-vip': '/admin/customers?type=vip',
+      // 6. Constructie
+      'constructie': '/admin/constructie',
+      'constructie-berekeningen': '/admin/constructie/berekeningen',
+      'constructie-rapportages': '/admin/constructie/rapportages',
+      'constructie-revisies': '/admin/constructie/revisies',
+      'constructie-goedkeuring': '/admin/constructie/goedkeuring',
       
-      // Financieel
-      'financial': '/admin/financial',
-      'invoices': '/admin/invoices',
-      'invoices-all': '/admin/invoices',
-      'invoices-pending': '/admin/invoices?status=pending',
-      'invoices-paid': '/admin/invoices?status=paid',
+      // 7. Documenten
+      'documenten': '/admin/documenten',
+      'documenten-overzicht': '/admin/documenten/overzicht',
+      'documenten-versiebeheer': '/admin/documenten/versiebeheer',
+      'documenten-rechten': '/admin/documenten/rechten',
+      'documenten-zoeken': '/admin/documenten/zoeken',
+      'documenten-export': '/admin/documenten/export',
       
-      // Rapportages
-      'reports': '/admin/reports',
+      // 8. Financiën
+      'financien': '/admin/financien',
+      'financien-projectresultaten': '/admin/financien/projectresultaten',
+      'financien-kosten': '/admin/financien/kosten',
+      'financien-meerwerk-impact': '/admin/financien/meerwerk-impact',
+      'financien-termijnen': '/admin/financien/termijnen',
+      'financien-factuurstatus': '/admin/financien/factuurstatus',
       
-      // Kalender
-      'calendar': '/admin/calendar',
+      // 9. Financieringen
+      'financieringen': '/admin/financieringen',
+      'financieringen-leningen': '/admin/financieringen/leningen',
+      'financieringen-ltv': '/admin/financieringen/ltv',
+      'financieringen-rente': '/admin/financieringen/rente',
+      'financieringen-zekerheden': '/admin/financieringen/zekerheden',
+      'financieringen-rapportages': '/admin/financieringen/rapportages',
       
-      // Super Admin items
-      'users': '/admin/users',
-      'settings': '/admin/settings',
-      'database': '/admin/database',
-      'system-logs': '/admin/system-logs',
+      // 10. Inkoop
+      'inkoop': '/admin/inkoop',
+      'inkoop-orders': '/admin/inkoop/orders',
+      'inkoop-leveranciers': '/admin/inkoop/leveranciers',
+      'inkoop-prijsafspraken': '/admin/inkoop/prijsafspraken',
+      'inkoop-leveringen': '/admin/inkoop/leveringen',
+      'inkoop-afwijkingen': '/admin/inkoop/afwijkingen',
+      
+      // 11. Kopersportaal
+      'kopersportaal': '/admin/kopersportaal',
+      'kopersportaal-projecten': '/admin/kopersportaal/projecten',
+      'kopersportaal-status': '/admin/kopersportaal/status',
+      'kopersportaal-meerwerk': '/admin/kopersportaal/meerwerk',
+      'kopersportaal-oplevering': '/admin/kopersportaal/oplevering',
+      'kopersportaal-nazorg': '/admin/kopersportaal/nazorg',
+      'kopersportaal-communicatie': '/admin/kopersportaal/communicatie',
+      
+      // 12. Mail
+      'mail': '/admin/mail',
+      'mail-projecten': '/admin/mail/projecten',
+      'mail-notificaties': '/admin/mail/notificaties',
+      'mail-akkoorden': '/admin/mail/akkoorden',
+      'mail-communicatie': '/admin/mail/communicatie',
+      
+      // 13. Planning
+      'planning': '/admin/planning',
+      'planning-projecten': '/admin/planning/projecten',
+      'planning-mijlpalen': '/admin/planning/mijlpalen',
+      'planning-fases': '/admin/planning/fases',
+      'planning-afwijkingen': '/admin/planning/afwijkingen',
+      
+      // 14. Projecten
+      'projecten': '/admin/projecten',
+      'projecten-overzicht': '/admin/projecten/overzicht',
+      'projecten-status': '/admin/projecten/status',
+      'projecten-instellingen': '/admin/projecten/instellingen',
+      'projecten-koppelingen': '/admin/projecten/koppelingen',
+      'projecten-archief': '/admin/projecten/archief',
+      
+      // 15. Projectportaal
+      'projectportaal': '/admin/projectportaal',
+      'projectportaal-opdrachtgevers': '/admin/projectportaal/opdrachtgevers',
+      'projectportaal-akkoorden': '/admin/projectportaal/akkoorden',
+      'projectportaal-documenten': '/admin/projectportaal/documenten',
+      'projectportaal-meerwerk': '/admin/projectportaal/meerwerk',
+      'projectportaal-planning': '/admin/projectportaal/planning',
+      'projectportaal-communicatie': '/admin/projectportaal/communicatie',
+      
+      // 16. Instellingen
+      'instellingen': '/admin/instellingen',
+      'instellingen-gebruikers': '/admin/instellingen/gebruikers',
+      'instellingen-rollen': '/admin/instellingen/rollen',
+      'instellingen-modules': '/admin/instellingen/modules',
+      'instellingen-templates': '/admin/instellingen/templates',
+      'instellingen-notificaties': '/admin/instellingen/notificaties',
+      'instellingen-systeem': '/admin/instellingen/systeem',
     };
     
     if (routes[key]) {
@@ -117,13 +199,13 @@ const AdminLayout = ({ children }) => {
       key: 'profile',
       icon: <UserOutlined />,
       label: 'Mijn Profiel',
-      onClick: () => router.push('/admin/profile')
+      onClick: () => router.push('/admin/instellingen/profiel')
     },
     {
       key: 'settings',
       icon: <SettingOutlined />,
       label: 'Instellingen',
-      onClick: () => router.push('/admin/settings')
+      onClick: () => router.push('/admin/instellingen')
     },
     {
       type: 'divider'
@@ -149,8 +231,8 @@ const AdminLayout = ({ children }) => {
       </div>
     ),
     icon: notification.type === 'project' ? <ProjectOutlined /> : 
-          notification.type === 'contract' ? <FileTextOutlined /> : 
-          <PictureOutlined />
+          notification.type === 'calculatie' ? <CalculatorOutlined /> : 
+          <BuildOutlined />
   }));
   
   const getBreadcrumbItems = () => {
@@ -160,24 +242,24 @@ const AdminLayout = ({ children }) => {
       const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
       let title = snippet.charAt(0).toUpperCase() + snippet.slice(1);
       
-      // Vertaal routes naar leesbare titels
       const titleMap = {
         'admin': 'Dashboard',
         'dashboard': 'Dashboard',
-        'calculaties': 'Calculaties',
-        'nieuw': 'Nieuwe Calculatie',
-        'projects': 'Projecten',
-        'project-overview': 'Project Overzicht',
-        'contracts': 'Contracten',
-        'drawings': 'Tekeningen',
-        'customers': 'Klanten',
-        'financial': 'Financieel',
-        'invoices': 'Facturen',
-        'users': 'Gebruikers',
-        'settings': 'Instellingen',
-        'reports': 'Rapportages',
-        'calendar': 'Kalender',
-        'profile': 'Profiel'
+        'administratie': 'Administratie',
+        'bim': 'BIM',
+        'bouwplaats': 'Bouwplaats',
+        'calculatie': 'Calculatie',
+        'constructie': 'Constructie',
+        'documenten': 'Documenten',
+        'financien': 'Financiën',
+        'financieringen': 'Financieringen',
+        'inkoop': 'Inkoop',
+        'kopersportaal': 'Kopersportaal',
+        'mail': 'Mail',
+        'planning': 'Planning',
+        'projecten': 'Projecten',
+        'projectportaal': 'Projectportaal',
+        'instellingen': 'Instellingen'
       };
       
       title = titleMap[snippet] || title;
@@ -196,147 +278,366 @@ const AdminLayout = ({ children }) => {
     
     // Map routes naar menu keys
     if (path.includes('/admin/dashboard')) return ['dashboard'];
-    if (path.includes('/calculaties/nieuw')) return ['calculaties-nieuw'];
-    if (path.includes('/calculaties')) return ['calculaties'];
-    if (path.includes('/admin/projects')) {
-      if (query.filter === 'active') return ['projects-active'];
-      if (query.filter === 'archived') return ['projects-archived'];
-      if (query.filter === 'templates') return ['projects-templates'];
-      return ['projects'];
+    
+    if (path.includes('/admin/administratie')) {
+      if (path.includes('/contracten')) return ['administratie-contracten'];
+      if (path.includes('/klanten')) return ['administratie-klanten'];
+      if (path.includes('/dossiers')) return ['administratie-dossiers'];
+      if (path.includes('/auditlog')) return ['administratie-auditlog'];
+      if (path.includes('/compliance')) return ['administratie-compliance'];
+      return ['administratie'];
     }
-    if (path.includes('/admin/contracts')) {
-      if (query.status === 'pending') return ['contracts-pending'];
-      if (query.status === 'expired') return ['contracts-expired'];
-      return ['contracts'];
+    
+    if (path.includes('/admin/bim')) {
+      if (path.includes('/modellen')) return ['bim-modellen'];
+      if (path.includes('/versiebeheer')) return ['bim-versiebeheer'];
+      if (path.includes('/clash-detection')) return ['bim-clash-detection'];
+      if (path.includes('/export')) return ['bim-export'];
+      return ['bim'];
     }
-    if (path.includes('/admin/drawings')) {
-      if (query.filter === 'revisions') return ['drawings-revisions'];
-      if (query.filter === 'today') return ['drawings-uploads'];
-      return ['drawings'];
+    
+    if (path.includes('/admin/bouwplaats')) {
+      if (path.includes('/projecten')) return ['bouwplaats-projecten'];
+      if (path.includes('/taken')) return ['bouwplaats-taken'];
+      if (path.includes('/opleverpunten')) return ['bouwplaats-opleverpunten'];
+      if (path.includes('/fotos')) return ['bouwplaats-fotos'];
+      if (path.includes('/veiligheid')) return ['bouwplaats-veiligheid'];
+      if (path.includes('/meerwerk')) return ['bouwplaats-meerwerk'];
+      return ['bouwplaats'];
     }
-    if (path.includes('/admin/customers')) return ['customers'];
-    if (path.includes('/admin/invoices')) {
-      if (query.status === 'pending') return ['invoices-pending'];
-      if (query.status === 'paid') return ['invoices-paid'];
-      return ['invoices'];
+    
+    if (path.includes('/admin/calculatie')) {
+      if (path.includes('/overzicht')) return ['calculatie-overzicht'];
+      if (path.includes('/stabu')) return ['calculatie-stabu'];
+      if (path.includes('/optimalisatie')) return ['calculatie-optimalisatie'];
+      if (path.includes('/meerwerk')) return ['calculatie-meerwerk'];
+      if (path.includes('/offertes')) return ['calculatie-offertes'];
+      if (path.includes('/historie')) return ['calculatie-historie'];
+      return ['calculatie'];
     }
-    if (path.includes('/admin/financial')) return ['financial'];
-    if (path.includes('/admin/reports')) return ['reports'];
-    if (path.includes('/admin/calendar')) return ['calendar'];
-    if (path.includes('/admin/users')) return ['users'];
-    if (path.includes('/admin/settings')) return ['settings'];
-    if (path.includes('/admin/database')) return ['database'];
-    if (path.includes('/admin/system-logs')) return ['system-logs'];
+    
+    if (path.includes('/admin/constructie')) {
+      if (path.includes('/berekeningen')) return ['constructie-berekeningen'];
+      if (path.includes('/rapportages')) return ['constructie-rapportages'];
+      if (path.includes('/revisies')) return ['constructie-revisies'];
+      if (path.includes('/goedkeuring')) return ['constructie-goedkeuring'];
+      return ['constructie'];
+    }
+    
+    if (path.includes('/admin/documenten')) {
+      if (path.includes('/overzicht')) return ['documenten-overzicht'];
+      if (path.includes('/versiebeheer')) return ['documenten-versiebeheer'];
+      if (path.includes('/rechten')) return ['documenten-rechten'];
+      if (path.includes('/zoeken')) return ['documenten-zoeken'];
+      if (path.includes('/export')) return ['documenten-export'];
+      return ['documenten'];
+    }
+    
+    if (path.includes('/admin/financien')) {
+      if (path.includes('/projectresultaten')) return ['financien-projectresultaten'];
+      if (path.includes('/kosten')) return ['financien-kosten'];
+      if (path.includes('/meerwerk-impact')) return ['financien-meerwerk-impact'];
+      if (path.includes('/termijnen')) return ['financien-termijnen'];
+      if (path.includes('/factuurstatus')) return ['financien-factuurstatus'];
+      return ['financien'];
+    }
+    
+    if (path.includes('/admin/financieringen')) {
+      if (path.includes('/leningen')) return ['financieringen-leningen'];
+      if (path.includes('/ltv')) return ['financieringen-ltv'];
+      if (path.includes('/rente')) return ['financieringen-rente'];
+      if (path.includes('/zekerheden')) return ['financieringen-zekerheden'];
+      if (path.includes('/rapportages')) return ['financieringen-rapportages'];
+      return ['financieringen'];
+    }
+    
+    if (path.includes('/admin/inkoop')) {
+      if (path.includes('/orders')) return ['inkoop-orders'];
+      if (path.includes('/leveranciers')) return ['inkoop-leveranciers'];
+      if (path.includes('/prijsafspraken')) return ['inkoop-prijsafspraken'];
+      if (path.includes('/leveringen')) return ['inkoop-leveringen'];
+      if (path.includes('/afwijkingen')) return ['inkoop-afwijkingen'];
+      return ['inkoop'];
+    }
+    
+    if (path.includes('/admin/kopersportaal')) {
+      if (path.includes('/projecten')) return ['kopersportaal-projecten'];
+      if (path.includes('/status')) return ['kopersportaal-status'];
+      if (path.includes('/meerwerk')) return ['kopersportaal-meerwerk'];
+      if (path.includes('/oplevering')) return ['kopersportaal-oplevering'];
+      if (path.includes('/nazorg')) return ['kopersportaal-nazorg'];
+      if (path.includes('/communicatie')) return ['kopersportaal-communicatie'];
+      return ['kopersportaal'];
+    }
+    
+    if (path.includes('/admin/mail')) {
+      if (path.includes('/projecten')) return ['mail-projecten'];
+      if (path.includes('/notificaties')) return ['mail-notificaties'];
+      if (path.includes('/akkoorden')) return ['mail-akkoorden'];
+      if (path.includes('/communicatie')) return ['mail-communicatie'];
+      return ['mail'];
+    }
+    
+    if (path.includes('/admin/planning')) {
+      if (path.includes('/projecten')) return ['planning-projecten'];
+      if (path.includes('/mijlpalen')) return ['planning-mijlpalen'];
+      if (path.includes('/fases')) return ['planning-fases'];
+      if (path.includes('/afwijkingen')) return ['planning-afwijkingen'];
+      return ['planning'];
+    }
+    
+    if (path.includes('/admin/projecten')) {
+      if (path.includes('/overzicht')) return ['projecten-overzicht'];
+      if (path.includes('/status')) return ['projecten-status'];
+      if (path.includes('/instellingen')) return ['projecten-instellingen'];
+      if (path.includes('/koppelingen')) return ['projecten-koppelingen'];
+      if (path.includes('/archief')) return ['projecten-archief'];
+      return ['projecten'];
+    }
+    
+    if (path.includes('/admin/projectportaal')) {
+      if (path.includes('/opdrachtgevers')) return ['projectportaal-opdrachtgevers'];
+      if (path.includes('/akkoorden')) return ['projectportaal-akkoorden'];
+      if (path.includes('/documenten')) return ['projectportaal-documenten'];
+      if (path.includes('/meerwerk')) return ['projectportaal-meerwerk'];
+      if (path.includes('/planning')) return ['projectportaal-planning'];
+      if (path.includes('/communicatie')) return ['projectportaal-communicatie'];
+      return ['projectportaal'];
+    }
+    
+    if (path.includes('/admin/instellingen')) {
+      if (path.includes('/gebruikers')) return ['instellingen-gebruikers'];
+      if (path.includes('/rollen')) return ['instellingen-rollen'];
+      if (path.includes('/modules')) return ['instellingen-modules'];
+      if (path.includes('/templates')) return ['instellingen-templates'];
+      if (path.includes('/notificaties')) return ['instellingen-notificaties'];
+      if (path.includes('/systeem')) return ['instellingen-systeem'];
+      if (path.includes('/profiel')) return ['profile'];
+      return ['instellingen'];
+    }
     
     return ['dashboard'];
   };
   
   const menuItems = [
+    // 1. Dashboard
     {
       key: 'dashboard',
       icon: <DashboardOutlined />,
       label: 'Dashboard',
     },
+    
+    // 2. Administratie
     {
-      key: 'projects',
+      key: 'administratie',
+      icon: <FileDoneOutlined />,
+      label: 'Administratie',
+      children: [
+        { key: 'administratie-contracten', label: 'Contractbeheer' },
+        { key: 'administratie-klanten', label: 'Klant- en bedrijfsgegevens' },
+        { key: 'administratie-dossiers', label: 'Dossierstructuur' },
+        { key: 'administratie-auditlog', label: 'Auditlog' },
+        { key: 'administratie-compliance', label: 'Compliance / vastlegging' },
+      ]
+    },
+    
+    // 3. BIM
+    {
+      key: 'bim',
+      icon: <ApartmentOutlined />,
+      label: 'BIM',
+      children: [
+        { key: 'bim-modellen', label: 'BIM-modellen (viewer)' },
+        { key: 'bim-versiebeheer', label: 'Versiebeheer' },
+        { key: 'bim-clash-detection', label: 'Clash detection (status)' },
+        { key: 'bim-export', label: 'Export (IFC / PDF)' },
+      ]
+    },
+    
+    // 4. Bouwplaats
+    {
+      key: 'bouwplaats',
+      icon: <BuildOutlined />,
+      label: 'Bouwplaats',
+      children: [
+        { key: 'bouwplaats-projecten', label: 'Actieve projecten' },
+        { key: 'bouwplaats-taken', label: 'Taken & ruimtes' },
+        { key: 'bouwplaats-opleverpunten', label: 'Opleverpunten' },
+        { key: 'bouwplaats-fotos', label: 'Foto\'s & rapportages' },
+        { key: 'bouwplaats-veiligheid', label: 'Veiligheidsmeldingen' },
+        { key: 'bouwplaats-meerwerk', label: 'Meerwerksignalen' },
+      ]
+    },
+    
+    // 5. Calculatie
+    {
+      key: 'calculatie',
+      icon: <CalculatorOutlined />,
+      label: 'Calculatie',
+      children: [
+        { key: 'calculatie-overzicht', label: 'Calculaties per project' },
+        { key: 'calculatie-stabu', label: 'STABU-structuur' },
+        { key: 'calculatie-optimalisatie', label: 'Optimalisatieversies' },
+        { key: 'calculatie-meerwerk', label: 'Meer- en minderwerk' },
+        { key: 'calculatie-offertes', label: 'Offertegeneratie' },
+        { key: 'calculatie-historie', label: 'Historie & versies' },
+      ]
+    },
+    
+    // 6. Constructie
+    {
+      key: 'constructie',
+      icon: <SafetyCertificateOutlined />,
+      label: 'Constructie',
+      children: [
+        { key: 'constructie-berekeningen', label: 'Constructieberekeningen' },
+        { key: 'constructie-rapportages', label: 'Rapportages' },
+        { key: 'constructie-revisies', label: 'Revisies' },
+        { key: 'constructie-goedkeuring', label: 'Status goedkeuring' },
+      ]
+    },
+    
+    // 7. Documenten
+    {
+      key: 'documenten',
+      icon: <FolderOutlined />,
+      label: 'Documenten',
+      children: [
+        { key: 'documenten-overzicht', label: 'Alle projectdocumenten' },
+        { key: 'documenten-versiebeheer', label: 'Versiebeheer' },
+        { key: 'documenten-rechten', label: 'Rechten & rollen' },
+        { key: 'documenten-zoeken', label: 'Zoek & filters' },
+        { key: 'documenten-export', label: 'PDF-exports' },
+      ]
+    },
+    
+    // 8. Financiën
+    {
+      key: 'financien',
+      icon: <WalletOutlined />,
+      label: 'Financiën',
+      children: [
+        { key: 'financien-projectresultaten', label: 'Projectresultaten' },
+        { key: 'financien-kosten', label: 'Kosten vs begroting' },
+        { key: 'financien-meerwerk-impact', label: 'Meerwerkimpact' },
+        { key: 'financien-termijnen', label: 'Termijnen' },
+        { key: 'financien-factuurstatus', label: 'Factuurstatus (inzicht)' },
+      ]
+    },
+    
+    // 9. Financieringen
+    {
+      key: 'financieringen',
+      icon: <PercentageOutlined />,
+      label: 'Financieringen',
+      children: [
+        { key: 'financieringen-leningen', label: 'Leningen' },
+        { key: 'financieringen-ltv', label: 'LTV per project' },
+        { key: 'financieringen-rente', label: 'Rente & looptijd' },
+        { key: 'financieringen-zekerheden', label: 'Zekerheden' },
+        { key: 'financieringen-rapportages', label: 'Rapportages voor financiers' },
+      ]
+    },
+    
+    // 10. Inkoop
+    {
+      key: 'inkoop',
+      icon: <ShoppingOutlined />,
+      label: 'Inkoop',
+      children: [
+        { key: 'inkoop-orders', label: 'Inkooporders' },
+        { key: 'inkoop-leveranciers', label: 'Leveranciers' },
+        { key: 'inkoop-prijsafspraken', label: 'Prijsafspraken' },
+        { key: 'inkoop-leveringen', label: 'Leveringen' },
+        { key: 'inkoop-afwijkingen', label: 'Afwijkingen & tekorten' },
+      ]
+    },
+    
+    // 11. Kopersportaal
+    {
+      key: 'kopersportaal',
+      icon: <SolutionOutlined />,
+      label: 'Kopersportaal',
+      children: [
+        { key: 'kopersportaal-projecten', label: 'Projecten met kopers/huurders' },
+        { key: 'kopersportaal-status', label: 'Status per woning' },
+        { key: 'kopersportaal-meerwerk', label: 'Meerwerkflows' },
+        { key: 'kopersportaal-oplevering', label: 'Oplevering' },
+        { key: 'kopersportaal-nazorg', label: 'Nazorgmeldingen' },
+        { key: 'kopersportaal-communicatie', label: 'Communicatie-overzicht' },
+      ]
+    },
+    
+    // 12. Mail
+    {
+      key: 'mail',
+      icon: <MailOutlined />,
+      label: 'Mail',
+      children: [
+        { key: 'mail-projecten', label: 'Projectgebonden mails' },
+        { key: 'mail-notificaties', label: 'Automatische notificaties' },
+        { key: 'mail-akkoorden', label: 'Akkoordmails' },
+        { key: 'mail-communicatie', label: 'Vastgelegde communicatie' },
+      ]
+    },
+    
+    // 13. Planning
+    {
+      key: 'planning',
+      icon: <ScheduleOutlined />,
+      label: 'Planning',
+      children: [
+        { key: 'planning-projecten', label: 'Projectplanningen' },
+        { key: 'planning-mijlpalen', label: 'Mijlpalen' },
+        { key: 'planning-fases', label: 'Fase-overzichten' },
+        { key: 'planning-afwijkingen', label: 'Afwijkingen' },
+      ]
+    },
+    
+    // 14. Projecten
+    {
+      key: 'projecten',
       icon: <ProjectOutlined />,
       label: 'Projecten',
       children: [
-        { key: 'projects-active', label: 'Actieve Projecten' },
-        { key: 'projects-archived', label: 'Gearchiveerd' },
-        { key: 'projects-templates', label: 'Templates' },
+        { key: 'projecten-overzicht', label: 'Alle projecten' },
+        { key: 'projecten-status', label: 'Projectstatus' },
+        { key: 'projecten-instellingen', label: 'Projectinstellingen' },
+        { key: 'projecten-koppelingen', label: 'Koppelingen' },
+        { key: 'projecten-archief', label: 'Projectarchief' },
       ]
     },
+    
+    // 15. Projectportaal
     {
-      key: 'calculaties',
-      icon: <CalculatorOutlined />,
-      label: 'Calculaties',
+      key: 'projectportaal',
+      icon: <ContainerOutlined />,
+      label: 'Projectportaal',
       children: [
-        { key: 'calculaties-all', label: 'Alle Calculaties' },
-        { key: 'calculaties-nieuw', label: 'Nieuwe Calculatie' },
-        { key: 'calculaties-pending', label: 'In Afwachting' },
+        { key: 'projectportaal-opdrachtgevers', label: 'Actieve opdrachtgever-projecten' },
+        { key: 'projectportaal-akkoorden', label: 'Akkoorden' },
+        { key: 'projectportaal-documenten', label: 'Documenten' },
+        { key: 'projectportaal-meerwerk', label: 'Meerwerk' },
+        { key: 'projectportaal-planning', label: 'Planning & financiën (inzicht)' },
+        { key: 'projectportaal-communicatie', label: 'Communicatie' },
       ]
     },
+    
+    // 16. Instellingen
     {
-      key: 'contracts',
-      icon: <FileTextOutlined />,
-      label: 'Contracten',
+      key: 'instellingen',
+      icon: <SettingOutlined />,
+      label: 'Instellingen',
       children: [
-        { key: 'contracts-all', label: 'Alle Contracten' },
-        { key: 'contracts-pending', label: 'In Afwachting' },
-        { key: 'contracts-expired', label: 'Verlopen' },
-      ]
-    },
-    {
-      key: 'drawings',
-      icon: <PictureOutlined />,
-      label: 'Tekeningen',
-      children: [
-        { key: 'drawings-all', label: 'Alle Tekeningen' },
-        { key: 'drawings-revisions', label: 'Revisies' },
-        { key: 'drawings-uploads', label: 'Uploads Vandaag' },
-      ]
-    },
-    {
-      key: 'customers',
-      icon: <CustomerServiceOutlined />,
-      label: 'Klanten',
-      children: [
-        { key: 'customers-all', label: 'Alle Klanten' },
-        { key: 'customers-new', label: 'Nieuwe Klant' },
-        { key: 'customers-vip', label: 'VIP Klanten' },
-      ]
-    },
-    {
-      key: 'financial',
-      icon: <BankOutlined />,
-      label: 'Financieel',
-      children: [
-        { key: 'invoices-all', label: 'Facturen' },
-        { key: 'invoices-pending', label: 'Openstaand' },
-        { key: 'invoices-paid', label: 'Betaald' },
-      ]
-    },
-    {
-      key: 'reports',
-      icon: <BarChartOutlined />,
-      label: 'Rapportages',
-    },
-    {
-      key: 'calendar',
-      icon: <CalendarOutlined />,
-      label: 'Kalender',
-    },
-    // SUPER_ADMIN alleen items
-    userRole === 'SUPER_ADMIN' && {
-      key: 'super-admin',
-      icon: <SafetyOutlined />,
-      label: 'Super Admin',
-      type: 'group',
-      children: [
-        {
-          key: 'users',
-          icon: <TeamOutlined />,
-          label: 'Gebruikersbeheer',
-        },
-        {
-          key: 'settings',
-          icon: <SettingOutlined />,
-          label: 'Systeeminstellingen',
-        },
-        {
-          key: 'database',
-          icon: <DatabaseOutlined />,
-          label: 'Database',
-        },
-        {
-          key: 'system-logs',
-          icon: <ApartmentOutlined />,
-          label: 'System Logs',
-        },
+        { key: 'instellingen-gebruikers', label: 'Gebruikers & rollen' },
+        { key: 'instellingen-rollen', label: 'Rechtenstructuur' },
+        { key: 'instellingen-modules', label: 'Module-instellingen' },
+        { key: 'instellingen-templates', label: 'Standaard templates' },
+        { key: 'instellingen-notificaties', label: 'Notificaties' },
+        { key: 'instellingen-systeem', label: 'Systeemstatus' },
       ]
     }
-  ].filter(Boolean);
+  ];
   
   if (!mounted) {
     return <div style={{ padding: 50, textAlign: 'center' }}>Loading...</div>;
@@ -365,7 +666,7 @@ const AdminLayout = ({ children }) => {
           trigger={null} 
           collapsible 
           collapsed={collapsed}
-          width={260}
+          width={280}
           style={{
             background: darkTheme ? '#141414' : '#fff',
             borderRight: `1px solid ${darkTheme ? '#303030' : '#f0f0f0'}`,
@@ -373,7 +674,8 @@ const AdminLayout = ({ children }) => {
             left: 0,
             top: 0,
             bottom: 0,
-            zIndex: 100,
+            zIndex: 1000,
+            height: '100vh',
             overflowY: 'auto',
             overflowX: 'hidden'
           }}
@@ -422,7 +724,7 @@ const AdminLayout = ({ children }) => {
                 borderColor: darkTheme ? '#303030' : '#f0f0f0',
                 cursor: 'pointer'
               }}
-              onClick={() => router.push('/admin/profile')}
+              onClick={() => router.push('/admin/instellingen/profiel')}
             >
               <Row gutter={[12, 12]} align="middle">
                 <Col>
@@ -455,26 +757,32 @@ const AdminLayout = ({ children }) => {
           )}
           
           {/* Navigatie menu */}
-          <Menu
-            mode="inline"
-            selectedKeys={getSelectedKeys()}
-            defaultOpenKeys={['projects', 'calculaties', 'contracts', 'drawings', 'customers', 'financial']}
-            style={{
-              borderRight: 0,
-              background: darkTheme ? '#141414' : '#fff',
-              padding: '8px 0'
-            }}
-            items={menuItems}
-            onClick={handleMenuClick}
-            theme={darkTheme ? 'dark' : 'light'}
-            inlineIndent={12}
-          />
+          <div style={{ overflowY: 'auto', height: 'calc(100vh - 180px)' }}>
+            <Menu
+              mode="inline"
+              selectedKeys={getSelectedKeys()}
+              defaultOpenKeys={collapsed ? [] : menuItems.map(item => item.key)}
+              style={{
+                borderRight: 0,
+                background: darkTheme ? '#141414' : '#fff',
+                padding: '8px 0'
+              }}
+              items={menuItems}
+              onClick={handleMenuClick}
+              theme={darkTheme ? 'dark' : 'light'}
+              inlineIndent={16}
+            />
+          </div>
           
           {!collapsed && (
             <div style={{ 
               padding: '16px',
               borderTop: `1px solid ${darkTheme ? '#303030' : '#f0f0f0'}`,
-              marginTop: 'auto'
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: darkTheme ? '#141414' : '#fff'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: darkTheme ? '#fff' : '#000', fontSize: '14px' }}>Donker thema</span>
@@ -490,7 +798,7 @@ const AdminLayout = ({ children }) => {
         
         {/* Hoofd layout met margin voor sidebar */}
         <Layout style={{ 
-          marginLeft: collapsed ? 80 : 260,
+          marginLeft: collapsed ? 80 : 280,
           transition: 'margin-left 0.2s',
           minHeight: '100vh'
         }}>
@@ -504,7 +812,7 @@ const AdminLayout = ({ children }) => {
             justifyContent: 'space-between',
             position: 'sticky',
             top: 0,
-            zIndex: 50,
+            zIndex: 999,
             height: 64
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -524,16 +832,6 @@ const AdminLayout = ({ children }) => {
             
             {/* Header acties */}
             <Space size="middle" style={{ marginRight: 8 }}>
-              {/* Zoekbalk */}
-              <Tooltip title="Zoeken">
-                <Button 
-                  type="text" 
-                  icon={<SearchOutlined />}
-                  style={{ color: darkTheme ? '#fff' : '#000', fontSize: '18px' }}
-                  onClick={() => router.push('/admin/search')}
-                />
-              </Tooltip>
-              
               {/* Snel toevoegen */}
               <Dropdown
                 menu={{
@@ -541,26 +839,26 @@ const AdminLayout = ({ children }) => {
                     { 
                       key: 'new-project', 
                       label: 'Nieuw Project', 
-                      icon: <PlusCircleOutlined />,
-                      onClick: () => router.push('/admin/projects/new')
+                      icon: <ProjectOutlined />,
+                      onClick: () => router.push('/admin/projecten/nieuw')
                     },
                     { 
                       key: 'new-calculatie', 
                       label: 'Nieuwe Calculatie', 
                       icon: <CalculatorOutlined />,
-                      onClick: () => router.push('/calculaties/nieuw')
+                      onClick: () => router.push('/admin/calculatie/nieuw')
                     },
                     { 
-                      key: 'new-contract', 
-                      label: 'Nieuw Contract', 
-                      icon: <FileTextOutlined />,
-                      onClick: () => router.push('/admin/contracts/new')
+                      key: 'new-meerwerk', 
+                      label: 'Meerwerk registreren', 
+                      icon: <PlusCircleOutlined />,
+                      onClick: () => router.push('/admin/bouwplaats/meerwerk/nieuw')
                     },
                     { 
-                      key: 'upload-drawing', 
-                      label: 'Tekening Uploaden', 
+                      key: 'new-document', 
+                      label: 'Document uploaden', 
                       icon: <UploadOutlined />,
-                      onClick: () => router.push('/admin/drawings/upload')
+                      onClick: () => router.push('/admin/documenten/upload')
                     },
                   ]
                 }}
@@ -585,7 +883,7 @@ const AdminLayout = ({ children }) => {
                     { 
                       key: 'view-all', 
                       label: 'Alle notificaties bekijken',
-                      onClick: () => router.push('/admin/notifications')
+                      onClick: () => router.push('/admin/notificaties')
                     }
                   ]
                 }}
@@ -652,16 +950,16 @@ const AdminLayout = ({ children }) => {
                   <span>
                     Status: <Tag color="green" style={{ marginLeft: 4 }}>Online</Tag>
                   </span>
-                  <span>Laatste update: 15 min geleden</span>
+                  <span>Laatste update: vandaag 14:30</span>
                   <a 
                     href="#" 
                     onClick={(e) => {
                       e.preventDefault();
-                      router.push('/admin/system-status');
+                      router.push('/admin/instellingen/systeem');
                     }}
                     style={{ color: token.colorPrimary }}
                   >
-                    System Status
+                    Systeemstatus
                   </a>
                 </Space>
               </Col>
