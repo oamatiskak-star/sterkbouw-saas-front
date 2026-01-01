@@ -5,10 +5,10 @@ const nextConfig = {
   // 1. SCHAKEL ALLE STATISCHE FEATURES UIT
   trailingSlash: false,
   images: {
-    unoptimized: true, // Geen geoptimaliseerde static images
+    unoptimized: true,
   },
 
-  // 2. NEgeer ALLE build errors
+  // 2. NEGEER ALLE BUILD ERRORS
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -17,23 +17,19 @@ const nextConfig = {
   },
   staticPageGenerationTimeout: 60,
 
-  // 3. CRUCIAL: SCHAKEL STATIC GENERATION UIT
+  // 3. STATIC GENERATION UIT
   experimental: {
     esmExternals: false,
-    // Forceer server rendering voor ALLE pagina's
     serverComponentsExternalPackages: [],
-    // Zorg dat alles dynamisch wordt behandeld
     optimizeCss: false,
-    // Voorkom prerendering
     isrFlushToDisk: false,
     workerThreads: false,
-    // Optimizations die SSG kunnen veroorzaken uitschakelen
     turbo: {
       resolveExtensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
   },
 
-  // 4. FORCEER DYNAMIC RENDERING via headers
+  // 4. FORCEER DYNAMIC RENDERING
   async headers() {
     return [
       {
@@ -52,8 +48,9 @@ const nextConfig = {
     ];
   },
 
-  // 5. Webpack config ZONDER string-replace-loader
-  webpack: (config, { isServer, dev }) => {
+  // 5. WEBPACK — ANT DESIGN VOLLEDIG SERVER-BLIND MAKEN
+  webpack: (config, { isServer }) => {
+    // Node fallbacks
     config.resolve.fallback = {
       fs: false,
       path: false,
@@ -61,7 +58,7 @@ const nextConfig = {
       crypto: false,
     };
 
-    // Voorkom static optimization
+    // Voorkom static optimizations
     config.optimization = {
       ...config.optimization,
       minimize: false,
@@ -69,17 +66,22 @@ const nextConfig = {
       chunkIds: 'named',
     };
 
-    // rc-* external
-    config.externals = config.externals || [];
-    config.externals.push({
-      "rc-util": "commonjs rc-util",
-      "rc-picker": "commonjs rc-picker",
-    });
+    // ⛔ SERVER: vervang Ant Design door stub (GEEN SSR-crash)
+    if (isServer) {
+      config.resolve.alias = {
+        ...(config.resolve.alias || {}),
+        antd: require.resolve('./lib/antd-server-stub'),
+        '@ant-design/icons': require.resolve('./lib/antd-server-stub'),
+        '@ant-design/icons-svg': require.resolve('./lib/antd-server-stub'),
+        'rc-util': require.resolve('./lib/antd-server-stub'),
+        'rc-picker': require.resolve('./lib/antd-server-stub'),
+      };
+    }
 
     return config;
   },
 
-  // 6. Rewrites om dynamisch gedrag te forceren
+  // 6. REWRITES (NO-OP, MAAR BEHOUD DYNAMISCH GEDRAG)
   async rewrites() {
     return [
       {
@@ -89,7 +91,7 @@ const nextConfig = {
     ];
   },
 
-  // 7. COMPLEET DISABLE static export
+  // 7. DISABLE STATIC EXPORT
   distDir: '.next',
   generateBuildId: async () => {
     return 'build-' + Date.now();
