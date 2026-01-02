@@ -1,7 +1,7 @@
 // pages/calculaties/index.js
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
-import Layout from "@/components/Layout"
+import AdminLayout from "@/components/AdminLayout"
 import supabase from "@/lib/supabase"
 
 export default function CalculatieIndexPage() {
@@ -120,7 +120,7 @@ export default function CalculatieIndexPage() {
   ]
 
   return (
-    <Layout hidePlatformSidebar={true}> {/* Voeg deze prop toe */}
+    <AdminLayout>  {/* ← VERANDER HIER */}
       <div className="container-fluid px-3 px-lg-4 py-4">
         {/* Header met uitleg */}
         <div className="row mb-4">
@@ -542,7 +542,7 @@ export default function CalculatieIndexPage() {
           padding: 0.75rem 1rem;
         }
       `}</style>
-    </Layout>
+    </AdminLayout>
   )
 }
 
