@@ -1,585 +1,876 @@
-// pages/calculaties/index.js
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
-import supabase from "@/lib/supabase"
+import Link from "next/link"
+import { useAuth } from "@/lib/auth"
+import { supabase } from "@/lib/supabase"
+import { format } from "date-fns"
+import { nl } from "date-fns/locale"
 
-export default function CalculatieIndexPage() {
+// UI Components
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Progress } from "@/components/ui/progress"
+
+// Icons
+import { 
+  Search, 
+  Filter, 
+  Download, 
+  Eye, 
+  Edit, 
+  Trash2, 
+  Plus, 
+  FileText, 
+  Building, 
+  Calendar, 
+  User,
+  DollarSign,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  XCircle,
+  ArrowUpDown,
+  MoreVertical,
+  RefreshCw
+} from "lucide-react"
+
+// API endpoints
+const API_ENDPOINTS = {
+  BACKEND_API: process.env.NEXT_PUBLIC_BACKEND_API || "https://sterkbouw-saas-backend-production.up.railway.app",
+}
+
+export default function CalculatiesPage() {
   const router = useRouter()
-  const [loading, setLoading] = useState(true)
+  const { user, loading: authLoading } = useAuth()
+  
+  // State management
+  const [calculaties, setCalculaties] = useState([])
+  const [filteredCalculaties, setFilteredCalculaties] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(null)
+  
+  // Filter and search state
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedProject, setSelectedProject] = useState(null)
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [projectTypeFilter, setProjectTypeFilter] = useState("all")
+  const [sortBy, setSortBy] = useState("updated_at")
+  const [sortOrder, setSortOrder] = useState("desc")
   
-  // Projecten uit database
-  const [projects, setProjects] = useState([])
-  const [recentProjects, setRecentProjects] = useState([])
+  // Delete dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [calculatieToDelete, setCalculatieToDelete] = useState(null)
   
-  // Statestieken
+  // Stats
   const [stats, setStats] = useState({
-    totalProjects: 0,
-    activeProjects: 0,
-    recentCalculations: 0
+    total: 0,
+    active: 0,
+    completed: 0,
+    draft: 0,
+    totalValue: 0
   })
 
-  // =========================
-  // LAAD PROJECTEN UIT SUPABASE
-  // =========================
+  // ======================
+  // EFFECTS
+  // ======================
+
   useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        setLoading(true)
-        
-        // Haal projecten op uit database
-        const { data: projectsData, error } = await supabase
-          .from('projects')
-          .select('id, name, project_number, status, created_at, client_name')
-          .order('created_at', { ascending: false })
-          .limit(50)
-        
-        if (error) throw error
-        
-        if (projectsData) {
-          setProjects(projectsData)
-          setRecentProjects(projectsData.slice(0, 5))
-          
-          // Bereken statistieken
-          const activeProjects = projectsData.filter(p => p.status === 'active').length
-          setStats({
-            totalProjects: projectsData.length,
-            activeProjects: activeProjects,
-            recentCalculations: 8 // Mock data voor nu
-          })
+    if (!authLoading && !user) {
+      router.push('/login')
+    }
+  }, [user, authLoading, router])
+
+  useEffect(() => {
+    if (user) {
+      fetchCalculaties()
+    }
+  }, [user])
+
+  useEffect(() => {
+    filterAndSortCalculaties()
+  }, [calculaties, searchTerm, statusFilter, projectTypeFilter, sortBy, sortOrder])
+
+  // ======================
+  // FUNCTIES
+  // ======================
+
+  const fetchCalculaties = async () => {
+    if (!user) return
+    
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const response = await fetch(`${API_ENDPOINTS.BACKEND_API}/api/projects?user_id=${user.id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await user.getIdToken()}`
         }
-        
-      } catch (error) {
-        console.error("Fout bij laden projecten:", error)
-        // Fallback mock data
-        setProjects(getMockProjects())
-        setRecentProjects(getMockProjects().slice(0, 5))
-      } finally {
-        setLoading(false)
+      })
+      
+      if (!response.ok) {
+        throw new Error('Fout bij het ophalen van calculaties')
       }
+      
+      const data = await response.json()
+      setCalculaties(data)
+      updateStats(data)
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Er is een fout opgetreden')
+      console.error('Fetch error:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const filterAndSortCalculaties = () => {
+    let filtered = [...calculaties]
+    
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase()
+      filtered = filtered.filter(calc =>
+        calc.naam?.toLowerCase().includes(term) ||
+        calc.klant_naam?.toLowerCase().includes(term) ||
+        calc.adres?.toLowerCase().includes(term) ||
+        calc.plaats?.toLowerCase().includes(term)
+      )
     }
     
-    loadProjects()
-  }, [])
+    // Apply status filter
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(calc => calc.status === statusFilter)
+    }
+    
+    // Apply project type filter
+    if (projectTypeFilter !== "all") {
+      filtered = filtered.filter(calc => calc.project_type === projectTypeFilter)
+    }
+    
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue, bValue
+      
+      switch (sortBy) {
+        case "naam":
+          aValue = a.naam?.toLowerCase() || ""
+          bValue = b.naam?.toLowerCase() || ""
+          break
+        case "klant_naam":
+          aValue = a.klant_naam?.toLowerCase() || ""
+          bValue = b.klant_naam?.toLowerCase() || ""
+          break
+        case "totaal_incl_btw":
+          aValue = a.metadata?.totaal_incl_btw || 0
+          bValue = b.metadata?.totaal_incl_btw || 0
+          break
+        case "created_at":
+          aValue = new Date(a.created_at).getTime()
+          bValue = new Date(b.created_at).getTime()
+          break
+        case "updated_at":
+        default:
+          aValue = new Date(a.updated_at).getTime()
+          bValue = new Date(b.updated_at).getTime()
+      }
+      
+      if (sortOrder === "asc") {
+        return aValue > bValue ? 1 : -1
+      } else {
+        return aValue < bValue ? 1 : -1
+      }
+    })
+    
+    setFilteredCalculaties(filtered)
+  }
 
-  // =========================
-  // KNOP 1: START NIEUWE CALCULATIE VOOR PROJECT
-  // =========================
-  const handleStartCalculatie = () => {
-    if (selectedProject) {
-      // Ga naar calculatie formulier met project ID
-      router.push(`/calculaties/nieuw?projectId=${selectedProject.id}`)
-    } else {
-      // Eerst project selecteren
-      alert("Selecteer eerst een project om een calculatie te starten")
+  const updateStats = (calculaties) => {
+    const stats = {
+      total: calculaties.length,
+      active: calculaties.filter(c => c.status === 'active').length,
+      completed: calculaties.filter(c => c.status === 'completed').length,
+      draft: calculaties.filter(c => c.status === 'draft').length,
+      totalValue: calculaties.reduce((sum, c) => {
+        return sum + (c.metadata?.totaal_incl_btw || 0)
+      }, 0)
+    }
+    setStats(stats)
+  }
+
+  const handleDeleteClick = (calculatie) => {
+    setCalculatieToDelete(calculatie)
+    setDeleteDialogOpen(true)
+  }
+
+  const deleteCalculatie = async () => {
+    if (!calculatieToDelete || !user) return
+    
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const response = await fetch(`${API_ENDPOINTS.BACKEND_API}/api/projects/${calculatieToDelete.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await user.getIdToken()}`
+        }
+      })
+      
+      if (!response.ok) {
+        throw new Error('Verwijderen mislukt')
+      }
+      
+      // Update local state
+      const updatedCalculaties = calculaties.filter(c => c.id !== calculatieToDelete.id)
+      setCalculaties(updatedCalculaties)
+      updateStats(updatedCalculaties)
+      
+      setSuccess('Calculatie succesvol verwijderd')
+      setTimeout(() => setSuccess(null), 3000)
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Verwijderen mislukt')
+    } finally {
+      setIsLoading(false)
+      setDeleteDialogOpen(false)
+      setCalculatieToDelete(null)
     }
   }
 
-  // =========================
-  // KNOP 2: NIEUW PROJECT AANMAKEN
-  // =========================
-  const handleNieuwProject = () => {
-    router.push("/projecten/nieuw?returnTo=/calculatie")
+  const handleDuplicate = async (calculatie) => {
+    if (!user) return
+    
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const duplicateData = {
+        ...calculatie,
+        naam: `${calculatie.naam} (kopie)`,
+        status: 'draft',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+      
+      delete duplicateData.id
+      delete duplicateData.created_at
+      delete duplicateData.updated_at
+      
+      const response = await fetch(`${API_ENDPOINTS.BACKEND_API}/api/projects`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await user.getIdToken()}`
+        },
+        body: JSON.stringify(duplicateData)
+      })
+      
+      if (!response.ok) {
+        throw new Error('Dupliceren mislukt')
+      }
+      
+      const newCalculatie = await response.json()
+      
+      // Add to local state
+      setCalculaties([newCalculatie, ...calculaties])
+      
+      setSuccess('Calculatie succesvol gedupliceerd')
+      setTimeout(() => setSuccess(null), 3000)
+      
+      // Navigate to edit page
+      router.push(`/calculaties/${newCalculatie.id}`)
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Dupliceren mislukt')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  // =========================
-  // KNOP 3: BEKIJK PROJECT DETAILS
-  // =========================
-  const handleProjectDetails = (projectId) => {
-    router.push(`/projecten/${projectId}`)
+  const getStatusBadge = (status) => {
+    const variants = {
+      draft: { variant: "outline", icon: Clock, text: "Concept", color: "text-gray-600" },
+      active: { variant: "secondary", icon: RefreshCw, text: "Actief", color: "text-blue-600" },
+      completed: { variant: "default", icon: CheckCircle, text: "Voltooid", color: "text-green-600" },
+      cancelled: { variant: "destructive", icon: XCircle, text: "Geannuleerd", color: "text-red-600" }
+    }
+    
+    const config = variants[status] || variants.draft
+    const Icon = config.icon
+    
+    return (
+      <Badge variant={config.variant} className="gap-1">
+        <Icon className="h-3 w-3" />
+        {config.text}
+      </Badge>
+    )
   }
 
-  // =========================
-  // KNOP 4: BEKIJK BESTAANDE CALCULATIES
-  // =========================
-  const handleBekijkCalculaties = (projectId) => {
-    router.push(`/calculaties?project=${projectId}`)
+  const getProjectTypeBadge = (type) => {
+    const types = {
+      nieuwbouw: { color: "bg-blue-100 text-blue-800" },
+      renovatie: { color: "bg-orange-100 text-orange-800" },
+      transformatie: { color: "bg-purple-100 text-purple-800" },
+      verduurzaming: { color: "bg-green-100 text-green-800" },
+      onderhoud: { color: "bg-yellow-100 text-yellow-800" }
+    }
+    
+    const config = types[type] || { color: "bg-gray-100 text-gray-800" }
+    
+    return (
+      <Badge variant="outline" className={config.color}>
+        {type}
+      </Badge>
+    )
   }
 
-  // =========================
-  // FILTER PROJECTEN OP ZOEKTERM
-  // =========================
-  const filteredProjects = projects.filter(project => 
-    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.project_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.client_name?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const formatDate = (dateString) => {
+    try {
+      return format(new Date(dateString), 'dd-MM-yyyy', { locale: nl })
+    } catch {
+      return dateString
+    }
+  }
 
-  // Mock data voor development
-  const getMockProjects = () => [
-    { id: 1, name: "Woningbouw Amsterdam Noord", project_number: "PROJ-2023-001", status: "active", client_name: "Gemeente Amsterdam", created_at: "2023-11-15" },
-    { id: 2, name: "Kantoorrenovatie Rotterdam", project_number: "PROJ-2023-002", status: "active", client_name: "ABC Bedrijven", created_at: "2023-11-10" },
-    { id: 3, name: "Nieuwbouw Ziekenhuis Utrecht", project_number: "PROJ-2023-003", status: "planning", client_name: "UMC Utrecht", created_at: "2023-11-05" },
-    { id: 4, name: "Utiliteitsbouw Den Haag", project_number: "PROJ-2023-004", status: "active", client_name: "Ministerie BZK", created_at: "2023-10-28" },
-    { id: 5, name: "Woningrenovatie Haarlem", project_number: "PROJ-2023-005", status: "completed", client_name: "Particuliere opdrachtgever", created_at: "2023-10-15" },
-    { id: 6, name: "Infrastructuurproject A4", project_number: "PROJ-2023-006", status: "active", client_name: "Rijkswaterstaat", created_at: "2023-10-10" },
-    { id: 7, name: "Schoolgebouw Groningen", project_number: "PROJ-2023-007", status: "active", client_name: "Schoolbestuur Noord", created_at: "2023-10-05" },
-    { id: 8, name: "Sportcomplex Eindhoven", project_number: "PROJ-2023-008", status: "concept", client_name: "Gemeente Eindhoven", created_at: "2023-09-30" }
-  ]
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('nl-NL', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount || 0)
+  }
+
+  const toggleSort = (field) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+    } else {
+      setSortBy(field)
+      setSortOrder("desc")
+    }
+  }
+
+  // ======================
+  // RENDER
+  // ======================
+
+  if (authLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto mb-4" />
+          <p className="text-gray-600">Laden...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <>
-      <div className="container-fluid px-3 px-lg-4 py-4">
-        {/* Header met uitleg */}
-        <div className="row mb-4">
-          <div className="col-12">
-            <div className="d-flex justify-content-between align-items-start mb-3">
-              <div>
-                <h1 className="h2 mb-2">Calculatie Starten</h1>
-                <p className="text-muted mb-0">
-                  Selecteer een project om een nieuwe calculatie te starten of maak eerst een nieuw project aan.
-                </p>
-              </div>
-              
-              {/* Belangrijke knop - NIEUWE CALCULATIE */}
-              <button
-                onClick={handleStartCalculatie}
-                className="btn btn-primary btn-lg d-flex align-items-center"
-                disabled={!selectedProject}
-              >
-                <i className="ti ti-calculator me-2"></i>
-                {selectedProject ? `Calculatie starten voor ${selectedProject.name}` : "Selecteer eerst een project"}
-              </button>
-            </div>
-            
-            {/* Uitleg balk */}
-            <div className="alert alert-info border-0 bg-info-subtle">
-              <div className="d-flex">
-                <i className="ti ti-info-circle text-info fs-5 me-3"></i>
+    <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Calculaties</h1>
+            <p className="text-gray-600">
+              Overzicht van al uw bouwcalculaties en projecten
+            </p>
+          </div>
+          <Link href="/calculaties/nieuw">
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              Nieuwe Calculatie
+            </Button>
+          </Link>
+        </div>
+        
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h6 className="alert-heading mb-1">Hoe werkt calculeren?</h6>
-                  <ol className="mb-0 ps-3">
-                    <li>Selecteer een project uit de lijst hieronder</li>
-                    <li>Klik op "Calculatie starten" om de calculatietool te openen</li>
-                    <li>Voeg kostenposten, materialen en arbeid toe</li>
-                    <li>Sla de calculatie op als offerte of kostenbegroting</li>
-                  </ol>
+                  <p className="text-sm font-medium text-gray-600">Totaal</p>
+                  <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
+                <FileText className="h-8 w-8 text-blue-500" />
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Statistieken */}
-        <div className="row mb-4">
-          <div className="col-md-4">
-            <div className="card border-0 shadow-sm">
-              <div className="card-body">
-                <div className="d-flex align-items-center">
-                  <div className="bg-primary-subtle p-3 rounded me-3">
-                    <i className="ti ti-building text-primary fs-3"></i>
-                  </div>
-                  <div>
-                    <div className="text-muted small">Beschikbare Projecten</div>
-                    <div className="h4 mb-0 fw-bold">{stats.totalProjects}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
           
-          <div className="col-md-4">
-            <div className="card border-0 shadow-sm">
-              <div className="card-body">
-                <div className="d-flex align-items-center">
-                  <div className="bg-success-subtle p-3 rounded me-3">
-                    <i className="ti ti-checklist text-success fs-3"></i>
-                  </div>
-                  <div>
-                    <div className="text-muted small">Actieve Projecten</div>
-                    <div className="h4 mb-0 fw-bold">{stats.activeProjects}</div>
-                  </div>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Concept</p>
+                  <p className="text-2xl font-bold">{stats.draft}</p>
                 </div>
+                <Clock className="h-8 w-8 text-gray-500" />
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
           
-          <div className="col-md-4">
-            <div className="card border-0 shadow-sm">
-              <div className="card-body">
-                <div className="d-flex align-items-center">
-                  <div className="bg-warning-subtle p-3 rounded me-3">
-                    <i className="ti ti-calculator text-warning fs-3"></i>
-                  </div>
-                  <div>
-                    <div className="text-muted small">Recente Calculaties</div>
-                    <div className="h4 mb-0 fw-bold">{stats.recentCalculations}</div>
-                  </div>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Actief</p>
+                  <p className="text-2xl font-bold">{stats.active}</p>
                 </div>
+                <RefreshCw className="h-8 w-8 text-blue-500" />
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Project Selectie */}
-        <div className="row">
-          {/* Linkerkolom - Projecten Lijst */}
-          <div className="col-lg-8">
-            <div className="card border-0 shadow-sm">
-              <div className="card-header bg-white border-0 py-3">
-                <div className="d-flex justify-content-between align-items-center">
-                  <h5 className="card-title mb-0">
-                    <i className="ti ti-list me-2"></i>
-                    Selecteer een Project
-                  </h5>
-                  <button
-                    onClick={handleNieuwProject}
-                    className="btn btn-success btn-sm"
-                  >
-                    <i className="ti ti-plus me-1"></i>
-                    Nieuw Project
-                  </button>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Voltooid</p>
+                  <p className="text-2xl font-bold">{stats.completed}</p>
                 </div>
+                <CheckCircle className="h-8 w-8 text-green-500" />
               </div>
-              
-              <div className="card-body">
-                {/* Zoekbalk */}
-                <div className="input-group mb-4">
-                  <span className="input-group-text">
-                    <i className="ti ti-search"></i>
-                  </span>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Zoek op projectnaam, nummer of klant..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Totale waarde</p>
+                  <p className="text-2xl font-bold">{formatCurrency(stats.totalValue)}</p>
                 </div>
-                
-                {/* Projecten Lijst */}
-                <div className="table-responsive">
-                  <table className="table table-hover">
-                    <thead>
-                      <tr>
-                        <th style={{ width: '50px' }}></th>
-                        <th>Projectnaam</th>
-                        <th>Projectnummer</th>
-                        <th>Klant</th>
-                        <th>Status</th>
-                        <th>Acties</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {loading ? (
-                        <tr>
-                          <td colSpan="6" className="text-center py-4">
-                            <div className="spinner-border spinner-border-sm text-primary me-2"></div>
-                            Projecten laden...
-                          </td>
-                        </tr>
-                      ) : filteredProjects.length === 0 ? (
-                        <tr>
-                          <td colSpan="6" className="text-center py-4">
-                            <i className="ti ti-package-off text-muted me-2"></i>
-                            Geen projecten gevonden
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredProjects.map((project) => (
-                          <tr 
-                            key={project.id}
-                            className={`cursor-pointer ${selectedProject?.id === project.id ? 'table-primary' : ''}`}
-                            onClick={() => setSelectedProject(project)}
-                          >
-                            <td>
-                              <div className="form-check">
-                                <input
-                                  className="form-check-input"
-                                  type="radio"
-                                  name="projectSelect"
-                                  checked={selectedProject?.id === project.id}
-                                  onChange={() => setSelectedProject(project)}
-                                />
-                              </div>
-                            </td>
-                            <td>
-                              <div className="fw-bold">{project.name}</div>
-                              <small className="text-muted">
-                                {new Date(project.created_at).toLocaleDateString('nl-NL')}
-                              </small>
-                            </td>
-                            <td>
-                              <span className="badge bg-light text-dark border">
-                                {project.project_number || 'N.v.t.'}
-                              </span>
-                            </td>
-                            <td>{project.client_name || '-'}</td>
-                            <td>
-                              <span className={`badge bg-${getStatusColor(project.status)}`}>
-                                {getStatusText(project.status)}
-                              </span>
-                            </td>
-                            <td>
-                              <div className="btn-group btn-group-sm">
-                                <button
-                                  className="btn btn-outline-primary"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleProjectDetails(project.id)
-                                  }}
-                                  title="Bekijk details"
-                                >
-                                  <i className="ti ti-eye"></i>
-                                </button>
-                                <button
-                                  className="btn btn-outline-success"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleBekijkCalculaties(project.id)
-                                  }}
-                                  title="Bekijk calculaties"
-                                >
-                                  <i className="ti ti-calculator"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                <DollarSign className="h-8 w-8 text-green-500" />
               </div>
-            </div>
-          </div>
-
-          {/* Rechterkolom - Geselecteerd Project & Tips */}
-          <div className="col-lg-4">
-            {/* Geselecteerd Project Overzicht */}
-            <div className="card border-0 shadow-sm mb-4">
-              <div className="card-header bg-white border-0 py-3">
-                <h5 className="card-title mb-0">
-                  <i className="ti ti-check me-2"></i>
-                  Geselecteerd Project
-                </h5>
-              </div>
-              <div className="card-body">
-                {selectedProject ? (
-                  <div>
-                    <h6 className="fw-bold mb-2">{selectedProject.name}</h6>
-                    <div className="mb-3">
-                      <small className="text-muted d-block">Projectnummer:</small>
-                      <div className="fw-bold">{selectedProject.project_number || 'N.v.t.'}</div>
-                    </div>
-                    <div className="mb-3">
-                      <small className="text-muted d-block">Klant:</small>
-                      <div>{selectedProject.client_name || '-'}</div>
-                    </div>
-                    <div className="mb-3">
-                      <small className="text-muted d-block">Status:</small>
-                      <span className={`badge bg-${getStatusColor(selectedProject.status)}`}>
-                        {getStatusText(selectedProject.status)}
-                      </span>
-                    </div>
-                    
-                    {/* BELANGRIJKE KNOOP - CENTRAAL */}
-                    <button
-                      onClick={handleStartCalculatie}
-                      className="btn btn-primary w-100 mt-3 d-flex align-items-center justify-content-center"
-                    >
-                      <i className="ti ti-calculator me-2"></i>
-                      Calculatie starten voor dit project
-                    </button>
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <i className="ti ti-pointer text-muted fs-1 mb-3"></i>
-                    <p className="text-muted mb-0">
-                      Selecteer een project uit de lijst om een calculatie te starten
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Calculatie Tips & Tricks */}
-            <div className="card border-0 shadow-sm">
-              <div className="card-header bg-white border-0 py-3">
-                <h5 className="card-title mb-0">
-                  <i className="ti ti-tips me-2"></i>
-                  Calculatie Tips
-                </h5>
-              </div>
-              <div className="card-body">
-                <div className="accordion" id="calculatieTips">
-                  <div className="accordion-item border-0">
-                    <h6 className="accordion-header">
-                      <button className="accordion-button bg-light border rounded mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#tip1">
-                        <i className="ti ti-checklist text-primary me-2"></i>
-                        Voorbereiding calculatie
-                      </button>
-                    </h6>
-                    <div id="tip1" className="accordion-collapse collapse show">
-                      <div className="accordion-body small">
-                        <ul className="mb-0">
-                          <li>Zorg dat alle projectdocumenten beschikbaar zijn</li>
-                          <li>Controleer de bouwtekeningen en specificaties</li>
-                          <li>Verzamel eerder gemaakte calculaties als referentie</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="accordion-item border-0">
-                    <h6 className="accordion-header">
-                      <button className="accordion-button collapsed bg-light border rounded mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#tip2">
-                        <i className="ti ti-calculator text-success me-2"></i>
-                        Kostenposten opstellen
-                      </button>
-                    </h6>
-                    <div id="tip2" className="accordion-collapse collapse">
-                      <div className="accordion-body small">
-                        <ul className="mb-0">
-                          <li>Begin met de hoofdstructuur: grondwerk, fundering, etc.</li>
-                          <li>Voeg altijd een risicopost toe (5-10%)</li>
-                          <li>Houd rekening met indexatie van materiaalprijzen</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="accordion-item border-0">
-                    <h6 className="accordion-header">
-                      <button className="accordion-button collapsed bg-light border rounded mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#tip3">
-                        <i className="ti ti-file-invoice text-warning me-2"></i>
-                        Offerte maken
-                      </button>
-                    </h6>
-                    <div id="tip3" className="accordion-collapse collapse">
-                      <div className="accordion-body small">
-                        <ul className="mb-0">
-                          <li>Voeg duidelijke voorwaarden toe aan de offerte</li>
-                          <li>Specificeer geldigheidsduur van de prijs</li>
-                          <li>Maak een nette PDF met bedrijfslogo</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="mt-4">
-                  <h6 className="fw-bold mb-2">Snelle navigatie:</h6>
-                  <div className="d-flex flex-wrap gap-2">
-                    <button
-                      onClick={handleNieuwProject}
-                      className="btn btn-outline-success btn-sm"
-                    >
-                      <i className="ti ti-plus me-1"></i>
-                      Nieuw Project
-                    </button>
-                    <button
-                      onClick={() => router.push('/calculaties')}
-                      className="btn btn-outline-primary btn-sm"
-                    >
-                      <i className="ti ti-list me-1"></i>
-                      Alle Calculaties
-                    </button>
-                    <button
-                      onClick={() => router.push('/projecten')}
-                      className="btn btn-outline-info btn-sm"
-                    >
-                      <i className="ti ti-building me-1"></i>
-                      Alle Projecten
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Snelle acties footer */}
-        <div className="row mt-4">
-          <div className="col-12">
-            <div className="card border-0 shadow-sm bg-light">
-              <div className="card-body p-3">
-                <div className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <h6 className="mb-1">Klaar om te calculeren?</h6>
-                    <p className="text-muted small mb-0">
-                      Start een nieuwe calculatie of beheer bestaande calculaties
-                    </p>
-                  </div>
-                  <div className="d-flex gap-2">
-                    <button
-                      onClick={handleStartCalculatie}
-                      className="btn btn-primary"
-                      disabled={!selectedProject}
-                    >
-                      <i className="ti ti-calculator me-2"></i>
-                      Calculatie starten
-                    </button>
-                    <button
-                      onClick={() => router.push('/calculaties')}
-                      className="btn btn-outline-primary"
-                    >
-                      <i className="ti ti-list me-2"></i>
-                      Alle Calculaties
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
-      <style jsx>{`
-        .cursor-pointer {
-          cursor: pointer;
-        }
-        .table tr:hover {
-          background-color: rgba(13, 110, 253, 0.05);
-        }
-        .accordion-button {
-          font-size: 0.875rem;
-          padding: 0.5rem 1rem;
-        }
-        .accordion-body {
-          padding: 0.75rem 1rem;
-        }
-      `}</style>
-    </>
+      {/* Fout- en succesmeldingen */}
+      {error && (
+        <Alert className="mb-6 bg-red-50 border-red-200">
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <AlertTitle className="text-red-800">Fout</AlertTitle>
+          <AlertDescription className="text-red-700">{error}</AlertDescription>
+        </Alert>
+      )}
+      
+      {success && (
+        <Alert className="mb-6 bg-green-50 border-green-200">
+          <CheckCircle className="h-4 w-4 text-green-600" />
+          <AlertTitle className="text-green-800">Succes</AlertTitle>
+          <AlertDescription className="text-green-700">{success}</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Filters en zoeken */}
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Zoekveld */}
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Zoeken op project, klant, adres..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            
+            {/* Status filter */}
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter op status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle statussen</SelectItem>
+                <SelectItem value="draft">Concept</SelectItem>
+                <SelectItem value="active">Actief</SelectItem>
+                <SelectItem value="completed">Voltooid</SelectItem>
+                <SelectItem value="cancelled">Geannuleerd</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            {/* Projecttype filter */}
+            <Select value={projectTypeFilter} onValueChange={setProjectTypeFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Filter op type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle types</SelectItem>
+                <SelectItem value="nieuwbouw">Nieuwbouw</SelectItem>
+                <SelectItem value="renovatie">Renovatie</SelectItem>
+                <SelectItem value="transformatie">Transformatie</SelectItem>
+                <SelectItem value="verduurzaming">Verduurzaming</SelectItem>
+                <SelectItem value="onderhoud">Onderhoud</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            {/* Sorteeropties */}
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sorteren op" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="updated_at">Datum (nieuwste eerst)</SelectItem>
+                <SelectItem value="created_at">Aanmaakdatum</SelectItem>
+                <SelectItem value="naam">Projectnaam</SelectItem>
+                <SelectItem value="klant_naam">Klantnaam</SelectItem>
+                <SelectItem value="totaal_incl_btw">Totaalbedrag</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Content */}
+      <Tabs defaultValue="table" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="table">Tabelweergave</TabsTrigger>
+          <TabsTrigger value="grid">Kaartweergave</TabsTrigger>
+        </TabsList>
+        
+        {/* Tabelweergave */}
+        <TabsContent value="table">
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Alle Calculaties ({filteredCalculaties.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="text-center py-12">
+                  <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto mb-4" />
+                  <p className="text-gray-600">Calculaties laden...</p>
+                </div>
+              ) : filteredCalculaties.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileText className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    {calculaties.length === 0 ? "Nog geen calculaties" : "Geen resultaten gevonden"}
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    {calculaties.length === 0 
+                      ? "Maak uw eerste calculatie aan om te beginnen" 
+                      : "Pas uw zoekopdracht aan om meer resultaten te zien"}
+                  </p>
+                  {calculaties.length === 0 && (
+                    <Link href="/calculaties/nieuw">
+                      <Button className="gap-2">
+                        <Plus className="h-4 w-4" />
+                        Nieuwe Calculatie
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[250px]">
+                          <button 
+                            onClick={() => toggleSort("naam")}
+                            className="flex items-center gap-1 hover:text-blue-600"
+                          >
+                            Project
+                            <ArrowUpDown className="h-3 w-3" />
+                          </button>
+                        </TableHead>
+                        <TableHead>
+                          <button 
+                            onClick={() => toggleSort("klant_naam")}
+                            className="flex items-center gap-1 hover:text-blue-600"
+                          >
+                            Klant
+                            <ArrowUpDown className="h-3 w-3" />
+                          </button>
+                        </TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>
+                          <button 
+                            onClick={() => toggleSort("totaal_incl_btw")}
+                            className="flex items-center gap-1 hover:text-blue-600"
+                          >
+                            Totaal
+                            <ArrowUpDown className="h-3 w-3" />
+                          </button>
+                        </TableHead>
+                        <TableHead>
+                          <button 
+                            onClick={() => toggleSort("updated_at")}
+                            className="flex items-center gap-1 hover:text-blue-600"
+                          >
+                            Laatst gewijzigd
+                            <ArrowUpDown className="h-3 w-3" />
+                          </button>
+                        </TableHead>
+                        <TableHead className="text-right">Acties</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredCalculaties.map((calculatie) => (
+                        <TableRow key={calculatie.id} className="group hover:bg-gray-50">
+                          <TableCell>
+                            <div className="font-medium">{calculatie.naam}</div>
+                            <div className="text-sm text-gray-500">
+                              {calculatie.adres}, {calculatie.postcode} {calculatie.plaats}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="font-medium">{calculatie.klant_naam}</div>
+                            {calculatie.klant_email && (
+                              <div className="text-sm text-gray-500">{calculatie.klant_email}</div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {getProjectTypeBadge(calculatie.project_type)}
+                          </TableCell>
+                          <TableCell>
+                            {getStatusBadge(calculatie.status)}
+                          </TableCell>
+                          <TableCell className="font-semibold">
+                            {formatCurrency(calculatie.metadata?.totaal_incl_btw)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              {formatDate(calculatie.updated_at)}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-end gap-2">
+                              {calculatie.pdf_url && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => window.open(calculatie.pdf_url, '_blank')}
+                                  title="Download PDF"
+                                >
+                                  <Download className="h-4 w-4" />
+                                </Button>
+                              )}
+                              
+                              <Link href={`/calculaties/${calculatie.id}`}>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  title="Bekijken"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                              
+                              <Link href={`/calculaties/${calculatie.id}/bewerken`}>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  title="Bewerken"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </Link>
+                              
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDuplicate(calculatie)}
+                                title="Dupliceren"
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                              
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteClick(calculatie)}
+                                title="Verwijderen"
+                              >
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Kaartweergave */}
+        <TabsContent value="grid">
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto mb-4" />
+              <p className="text-gray-600">Calculaties laden...</p>
+            </div>
+          ) : filteredCalculaties.length === 0 ? (
+            <div className="text-center py-12">
+              <FileText className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {calculaties.length === 0 ? "Nog geen calculaties" : "Geen resultaten gevonden"}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {calculaties.length === 0 
+                  ? "Maak uw eerste calculatie aan om te beginnen" 
+                  : "Pas uw zoekopdracht aan om meer resultaten te zien"}
+              </p>
+              {calculaties.length === 0 && (
+                <Link href="/calculaties/nieuw">
+                  <Button className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Nieuwe Calculatie
+                  </Button>
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredCalculaties.map((calculatie) => (
+                <Card key={calculatie.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <CardTitle className="text-lg line-clamp-1">
+                          {calculatie.naam}
+                        </CardTitle>
+                        <CardDescription className="flex items-center gap-2">
+                          <Building className="h-3 w-3" />
+                          {calculatie.adres}, {calculatie.plaats}
+                        </CardDescription>
+                      </div>
+                      {getStatusBadge(calculatie.status)}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pb-3 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm font-medium">{calculatie.klant_naam}</span>
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {calculatie.project_type}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-gray-400" />
+                        <span className="text-sm">
+                          {formatDate(calculatie.updated_at)}
+                        </span>
+                      </div>
+                      <div className="text-lg font-bold text-blue-600">
+                        {formatCurrency(calculatie.metadata?.totaal_incl_btw)}
+                      </div>
+                    </div>
+                    
+                    {calculatie.metadata?.oppervlakte && (
+                      <div className="text-sm text-gray-600">
+                        Oppervlakte: {calculatie.metadata.oppervlakte} m²
+                      </div>
+                    )}
+                    
+                    {calculatie.opmerkingen && (
+                      <p className="text-sm text-gray-500 line-clamp-2">
+                        {calculatie.opmerkingen}
+                      </p>
+                    )}
+                  </CardContent>
+                  <CardFooter className="pt-3 border-t">
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        {calculatie.pdf_url && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(calculatie.pdf_url, '_blank')}
+                            className="gap-1"
+                          >
+                            <Download className="h-3 w-3" />
+                            PDF
+                          </Button>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Link href={`/calculaties/${calculatie.id}`}>
+                          <Button variant="ghost" size="sm" className="gap-1">
+                            <Eye className="h-3 w-3" />
+                          </Button>
+                        </Link>
+                        
+                        <Link href={`/calculaties/${calculatie.id}/bewerken`}>
+                          <Button variant="ghost" size="sm" className="gap-1">
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                        </Link>
+                        
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteClick(calculatie)}
+                          className="gap-1 text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      {/* Verwijder dialoog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Calculatie verwijderen</DialogTitle>
+            <DialogDescription>
+              Weet u zeker dat u de calculatie "{calculatieToDelete?.naam}" wilt verwijderen?
+              Deze actie kan niet ongedaan worden gemaakt.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isLoading}
+            >
+              Annuleren
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={deleteCalculatie}
+              disabled={isLoading}
+            >
+              {isLoading ? "Verwijderen..." : "Verwijderen"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   )
-}
-
-// Helper functies
-function getStatusColor(status) {
-  switch(status?.toLowerCase()) {
-    case 'active':
-    case 'actief':
-      return 'success'
-    case 'planning':
-    case 'concept':
-      return 'warning'
-    case 'completed':
-    case 'afgerond':
-      return 'secondary'
-    case 'onhold':
-    case 'pauze':
-      return 'danger'
-    default:
-      return 'light'
-  }
-}
-
-function getStatusText(status) {
-  switch(status?.toLowerCase()) {
-    case 'active':
-    case 'actief':
-      return 'Actief'
-    case 'planning':
-      return 'Planning'
-    case 'concept':
-      return 'Concept'
-    case 'completed':
-    case 'afgerond':
-      return 'Afgerond'
-    case 'onhold':
-      return 'On Hold'
-    default:
-      return status || 'Onbekend'
-  }
 }
