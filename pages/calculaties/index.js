@@ -1,4 +1,4 @@
-// pages/calculaties/index.js
+// pages/calculaties/index.js - ZONDER PROGRESS
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
@@ -6,16 +6,13 @@ import { useAuth } from "@/lib/auth"
 import { format } from "date-fns"
 import { nl } from "date-fns/locale"
 
-// UI Components (alleen de basis componenten die we zeker hebben)
+// UI Components - verwijder Progress
 import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
 
 // Icons
 import { 
@@ -25,7 +22,7 @@ import {
   Edit, 
   Trash2, 
   Plus, 
-  FileText, 
+  FileText,
   Building, 
   Calendar, 
   User,
@@ -320,7 +317,10 @@ export default function CalculatiesPage() {
     return (
       <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <Progress value={100} className="h-2 w-64 mb-4" />
+          {/* Vervang Progress door een simpele loading indicator */}
+          <div className="h-2 w-64 bg-gray-200 rounded-full overflow-hidden mb-4">
+            <div className="h-full bg-blue-600 rounded-full animate-pulse"></div>
+          </div>
           <p className="text-gray-600">Authenticatie controleren...</p>
         </div>
       </div>
@@ -410,21 +410,25 @@ export default function CalculatiesPage() {
         </div>
       </div>
 
-      {/* Fout- en succesmeldingen */}
+      {/* Fout- en succesmeldingen - gebruik gewone divs voor nu */}
       {error && (
-        <Alert className="mb-6 bg-red-50 border-red-200">
-          <AlertTriangle className="h-4 w-4 text-red-600" />
-          <AlertTitle className="text-red-800">Fout</AlertTitle>
-          <AlertDescription className="text-red-700">{error}</AlertDescription>
-        </Alert>
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-center gap-2 text-red-800">
+            <AlertTriangle className="h-4 w-4" />
+            <h3 className="font-medium">Fout</h3>
+          </div>
+          <p className="text-red-700 mt-1">{error}</p>
+        </div>
       )}
       
       {success && (
-        <Alert className="mb-6 bg-green-50 border-green-200">
-          <CheckCircle className="h-4 w-4 text-green-600" />
-          <AlertTitle className="text-green-800">Succes</AlertTitle>
-          <AlertDescription className="text-green-700">{success}</AlertDescription>
-        </Alert>
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center gap-2 text-green-800">
+            <CheckCircle className="h-4 w-4" />
+            <h3 className="font-medium">Succes</h3>
+          </div>
+          <p className="text-green-700 mt-1">{success}</p>
+        </div>
       )}
 
       {/* Filters en zoeken */}
@@ -493,129 +497,126 @@ export default function CalculatiesPage() {
       </Card>
 
       {/* Content */}
-      <div className="space-y-6">
-        {/* Tabelweergave - alleen dit tonen voor nu */}
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Alle Calculaties ({filteredCalculaties.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="text-center py-12">
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto mb-4" />
-                <p className="text-gray-600">Calculaties laden...</p>
-              </div>
-            ) : filteredCalculaties.length === 0 ? (
-              <div className="text-center py-12">
-                <FileText className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {calculaties.length === 0 ? "Nog geen calculaties" : "Geen resultaten gevonden"}
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  {calculaties.length === 0 
-                    ? "Maak uw eerste calculatie aan om te beginnen" 
-                    : "Pas uw zoekopdracht aan om meer resultaten te zien"}
-                </p>
-                {calculaties.length === 0 && (
-                  <Link href="/calculaties/nieuw">
-                    <Button className="gap-2">
-                      <Plus className="h-4 w-4" />
-                      Nieuwe Calculatie
-                    </Button>
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <div className="rounded-md border overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[250px]">
-                        <button 
-                          onClick={() => setSortBy("naam")}
-                          className="flex items-center gap-1 hover:text-blue-600"
-                        >
-                          Project
-                          <ArrowUpDown className="h-3 w-3" />
-                        </button>
-                      </TableHead>
-                      <TableHead>Klant</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Totaal</TableHead>
-                      <TableHead>Laatst gewijzigd</TableHead>
-                      <TableHead className="text-right">Acties</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredCalculaties.map((calculatie) => (
-                      <TableRow key={calculatie.id} className="group hover:bg-gray-50">
-                        <TableCell>
-                          <div className="font-medium">{calculatie.naam || "Naamloos project"}</div>
-                          <div className="text-sm text-gray-500">
-                            {calculatie.adres || "Geen adres"}, {calculatie.postcode || ""} {calculatie.plaats || ""}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">{calculatie.klant_naam || "Geen klant"}</div>
-                          {calculatie.klant_email && (
-                            <div className="text-sm text-gray-500">{calculatie.klant_email}</div>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {getStatusBadge(calculatie.status)}
-                        </TableCell>
-                        <TableCell className="font-semibold">
-                          {formatCurrency(calculatie.metadata?.totaal_incl_btw)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-sm">
-                            {formatDate(calculatie.updated_at)}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center justify-end gap-2">
-                            {calculatie.pdf_url && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => window.open(calculatie.pdf_url, '_blank')}
-                                title="Download PDF"
-                              >
-                                <Download className="h-4 w-4" />
-                              </Button>
-                            )}
-                            
-                            <Link href={`/calculaties/${calculatie.id}`}>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                title="Bekijken"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </Link>
-                            
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Alle Calculaties ({filteredCalculaties.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto mb-4" />
+              <p className="text-gray-600">Calculaties laden...</p>
+            </div>
+          ) : filteredCalculaties.length === 0 ? (
+            <div className="text-center py-12">
+              <FileText className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {calculaties.length === 0 ? "Nog geen calculaties" : "Geen resultaten gevonden"}
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {calculaties.length === 0 
+                  ? "Maak uw eerste calculatie aan om te beginnen" 
+                  : "Pas uw zoekopdracht aan om meer resultaten te zien"}
+              </p>
+              {calculaties.length === 0 && (
+                <Link href="/calculaties/nieuw">
+                  <Button className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Nieuwe Calculatie
+                  </Button>
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div className="rounded-md border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[250px]">
+                      <button 
+                        onClick={() => setSortBy("naam")}
+                        className="flex items-center gap-1 hover:text-blue-600"
+                      >
+                        Project
+                        <ArrowUpDown className="h-3 w-3" />
+                      </button>
+                    </TableHead>
+                    <TableHead>Klant</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Totaal</TableHead>
+                    <TableHead>Laatst gewijzigd</TableHead>
+                    <TableHead className="text-right">Acties</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredCalculaties.map((calculatie) => (
+                    <TableRow key={calculatie.id} className="group hover:bg-gray-50">
+                      <TableCell>
+                        <div className="font-medium">{calculatie.naam || "Naamloos project"}</div>
+                        <div className="text-sm text-gray-500">
+                          {calculatie.adres || "Geen adres"}, {calculatie.postcode || ""} {calculatie.plaats || ""}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium">{calculatie.klant_naam || "Geen klant"}</div>
+                        {calculatie.klant_email && (
+                          <div className="text-sm text-gray-500">{calculatie.klant_email}</div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(calculatie.status)}
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        {formatCurrency(calculatie.metadata?.totaal_incl_btw)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {formatDate(calculatie.updated_at)}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-2">
+                          {calculatie.pdf_url && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDeleteClick(calculatie)}
-                              title="Verwijderen"
+                              onClick={() => window.open(calculatie.pdf_url, '_blank')}
+                              title="Download PDF"
                             >
-                              <Trash2 className="h-4 w-4 text-red-500" />
+                              <Download className="h-4 w-4" />
                             </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                          )}
+                          
+                          <Link href={`/calculaties/${calculatie.id}`}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              title="Bekijken"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteClick(calculatie)}
+                            title="Verwijderen"
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }
