@@ -1,4 +1,4 @@
-// pages/calculaties/index.js - ZONDER PROGRESS
+// pages/calculaties/index.js - ZONDER Alert, Tabs, Progress
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth"
 import { format } from "date-fns"
 import { nl } from "date-fns/locale"
 
-// UI Components - verwijder Progress
+// UI Components (alleen de basis componenten die we zeker hebben)
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -317,7 +317,6 @@ export default function CalculatiesPage() {
     return (
       <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          {/* Vervang Progress door een simpele loading indicator */}
           <div className="h-2 w-64 bg-gray-200 rounded-full overflow-hidden mb-4">
             <div className="h-full bg-blue-600 rounded-full animate-pulse"></div>
           </div>
@@ -410,7 +409,7 @@ export default function CalculatiesPage() {
         </div>
       </div>
 
-      {/* Fout- en succesmeldingen - gebruik gewone divs voor nu */}
+      {/* Fout- en succesmeldingen */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-center gap-2 text-red-800">
