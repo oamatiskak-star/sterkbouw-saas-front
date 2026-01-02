@@ -745,7 +745,7 @@ export default function InkoopPage() {
   // MAIN RENDER
   // =========================
   return (
-    <Layout>
+    <Layout hidePlatformSidebar={true}> {/* HIER DE PROP TOEVOEGEN */}
       <div className="container-fluid px-3 px-lg-4 py-4">
         
         {/* Header */}
