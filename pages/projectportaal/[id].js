@@ -1,490 +1,338 @@
 // pages/projectportaal/[id].js
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import AdminLayout from '../../components/AdminLayout';
-import { 
-  Card, 
-  Button, 
-  Typography, 
-  Row, 
-  Col, 
-  Space, 
-  Tabs, 
-  Spin, 
-  Alert, 
-  Badge,
-  Tag,
-  Progress,
-  Divider,
-  Statistic,
-  message,
-  Breadcrumb
-} from 'antd';
-import { 
-  ArrowLeftOutlined, 
-  HomeOutlined, 
-  FileTextOutlined, 
-  MessageOutlined, 
-  CheckCircleOutlined,
-  WarningOutlined,
-  BarChartOutlined,
-  SettingOutlined,
-  TeamOutlined,
-  CalendarOutlined,
-  EnvironmentOutlined,
-  DownloadOutlined,
-  UploadOutlined,
-  EyeOutlined,
-  EditOutlined,
-  ProjectOutlined
-} from '@ant-design/icons';
-import dayjs from 'dayjs';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
+import AdminLayout from '@/components/AdminLayout'
+import supabase from '@/lib/supabase'
 
-const { Title, Text, Paragraph } = Typography;
-const { TabPane } = Tabs;
-
-export default function ProjectPortaalPage() {
-  const router = useRouter();
-  const { id } = router.query;
-  
-  const [loading, setLoading] = useState(true);
-  const [projectData, setProjectData] = useState(null);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [userRole, setUserRole] = useState('opdrachtgever'); // 'opdrachtgever' of 'developer'
+export default function ProjectPortaalDetailPage() {
+  const router = useRouter()
+  const { id } = router.query
+  const [project, setProject] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('overview')
+  const [documents, setDocuments] = useState([])
 
   useEffect(() => {
-    if (!id) return;
-    
-    setLoading(true);
-    
-    // Simuleer API call
-    setTimeout(() => {
-      setProjectData({
-        id: id,
-        name: `Project Sterkbouw ${id}`,
-        code: `PROJ-${id}`,
-        status: 'actief',
-        progress: 75,
-        client: 'Opdrachtgever BV',
-        developer: 'Sterkbouw Development',
-        startDate: '2024-01-15',
-        endDate: '2024-09-30',
-        location: 'Amsterdam Zuid',
-        budget: '€ 850.000',
-        team: [
-          { name: 'Jan Janssen', role: 'Projectleider' },
-          { name: 'Marie van Dijk', role: 'Architect' },
-          { name: 'Thomas de Vries', role: 'Bouwcoordinator' }
-        ],
-        overview: {
-          tasksCompleted: 42,
-          tasksTotal: 56,
-          documents: 18,
-          messages: 24,
-          issues: 3
-        },
-        contract: {
-          status: 'getekend',
-          lastUpdate: '2024-02-15',
-          documents: 5
-        },
-        drawings: {
-          total: 12,
-          approved: 8,
-          pending: 4
-        },
-        delivery: {
-          milestones: 8,
-          completed: 5,
-          next: 'Fundering'
-        }
-      });
+    if (id) {
+      loadProject()
+      loadDocuments()
+    }
+  }, [id])
+
+  const loadProject = async () => {
+    try {
+      setLoading(true)
       
-      // Bepaal gebruikersrol
-      const path = router.asPath;
-      if (path.includes('opdrachtgever')) {
-        setUserRole('opdrachtgever');
-      } else if (path.includes('developer')) {
-        setUserRole('developer');
-      }
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+      if (error) throw error
       
-      setLoading(false);
-    }, 800);
-  }, [id, router.asPath]);
-
-  const handleBackToDashboard = () => {
-    router.push('/dashboard');
-  };
-
-  const handleAskQuestion = () => {
-    message.info('Vraag gesteld aan het team');
-  };
-
-  const handleUploadDocument = () => {
-    message.success('Document geüpload');
-  };
-
-  const handleDownloadReport = () => {
-    message.loading({ content: 'Rapport genereren...', key: 'report' });
-    setTimeout(() => {
-      message.success({ content: 'Rapport gedownload', key: 'report' });
-    }, 1500);
-  };
-
-  const handleApproveDrawing = () => {
-    message.success('Tekening goedgekeurd');
-  };
-
-  // Custom breadcrumb voor projectportaal
-  const getProjectBreadcrumb = () => {
-    return [
-      {
-        title: <HomeOutlined />,
-        onClick: () => router.push('/dashboard')
-      },
-      {
-        title: 'Projecten',
-        onClick: () => router.push('/projecten')
-      },
-      {
-        title: projectData?.name || `Project ${id}`
+      if (data) {
+        setProject(data)
       }
-    ];
-  };
+    } catch (error) {
+      console.error('Error loading project:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadDocuments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('documents')
+        .select('*')
+        .eq('project_id', id)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      
+      if (data) {
+        setDocuments(data)
+      }
+    } catch (error) {
+      console.error('Error loading documents:', error)
+    }
+  }
 
   if (loading) {
     return (
       <AdminLayout>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
-          <Spin size="large" tip="Projectportaal laden..." />
+        <div className="container-fluid py-4">
+          <div className="text-center py-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
         </div>
       </AdminLayout>
-    );
+    )
   }
+
+  if (!project) {
+    return (
+      <AdminLayout>
+        <div className="container-fluid py-4">
+          <div className="card border-0 shadow-sm">
+            <div className="card-body text-center py-5">
+              <i className="ti ti-alert-circle text-danger fs-1 mb-3"></i>
+              <h5>Project niet gevonden</h5>
+              <p className="text-muted mb-3">
+                Het project dat je zoekt bestaat niet of je hebt er geen toegang toe.
+              </p>
+              <button 
+                className="btn btn-primary"
+                onClick={() => router.push('/projectportaal')}
+              >
+                Terug naar overzicht
+              </button>
+            </div>
+          </div>
+        </div>
+      </AdminLayout>
+    )
+  }
+
+  const tabs = [
+    { id: 'overview', label: 'Overzicht', icon: 'dashboard' },
+    { id: 'documents', label: 'Documenten', icon: 'files' },
+    { id: 'communication', label: 'Communicatie', icon: 'message' },
+    { id: 'timeline', label: 'Tijdlijn', icon: 'calendar' },
+    { id: 'financial', label: 'Financieel', icon: 'cash' },
+  ]
 
   return (
     <AdminLayout>
-      {/* Custom breadcrumb voor deze pagina */}
-      <div style={{ marginBottom: 16 }}>
-        <Breadcrumb items={getProjectBreadcrumb()} />
+      <div className="container-fluid py-4">
+        {/* Project Header */}
+        <div className="card border-0 shadow-sm mb-4 portaal-header">
+          <div className="card-body text-white" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+            <div className="d-flex justify-content-between align-items-start">
+              <div>
+                <h1 className="h2 mb-2">{project.name}</h1>
+                <p className="mb-0 opacity-75">
+                  Projectnummer: {project.project_number || 'Niet opgegeven'}
+                  {project.client_name && ` | Klant: ${project.client_name}`}
+                </p>
+              </div>
+              <button
+                className="btn btn-light"
+                onClick={() => router.push('/projectportaal')}
+              >
+                <i className="ti ti-arrow-left me-2"></i>
+                Terug
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="card border-0 shadow-sm mb-4">
+          <div className="card-body p-0">
+            <div className="nav nav-tabs nav-tabs-alt">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  className={`nav-link ${activeTab === tab.id ? 'active' : ''}`}
+                  onClick={() => setActiveTab(tab.id)}
+                >
+                  <i className={`ti ti-${tab.icon} me-2`}></i>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        <div className="card border-0 shadow-sm">
+          <div className="card-body p-4">
+            {activeTab === 'overview' && (
+              <div className="overview-tab">
+                <h5 className="mb-4">Projectoverzicht</h5>
+                <div className="row">
+                  <div className="col-md-6">
+                    <dl className="row">
+                      <dt className="col-sm-4">Status:</dt>
+                      <dd className="col-sm-8">
+                        <span className={`badge bg-${getStatusColor(project.status)}`}>
+                          {getStatusText(project.status)}
+                        </span>
+                      </dd>
+                      
+                      <dt className="col-sm-4">Startdatum:</dt>
+                      <dd className="col-sm-8">
+                        {project.start_date 
+                          ? new Date(project.start_date).toLocaleDateString('nl-NL') 
+                          : 'Niet gepland'}
+                      </dd>
+                      
+                      <dt className="col-sm-4">Einddatum:</dt>
+                      <dd className="col-sm-8">
+                        {project.end_date 
+                          ? new Date(project.end_date).toLocaleDateString('nl-NL') 
+                          'Niet gepland'}
+                      </dd>
+                      
+                      <dt className="col-sm-4">Budget:</dt>
+                      <dd className="col-sm-8">
+                        {project.budget 
+                          ? `€${project.budget.toLocaleString('nl-NL')}` 
+                          : 'Niet opgegeven'}
+                      </dd>
+                    </dl>
+                  </div>
+                  <div className="col-md-6">
+                    <dl className="row">
+                      <dt className="col-sm-4">Klant contact:</dt>
+                      <dd className="col-sm-8">
+                        {project.client_contact || 'Niet opgegeven'}
+                      </dd>
+                      
+                      <dt className="col-sm-4">Telefoon:</dt>
+                      <dd className="col-sm-8">
+                        {project.client_phone || 'Niet opgegeven'}
+                      </dd>
+                      
+                      <dt className="col-sm-4">Email:</dt>
+                      <dd className="col-sm-8">
+                        {project.client_email || 'Niet opgegeven'}
+                      </dd>
+                      
+                      <dt className="col-sm-4">Adres:</dt>
+                      <dd className="col-sm-8">
+                        {project.address || 'Niet opgegeven'}
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+                
+                <div className="mt-4">
+                  <h6 className="mb-3">Projectbeschrijving</h6>
+                  <p className="text-muted">
+                    {project.description || 'Geen beschrijving beschikbaar.'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'documents' && (
+              <div className="documents-tab">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h5 className="mb-0">Projectdocumenten</h5>
+                  <button className="btn btn-primary btn-sm">
+                    <i className="ti ti-upload me-2"></i>
+                    Upload document
+                  </button>
+                </div>
+                
+                {documents.length === 0 ? (
+                  <div className="text-center py-5">
+                    <i className="ti ti-files-off text-muted fs-1 mb-3"></i>
+                    <h6>Geen documenten</h6>
+                    <p className="text-muted mb-0">
+                      Er zijn nog geen documenten geüpload voor dit project.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="list-group">
+                    {documents.map(doc => (
+                      <div key={doc.id} className="list-group-item list-group-item-action document-item">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div>
+                            <h6 className="mb-1">{doc.name}</h6>
+                            <small className="text-muted">
+                              Geüpload op {new Date(doc.created_at).toLocaleDateString('nl-NL')}
+                            </small>
+                          </div>
+                          <div className="btn-group">
+                            <button className="btn btn-outline-primary btn-sm">
+                              <i className="ti ti-download"></i>
+                            </button>
+                            <button className="btn btn-outline-secondary btn-sm">
+                              <i className="ti ti-eye"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'communication' && (
+              <div className="communication-tab">
+                <h5 className="mb-4">Communicatielog</h5>
+                <div className="text-center py-5">
+                  <i className="ti ti-message-circle text-muted fs-1 mb-3"></i>
+                  <h6>Communicatie module</h6>
+                  <p className="text-muted mb-0">
+                    Deze module is nog in ontwikkeling.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'timeline' && (
+              <div className="timeline-tab">
+                <h5 className="mb-4">Project tijdlijn</h5>
+                <div className="text-center py-5">
+                  <i className="ti ti-timeline text-muted fs-1 mb-3"></i>
+                  <h6>Tijdlijn module</h6>
+                  <p className="text-muted mb-0">
+                    Deze module is nog in ontwikkeling.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'financial' && (
+              <div className="financial-tab">
+                <h5 className="mb-4">Financieel overzicht</h5>
+                <div className="text-center py-5">
+                  <i className="ti ti-cash text-muted fs-1 mb-3"></i>
+                  <h6>Financiële module</h6>
+                  <p className="text-muted mb-0">
+                    Deze module is nog in ontwikkeling. 
+                    Bekijk de financiën voor dit project in het financiën dashboard.
+                  </p>
+                  <button 
+                    className="btn btn-primary mt-3"
+                    onClick={() => router.push(`/financien?project=${id}`)}
+                  >
+                    <i className="ti ti-external-link me-2"></i>
+                    Ga naar Financiën
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Project header */}
-      <Card style={{ marginBottom: 24, borderRadius: 8 }}>
-        <Row gutter={24}>
-          <Col span={16}>
-            <Space direction="vertical" size="small">
-              <Title level={2} style={{ margin: 0 }}>
-                {projectData?.name || `Project ${id}`}
-                <Tag color="green" style={{ marginLeft: 12, fontSize: 14 }}>
-                  {projectData?.status?.toUpperCase() || 'ACTIEF'}
-                </Tag>
-              </Title>
-              <Text type="secondary" strong>
-                <ProjectOutlined /> Projectcode: {projectData?.code} • <EnvironmentOutlined /> {projectData?.location}
-              </Text>
-              <Space size="middle" split={<Divider type="vertical" />}>
-                <Text><CalendarOutlined /> Start: {dayjs(projectData?.startDate).format('DD-MM-YYYY')}</Text>
-                <Text><CalendarOutlined /> Eind: {dayjs(projectData?.endDate).format('DD-MM-YYYY')}</Text>
-                <Text><TeamOutlined /> {userRole === 'opdrachtgever' ? projectData?.developer : projectData?.client}</Text>
-              </Space>
-            </Space>
-          </Col>
-          <Col span={8}>
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <Statistic title="Projectvoortgang" value={projectData?.progress || 0} suffix="%" />
-              <Progress percent={projectData?.progress || 0} status="active" strokeWidth={10} />
-              <Row gutter={8}>
-                <Col span={12}>
-                  <Statistic title="Taken" value={`${projectData?.overview?.tasksCompleted || 0}/${projectData?.overview?.tasksTotal || 0}`} />
-                </Col>
-                <Col span={12}>
-                  <Statistic title="Documenten" value={projectData?.overview?.documents || 0} />
-                </Col>
-              </Row>
-            </Space>
-          </Col>
-        </Row>
-      </Card>
-
-      {/* Hoofd content met tabs */}
-      <Card bodyStyle={{ padding: 0 }} style={{ borderRadius: 8 }}>
-        <Tabs 
-          activeKey={activeTab} 
-          onChange={setActiveTab}
-          type="card"
-          size="large"
-          style={{ padding: '0 24px' }}
-          tabBarExtraContent={
-            <Space style={{ marginRight: 8 }}>
-              <Button 
-                icon={<MessageOutlined />} 
-                onClick={handleAskQuestion}
-                title="Stel een vraag"
-              >
-                Vraag stellen
-              </Button>
-              {userRole === 'opdrachtgever' && (
-                <Button 
-                  type="primary" 
-                  icon={<CheckCircleOutlined />}
-                  onClick={handleApproveDrawing}
-                >
-                  Goedkeuren
-                </Button>
-              )}
-            </Space>
-          }
-        >
-          {/* Overzicht tab */}
-          <TabPane 
-            tab={<span><HomeOutlined /> Overzicht</span>} 
-            key="overview"
-          >
-            <div style={{ padding: 24 }}>
-              <Title level={3}>Project Overzicht</Title>
-              <Paragraph>
-                Welkom in het gedeelde projectportaal. Hier kunt u samenwerken aan het project, 
-                documenten delen, voortgang volgen en communiceren.
-              </Paragraph>
-              
-              <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
-                <Col span={8}>
-                  <Card 
-                    title={<span><FileTextOutlined /> Contract & Documenten</span>}
-                    extra={<Badge count={projectData?.contract?.documents || 0} />}
-                  >
-                    <Text>Contractstatus: <Tag color="green">{projectData?.contract?.status || 'Onbekend'}</Tag></Text>
-                    <br />
-                    <Text type="secondary">Laatste update: {dayjs(projectData?.contract?.lastUpdate).format('DD-MM-YYYY')}</Text>
-                    <br />
-                    <Button type="link" style={{ padding: 0, marginTop: 8 }}>
-                      <EyeOutlined /> Bekijk documenten
-                    </Button>
-                  </Card>
-                </Col>
-                
-                <Col span={8}>
-                  <Card 
-                    title={<span><FileTextOutlined /> Tekeningen & Ontwerpen</span>}
-                    extra={<Badge count={projectData?.drawings?.pending || 0} />}
-                  >
-                    <Text>Goedgekeurd: {projectData?.drawings?.approved || 0}/{projectData?.drawings?.total || 0}</Text>
-                    <br />
-                    <Progress 
-                      percent={Math.round(((projectData?.drawings?.approved || 0) / (projectData?.drawings?.total || 1)) * 100)} 
-                      size="small" 
-                    />
-                    <br />
-                    {userRole === 'opdrachtgever' ? (
-                      <Button type="primary" size="small" style={{ marginTop: 8 }}>
-                        <CheckCircleOutlined /> Keur tekeningen goed
-                      </Button>
-                    ) : (
-                      <Button type="default" size="small" style={{ marginTop: 8 }}>
-                        <UploadOutlined /> Upload nieuwe versie
-                      </Button>
-                    )}
-                  </Card>
-                </Col>
-                
-                <Col span={8}>
-                  <Card 
-                    title={<span><CheckCircleOutlined /> Oplevering</span>}
-                  >
-                    <Text>Volgende milestone: <strong>{projectData?.delivery?.next || 'Onbekend'}</strong></Text>
-                    <br />
-                    <Text>Voltooid: {projectData?.delivery?.completed || 0}/{projectData?.delivery?.milestones || 0}</Text>
-                    <br />
-                    <Progress 
-                      percent={Math.round(((projectData?.delivery?.completed || 0) / (projectData?.delivery?.milestones || 1)) * 100)} 
-                      size="small" 
-                    />
-                  </Card>
-                </Col>
-              </Row>
-              
-              {/* Team sectie */}
-              <Card style={{ marginTop: 24 }} title="Projectteam">
-                <Row gutter={[16, 16]}>
-                  {projectData?.team?.map((member, index) => (
-                    <Col span={8} key={index}>
-                      <Card size="small">
-                        <Text strong>{member.name}</Text>
-                        <br />
-                        <Text type="secondary">{member.role}</Text>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-              </Card>
-            </div>
-          </TabPane>
-          
-          {/* Documenten tab */}
-          <TabPane 
-            tab={
-              <span>
-                <FileTextOutlined /> Documenten
-                <Badge count={projectData?.overview?.documents || 0} offset={[10, -5]} />
-              </span>
-            } 
-            key="documents"
-          >
-            <div style={{ padding: 24 }}>
-              <Title level={3}>Project Documenten</Title>
-              <Alert 
-                message="Gedeelde documentenruimte" 
-                description={`Beide partijen hebben toegang tot deze documenten. ${userRole === 'opdrachtgever' ? 'U kunt documenten bekijken en goedkeuren.' : 'U kunt documenten uploaden en beheren.'}`}
-                type="info" 
-                showIcon 
-                style={{ marginBottom: 16 }}
-              />
-              
-              <Row gutter={[16, 16]}>
-                <Col span={12}>
-                  <Card title="Contractdocumenten">
-                    <Space direction="vertical">
-                      <Button icon={<EyeOutlined />} type="text" block style={{ textAlign: 'left' }}>
-                        Hoofdcontract.pdf
-                      </Button>
-                      <Button icon={<EyeOutlined />} type="text" block style={{ textAlign: 'left' }}>
-                        Bijlagen.zip
-                      </Button>
-                      <Button icon={<EyeOutlined />} type="text" block style={{ textAlign: 'left' }}>
-                        Voorwaarden.docx
-                      </Button>
-                    </Space>
-                  </Card>
-                </Col>
-                
-                <Col span={12}>
-                  <Card title="Technische tekeningen">
-                    <Space direction="vertical">
-                      <Button icon={<EyeOutlined />} type="text" block style={{ textAlign: 'left' }}>
-                        Architectuur.pdf
-                      </Button>
-                      <Button icon={<EyeOutlined />} type="text" block style={{ textAlign: 'left' }}>
-                        Constructie.dwg
-                      </Button>
-                      <Button icon={<EyeOutlined />} type="text" block style={{ textAlign: 'left' }}>
-                        Installaties.pdf
-                      </Button>
-                    </Space>
-                  </Card>
-                </Col>
-              </Row>
-            </div>
-          </TabPane>
-          
-          {/* Communicatie tab */}
-          <TabPane 
-            tab={
-              <span>
-                <MessageOutlined /> Communicatie
-                <Badge count={projectData?.overview?.messages || 0} offset={[10, -5]} />
-              </span>
-            } 
-            key="communication"
-          >
-            <div style={{ padding: 24 }}>
-              <Title level={3}>Project Communicatie</Title>
-              <Alert 
-                message="Gedeelde berichten" 
-                description="Alle communicatie over het project wordt hier bewaard voor transparantie."
-                type="info" 
-                showIcon 
-                style={{ marginBottom: 16 }}
-              />
-              
-              <Card>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  <Card size="small" type="inner" title="Vandaag">
-                    <Text><strong>Sterkbouw:</strong> De fundering is voltooid. Foto's zijn geüpload.</Text>
-                    <Text type="secondary" style={{ display: 'block' }}>14:30 • {dayjs().format('DD-MM-YYYY')}</Text>
-                  </Card>
-                  
-                  <Card size="small" type="inner" title="Gisteren">
-                    <Text><strong>Opdrachtgever:</strong> Kunnen we de kleur van de gevel nog aanpassen?</Text>
-                    <Text type="secondary" style={{ display: 'block' }}>11:15 • {dayjs().subtract(1, 'day').format('DD-MM-YYYY')}</Text>
-                  </Card>
-                  
-                  <Card size="small" type="inner" title="Vorige week">
-                    <Text><strong>Sterkbouw:</strong> Offerte voor extra werk is klaar voor goedkeuring.</Text>
-                    <Text type="secondary" style={{ display: 'block' }}>{dayjs().subtract(5, 'day').format('DD-MM-YYYY')}</Text>
-                  </Card>
-                </Space>
-              </Card>
-            </div>
-          </TabPane>
-          
-          {/* Rapportages tab */}
-          <TabPane 
-            tab={<span><BarChartOutlined /> Rapportages</span>} 
-            key="reports"
-          >
-            <div style={{ padding: 24 }}>
-              <Title level={3}>Project Rapportages</Title>
-              <Row gutter={[16, 16]}>
-                <Col span={8}>
-                  <Card title="Voortgangsrapport">
-                    <Text>Wekelijks overzicht van voortgang</Text>
-                    <br />
-                    <Button type="primary" style={{ marginTop: 8 }}>
-                      <DownloadOutlined /> Download
-                    </Button>
-                  </Card>
-                </Col>
-                
-                <Col span={8}>
-                  <Card title="Financieel overzicht">
-                    <Text>Budget vs werkelijke kosten</Text>
-                    <br />
-                    <Button style={{ marginTop: 8 }}>
-                      <EyeOutlined /> Bekijk
-                    </Button>
-                  </Card>
-                </Col>
-                
-                <Col span={8}>
-                  <Card title="Kwaliteitscontrole">
-                    <Text>Inspectierapporten en kwaliteit</Text>
-                    <br />
-                    <Button style={{ marginTop: 8 }}>
-                      <DownloadOutlined /> Download
-                    </Button>
-                  </Card>
-                </Col>
-              </Row>
-            </div>
-          </TabPane>
-        </Tabs>
-      </Card>
-
-      {/* Snelle acties footer */}
-      <Card style={{ marginTop: 24 }}>
-        <Row gutter={16} align="middle">
-          <Col span={12}>
-            <Text type="secondary">
-              Project Portaal v1.0 • {projectData?.code} • Laatste update: {dayjs().format('DD-MM-YYYY HH:mm')}
-            </Text>
-            <br />
-            <Text type="secondary">
-              {userRole === 'opdrachtgever' ? 'U bent ingelogd als opdrachtgever' : 'U bent ingelogd als ontwikkelaar'}
-            </Text>
-          </Col>
-          <Col span={12} style={{ textAlign: 'right' }}>
-            <Space>
-              <Button icon={<DownloadOutlined />} onClick={handleDownloadReport}>
-                Exporteer rapport
-              </Button>
-              <Button type="primary" icon={<UploadOutlined />} onClick={handleUploadDocument}>
-                Upload document
-              </Button>
-            </Space>
-          </Col>
-        </Row>
-      </Card>
+      <style jsx>{`
+        .nav-tabs .nav-link {
+          border: none;
+          border-bottom: 3px solid transparent;
+          color: #6c757d;
+          font-weight: 500;
+          padding: 0.75rem 1rem;
+        }
+        .nav-tabs .nav-link.active {
+          color: #0d6efd;
+          border-bottom-color: #0d6efd;
+          background-color: transparent;
+        }
+        .document-item {
+          border-left: 3px solid #0d6efd;
+          padding-left: 1rem;
+        }
+      `}</style>
     </AdminLayout>
-  );
+  )
 }
