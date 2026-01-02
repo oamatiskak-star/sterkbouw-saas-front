@@ -1,4 +1,4 @@
-// pages/calculaties/index.js - ZONDER Alert, Tabs, Progress
+// pages/calculaties/index.js - ZONDER EXTERNE PROGRESS
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
@@ -6,13 +6,12 @@ import { useAuth } from "@/lib/auth"
 import { format } from "date-fns"
 import { nl } from "date-fns/locale"
 
-// UI Components (alleen de basis componenten die we zeker hebben)
+// UI Components
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 
 // Icons
 import { 
@@ -38,6 +37,18 @@ import {
 // API endpoints
 const API_ENDPOINTS = {
   BACKEND_API: process.env.NEXT_PUBLIC_BACKEND_API || "https://sterkbouw-saas-backend-production.up.railway.app",
+}
+
+// Simple inline Progress component
+function SimpleProgress({ value = 0, className = '' }) {
+  return (
+    <div className={`h-2 w-full overflow-hidden rounded-full bg-gray-200 ${className}`}>
+      <div
+        className="h-full w-full flex-1 bg-blue-600 transition-all"
+        style={{ width: `${Math.min(Math.max(value, 0), 100)}%` }}
+      />
+    </div>
+  )
 }
 
 export default function CalculatiesPage() {
@@ -71,7 +82,6 @@ export default function CalculatiesPage() {
   // ======================
 
   useEffect(() => {
-    // Niet redirecten tijdens auth loading, alleen wanneer auth klaar is EN geen user
     if (authLoading === false && !user) {
       router.push('/login')
     }
@@ -92,16 +102,12 @@ export default function CalculatiesPage() {
   // ======================
 
   const fetchCalculaties = async () => {
-    if (!user) {
-      console.error("Geen user gevonden bij fetchCalculaties")
-      return
-    }
+    if (!user) return
     
     setIsLoading(true)
     setError(null)
     
     try {
-      // Haal token op
       let token
       try {
         token = await user.getIdToken()
@@ -125,16 +131,13 @@ export default function CalculatiesPage() {
       }
       
       const data = await response.json()
-      console.log("Calculaties data ontvangen:", data)
-      
-      // Zorg dat data altijd een array is
       const calculatiesArray = Array.isArray(data) ? data : []
       setCalculaties(calculatiesArray)
       updateStats(calculatiesArray)
       
     } catch (err) {
       console.error('Fetch error:', err)
-      setError(err instanceof Error ? err.message : 'Er is een fout opgetreden bij het ophalen van calculaties')
+      setError(err instanceof Error ? err.message : 'Er is een fout opgetreden')
     } finally {
       setIsLoading(false)
     }
@@ -148,7 +151,6 @@ export default function CalculatiesPage() {
     
     let filtered = [...calculaties]
     
-    // Apply search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
       filtered = filtered.filter(calc => {
@@ -161,12 +163,10 @@ export default function CalculatiesPage() {
       })
     }
     
-    // Apply status filter
     if (statusFilter !== "all") {
       filtered = filtered.filter(calc => calc.status === statusFilter)
     }
     
-    // Apply sorting
     filtered.sort((a, b) => {
       let aValue, bValue
       
@@ -193,11 +193,7 @@ export default function CalculatiesPage() {
           bValue = new Date(b.updated_at || 0).getTime()
       }
       
-      if (sortOrder === "asc") {
-        return aValue > bValue ? 1 : -1
-      } else {
-        return aValue < bValue ? 1 : -1
-      }
+      return sortOrder === "asc" ? (aValue > bValue ? 1 : -1) : (aValue < bValue ? 1 : -1)
     })
     
     setFilteredCalculaties(filtered)
@@ -205,26 +201,17 @@ export default function CalculatiesPage() {
 
   const updateStats = (calculatiesArray) => {
     if (!Array.isArray(calculatiesArray)) {
-      setStats({
-        total: 0,
-        active: 0,
-        completed: 0,
-        draft: 0,
-        totalValue: 0
-      })
+      setStats({ total: 0, active: 0, completed: 0, draft: 0, totalValue: 0 })
       return
     }
     
-    const stats = {
+    setStats({
       total: calculatiesArray.length,
       active: calculatiesArray.filter(c => c.status === 'active').length,
       completed: calculatiesArray.filter(c => c.status === 'completed').length,
       draft: calculatiesArray.filter(c => c.status === 'draft').length,
-      totalValue: calculatiesArray.reduce((sum, c) => {
-        return sum + (c.metadata?.totaal_incl_btw || 0)
-      }, 0)
-    }
-    setStats(stats)
+      totalValue: calculatiesArray.reduce((sum, c) => sum + (c.metadata?.totaal_incl_btw || 0), 0)
+    })
   }
 
   const handleDeleteClick = (calculatie) => {
@@ -249,11 +236,8 @@ export default function CalculatiesPage() {
         }
       })
       
-      if (!response.ok) {
-        throw new Error('Verwijderen mislukt')
-      }
+      if (!response.ok) throw new Error('Verwijderen mislukt')
       
-      // Update local state
       const updatedCalculaties = calculaties.filter(c => c.id !== calculatie.id)
       setCalculaties(updatedCalculaties)
       updateStats(updatedCalculaties)
@@ -312,14 +296,11 @@ export default function CalculatiesPage() {
   // RENDER
   // ======================
 
-  // Toon loading state tijdens auth check
   if (authLoading) {
     return (
       <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="h-2 w-64 bg-gray-200 rounded-full overflow-hidden mb-4">
-            <div className="h-full bg-blue-600 rounded-full animate-pulse"></div>
-          </div>
+          <SimpleProgress value={100} className="w-64 mb-4" />
           <p className="text-gray-600">Authenticatie controleren...</p>
         </div>
       </div>
@@ -333,9 +314,7 @@ export default function CalculatiesPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Calculaties</h1>
-            <p className="text-gray-600">
-              Overzicht van al uw bouwcalculaties en projecten
-            </p>
+            <p className="text-gray-600">Overzicht van al uw bouwcalculaties</p>
           </div>
           <Link href="/calculaties/nieuw">
             <Button className="gap-2">
@@ -347,69 +326,29 @@ export default function CalculatiesPage() {
         
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Totaal</p>
-                  <p className="text-2xl font-bold">{stats.total}</p>
+          {[
+            { key: 'total', label: 'Totaal', value: stats.total, icon: FileText, color: 'blue' },
+            { key: 'draft', label: 'Concept', value: stats.draft, icon: Clock, color: 'gray' },
+            { key: 'active', label: 'Actief', value: stats.active, icon: RefreshCw, color: 'blue' },
+            { key: 'completed', label: 'Voltooid', value: stats.completed, icon: CheckCircle, color: 'green' },
+            { key: 'totalValue', label: 'Totale waarde', value: formatCurrency(stats.totalValue), icon: DollarSign, color: 'green' }
+          ].map((stat) => (
+            <Card key={stat.key}>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">{stat.label}</p>
+                    <p className="text-2xl font-bold">{stat.value}</p>
+                  </div>
+                  <stat.icon className={`h-8 w-8 text-${stat.color}-500`} />
                 </div>
-                <FileText className="h-8 w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Concept</p>
-                  <p className="text-2xl font-bold">{stats.draft}</p>
-                </div>
-                <Clock className="h-8 w-8 text-gray-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Actief</p>
-                  <p className="text-2xl font-bold">{stats.active}</p>
-                </div>
-                <RefreshCw className="h-8 w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Voltooid</p>
-                  <p className="text-2xl font-bold">{stats.completed}</p>
-                </div>
-                <CheckCircle className="h-8 w-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Totale waarde</p>
-                  <p className="text-2xl font-bold">{formatCurrency(stats.totalValue)}</p>
-                </div>
-                <DollarSign className="h-8 w-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
 
-      {/* Fout- en succesmeldingen */}
+      {/* Error/Success messages */}
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-center gap-2 text-red-800">
@@ -430,11 +369,10 @@ export default function CalculatiesPage() {
         </div>
       )}
 
-      {/* Filters en zoeken */}
+      {/* Search and filters */}
       <Card className="mb-6">
         <CardContent className="pt-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Zoekveld */}
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
@@ -445,7 +383,6 @@ export default function CalculatiesPage() {
               />
             </div>
             
-            {/* Status filter - vereenvoudigd zonder Select */}
             <div className="flex flex-col">
               <label className="text-sm font-medium mb-2">Status</label>
               <div className="flex gap-2">
@@ -464,7 +401,6 @@ export default function CalculatiesPage() {
               </div>
             </div>
             
-            {/* Sorteeropties - vereenvoudigd */}
             <div className="flex flex-col">
               <label className="text-sm font-medium mb-2">Sorteren op</label>
               <div className="flex gap-2">
@@ -495,12 +431,10 @@ export default function CalculatiesPage() {
         </CardContent>
       </Card>
 
-      {/* Content */}
+      {/* Main content */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            Alle Calculaties ({filteredCalculaties.length})
-          </CardTitle>
+          <CardTitle>Alle Calculaties ({filteredCalculaties.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -551,7 +485,7 @@ export default function CalculatiesPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredCalculaties.map((calculatie) => (
-                    <TableRow key={calculatie.id} className="group hover:bg-gray-50">
+                    <TableRow key={calculatie.id} className="hover:bg-gray-50">
                       <TableCell>
                         <div className="font-medium">{calculatie.naam || "Naamloos project"}</div>
                         <div className="text-sm text-gray-500">
@@ -564,16 +498,12 @@ export default function CalculatiesPage() {
                           <div className="text-sm text-gray-500">{calculatie.klant_email}</div>
                         )}
                       </TableCell>
-                      <TableCell>
-                        {getStatusBadge(calculatie.status)}
-                      </TableCell>
+                      <TableCell>{getStatusBadge(calculatie.status)}</TableCell>
                       <TableCell className="font-semibold">
                         {formatCurrency(calculatie.metadata?.totaal_incl_btw)}
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm">
-                          {formatDate(calculatie.updated_at)}
-                        </div>
+                        <div className="text-sm">{formatDate(calculatie.updated_at)}</div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-2">
@@ -589,11 +519,7 @@ export default function CalculatiesPage() {
                           )}
                           
                           <Link href={`/calculaties/${calculatie.id}`}>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              title="Bekijken"
-                            >
+                            <Button variant="ghost" size="sm" title="Bekijken">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
