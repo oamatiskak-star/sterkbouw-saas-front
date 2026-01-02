@@ -172,11 +172,11 @@ export default function ProjectPortaalDetailPage() {
                       </dd>
                       
                       <dt className="col-sm-4">Einddatum:</dt>
-                      <dd className="col-sm-8">
-                        {project.end_date 
-                          ? new Date(project.end_date).toLocaleDateString('nl-NL') 
-                          'Niet gepland'}
-                      </dd>
+    <dd className="col-sm-8">
+      {project.end_date 
+        ? new Date(project.end_date).toLocaleDateString('nl-NL') 
+        : 'Niet gepland'}  {/* ← HIER WAS DE FOUT */}
+    </dd>
                       
                       <dt className="col-sm-4">Budget:</dt>
                       <dd className="col-sm-8">
