@@ -1,4 +1,4 @@
-// pages/calculatie/index.js
+// pages/calculaties/index.js
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Layout from "@/components/Layout"
@@ -120,7 +120,7 @@ export default function CalculatieIndexPage() {
   ]
 
   return (
-    <Layout>
+    <Layout hidePlatformSidebar={true}> {/* Voeg deze prop toe */}
       <div className="container-fluid px-3 px-lg-4 py-4">
         {/* Header met uitleg */}
         <div className="row mb-4">
