@@ -1,590 +1,677 @@
-// pages/projectportaal/[projectId]/index.tsx
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  Card, 
-  Button, 
-  Typography, 
-  Row, 
-  Col, 
-  Space, 
-  Tabs, 
-  Spin, 
-  Alert, 
-  Badge,
-  Tag,
-  Progress,
-  Divider,
-  Statistic,
-  message
-} from 'antd';
+  fetchProjectData, 
+  postClientAction,
+  subscribeToProjectUpdates,
+  unsubscribeFromProjectUpdates
+} from '../../services/api';
 import { 
-  ArrowLeftOutlined, 
-  HomeOutlined, 
-  FileTextOutlined, 
-  MessageOutlined, 
-  CheckCircleOutlined,
-  WarningOutlined,
-  BarChartOutlined,
-  SettingOutlined,
-  TeamOutlined,
-  CalendarOutlined,
-  EnvironmentOutlined,
-  DownloadOutlined,
-  UploadOutlined,
-  EyeOutlined,
-  EditOutlined
-} from '@ant-design/icons';
-import dayjs from 'dayjs';
-import AdminLayout from '@/components/Layout/AdminLayout';
+  ProjectOverview, 
+  ContractSection, 
+  DrawingsSection, 
+  DeliverySection,
+  ExtraWorkSection,
+  CommunicationSection,
+  ReportingSection,
+  LoadingSpinner,
+  ErrorDisplay,
+  PortalHeader,
+  MobileNavigation,
+  DesktopSidebar,
+  ExportDossierButton
+} from './components';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNotifications } from '../../hooks/useNotifications';
+import { auditLog } from '../../utils/auditLogger';
+import './ProjectPortaal.css';
 
-const { Title, Text, Paragraph } = Typography;
-const { TabPane } = Tabs;
-
-interface ProjectData {
-  id: string;
-  name: string;
-  code: string;
-  status: string;
-  progress: number;
-  client: string;
-  developer: string;
-  startDate: string;
-  endDate: string;
-  location: string;
-  budget: string;
-  team: { name: string; role: string }[];
-  overview: {
-    tasksCompleted: number;
-    tasksTotal: number;
-    documents: number;
-    messages: number;
-    issues: number;
-  };
-  contract: {
-    status: string;
-    lastUpdate: string;
-    documents: number;
-  };
-  drawings: {
-    total: number;
-    approved: number;
-    pending: number;
-  };
-  delivery: {
-    milestones: number;
-    completed: number;
-    next: string;
-  };
-}
-
-const ProjectPortaalPage = () => {
-  const router = useRouter();
-  const { projectId } = router.query;
+/**
+ * Hoofdcomponent voor het Opdrachtgever Projectportaal
+ * @component
+ */
+const ProjectPortaal = () => {
+  // ==================== HOOKS & STATE ====================
+  const { projectId } = useParams();
+  const navigate = useNavigate();
+  const { clientToken, validateAccess } = useAuth();
+  const { showNotification, notifyClient } = useNotifications();
   
-  const [loading, setLoading] = useState(true);
-  const [projectData, setProjectData] = useState<ProjectData | null>(null);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [userRole, setUserRole] = useState<'opdrachtgever' | 'developer'>('opdrachtgever');
+  const [projectData, setProjectData] = useState(null);
+  const [activeSection, setActiveSection] = useState('overview');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [lastUpdate, setLastUpdate] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState('connecting');
 
-  // Sidebar configuratie voor AdminLayout
-  const sidebarMenuItems = [
-    {
-      key: 'dashboard',
-      icon: <HomeOutlined />,
-      label: 'Dashboard',
-      href: '/dashboard'
-    },
-    {
-      key: 'projects',
-      icon: <FileTextOutlined />,
-      label: 'Projecten',
-      href: '/projects'
-    },
-    {
-      key: 'project-portaal',
-      icon: <TeamOutlined />,
-      label: 'Project Portaal',
-      href: `/projectportaal/${projectId}`
-    }
-  ];
-
-  // Laad project data
+  // ==================== EFFECTS ====================
+  
+  // 1. Initial project data load with authentication
   useEffect(() => {
-    if (!projectId) return;
+    let isMounted = true;
     
-    setLoading(true);
-    
-    // Simuleer API call
-    setTimeout(() => {
-      setProjectData({
-        id: projectId as string,
-        name: `Project Sterkbouw ${projectId}`,
-        code: `PROJ-${projectId}`,
-        status: 'actief',
-        progress: 75,
-        client: 'Opdrachtgever BV',
-        developer: 'Sterkbouw Development',
-        startDate: '2024-01-15',
-        endDate: '2024-09-30',
-        location: 'Amsterdam Zuid',
-        budget: '€ 850.000',
-        team: [
-          { name: 'Jan Janssen', role: 'Projectleider' },
-          { name: 'Marie van Dijk', role: 'Architect' },
-          { name: 'Thomas de Vries', role: 'Bouwcoordinator' }
-        ],
-        overview: {
-          tasksCompleted: 42,
-          tasksTotal: 56,
-          documents: 18,
-          messages: 24,
-          issues: 3
-        },
-        contract: {
-          status: 'getekend',
-          lastUpdate: '2024-02-15',
-          documents: 5
-        },
-        drawings: {
-          total: 12,
-          approved: 8,
-          pending: 4
-        },
-        delivery: {
-          milestones: 8,
-          completed: 5,
-          next: 'Fundering'
-        }
-      });
+    const loadProjectData = async () => {
+      if (!isMounted) return;
       
-      // Bepaal gebruikersrol
-      const path = router.asPath;
-      if (path.includes('opdrachtgever')) {
-        setUserRole('opdrachtgever');
-      } else if (path.includes('developer')) {
-        setUserRole('developer');
+      setIsLoading(true);
+      setConnectionStatus('connecting');
+      
+      try {
+        // Validate client access to this specific project
+        const hasAccess = await validateAccess(projectId);
+        if (!hasAccess) {
+          throw new Error('Geen toegang tot dit project');
+        }
+        
+        // Fetch complete project data for client view
+        const data = await fetchProjectData(projectId, {
+          include: [
+            'overview',
+            'contracts',
+            'drawings',
+            'delivery',
+            'extraWork',
+            'communication',
+            'reports',
+            'settings'
+          ],
+          clientView: true, // Flag to filter internal data
+          token: clientToken
+        });
+        
+        if (isMounted) {
+          setProjectData(data);
+          setLastUpdate(new Date().toISOString());
+          setConnectionStatus('connected');
+          
+          // Log portal access
+          await auditLog('PORTAL_ACCESS', {
+            projectId,
+            clientId: data.clientId,
+            section: 'overview'
+          });
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error('Project load error:', err);
+          
+          if (err.response?.status === 403) {
+            setError('U heeft geen toegang tot dit projectportaal. Controleer de link of neem contact op met de projectleider.');
+            setConnectionStatus('unauthorized');
+          } else if (err.response?.status === 404) {
+            setError('Project niet gevonden. Het project kan zijn afgerond of gearchiveerd.');
+            setConnectionStatus('not_found');
+          } else {
+            setError(`Fout bij laden project: ${err.message}`);
+            setConnectionStatus('error');
+          }
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    loadProjectData();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [projectId, clientToken, validateAccess]);
+
+  // 2. Real-time updates subscription
+  useEffect(() => {
+    if (!projectData || connectionStatus !== 'connected') return;
+    
+    const handleUpdate = (update) => {
+      setProjectData(prev => ({
+        ...prev,
+        ...update.payload,
+        lastUpdated: update.timestamp
+      }));
+      setLastUpdate(update.timestamp);
+      
+      // Show notification for important updates
+      if (update.type === 'EXTRA_WORK_QUOTE_READY') {
+        showNotification({
+          type: 'info',
+          title: 'Nieuwe meerwerkofferte',
+          message: 'Er is een nieuwe offerte gereed voor uw goedkeuring',
+          action: () => setActiveSection('extraWork')
+        });
       }
       
-      setLoading(false);
-    }, 800);
-  }, [projectId, router.asPath]);
+      // Notify client if they're not on relevant section
+      if (update.important && activeSection !== update.relevantSection) {
+        notifyClient(update);
+      }
+    };
+    
+    const subscriptionId = subscribeToProjectUpdates(projectId, handleUpdate);
+    
+    return () => {
+      unsubscribeFromProjectUpdates(subscriptionId);
+    };
+  }, [projectId, projectData, connectionStatus, activeSection, showNotification, notifyClient]);
 
-  // Handlers
-  const handleBackToDashboard = () => {
-    router.push('/dashboard');
-  };
+  // 3. Online/offline detection
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOffline(false);
+      setConnectionStatus('connected');
+      showNotification({
+        type: 'success',
+        title: 'Verbonden',
+        message: 'Projectportaal is gesynchroniseerd',
+        duration: 3000
+      });
+    };
+    
+    const handleOffline = () => {
+      setIsOffline(true);
+      setConnectionStatus('disconnected');
+      showNotification({
+        type: 'warning',
+        title: 'Offline modus',
+        message: 'Sommige functies zijn beperkt',
+        duration: 5000
+      });
+    };
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [showNotification]);
 
-  const handleAskQuestion = () => {
-    message.info('Vraag gesteld aan het team');
-  };
+  // 4. Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ctrl+E for export
+      if (e.ctrlKey && e.key === 'e') {
+        e.preventDefault();
+        handleExportDossier();
+      }
+      // Escape to clear errors
+      if (e.key === 'Escape' && error) {
+        setError(null);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [error]);
 
-  const handleUploadDocument = () => {
-    message.success('Document geüpload');
-  };
+  // ==================== CORE FUNCTIONS ====================
 
-  const handleDownloadReport = () => {
-    message.loading({ content: 'Rapport genereren...', key: 'report' });
-    setTimeout(() => {
-      message.success({ content: 'Rapport gedownload', key: 'report' });
-    }, 1500);
-  };
+  /**
+   * Handle client actions (approvals, questions, requests)
+   */
+  const handleClientAction = useCallback(async (actionType, payload) => {
+    try {
+      // Validate required fields based on action type
+      if (actionType === 'APPROVE_QUOTE' && !payload.quoteId) {
+        throw new Error('Offerte-ID is vereist');
+      }
+      
+      // Show loading state
+      const actionId = `action_${Date.now()}`;
+      showNotification({
+        id: actionId,
+        type: 'loading',
+        title: 'Actie verwerken...',
+        message: 'Een moment geduld'
+      });
+      
+      // Execute action via API
+      const result = await postClientAction(projectId, actionType, {
+        ...payload,
+        clientId: projectData.clientId,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        ipAddress: await getClientIP() // Utility function needed
+      });
+      
+      // Update local state
+      if (result.updatedProject) {
+        setProjectData(prev => ({
+          ...prev,
+          ...result.updatedProject
+        }));
+      }
+      
+      // Log successful action
+      await auditLog('CLIENT_ACTION', {
+        projectId,
+        actionType,
+        payload: payload,
+        result: result,
+        clientId: projectData.clientId
+      });
+      
+      // Show success notification
+      showNotification({
+        type: 'success',
+        title: 'Actie voltooid',
+        message: getActionSuccessMessage(actionType),
+        duration: 5000
+      });
+      
+      // Send real-time update to dashboard
+      if (window.WebSocket && window.socket) {
+        window.socket.send(JSON.stringify({
+          type: 'CLIENT_ACTION_PERFORMED',
+          projectId,
+          actionType,
+          timestamp: new Date().toISOString()
+        }));
+      }
+      
+      return result;
+      
+    } catch (err) {
+      console.error('Client action failed:', err);
+      
+      // Show error notification
+      showNotification({
+        type: 'error',
+        title: 'Actie mislukt',
+        message: err.message || 'Er ging iets mis. Probeer het opnieuw.',
+        duration: 8000
+      });
+      
+      // Log error
+      await auditLog('CLIENT_ACTION_ERROR', {
+        projectId,
+        actionType,
+        error: err.message,
+        payload: payload
+      });
+      
+      throw err;
+    }
+  }, [projectId, projectData, showNotification]);
 
-  const handleApproveDrawing = () => {
-    message.success('Tekening goedgekeurd');
-  };
+  /**
+   * Export complete project dossier
+   */
+  const handleExportDossier = useCallback(async () => {
+    try {
+      const exportData = {
+        projectId,
+        include: [
+          'contracts',
+          'drawings',
+          'delivery_documents',
+          'extra_work_quotes',
+          'communication_logs',
+          'reports',
+          'approvals'
+        ],
+        format: 'zip', // Could also be 'pdf' or 'combined_pdf'
+        timestamp: new Date().toISOString()
+      };
+      
+      const result = await handleClientAction('EXPORT_PROJECT_DOSSIER', exportData);
+      
+      // Trigger download
+      if (result.downloadUrl) {
+        window.open(result.downloadUrl, '_blank');
+      }
+      
+    } catch (err) {
+      console.error('Export failed:', err);
+    }
+  }, [projectId, handleClientAction]);
 
-  if (loading) {
+  /**
+   * Section change handler with analytics
+   */
+  const handleSectionChange = useCallback(async (sectionId) => {
+    const prevSection = activeSection;
+    setActiveSection(sectionId);
+    
+    // Track section views
+    await auditLog('PORTAL_SECTION_VIEW', {
+      projectId,
+      fromSection: prevSection,
+      toSection: sectionId,
+      duration: calculateSectionDuration(prevSection) // Utility function needed
+    });
+    
+    // Update URL without page reload
+    window.history.replaceState(
+      {},
+      '',
+      `/projectportaal/${projectId}?section=${sectionId}`
+    );
+  }, [activeSection, projectId]);
+
+  // ==================== RENDER LOGIC ====================
+
+  // Loading state
+  if (isLoading) {
     return (
-      <AdminLayout sidebarMenuItems={sidebarMenuItems}>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
-          <Spin size="large" tip="Projectportaal laden..." />
+      <div className="portal-loading-container">
+        <LoadingSpinner 
+          size="large"
+          message={`Portaal laden voor project ${projectId}`}
+          subMessage="Dit kan even duren bij de eerste keer"
+        />
+        <div className="connection-status">
+          <span className={`status-dot ${connectionStatus}`}></span>
+          {connectionStatus === 'connecting' && 'Verbinding maken...'}
+          {connectionStatus === 'authorizing' && 'Toegang controleren...'}
         </div>
-      </AdminLayout>
+      </div>
     );
   }
 
-  return (
-    <AdminLayout sidebarMenuItems={sidebarMenuItems}>
-      {/* Header met terugknop */}
-      <Card style={{ marginBottom: 16, borderRadius: 8 }}>
-        <Row gutter={16} align="middle" justify="space-between">
-          <Col>
-            <Space>
-              <Button 
-                icon={<ArrowLeftOutlined />} 
-                onClick={handleBackToDashboard}
-                type="text"
-                size="large"
-              >
-                Terug naar dashboard
-              </Button>
-              <Divider type="vertical" />
-              <Tag color={userRole === 'opdrachtgever' ? 'blue' : 'green'}>
-                {userRole === 'opdrachtgever' ? 'Opdrachtgever' : 'Ontwikkelaar'}
-              </Tag>
-            </Space>
-          </Col>
-          <Col>
-            <Space>
-              <Button icon={<DownloadOutlined />} onClick={handleDownloadReport}>
-                Exporteer
-              </Button>
-              <Button type="primary" icon={<UploadOutlined />} onClick={handleUploadDocument}>
-                Upload
-              </Button>
-            </Space>
-          </Col>
-        </Row>
-      </Card>
+  // Error state
+  if (error) {
+    return (
+      <ErrorDisplay 
+        error={error}
+        projectId={projectId}
+        onRetry={() => window.location.reload()}
+        onContact={() => handleClientAction('REQUEST_SUPPORT', { issue: error })}
+      />
+    );
+  }
 
-      {/* Project header */}
-      <Card style={{ marginBottom: 24, borderRadius: 8 }}>
-        <Row gutter={24}>
-          <Col span={16}>
-            <Space direction="vertical" size="small">
-              <Title level={2} style={{ margin: 0 }}>
-                {projectData?.name || `Project ${projectId}`}
-                <Tag color="green" style={{ marginLeft: 12, fontSize: 14 }}>
-                  {projectData?.status.toUpperCase() || 'ACTIEF'}
-                </Tag>
-              </Title>
-              <Text type="secondary" strong>
-                Projectcode: {projectData?.code} • {projectData?.location}
-              </Text>
-              <Space size="middle" split={<Divider type="vertical" />}>
-                <Text><CalendarOutlined /> Start: {dayjs(projectData?.startDate).format('DD-MM-YYYY')}</Text>
-                <Text><CalendarOutlined /> Eind: {dayjs(projectData?.endDate).format('DD-MM-YYYY')}</Text>
-                <Text><EnvironmentOutlined /> {projectData?.location}</Text>
-                <Text><TeamOutlined /> {userRole === 'opdrachtgever' ? projectData?.developer : projectData?.client}</Text>
-              </Space>
-            </Space>
-          </Col>
-          <Col span={8}>
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <Statistic title="Projectvoortgang" value={projectData?.progress || 0} suffix="%" />
-              <Progress percent={projectData?.progress || 0} status="active" strokeWidth={10} />
-              <Row gutter={8}>
-                <Col span={12}>
-                  <Statistic title="Taken" value={`${projectData?.overview.tasksCompleted || 0}/${projectData?.overview.tasksTotal || 0}`} />
-                </Col>
-                <Col span={12}>
-                  <Statistic title="Documenten" value={projectData?.overview.documents || 0} />
-                </Col>
-              </Row>
-            </Space>
-          </Col>
-        </Row>
-      </Card>
-
-      {/* Hoofd content met tabs */}
-      <Card bodyStyle={{ padding: 0 }} style={{ borderRadius: 8 }}>
-        <Tabs 
-          activeKey={activeTab} 
-          onChange={setActiveTab}
-          type="card"
-          size="large"
-          style={{ padding: '0 24px' }}
-          tabBarExtraContent={
-            <Space style={{ marginRight: 8 }}>
-              <Button 
-                icon={<MessageOutlined />} 
-                onClick={handleAskQuestion}
-                title="Stel een vraag"
-              >
-                Vraag stellen
-              </Button>
-              {userRole === 'opdrachtgever' && (
-                <Button 
-                  type="primary" 
-                  icon={<CheckCircleOutlined />}
-                  onClick={handleApproveDrawing}
-                >
-                  Goedkeuren
-                </Button>
-              )}
-            </Space>
-          }
+  // No data state
+  if (!projectData) {
+    return (
+      <div className="no-data-container">
+        <h2>Geen projectgegevens beschikbaar</h2>
+        <p>Het project kan zijn gearchiveerd of verwijderd.</p>
+        <button 
+          className="btn-primary"
+          onClick={() => navigate('/')}
         >
-          {/* Overzicht tab */}
-          <TabPane 
-            tab={<span><HomeOutlined /> Overzicht</span>} 
-            key="overview"
-          >
-            <div style={{ padding: 24 }}>
-              <Title level={3}>Project Overzicht</Title>
-              <Paragraph>
-                Welkom in het gedeelde projectportaal. Hier kunt u samenwerken aan het project, 
-                documenten delen, voortgang volgen en communiceren.
-              </Paragraph>
-              
-              <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
-                <Col span={8}>
-                  <Card 
-                    title={<span><FileTextOutlined /> Contract & Documenten</span>}
-                    extra={<Badge count={projectData?.contract.documents || 0} />}
-                  >
-                    <Text>Contractstatus: <Tag color="green">{projectData?.contract.status || 'Onbekend'}</Tag></Text>
-                    <br />
-                    <Text type="secondary">Laatste update: {dayjs(projectData?.contract.lastUpdate).format('DD-MM-YYYY')}</Text>
-                    <br />
-                    <Button type="link" style={{ padding: 0, marginTop: 8 }}>
-                      <EyeOutlined /> Bekijk documenten
-                    </Button>
-                  </Card>
-                </Col>
-                
-                <Col span={8}>
-                  <Card 
-                    title={<span><FileTextOutlined /> Tekeningen & Ontwerpen</span>}
-                    extra={<Badge count={projectData?.drawings.pending || 0} />}
-                  >
-                    <Text>Goedgekeurd: {projectData?.drawings.approved || 0}/{projectData?.drawings.total || 0}</Text>
-                    <br />
-                    <Progress 
-                      percent={Math.round(((projectData?.drawings.approved || 0) / (projectData?.drawings.total || 1)) * 100)} 
-                      size="small" 
-                    />
-                    <br />
-                    {userRole === 'opdrachtgever' ? (
-                      <Button type="primary" size="small" style={{ marginTop: 8 }}>
-                        <CheckCircleOutlined /> Keur tekeningen goed
-                      </Button>
-                    ) : (
-                      <Button type="default" size="small" style={{ marginTop: 8 }}>
-                        <UploadOutlined /> Upload nieuwe versie
-                      </Button>
-                    )}
-                  </Card>
-                </Col>
-                
-                <Col span={8}>
-                  <Card 
-                    title={<span><CheckCircleOutlined /> Oplevering</span>}
-                  >
-                    <Text>Volgende milestone: <strong>{projectData?.delivery.next || 'Onbekend'}</strong></Text>
-                    <br />
-                    <Text>Voltooid: {projectData?.delivery.completed || 0}/{projectData?.delivery.milestones || 0}</Text>
-                    <br />
-                    <Progress 
-                      percent={Math.round(((projectData?.delivery.completed || 0) / (projectData?.delivery.milestones || 1)) * 100)} 
-                      size="small" 
-                    />
-                  </Card>
-                </Col>
-              </Row>
-              
-              {/* Team sectie */}
-              <Card style={{ marginTop: 24 }} title="Projectteam">
-                <Row gutter={[16, 16]}>
-                  {projectData?.team?.map((member, index) => (
-                    <Col span={8} key={index}>
-                      <Card size="small">
-                        <Text strong>{member.name}</Text>
-                        <br />
-                        <Text type="secondary">{member.role}</Text>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-              </Card>
-            </div>
-          </TabPane>
-          
-          {/* Documenten tab */}
-          <TabPane 
-            tab={
-              <span>
-                <FileTextOutlined /> Documenten
-                <Badge count={projectData?.overview.documents || 0} offset={[10, -5]} />
-              </span>
-            } 
-            key="documents"
-          >
-            <div style={{ padding: 24 }}>
-              <Title level={3}>Project Documenten</Title>
-              <Alert 
-                message="Gedeelde documentenruimte" 
-                description={`Beide partijen hebben toegang tot deze documenten. ${userRole === 'opdrachtgever' ? 'U kunt documenten bekijken en goedkeuren.' : 'U kunt documenten uploaden en beheren.'}`}
-                type="info" 
-                showIcon 
-                style={{ marginBottom: 16 }}
-              />
-              
-              <Row gutter={[16, 16]}>
-                <Col span={12}>
-                  <Card title="Contractdocumenten">
-                    <Space direction="vertical">
-                      <Button icon={<EyeOutlined />} type="text" block style={{ textAlign: 'left' }}>
-                        Hoofdcontract.pdf
-                      </Button>
-                      <Button icon={<EyeOutlined />} type="text" block style={{ textAlign: 'left' }}>
-                        Bijlagen.zip
-                      </Button>
-                      <Button icon={<EyeOutlined />} type="text" block style={{ textAlign: 'left' }}>
-                        Voorwaarden.docx
-                      </Button>
-                    </Space>
-                  </Card>
-                </Col>
-                
-                <Col span={12}>
-                  <Card title="Technische tekeningen">
-                    <Space direction="vertical">
-                      <Button icon={<EyeOutlined />} type="text" block style={{ textAlign: 'left' }}>
-                        Architectuur.pdf
-                      </Button>
-                      <Button icon={<EyeOutlined />} type="text" block style={{ textAlign: 'left' }}>
-                        Constructie.dwg
-                      </Button>
-                      <Button icon={<EyeOutlined />} type="text" block style={{ textAlign: 'left' }}>
-                        Installaties.pdf
-                      </Button>
-                    </Space>
-                  </Card>
-                </Col>
-              </Row>
-            </div>
-          </TabPane>
-          
-          {/* Communicatie tab */}
-          <TabPane 
-            tab={
-              <span>
-                <MessageOutlined /> Communicatie
-                <Badge count={projectData?.overview.messages || 0} offset={[10, -5]} />
-              </span>
-            } 
-            key="communication"
-          >
-            <div style={{ padding: 24 }}>
-              <Title level={3}>Project Communicatie</Title>
-              <Alert 
-                message="Gedeelde berichten" 
-                description="Alle communicatie over het project wordt hier bewaard voor transparantie."
-                type="info" 
-                showIcon 
-                style={{ marginBottom: 16 }}
-              />
-              
-              <Card>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                  <Card size="small" type="inner" title="Vandaag">
-                    <Text><strong>Sterkbouw:</strong> De fundering is voltooid. Foto's zijn geüpload.</Text>
-                    <Text type="secondary" style={{ display: 'block' }}>14:30 • {dayjs().format('DD-MM-YYYY')}</Text>
-                  </Card>
-                  
-                  <Card size="small" type="inner" title="Gisteren">
-                    <Text><strong>Opdrachtgever:</strong> Kunnen we de kleur van de gevel nog aanpassen?</Text>
-                    <Text type="secondary" style={{ display: 'block' }}>11:15 • {dayjs().subtract(1, 'day').format('DD-MM-YYYY')}</Text>
-                  </Card>
-                  
-                  <Card size="small" type="inner" title="Vorige week">
-                    <Text><strong>Sterkbouw:</strong> Offerte voor extra werk is klaar voor goedkeuring.</Text>
-                    <Text type="secondary" style={{ display: 'block' }}>{dayjs().subtract(5, 'day').format('DD-MM-YYYY')}</Text>
-                  </Card>
-                </Space>
-              </Card>
-            </div>
-          </TabPane>
-          
-          {/* Rapportages tab */}
-          <TabPane 
-            tab={<span><BarChartOutlined /> Rapportages</span>} 
-            key="reports"
-          >
-            <div style={{ padding: 24 }}>
-              <Title level={3}>Project Rapportages</Title>
-              <Row gutter={[16, 16]}>
-                <Col span={8}>
-                  <Card title="Voortgangsrapport">
-                    <Text>Wekelijks overzicht van voortgang</Text>
-                    <br />
-                    <Button type="primary" style={{ marginTop: 8 }}>
-                      <DownloadOutlined /> Download
-                    </Button>
-                  </Card>
-                </Col>
-                
-                <Col span={8}>
-                  <Card title="Financieel overzicht">
-                    <Text>Budget vs werkelijke kosten</Text>
-                    <br />
-                    <Button style={{ marginTop: 8 }}>
-                      <EyeOutlined /> Bekijk
-                    </Button>
-                  </Card>
-                </Col>
-                
-                <Col span={8}>
-                  <Card title="Kwaliteitscontrole">
-                    <Text>Inspectierapporten en kwaliteit</Text>
-                    <br />
-                    <Button style={{ marginTop: 8 }}>
-                      <DownloadOutlined /> Download
-                    </Button>
-                  </Card>
-                </Col>
-              </Row>
-            </div>
-          </TabPane>
-          
-          {/* Instellingen tab (alleen voor ontwikkelaar) */}
-          {userRole === 'developer' && (
-            <TabPane 
-              tab={<span><SettingOutlined /> Beheer</span>} 
-              key="admin"
-            >
-              <div style={{ padding: 24 }}>
-                <Title level={3}>Project Beheer</Title>
-                <Alert 
-                  message="Beheerdersfuncties" 
-                  description="Alleen beschikbaar voor Sterkbouw ontwikkelaars."
-                  type="warning" 
-                  showIcon 
-                />
-                
-                <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-                  <Col span={12}>
-                    <Card title="Toegangsbeheer">
-                      <Button block style={{ marginBottom: 8 }}>
-                        <TeamOutlined /> Teamleden beheren
-                      </Button>
-                      <Button block>
-                        <EyeOutlined /> Toegangsrechten instellen
-                      </Button>
-                    </Card>
-                  </Col>
-                  
-                  <Col span={12}>
-                    <Card title="Projectinstellingen">
-                      <Button block style={{ marginBottom: 8 }}>
-                        <EditOutlined /> Projectgegevens bewerken
-                      </Button>
-                      <Button block type="primary">
-                        <WarningOutlined /> Noodcommunicatie
-                      </Button>
-                    </Card>
-                  </Col>
-                </Row>
-              </div>
-            </TabPane>
-          )}
-        </Tabs>
-      </Card>
-
-      {/* Footer */}
-      <div style={{ marginTop: 24, textAlign: 'center', padding: 16 }}>
-        <Text type="secondary">
-          Project Portaal v1.0 • {projectData?.code} • Laatste update: {dayjs().format('DD-MM-YYYY HH:mm')}
-        </Text>
-        <br />
-        <Text type="secondary">
-          {userRole === 'opdrachtgever' ? 'U bent ingelogd als opdrachtgever' : 'U bent ingelogd als ontwikkelaar'}
-        </Text>
+          Terug naar homepage
+        </button>
       </div>
-    </AdminLayout>
+    );
+  }
+
+  // ==================== MAIN RENDER ====================
+  return (
+    <div className={`project-portal ${isOffline ? 'offline-mode' : ''}`}>
+      {/* Connection Status Banner */}
+      {isOffline && (
+        <div className="offline-banner">
+          <span className="offline-icon">⚠️</span>
+          Offline modus - Beperkte functionaliteit
+        </div>
+      )}
+      
+      {/* Portal Header */}
+      <PortalHeader 
+        projectName={projectData.name}
+        projectStatus={projectData.status}
+        lastUpdate={lastUpdate}
+        clientName={projectData.clientName}
+        onExport={handleExportDossier}
+      />
+      
+      {/* Mobile Navigation */}
+      <MobileNavigation
+        sections={[
+          { id: 'overview', label: 'Overzicht', icon: '📊' },
+          { id: 'contract', label: 'Contract', icon: '📄' },
+          { id: 'drawings', label: 'Tekeningen', icon: '📐' },
+          { id: 'delivery', label: 'Oplevering', icon: '✅' },
+          { id: 'extraWork', label: 'Meerwerk', icon: '🔧' },
+          { id: 'communication', label: 'Berichten', icon: '💬' },
+          { id: 'reports', label: 'Rapportages', icon: '📈' }
+        ]}
+        activeSection={activeSection}
+        onChangeSection={handleSectionChange}
+        hasNewMessages={projectData.communication?.unreadCount > 0}
+        hasPendingApprovals={projectData.extraWork?.pendingQuotes > 0}
+      />
+      
+      <div className="portal-content-wrapper">
+        {/* Desktop Sidebar */}
+        <DesktopSidebar
+          projectData={projectData}
+          activeSection={activeSection}
+          onChangeSection={handleSectionChange}
+          onExport={handleExportDossier}
+          onLogout={() => {
+            handleClientAction('LOGOUT', {});
+            navigate('/logout');
+          }}
+        />
+        
+        {/* Main Content Area */}
+        <main className="portal-main-content" id="portal-main-content">
+          {/* Section Router */}
+          {activeSection === 'overview' && (
+            <ProjectOverview 
+              data={projectData.overview}
+              onAskQuestion={(subject, message) => 
+                handleClientAction('ASK_QUESTION', { subject, message })
+              }
+              onRequestMeeting={() => 
+                handleClientAction('REQUEST_MEETING', {})
+              }
+            />
+          )}
+          
+          {activeSection === 'contract' && (
+            <ContractSection 
+              documents={projectData.contracts}
+              onConfirmAgreement={(docId, version) => 
+                handleClientAction('CONFIRM_CONTRACT', { 
+                  documentId: docId,
+                  version: version
+                })
+              }
+              onRequestClarification={(docId, question) => 
+                handleClientAction('REQUEST_CLARIFICATION', {
+                  documentId: docId,
+                  question: question
+                })
+              }
+            />
+          )}
+          
+          {activeSection === 'drawings' && (
+            <DrawingsSection 
+              drawings={projectData.drawings}
+              onRequestRevision={(drawingId, reason) => 
+                handleClientAction('REQUEST_DRAWING_REVISION', {
+                  drawingId,
+                  reason
+                })
+              }
+              onView3DModel={(modelId) => 
+                handleClientAction('VIEW_3D_MODEL', { modelId })
+              }
+            />
+          )}
+          
+          {activeSection === 'delivery' && (
+            <DeliverySection 
+              deliveryData={projectData.delivery}
+              onConfirmDelivery={(pointId, notes) => 
+                handleClientAction('CONFIRM_DELIVERY_POINT', { 
+                  deliveryPointId: pointId,
+                  clientNotes: notes
+                })
+              }
+              onReportIssue={(pointId, issue) => 
+                handleClientAction('REPORT_DELIVERY_ISSUE', {
+                  pointId,
+                  issue
+                })
+              }
+            />
+          )}
+          
+          {activeSection === 'extraWork' && (
+            <ExtraWorkSection 
+              requests={projectData.extraWork}
+              onRequestExtraWork={(requestData) => 
+                handleClientAction('REQUEST_EXTRA_WORK', {
+                  ...requestData,
+                  includeDrawings: true,
+                  include3D: requestData.type === 'aesthetic'
+                })
+              }
+              onApproveQuote={(quoteId, conditions) => 
+                handleClientAction('APPROVE_EXTRA_WORK_QUOTE', { 
+                  quoteId,
+                  conditions,
+                  legalConsent: true
+                })
+              }
+              onRequestQuoteRevision={(quoteId, changes) => 
+                handleClientAction('REQUEST_QUOTE_REVISION', {
+                  quoteId,
+                  requestedChanges: changes
+                })
+              }
+              onDownloadQuote={(quoteId) => 
+                handleClientAction('DOWNLOAD_QUOTE', { quoteId })
+              }
+            />
+          )}
+          
+          {activeSection === 'communication' && (
+            <CommunicationSection 
+              logs={projectData.communication}
+              onNewMessage={(message, attachments) => 
+                handleClientAction('SEND_MESSAGE', { 
+                  message,
+                  attachments,
+                  channel: 'portal'
+                })
+              }
+              onMarkAsRead={(messageIds) => 
+                handleClientAction('MARK_MESSAGES_READ', { messageIds })
+              }
+              onExportConversation={() => 
+                handleClientAction('EXPORT_CONVERSATION', {})
+              }
+            />
+          )}
+          
+          {activeSection === 'reports' && (
+            <ReportingSection 
+              reports={projectData.reports}
+              onGenerateCustomReport={(params) => 
+                handleClientAction('GENERATE_CUSTOM_REPORT', params)
+              }
+              onDownloadReport={(reportId, format) => 
+                handleClientAction('DOWNLOAD_REPORT', { reportId, format })
+              }
+              onSubscribeReport={(reportId, frequency) => 
+                handleClientAction('SUBSCRIBE_REPORT', { reportId, frequency })
+              }
+            />
+          )}
+        </main>
+      </div>
+      
+      {/* Global Action Buttons (Floating) */}
+      <div className="floating-actions">
+        <ExportDossierButton 
+          onExport={handleExportDossier}
+          isProcessing={false}
+        />
+        
+        <button 
+          className="fab-question"
+          onClick={() => handleClientAction('QUICK_QUESTION', {})}
+          title="Vraag stellen"
+        >
+          ❓
+        </button>
+        
+        <button 
+          className="fab-print"
+          onClick={() => window.print()}
+          title="Huidige pagina printen"
+        >
+          🖨️
+        </button>
+      </div>
+      
+      {/* Footer with legal info */}
+      <footer className="portal-footer">
+        <div className="footer-content">
+          <span>Projectportaal v1.0 • {projectData.projectCode}</span>
+          <span>Laatste synchronisatie: {new Date(lastUpdate).toLocaleTimeString()}</span>
+          <span className="legal-disclaimer">
+            Alle acties worden juridisch vastgelegd • 
+            <button 
+              className="btn-legal"
+              onClick={() => handleClientAction('VIEW_LEGAL_DISCLAIMER', {})}
+            >
+              Privacy & Voorwaarden
+            </button>
+          </span>
+        </div>
+      </footer>
+    </div>
   );
 };
 
-export default ProjectPortaalPage;
+// ==================== UTILITY FUNCTIONS ====================
+
+/**
+ * Get client IP address (simplified)
+ */
+const getClientIP = async () => {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+    return data.ip;
+  } catch {
+    return 'unknown';
+  }
+};
+
+/**
+ * Calculate time spent in section
+ */
+const calculateSectionDuration = (sectionId) => {
+  const startTime = sessionStorage.getItem(`section_start_${sectionId}`);
+  if (startTime) {
+    return Date.now() - parseInt(startTime);
+  }
+  return 0;
+};
+
+/**
+ * Get success message for action type
+ */
+const getActionSuccessMessage = (actionType) => {
+  const messages = {
+    'APPROVE_QUOTE': 'Offerte succesvol goedgekeurd',
+    'ASK_QUESTION': 'Vraag succesvol verstuurd',
+    'CONFIRM_CONTRACT': 'Contract bevestigd',
+    'REQUEST_EXTRA_WORK': 'Meerwerkaanvraag ingediend',
+    'SEND_MESSAGE': 'Bericht verzonden',
+    'EXPORT_PROJECT_DOSSIER': 'Export gestart'
+  };
+  return messages[actionType] || 'Actie voltooid';
+};
+
+// ==================== PROP TYPES (Optional but recommended) ====================
+
+ProjectPortaal.propTypes = {
+  // Would include prop type definitions in production
+};
+
+// ==================== EXPORT ====================
+
+export default ProjectPortaal;
