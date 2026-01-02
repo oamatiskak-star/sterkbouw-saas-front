@@ -119,6 +119,7 @@ export default function CalculatieIndexPage() {
   ]
 
   return (
+    <>
       <div className="container-fluid px-3 px-lg-4 py-4">
         {/* Header met uitleg */}
         <div className="row mb-4">
@@ -540,7 +541,7 @@ export default function CalculatieIndexPage() {
           padding: 0.75rem 1rem;
         }
       `}</style>
-    </div>
+    </>
   )
 }
 
