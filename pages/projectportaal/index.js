@@ -13,110 +13,65 @@ import {
   Spin,
   Tag,
   Badge,
-  Menu,
-  Avatar,
-  Progress,
-  Tabs,
   Breadcrumb,
   Divider,
   Statistic,
-  Tooltip,
-  Modal,
-  Form,
-  Input,
-  Upload,
-  Select,
-  DatePicker,
-  TimePicker,
-  Radio,
-  Checkbox,
-  notification,
+  Progress,
+  Tabs,
+  message,
   Result
 } from 'antd';
 import {
-  DownloadOutlined,
-  MessageOutlined,
-  PrinterOutlined,
-  QuestionCircleOutlined,
-  ExportOutlined,
-  CheckCircleOutlined,
-  WarningOutlined,
-  BellOutlined,
-  FileTextOutlined,
   HomeOutlined,
-  LogoutOutlined,
   ProjectOutlined,
   EnvironmentOutlined,
   CalendarOutlined,
-  ClockCircleOutlined,
+  ExportOutlined,
+  MessageOutlined,
+  FileTextOutlined,
+  CheckCircleOutlined,
+  WarningOutlined,
+  PrinterOutlined,
+  QuestionCircleOutlined,
   CloudUploadOutlined,
-  ReloadOutlined,
-  InfoCircleOutlined,
-  UploadOutlined
+  ReloadOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
 // API Services
-import { 
-  fetchProjectData, 
-  postClientAction,
-  subscribeToProjectUpdates,
-  unsubscribeFromProjectUpdates
-} from '../../services/api';
-
-// Contexts
-import { useAuth } from '../../contexts/AuthContext';
-import { useNotifications } from '../../hooks/useNotifications';
+import { fetchProjectData, postClientAction } from '../../services/api';
 
 // Components
 import AdminLayout from '../../components/Layout/AdminLayout';
-import {
-  ProjectOverview, 
-  ContractSection, 
-  DrawingsSection, 
-  DeliverySection,
-  ExtraWorkSection,
-  CommunicationSection,
-  ReportingSection
-} from './components';
 
 // Utils
 import { auditLog } from '../../utils/auditLogger';
 
-// Styles
-import './ProjectPortaal.css';
+// Importeer sectie componenten
+const ProjectOverview = React.lazy(() => import('./components/ProjectOverview'));
+const ContractSection = React.lazy(() => import('./components/ContractSection'));
+const DrawingsSection = React.lazy(() => import('./components/DrawingsSection'));
+const DeliverySection = React.lazy(() => import('./components/DeliverySection'));
+const ExtraWorkSection = React.lazy(() => import('./components/ExtraWorkSection'));
+const CommunicationSection = React.lazy(() => import('./components/CommunicationSection'));
+const ReportingSection = React.lazy(() => import('./components/ReportingSection'));
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
-const { Option } = Select;
-const { TextArea } = Input;
 
 const ProjectPortaal = () => {
   // ==================== HOOKS ====================
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const { clientToken, validateAccess, user } = useAuth();
-  const { showNotification } = useNotifications();
-  const [api, contextHolder] = notification.useNotification();
 
   // ==================== STATE ====================
   const [projectData, setProjectData] = useState(null);
   const [activeSection, setActiveSection] = useState('overview');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
-  
-  // Modal states
-  const [uploadModalVisible, setUploadModalVisible] = useState(false);
-  const [meetingModalVisible, setMeetingModalVisible] = useState(false);
-  const [exportModalVisible, setExportModalVisible] = useState(false);
-  
-  // Form refs
-  const [uploadForm] = Form.useForm();
-  const [meetingForm] = Form.useForm();
-  const [exportForm] = Form.useForm();
 
   // ==================== SIDEBAR CONFIG ====================
   const sidebarMenuItems = [
@@ -188,7 +143,6 @@ const ProjectPortaal = () => {
   // 1. Load project data
   useEffect(() => {
     let isMounted = true;
-    const controller = new AbortController();
 
     const loadProjectData = async () => {
       if (!isMounted) return;
@@ -196,26 +150,10 @@ const ProjectPortaal = () => {
       setIsLoading(true);
       
       try {
-        // Validate access
-        const hasAccess = await validateAccess(projectId);
-        if (!hasAccess) {
-          throw new Error('Geen toegang tot dit project');
-        }
-
         // Fetch project data
         const data = await fetchProjectData(projectId, {
-          signal: controller.signal,
-          include: [
-            'overview',
-            'contracts',
-            'drawings',
-            'delivery',
-            'extraWork',
-            'communication',
-            'reports'
-          ],
-          clientView: true,
-          token: clientToken
+          include: ['overview', 'contracts', 'drawings', 'delivery', 'extraWork', 'communication', 'reports'],
+          clientView: true
         });
 
         if (isMounted) {
@@ -231,8 +169,6 @@ const ProjectPortaal = () => {
         }
       } catch (err) {
         if (isMounted) {
-          if (err.name === 'AbortError') return;
-          
           console.error('Project load error:', err);
           
           if (err.response?.status === 403) {
@@ -254,55 +190,19 @@ const ProjectPortaal = () => {
 
     return () => {
       isMounted = false;
-      controller.abort();
     };
-  }, [projectId, clientToken, validateAccess, activeSection]);
+  }, [projectId, activeSection]);
 
-  // 2. Real-time updates
-  useEffect(() => {
-    if (!projectData) return;
-    
-    const handleUpdate = (update) => {
-      setProjectData(prev => ({
-        ...prev,
-        ...update.payload,
-        lastUpdated: update.timestamp
-      }));
-      setLastUpdate(update.timestamp);
-      
-      // Show notification
-      if (update.type === 'EXTRA_WORK_QUOTE_READY') {
-        api.info({
-          message: 'Nieuwe meerwerkofferte',
-          description: 'Er is een nieuwe offerte gereed voor uw goedkeuring',
-          onClick: () => setActiveSection('extraWork')
-        });
-      }
-    };
-    
-    const subscriptionId = subscribeToProjectUpdates(projectId, handleUpdate);
-    
-    return () => {
-      unsubscribeFromProjectUpdates(subscriptionId);
-    };
-  }, [projectId, projectData, api]);
-
-  // 3. Online/offline status
+  // 2. Online/offline status
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      api.success({
-        message: 'Verbonden',
-        description: 'Projectportaal is gesynchroniseerd'
-      });
+      message.success('Verbonden - Projectportaal is gesynchroniseerd');
     };
     
     const handleOffline = () => {
       setIsOnline(false);
-      api.warning({
-        message: 'Offline modus',
-        description: 'Sommige functies zijn beperkt'
-      });
+      message.warning('Offline modus - Sommige functies zijn beperkt');
     };
     
     window.addEventListener('online', handleOnline);
@@ -312,7 +212,7 @@ const ProjectPortaal = () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [api]);
+  }, []);
 
   // ==================== FUNCTIES ====================
 
@@ -321,19 +221,11 @@ const ProjectPortaal = () => {
    */
   const handleClientAction = useCallback(async (actionType, payload) => {
     try {
-      // Laad indicator
-      const loadingKey = `action_${Date.now()}`;
-      api.open({
-        key: loadingKey,
-        message: 'Actie verwerken...',
-        duration: 0
-      });
+      message.loading({ content: 'Actie verwerken...', key: 'action', duration: 0 });
 
       // API call
       const result = await postClientAction(projectId, actionType, {
         ...payload,
-        clientId: projectData?.clientId,
-        userId: user?.id,
         timestamp: new Date().toISOString()
       });
 
@@ -353,52 +245,37 @@ const ProjectPortaal = () => {
       });
 
       // Success melding
-      api.destroy(loadingKey);
-      api.success({
-        message: 'Actie voltooid',
-        description: getActionSuccessMessage(actionType)
-      });
+      message.success({ content: getActionSuccessMessage(actionType), key: 'action' });
 
       return result;
 
     } catch (err) {
       console.error('Actie mislukt:', err);
-      
-      api.error({
-        message: 'Actie mislukt',
-        description: err.message || 'Er ging iets mis.'
-      });
-
+      message.error({ content: 'Actie mislukt', key: 'action' });
       throw err;
     }
-  }, [projectId, projectData, user, api]);
+  }, [projectId]);
 
   /**
    * Export projectdossier
    */
   const handleExportDossier = useCallback(async () => {
     try {
-      const exportData = {
-        projectId,
-        include: [
-          'contracts',
-          'drawings',
-          'delivery',
-          'extraWork',
-          'communication',
-          'reports'
-        ],
-        format: 'zip'
-      };
+      message.loading({ content: 'Export voorbereiden...', key: 'export' });
       
-      const result = await handleClientAction('EXPORT_DOSSIER', exportData);
+      const result = await handleClientAction('EXPORT_DOSSIER', {
+        projectId,
+        format: 'zip'
+      });
       
       if (result?.downloadUrl) {
         window.open(result.downloadUrl, '_blank');
+        message.success({ content: 'Export voltooid', key: 'export' });
       }
       
     } catch (err) {
       console.error('Export mislukt:', err);
+      message.error({ content: 'Export mislukt', key: 'export' });
     }
   }, [projectId, handleClientAction]);
 
@@ -417,42 +294,19 @@ const ProjectPortaal = () => {
     setIsSyncing(true);
     try {
       const data = await fetchProjectData(projectId, {
-        clientView: true,
-        token: clientToken
+        clientView: true
       });
       
       setProjectData(data);
       setLastUpdate(new Date().toISOString());
       
-      api.success({
-        message: 'Gesynchroniseerd',
-        description: 'Projectgegevens zijn bijgewerkt'
-      });
+      message.success('Projectgegevens zijn bijgewerkt');
     } catch (err) {
       console.error('Sync mislukt:', err);
+      message.error('Synchronisatie mislukt');
     } finally {
       setIsSyncing(false);
     }
-  };
-
-  // ==================== MODAL FUNCTIES ====================
-
-  const showUploadModal = () => setUploadModalVisible(true);
-  const hideUploadModal = () => {
-    setUploadModalVisible(false);
-    uploadForm.resetFields();
-  };
-
-  const showMeetingModal = () => setMeetingModalVisible(true);
-  const hideMeetingModal = () => {
-    setMeetingModalVisible(false);
-    meetingForm.resetFields();
-  };
-
-  const showExportModal = () => setExportModalVisible(true);
-  const hideExportModal = () => {
-    setExportModalVisible(false);
-    exportForm.resetFields();
   };
 
   // ==================== RENDER LOGICA ====================
@@ -461,7 +315,6 @@ const ProjectPortaal = () => {
   if (isLoading) {
     return (
       <AdminLayout sidebarMenuItems={sidebarMenuItems}>
-        {contextHolder}
         <div style={{ 
           display: 'flex', 
           justifyContent: 'center', 
@@ -478,7 +331,6 @@ const ProjectPortaal = () => {
   if (error) {
     return (
       <AdminLayout sidebarMenuItems={sidebarMenuItems}>
-        {contextHolder}
         <Content style={{ padding: 24 }}>
           <Result
             status="error"
@@ -501,7 +353,6 @@ const ProjectPortaal = () => {
   if (!projectData) {
     return (
       <AdminLayout sidebarMenuItems={sidebarMenuItems}>
-        {contextHolder}
         <Content style={{ padding: 24 }}>
           <Card>
             <Title level={3}>Geen projectgegevens</Title>
@@ -520,20 +371,17 @@ const ProjectPortaal = () => {
       sidebarMenuItems={sidebarMenuItems}
       extraHeaderContent={
         <Space>
-          {!isOnline && (
-            <Tag color="orange">Offline</Tag>
-          )}
-          <Tooltip title="Synchroniseren">
-            <Button 
-              icon={<ReloadOutlined spin={isSyncing} />} 
-              onClick={syncProject}
-              size="small"
-            />
-          </Tooltip>
+          {!isOnline && <Tag color="orange">Offline</Tag>}
+          <Button 
+            icon={<ReloadOutlined spin={isSyncing} />} 
+            onClick={syncProject}
+            size="small"
+            title="Synchroniseren"
+          />
           <Button 
             type="primary" 
             icon={<ExportOutlined />}
-            onClick={showExportModal}
+            onClick={handleExportDossier}
             size="small"
           >
             Exporteren
@@ -541,8 +389,6 @@ const ProjectPortaal = () => {
         </Space>
       }
     >
-      {contextHolder}
-      
       {/* Offline waarschuwing */}
       {!isOnline && (
         <Alert
@@ -584,12 +430,16 @@ const ProjectPortaal = () => {
                 <Text type="secondary">
                   <ProjectOutlined /> {projectData.projectCode}
                 </Text>
-                <Text type="secondary">
-                  <EnvironmentOutlined /> {projectData.location}
-                </Text>
-                <Text type="secondary">
-                  <CalendarOutlined /> {dayjs(projectData.startDate).format('DD-MM-YYYY')}
-                </Text>
+                {projectData.location && (
+                  <Text type="secondary">
+                    <EnvironmentOutlined /> {projectData.location}
+                  </Text>
+                )}
+                {projectData.startDate && (
+                  <Text type="secondary">
+                    <CalendarOutlined /> {dayjs(projectData.startDate).format('DD-MM-YYYY')}
+                  </Text>
+                )}
               </Space>
             </Space>
           </Col>
@@ -608,356 +458,102 @@ const ProjectPortaal = () => {
           type="card"
           tabBarExtraContent={
             <Space style={{ marginRight: 8 }}>
-              <Tooltip title="Vraag stellen">
-                <Button icon={<QuestionCircleOutlined />} onClick={showMeetingModal} />
-              </Tooltip>
-              <Tooltip title="Document uploaden">
-                <Button icon={<CloudUploadOutlined />} onClick={showUploadModal} />
-              </Tooltip>
-              <Tooltip title="Printen">
-                <Button icon={<PrinterOutlined />} onClick={() => window.print()} />
-              </Tooltip>
+              <Button 
+                icon={<QuestionCircleOutlined />} 
+                onClick={() => handleClientAction('ASK_QUESTION', { subject: 'Vraag' })}
+                title="Vraag stellen"
+              />
+              <Button 
+                icon={<PrinterOutlined />} 
+                onClick={() => window.print()}
+                title="Printen"
+              />
             </Space>
           }
         >
-          <Tabs.TabPane 
-            key="overview" 
-            tab={
-              <span>
-                <HomeOutlined /> Overzicht
-              </span>
-            } 
-          />
-          <Tabs.TabPane 
-            key="contract" 
-            tab={
-              <span>
-                <FileTextOutlined /> Contract
-              </span>
-            } 
-          />
-          <Tabs.TabPane 
-            key="drawings" 
-            tab={
-              <span>
-                <FileTextOutlined /> Tekeningen
-              </span>
-            } 
-          />
-          <Tabs.TabPane 
-            key="delivery" 
-            tab={
-              <span>
-                <CheckCircleOutlined /> Oplevering
-              </span>
-            } 
-          />
-          <Tabs.TabPane 
-            key="extraWork" 
-            tab={
-              <span>
-                <WarningOutlined /> Meerwerk
-              </span>
-            } 
-          />
-          <Tabs.TabPane 
-            key="communication" 
-            tab={
-              <span>
-                <MessageOutlined /> Berichten
-                {projectData.communication?.unreadCount > 0 && (
-                  <Badge count={projectData.communication.unreadCount} style={{ marginLeft: 8 }} />
-                )}
-              </span>
-            } 
-          />
-          <Tabs.TabPane 
-            key="reports" 
-            tab={
-              <span>
-                <FileTextOutlined /> Rapportages
-              </span>
-            } 
-          />
+          <Tabs.TabPane key="overview" tab={<span><HomeOutlined /> Overzicht</span>} />
+          <Tabs.TabPane key="contract" tab={<span><FileTextOutlined /> Contract</span>} />
+          <Tabs.TabPane key="drawings" tab={<span><FileTextOutlined /> Tekeningen</span>} />
+          <Tabs.TabPane key="delivery" tab={<span><CheckCircleOutlined /> Oplevering</span>} />
+          <Tabs.TabPane key="extraWork" tab={<span><WarningOutlined /> Meerwerk</span>} />
+          <Tabs.TabPane key="communication" tab={
+            <span>
+              <MessageOutlined /> Berichten
+              {projectData.communication?.unreadCount > 0 && (
+                <Badge count={projectData.communication.unreadCount} style={{ marginLeft: 8 }} />
+              )}
+            </span>
+          } />
+          <Tabs.TabPane key="reports" tab={<span><FileTextOutlined /> Rapportages</span>} />
         </Tabs>
       </Card>
       
       {/* Hoofd content */}
       <Content>
-        {activeSection === 'overview' && (
-          <ProjectOverview 
-            data={projectData.overview}
-            onAskQuestion={showMeetingModal}
-            onRequestMeeting={showMeetingModal}
-          />
-        )}
-        
-        {activeSection === 'contract' && (
-          <ContractSection 
-            documents={projectData.contracts}
-            onConfirmAgreement={(docId, version) => 
-              handleClientAction('CONFIRM_CONTRACT', { 
-                documentId: docId,
-                version: version
-              })
-            }
-          />
-        )}
-        
-        {activeSection === 'drawings' && (
-          <DrawingsSection 
-            drawings={projectData.drawings}
-            onRequestRevision={(drawingId, reason) => 
-              handleClientAction('REQUEST_REVISION', {
-                drawingId,
-                reason
-              })
-            }
-          />
-        )}
-        
-        {activeSection === 'delivery' && (
-          <DeliverySection 
-            deliveryData={projectData.delivery}
-            onConfirmDelivery={(pointId, notes) => 
-              handleClientAction('CONFIRM_DELIVERY', { 
-                deliveryPointId: pointId,
-                clientNotes: notes
-              })
-            }
-          />
-        )}
-        
-        {activeSection === 'extraWork' && (
-          <ExtraWorkSection 
-            requests={projectData.extraWork}
-            onApproveQuote={(quoteId, conditions) => 
-              handleClientAction('APPROVE_QUOTE', { 
-                quoteId,
-                conditions
-              })
-            }
-          />
-        )}
-        
-        {activeSection === 'communication' && (
-          <CommunicationSection 
-            logs={projectData.communication}
-            onNewMessage={(message) => 
-              handleClientAction('SEND_MESSAGE', { message })
-            }
-          />
-        )}
-        
-        {activeSection === 'reports' && (
-          <ReportingSection 
-            reports={projectData.reports}
-            onDownloadReport={(reportId) => 
-              handleClientAction('DOWNLOAD_REPORT', { reportId })
-            }
-          />
-        )}
+        <React.Suspense fallback={<Spin tip="Sectie laden..." />}>
+          {activeSection === 'overview' && (
+            <ProjectOverview 
+              data={projectData.overview}
+              onAskQuestion={() => handleClientAction('ASK_QUESTION', {})}
+              onRequestMeeting={() => handleClientAction('REQUEST_MEETING', {})}
+            />
+          )}
+          
+          {activeSection === 'contract' && (
+            <ContractSection 
+              documents={projectData.contracts}
+              onConfirmAgreement={(docId) => 
+                handleClientAction('CONFIRM_CONTRACT', { documentId: docId })
+              }
+            />
+          )}
+          
+          {activeSection === 'drawings' && (
+            <DrawingsSection 
+              drawings={projectData.drawings}
+              onRequestRevision={(drawingId) => 
+                handleClientAction('REQUEST_REVISION', { drawingId })
+              }
+            />
+          )}
+          
+          {activeSection === 'delivery' && (
+            <DeliverySection 
+              deliveryData={projectData.delivery}
+              onConfirmDelivery={(pointId) => 
+                handleClientAction('CONFIRM_DELIVERY', { deliveryPointId: pointId })
+              }
+            />
+          )}
+          
+          {activeSection === 'extraWork' && (
+            <ExtraWorkSection 
+              requests={projectData.extraWork}
+              onApproveQuote={(quoteId) => 
+                handleClientAction('APPROVE_QUOTE', { quoteId })
+              }
+            />
+          )}
+          
+          {activeSection === 'communication' && (
+            <CommunicationSection 
+              logs={projectData.communication}
+              onNewMessage={(message) => 
+                handleClientAction('SEND_MESSAGE', { message })
+              }
+            />
+          )}
+          
+          {activeSection === 'reports' && (
+            <ReportingSection 
+              reports={projectData.reports}
+              onDownloadReport={(reportId) => 
+                handleClientAction('DOWNLOAD_REPORT', { reportId })
+              }
+            />
+          )}
+        </React.Suspense>
       </Content>
-      
-      {/* Modals */}
-      
-      {/* Upload Document Modal */}
-      <Modal
-        title="Document uploaden"
-        open={uploadModalVisible}
-        onCancel={hideUploadModal}
-        footer={null}
-      >
-        <Form
-          form={uploadForm}
-          layout="vertical"
-          onFinish={async (values) => {
-            try {
-              await handleClientAction('UPLOAD_DOCUMENT', {
-                file: values.file,
-                category: values.category,
-                description: values.description
-              });
-              hideUploadModal();
-            } catch (err) {
-              console.error('Upload mislukt:', err);
-            }
-          }}
-        >
-          <Form.Item
-            name="file"
-            label="Bestand"
-            rules={[{ required: true, message: 'Selecteer een bestand' }]}
-          >
-            <Upload beforeUpload={() => false} maxCount={1}>
-              <Button icon={<UploadOutlined />}>Selecteer bestand</Button>
-            </Upload>
-          </Form.Item>
-          
-          <Form.Item
-            name="category"
-            label="Categorie"
-            rules={[{ required: true, message: 'Selecteer categorie' }]}
-          >
-            <Select placeholder="Selecteer categorie">
-              <Option value="contract">Contract</Option>
-              <Option value="drawing">Tekening</Option>
-              <Option value="photo">Foto</Option>
-              <Option value="other">Overig</Option>
-            </Select>
-          </Form.Item>
-          
-          <Form.Item
-            name="description"
-            label="Omschrijving"
-          >
-            <TextArea rows={3} placeholder="Beschrijf het document..." />
-          </Form.Item>
-          
-          <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit">
-                Uploaden
-              </Button>
-              <Button onClick={hideUploadModal}>
-                Annuleren
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Modal>
-      
-      {/* Meeting Request Modal */}
-      <Modal
-        title="Meeting aanvragen"
-        open={meetingModalVisible}
-        onCancel={hideMeetingModal}
-        footer={null}
-      >
-        <Form
-          form={meetingForm}
-          layout="vertical"
-          onFinish={async (values) => {
-            try {
-              await handleClientAction('REQUEST_MEETING', {
-                date: values.date.format('YYYY-MM-DD'),
-                time: values.time.format('HH:mm'),
-                subject: values.subject,
-                description: values.description
-              });
-              hideMeetingModal();
-            } catch (err) {
-              console.error('Meeting request mislukt:', err);
-            }
-          }}
-        >
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="date"
-                label="Datum"
-                rules={[{ required: true, message: 'Selecteer datum' }]}
-              >
-                <DatePicker style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="time"
-                label="Tijd"
-                rules={[{ required: true, message: 'Selecteer tijd' }]}
-              >
-                <TimePicker style={{ width: '100%' }} format="HH:mm" />
-              </Form.Item>
-            </Col>
-          </Row>
-          
-          <Form.Item
-            name="subject"
-            label="Onderwerp"
-            rules={[{ required: true, message: 'Voer onderwerp in' }]}
-          >
-            <Input placeholder="Onderwerp van de meeting" />
-          </Form.Item>
-          
-          <Form.Item
-            name="description"
-            label="Beschrijving"
-          >
-            <TextArea rows={4} placeholder="Beschrijf de agendapunten..." />
-          </Form.Item>
-          
-          <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit">
-                Aanvragen
-              </Button>
-              <Button onClick={hideMeetingModal}>
-                Annuleren
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Modal>
-      
-      {/* Export Modal */}
-      <Modal
-        title="Project exporteren"
-        open={exportModalVisible}
-        onCancel={hideExportModal}
-        footer={null}
-      >
-        <Form
-          form={exportForm}
-          layout="vertical"
-          onFinish={(values) => {
-            handleExportDossier();
-            hideExportModal();
-          }}
-        >
-          <Form.Item
-            name="format"
-            label="Exportformaat"
-            initialValue="zip"
-          >
-            <Radio.Group>
-              <Radio value="zip">ZIP (aanbevolen)</Radio>
-              <Radio value="pdf">PDF</Radio>
-              <Radio value="excel">Excel</Radio>
-            </Radio.Group>
-          </Form.Item>
-          
-          <Form.Item
-            name="include"
-            label="Inhoud"
-            initialValue="all"
-          >
-            <Radio.Group>
-              <Radio value="all">Volledig dossier</Radio>
-              <Radio value="current">Huidige sectie</Radio>
-              <Radio value="custom">Selectie</Radio>
-            </Radio.Group>
-          </Form.Item>
-          
-          <Form.Item>
-            <Checkbox>Documenten</Checkbox>
-            <Checkbox>Tekeningen</Checkbox>
-            <Checkbox>Berichten</Checkbox>
-            <Checkbox>Rapportages</Checkbox>
-          </Form.Item>
-          
-          <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit" icon={<ExportOutlined />}>
-                Exporteren
-              </Button>
-              <Button onClick={hideExportModal}>
-                Annuleren
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Modal>
     </AdminLayout>
   );
 };
@@ -965,14 +561,14 @@ const ProjectPortaal = () => {
 // ==================== HELPER FUNCTIES ====================
 
 const getStatusColor = (status) => {
-  const colors = {
-    'actief': 'green',
-    'lopend': 'blue',
-    'concept': 'orange',
-    'afgerond': 'gray',
-    'geannuleerd': 'red'
-  };
-  return colors[status?.toLowerCase()] || 'default';
+  if (!status) return 'default';
+  
+  const statusLower = status.toLowerCase();
+  if (statusLower.includes('actief') || statusLower.includes('lopend')) return 'green';
+  if (statusLower.includes('concept')) return 'orange';
+  if (statusLower.includes('afgerond')) return 'blue';
+  if (statusLower.includes('geannuleerd')) return 'red';
+  return 'default';
 };
 
 const getActionSuccessMessage = (actionType) => {
@@ -982,7 +578,7 @@ const getActionSuccessMessage = (actionType) => {
     'CONFIRM_DELIVERY': 'Oplevering bevestigd',
     'APPROVE_QUOTE': 'Offerte goedgekeurd',
     'SEND_MESSAGE': 'Bericht verzonden',
-    'UPLOAD_DOCUMENT': 'Document geüpload',
+    'ASK_QUESTION': 'Vraag verzonden',
     'REQUEST_MEETING': 'Meeting aangevraagd',
     'DOWNLOAD_REPORT': 'Download gestart',
     'EXPORT_DOSSIER': 'Export gestart'
