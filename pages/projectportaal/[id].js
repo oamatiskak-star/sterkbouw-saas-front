@@ -1,7 +1,7 @@
 // pages/projectportaal/[id].js
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import AdminLayout from '../../components/Layout/AdminLayout';
+import { useRouter } from 'next/router';
+import AdminLayout from '../../components/AdminLayout';
 import { 
   Card, 
   Button, 
@@ -17,7 +17,8 @@ import {
   Progress,
   Divider,
   Statistic,
-  message
+  message,
+  Breadcrumb
 } from 'antd';
 import { 
   ArrowLeftOutlined, 
@@ -34,7 +35,8 @@ import {
   DownloadOutlined,
   UploadOutlined,
   EyeOutlined,
-  EditOutlined
+  EditOutlined,
+  ProjectOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
@@ -133,6 +135,23 @@ export default function ProjectPortaalPage() {
     message.success('Tekening goedgekeurd');
   };
 
+  // Custom breadcrumb voor projectportaal
+  const getProjectBreadcrumb = () => {
+    return [
+      {
+        title: <HomeOutlined />,
+        onClick: () => router.push('/dashboard')
+      },
+      {
+        title: 'Projecten',
+        onClick: () => router.push('/projecten')
+      },
+      {
+        title: projectData?.name || `Project ${id}`
+      }
+    ];
+  };
+
   if (loading) {
     return (
       <AdminLayout>
@@ -145,37 +164,10 @@ export default function ProjectPortaalPage() {
 
   return (
     <AdminLayout>
-      {/* Header met terugknop */}
-      <Card style={{ marginBottom: 16, borderRadius: 8 }}>
-        <Row gutter={16} align="middle" justify="space-between">
-          <Col>
-            <Space>
-              <Button 
-                icon={<ArrowLeftOutlined />} 
-                onClick={handleBackToDashboard}
-                type="text"
-                size="large"
-              >
-                Terug naar dashboard
-              </Button>
-              <Divider type="vertical" />
-              <Tag color={userRole === 'opdrachtgever' ? 'blue' : 'green'}>
-                {userRole === 'opdrachtgever' ? 'Opdrachtgever' : 'Ontwikkelaar'}
-              </Tag>
-            </Space>
-          </Col>
-          <Col>
-            <Space>
-              <Button icon={<DownloadOutlined />} onClick={handleDownloadReport}>
-                Exporteer
-              </Button>
-              <Button type="primary" icon={<UploadOutlined />} onClick={handleUploadDocument}>
-                Upload
-              </Button>
-            </Space>
-          </Col>
-        </Row>
-      </Card>
+      {/* Custom breadcrumb voor deze pagina */}
+      <div style={{ marginBottom: 16 }}>
+        <Breadcrumb items={getProjectBreadcrumb()} />
+      </div>
 
       {/* Project header */}
       <Card style={{ marginBottom: 24, borderRadius: 8 }}>
@@ -189,12 +181,11 @@ export default function ProjectPortaalPage() {
                 </Tag>
               </Title>
               <Text type="secondary" strong>
-                Projectcode: {projectData?.code} • {projectData?.location}
+                <ProjectOutlined /> Projectcode: {projectData?.code} • <EnvironmentOutlined /> {projectData?.location}
               </Text>
               <Space size="middle" split={<Divider type="vertical" />}>
                 <Text><CalendarOutlined /> Start: {dayjs(projectData?.startDate).format('DD-MM-YYYY')}</Text>
                 <Text><CalendarOutlined /> Eind: {dayjs(projectData?.endDate).format('DD-MM-YYYY')}</Text>
-                <Text><EnvironmentOutlined /> {projectData?.location}</Text>
                 <Text><TeamOutlined /> {userRole === 'opdrachtgever' ? projectData?.developer : projectData?.client}</Text>
               </Space>
             </Space>
@@ -467,61 +458,33 @@ export default function ProjectPortaalPage() {
               </Row>
             </div>
           </TabPane>
-          
-          {/* Instellingen tab (alleen voor ontwikkelaar) */}
-          {userRole === 'developer' && (
-            <TabPane 
-              tab={<span><SettingOutlined /> Beheer</span>} 
-              key="admin"
-            >
-              <div style={{ padding: 24 }}>
-                <Title level={3}>Project Beheer</Title>
-                <Alert 
-                  message="Beheerdersfuncties" 
-                  description="Alleen beschikbaar voor Sterkbouw ontwikkelaars."
-                  type="warning" 
-                  showIcon 
-                />
-                
-                <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-                  <Col span={12}>
-                    <Card title="Toegangsbeheer">
-                      <Button block style={{ marginBottom: 8 }}>
-                        <TeamOutlined /> Teamleden beheren
-                      </Button>
-                      <Button block>
-                        <EyeOutlined /> Toegangsrechten instellen
-                      </Button>
-                    </Card>
-                  </Col>
-                  
-                  <Col span={12}>
-                    <Card title="Projectinstellingen">
-                      <Button block style={{ marginBottom: 8 }}>
-                        <EditOutlined /> Projectgegevens bewerken
-                      </Button>
-                      <Button block type="primary">
-                        <WarningOutlined /> Noodcommunicatie
-                      </Button>
-                    </Card>
-                  </Col>
-                </Row>
-              </div>
-            </TabPane>
-          )}
         </Tabs>
       </Card>
 
-      {/* Footer */}
-      <div style={{ marginTop: 24, textAlign: 'center', padding: 16 }}>
-        <Text type="secondary">
-          Project Portaal v1.0 • {projectData?.code} • Laatste update: {dayjs().format('DD-MM-YYYY HH:mm')}
-        </Text>
-        <br />
-        <Text type="secondary">
-          {userRole === 'opdrachtgever' ? 'U bent ingelogd als opdrachtgever' : 'U bent ingelogd als ontwikkelaar'}
-        </Text>
-      </div>
+      {/* Snelle acties footer */}
+      <Card style={{ marginTop: 24 }}>
+        <Row gutter={16} align="middle">
+          <Col span={12}>
+            <Text type="secondary">
+              Project Portaal v1.0 • {projectData?.code} • Laatste update: {dayjs().format('DD-MM-YYYY HH:mm')}
+            </Text>
+            <br />
+            <Text type="secondary">
+              {userRole === 'opdrachtgever' ? 'U bent ingelogd als opdrachtgever' : 'U bent ingelogd als ontwikkelaar'}
+            </Text>
+          </Col>
+          <Col span={12} style={{ textAlign: 'right' }}>
+            <Space>
+              <Button icon={<DownloadOutlined />} onClick={handleDownloadReport}>
+                Exporteer rapport
+              </Button>
+              <Button type="primary" icon={<UploadOutlined />} onClick={handleUploadDocument}>
+                Upload document
+              </Button>
+            </Space>
+          </Col>
+        </Row>
+      </Card>
     </AdminLayout>
   );
 }
