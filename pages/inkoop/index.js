@@ -1,7 +1,7 @@
 // pages/inkoop/index.js
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/router"
-import Layout from "@/components/Layout"
+import AdminLayout from "@/components/AdminLayout"
 import supabase from "@/lib/supabase"
 
 // REMOVE: Verwijder de probleem imports
@@ -206,7 +206,7 @@ export default function InkoopPage() {
   }, [])
 
   return (
-    <Layout hidePlatformSidebar={true}>
+    <AdminLayout>  {/* ← VERANDER HIER */}
       <div className="container-fluid px-3 px-lg-4 py-4">
         
         {/* Header */}
