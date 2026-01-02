@@ -624,6 +624,6 @@ export default function InkoopPage() {
           font-size: 1.2rem;
         }
       `}</style>
-    </Layout>
+    </AdminLayout>
   )
 }
