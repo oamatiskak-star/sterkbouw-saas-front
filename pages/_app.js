@@ -39,16 +39,29 @@ export default function App({ Component, pageProps }) {
   const router = useRouter()
   const path = router.asPath || '/'
 
+  // ===============================
+  // AUTH BYPASS (TIJDELIJK)
+  // ===============================
+  const AUTH_DISABLED = process.env.NEXT_PUBLIC_AUTH_DISABLED === 'true'
+
   // Alleen echte public routes zonder sidebar
   const isPublicRoute = path.startsWith('/login')
 
+  // ===============================
+  // RENDER
+  // ===============================
   return (
     <ClientOnly>
       <AntdClientRoot>
-        {isPublicRoute ? (
+        {AUTH_DISABLED ? (
+          // ⬅️ AUTH VOLLEDIG GEPASSEERD, MAAR LAYOUT BLIJFT
+          <AdminLayout>
+            <Component {...pageProps} />
+          </AdminLayout>
+        ) : isPublicRoute ? (
           <Component {...pageProps} />
         ) : (
-          // ⬇️ ADMIN SIDEBAR WORDT OVERAL AFGEDWONGEN
+          // ⬇️ ADMIN SIDEBAR NORMAAL GEDWONGEN
           <AdminLayout>
             <Component {...pageProps} />
           </AdminLayout>
