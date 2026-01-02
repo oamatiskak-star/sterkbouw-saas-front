@@ -22,7 +22,7 @@ const MENU = [
   { label: 'Instellingen', path: '/instellingen' }
 ]
 
-export default function Layout({ children }) {
+export default function Layout({ children, hidePlatformSidebar = false }) { // Voeg prop toe
   const router = useRouter()
   const [user, setUser] = useState(null)
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -52,7 +52,8 @@ export default function Layout({ children }) {
   return (
     <div className="flex min-h-screen bg-gray-100">
 
-      {sidebarOpen && (
+      {/* Alleen sidebar tonen als hidePlatformSidebar false is */}
+      {!hidePlatformSidebar && sidebarOpen && (
         <aside className="w-64 bg-white border-r flex flex-col">
           <div className="px-4 py-4 border-b font-bold text-lg">
             SterkBouw Platform
@@ -94,13 +95,23 @@ export default function Layout({ children }) {
 
         <header className="h-14 bg-white border-b flex items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="text-gray-600 hover:text-black"
-            >
-              ☰
-            </button>
-            <span className="font-semibold">Dashboard</span>
+            {/* Alleen hamburger menu tonen als sidebar niet verborgen is */}
+            {!hidePlatformSidebar && (
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="text-gray-600 hover:text-black"
+              >
+                ☰
+              </button>
+            )}
+            <span className="font-semibold">
+              {/* Dynamische titel gebaseerd op huidige pagina */}
+              {router.pathname === '/calculatie' || router.pathname === '/calculaties' 
+                ? 'Calculatie' 
+                : router.pathname === '/inkoop'
+                ? 'Inkoop'
+                : 'Dashboard'}
+            </span>
           </div>
 
           <div className="flex items-center gap-4">
