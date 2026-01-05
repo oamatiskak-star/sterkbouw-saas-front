@@ -1,4 +1,4 @@
-// pages/calculaties/index.js - MET SUPABASE AUTH
+// SterkBouw-SaaS-Frontend/pages/calculaties/index.js - MET CORS FIXES
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
@@ -50,6 +50,100 @@ function SimpleProgress({ value = 0, className = '' }) {
     </div>
   )
 }
+
+// Helper function voor CORS-compliant API calls
+const createApiClient = (getToken) => {
+  return {
+    async request(endpoint, options = {}) {
+      const token = await getToken();
+      
+      // Bepaal of we proxy moeten gebruiken (client-side CORS issues)
+      const isBrowser = typeof window !== 'undefined';
+      const backendUrl = API_ENDPOINTS.BACKEND_API;
+      
+      let url;
+      let fetchOptions = {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+          ...options.headers,
+        },
+      };
+      
+      // Als we in de browser zijn en het is cross-origin, gebruik CORS mode
+      if (isBrowser) {
+        const backendOrigin = new URL(backendUrl).origin;
+        const frontendOrigin = window.location.origin;
+        
+        // Als origins verschillend zijn, gebruik CORS mode
+        if (backendOrigin !== frontendOrigin) {
+          fetchOptions.mode = 'cors';
+          fetchOptions.credentials = 'include';
+        }
+        
+        url = `${backendUrl}${endpoint}`;
+      } else {
+        // Server-side, directe URL
+        url = `${backendUrl}${endpoint}`;
+      }
+      
+      try {
+        const response = await fetch(url, fetchOptions);
+        
+        // Als CORS error, probeer proxy
+        if (response.status === 0 || response.type === 'opaque') {
+          console.warn('CORS error detected, trying proxy...');
+          
+          // Gebruik Next.js API route als proxy
+          const proxyUrl = `/api/proxy${endpoint}`;
+          const proxyResponse = await fetch(proxyUrl, {
+            method: options.method || 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token && { 'Authorization': `Bearer ${token}` }),
+            }
+          });
+          
+          return proxyResponse;
+        }
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        
+        return response;
+      } catch (error) {
+        console.error('API request error:', error);
+        
+        // Als fetch mislukt, probeer proxy
+        if (isBrowser && error.message.includes('Failed to fetch')) {
+          console.log('Trying proxy as fallback...');
+          const proxyUrl = `/api/proxy${endpoint}`;
+          return fetch(proxyUrl, {
+            method: options.method || 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token && { 'Authorization': `Bearer ${token}` }),
+            }
+          });
+        }
+        
+        throw error;
+      }
+    },
+    
+    async get(endpoint, options = {}) {
+      return this.request(endpoint, { ...options, method: 'GET' });
+    },
+    
+    async delete(endpoint, options = {}) {
+      return this.request(endpoint, { ...options, method: 'DELETE' });
+    }
+  };
+};
 
 export default function CalculatiesPage() {
   const router = useRouter()
@@ -107,7 +201,7 @@ export default function CalculatiesPage() {
   }, [calculaties, searchTerm, statusFilter, sortBy, sortOrder])
 
   // ======================
-  // FUNCTIES - GEWIJZIGD VOOR SUPABASE
+  // FUNCTIES - MET CORS FIXES
   // ======================
 
   const fetchCalculaties = async () => {
@@ -117,7 +211,6 @@ export default function CalculatiesPage() {
     setError(null)
     
     try {
-      // GEBRUIK DE NIEUWE getIdToken FUNCTIE
       const token = await getIdToken()
       
       if (!token) {
@@ -125,20 +218,20 @@ export default function CalculatiesPage() {
         return
       }
       
-      // GEBRUIK userProfile.id VOOR USER ID
       const userId = userProfile?.id || user?.id
       if (!userId) {
         setError("Gebruiker niet gevonden")
         return
       }
       
-      const response = await fetch(`${API_ENDPOINTS.BACKEND_API}/api/projects?user_id=${userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      console.log('Fetching calculaties voor user:', userId);
+      console.log('Backend URL:', API_ENDPOINTS.BACKEND_API);
+      
+      // Gebruik de API client helper
+      const api = createApiClient(() => Promise.resolve(token));
+      const endpoint = `/api/projects?user_id=${userId}`;
+      
+      const response = await api.get(endpoint);
       
       if (!response.ok) {
         // Check voor auth errors
@@ -148,22 +241,39 @@ export default function CalculatiesPage() {
           return
         }
         
-        const errorText = await response.text()
-        throw new Error(`Fout bij het ophalen: ${response.status} - ${errorText}`)
+        const errorText = await response.text();
+        throw new Error(`Fout bij het ophalen: ${response.status} - ${errorText}`);
       }
       
-      const data = await response.json()
-      const calculatiesArray = Array.isArray(data) ? data : []
-      setCalculaties(calculatiesArray)
-      updateStats(calculatiesArray)
+      const data = await response.json();
+      const calculatiesArray = Array.isArray(data) ? data : [];
+      setCalculaties(calculatiesArray);
+      updateStats(calculatiesArray);
       
     } catch (err) {
-      console.error('Fetch error:', err)
-      setError(err instanceof Error ? err.message : 'Er is een fout opgetreden')
+      console.error('Fetch error:', err);
+      
+      // Toon CORS-specifieke foutmelding
+      if (err.message.includes('Failed to fetch') || err.message.includes('CORS') || err.message.includes('NetworkError')) {
+        setError(`
+          CORS Fout: Kan geen verbinding maken met de backend server.
+          
+          Mogelijke oorzaken:
+          1. Backend staat CORS niet toe voor dit domein
+          2. Backend server is offline
+          3. Firewall blokkeert de verbinding
+          
+          Foutdetails: ${err.message}
+          
+          Controleer de CORS configuratie in de SterkBouw-SaaS-Backend repository.
+        `);
+      } else {
+        setError(err instanceof Error ? err.message : 'Er is een fout opgetreden');
+      }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const filterAndSortCalculaties = () => {
     if (!calculaties || !Array.isArray(calculaties)) {
@@ -249,7 +359,6 @@ export default function CalculatiesPage() {
     setError(null)
     
     try {
-      // GEBRUIK DE NIEUWE getIdToken FUNCTIE
       const token = await getIdToken()
       
       if (!token) {
@@ -257,20 +366,20 @@ export default function CalculatiesPage() {
         return
       }
       
-      const response = await fetch(`${API_ENDPOINTS.BACKEND_API}/api/projects/${calculatie.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      // Gebruik de API client helper
+      const api = createApiClient(() => Promise.resolve(token));
+      const endpoint = `/api/projects/${calculatie.id}`;
+      
+      const response = await api.delete(endpoint);
       
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
           setError("U heeft geen toestemming om deze calculatie te verwijderen")
           return
         }
-        throw new Error('Verwijderen mislukt')
+        
+        const errorText = await response.text();
+        throw new Error(`Verwijderen mislukt: ${response.status} - ${errorText}`);
       }
       
       const updatedCalculaties = calculaties.filter(c => c.id !== calculatie.id)
@@ -281,9 +390,10 @@ export default function CalculatiesPage() {
       setTimeout(() => setSuccess(null), 3000)
       
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Verwijderen mislukt')
+      console.error('Delete error:', err);
+      setError(err instanceof Error ? err.message : 'Verwijderen mislukt');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -390,7 +500,26 @@ export default function CalculatiesPage() {
             <AlertTriangle className="h-4 w-4" />
             <h3 className="font-medium">Fout</h3>
           </div>
-          <p className="text-red-700 mt-1">{error}</p>
+          <p className="text-red-700 mt-1 whitespace-pre-line">{error}</p>
+          <div className="mt-3">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => window.location.reload()}
+              className="mr-2"
+            >
+              <RefreshCw className="h-4 w-4 mr-1" />
+              Probeer opnieuw
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => window.open('https://railway.app/project/sterkbouw-saas-backend', '_blank')}
+            >
+              <AlertTriangle className="h-4 w-4 mr-1" />
+              Backend controleren
+            </Button>
+          </div>
         </div>
       )}
       
