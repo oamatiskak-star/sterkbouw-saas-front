@@ -201,22 +201,24 @@ export default function CalculatiesPage() {
       const model = CALCULATION_MODELS[calculationModel];
       if (!model) throw new Error('Ongeldig calculatiemodel');
 
-      const { data: calculation, error: calcError } = await supabase
-        .from('calculations')
-        .insert({
-          project_id: activeProjectId,
-          scenario_name: settings.scenario_name,
-          calculation_type: settings.calculation_type,
-          fixed_price: settings.fixed_price || null,
-          status: 'queued',
-        })
+      const { data: run, error: runError } = await supabase
+        .from('calculation_runs')
+        .insert([
+          {
+            project_id: activeProjectId,
+            scenario_name: settings.scenario_name,
+            calculation_type: settings.calculation_type,
+            fixed_price: settings.fixed_price || null,
+            status: 'queued',
+          },
+        ])
         .select()
-        .single();
-      if (calcError) throw calcError;
+        .maybeSingle();
+      if (runError) throw runError;
 
       // Snapshot overheads from chosen model (trusted, immutable)
       const { error: overheadError } = await supabase.from('calculation_overheads').insert({
-        calculation_id: calculation.id,
+        calculation_id: run.id,
         ak_percentage: model.ak,
         abk_percentage: model.abk,
         risk_percentage: model.risk,
@@ -227,7 +229,7 @@ export default function CalculatiesPage() {
       const { error: updateError } = await supabase.from('projects').update({ status: 'queued' }).eq('id', activeProjectId);
       if (updateError) throw updateError;
 
-      setCalculationId(calculation.id);
+      setCalculationId(run.id);
       setCalculationStatus('queued');
       setUiStep('running');
       setAutoStarted(true);
