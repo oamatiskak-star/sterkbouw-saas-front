@@ -123,39 +123,47 @@ export default function CalculatiesPage() {
     }
   };
 
-  const handleUploadDocument = async (file, documentType) => {
-    if (!file || !documentType) return;
+  const handleUploadDocument = async (files, documentType) => {
+  if (!files || files.length === 0 || !documentType) return;
 
-    setUploadingDoc(true);
-    setError(null);
+  setUploadingDoc(true);
+  setError(null);
 
-    try {
-      const fileName = `${activeProjectId}/${Date.now()}_${file.name}`;
+  try {
+    const fileArray = Array.from(files);
 
+    for (const file of fileArray) {
+      const filePath = `${activeProjectId}/${Date.now()}_${file.name}`;
+
+      // 1️⃣ Upload naar JUISTE bucket
       const { error: uploadError } = await supabase.storage
-        .from('documents')
-        .upload(fileName, file);
+        .from('sterkcalc')
+        .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
+      // 2️⃣ Koppel bestand aan project
       const { error: insertError } = await supabase
         .from('document_sources')
-        .insert({
-          project_id: activeProjectId,
-          document_type: documentType,
-          file_name: fileName,
-          confidence_level: 'high',
-        });
+        .insert([
+          {
+            project_id: activeProjectId,
+            document_type: documentType,
+            file_name: filePath,
+            confidence_level: 'medium',
+          },
+        ]);
 
       if (insertError) throw insertError;
-
-      setDocuments([...documents, { file_name: file.name, document_type: documentType }]);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setUploadingDoc(false);
     }
-  };
+  } catch (err) {
+    console.error(err);
+    setError(err.message || 'Upload mislukt');
+  } finally {
+    setUploadingDoc(false);
+  }
+};
+
 
   const handleContinueToSettings = () => {
     const requiredTypes = ['drawing', 'permit'];
