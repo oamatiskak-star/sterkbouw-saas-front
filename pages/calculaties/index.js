@@ -156,14 +156,16 @@ export default function CalculatiesPage() {
 
       if (insertError) throw insertError;
     }
+
+    // 🔴 DIT ONTBRAK
+    await loadDocuments(activeProjectId);
+
   } catch (err) {
-    console.error(err);
     setError(err.message || 'Upload mislukt');
   } finally {
     setUploadingDoc(false);
   }
 };
-
 
   const handleContinueToSettings = () => {
     const requiredTypes = ['drawing', 'permit'];
