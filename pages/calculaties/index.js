@@ -414,33 +414,62 @@ export default function CalculatiesPage() {
           <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
             <h2 className="text-xl font-semibold text-slate-900 mb-6">Documenten uploaden</h2>
 
-            <div className="space-y-4 mb-6">
-              {['drawing', 'permit', 'photo', 'demolition', 'sanering'].map((type) => (
-                <div key={type} className="border border-slate-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-medium text-slate-700 capitalize">
-                      {type === 'drawing' && 'Tekening (verplicht)'}
-                      {type === 'permit' && 'Vergunning (verplicht)'}
-                      {type === 'photo' && 'Foto'}
-                      {type === 'demolition' && 'Slooprapport'}
-                      {type === 'sanering' && 'Saneringsrapport'}
-                    </label>
-                    {documents.some(d => d.document_type === type) && (
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                    )}
-                  </div>
-                  <input
-                    type="file"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleUploadDocument(file, type);
-                    }}
-                    disabled={uploadingDoc}
-                    className="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 disabled:opacity-50"
-                  />
-                </div>
-              ))}
-            </div>
+           <div className="space-y-4 mb-6">
+  {[
+    { type: 'drawing', label: 'Tekeningen (verplicht)', accept: '.pdf,.dwg,.jpg,.png', required: true },
+    { type: 'permit', label: 'Vergunningen (optioneel)', accept: '.pdf', required: false },
+    { type: 'photo', label: 'Foto’s (optioneel)', accept: '.jpg,.jpeg,.png', required: false },
+    { type: 'demolition', label: 'Slooprapporten (optioneel)', accept: '.pdf', required: false },
+    { type: 'sanering', label: 'Saneringsrapporten (optioneel)', accept: '.pdf', required: false },
+  ].map(({ type, label, accept, required }) => {
+    const uploadedCount = documents.filter(
+      (d) => d.document_type === type
+    ).length;
+
+    return (
+      <div
+        key={type}
+        className="border border-slate-200 rounded-lg p-4"
+      >
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-sm font-medium text-slate-700">
+            {label}
+          </label>
+
+          {uploadedCount > 0 && (
+            <span className="text-sm text-green-600 flex items-center gap-1">
+              <CheckCircle className="w-4 h-4" />
+              {uploadedCount} bestand{uploadedCount > 1 ? 'en' : ''}
+            </span>
+          )}
+        </div>
+
+        <input
+          type="file"
+          multiple
+          accept={accept}
+          onChange={(e) =>
+            handleUploadDocument(e.target.files, type)
+          }
+          disabled={uploadingDoc}
+          className="w-full text-sm text-slate-600
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-lg file:border-0
+            file:text-sm file:font-medium
+            file:bg-slate-100 file:text-slate-700
+            hover:file:bg-slate-200
+            disabled:opacity-50"
+        />
+
+        {required && uploadedCount === 0 && (
+          <p className="text-xs text-slate-500 mt-1">
+            Minimaal één bestand vereist
+          </p>
+        )}
+      </div>
+    );
+  })}
+</div>
 
             {uploadingDoc && (
               <div className="flex items-center gap-2 text-sm text-slate-600 mb-4">
