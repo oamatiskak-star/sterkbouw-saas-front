@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Upload, FileText, Calculator, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
@@ -10,7 +9,6 @@ export default function CalculatiesPage() {
   const [uiStep, setUiStep] = useState('start');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
   const [nawData, setNawData] = useState({
     project_name: '',
     client_name: '',
@@ -24,10 +22,8 @@ export default function CalculatiesPage() {
     billing_city: '',
     billing_country: 'Nederland',
   });
-
   const [documents, setDocuments] = useState([]);
   const [uploadingDoc, setUploadingDoc] = useState(false);
-
   const [settings, setSettings] = useState({
     scenario_name: '',
     calculation_type: 'indicatief',
@@ -37,9 +33,23 @@ export default function CalculatiesPage() {
     risk_percentage: 3,
     profit_percentage: 7,
   });
-
   const [calculationStatus, setCalculationStatus] = useState(null);
   const [results, setResults] = useState(null);
+
+  const loadDocuments = async (projectId) => {
+    if (!projectId) return;
+    try {
+      const { data, error: docsError } = await supabase
+        .from('document_sources')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false });
+      if (docsError) throw docsError;
+      setDocuments(data || []);
+    } catch (err) {
+      setError(err.message || 'Kon documenten niet laden');
+    }
+  };
 
   useEffect(() => {
     if (calculationId) {
@@ -47,12 +57,7 @@ export default function CalculatiesPage() {
         .channel(`calculation_${calculationId}`)
         .on(
           'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'calculations',
-            filter: `id=eq.${calculationId}`,
-          },
+          { event: 'UPDATE', schema: 'public', table: 'calculations', filter: `id=eq.${calculationId}` },
           (payload) => {
             setCalculationStatus(payload.new.status);
             if (payload.new.status === 'completed') {
@@ -61,12 +66,17 @@ export default function CalculatiesPage() {
           }
         )
         .subscribe();
-
       return () => {
         supabase.removeChannel(channel);
       };
     }
   }, [calculationId]);
+
+  useEffect(() => {
+    if (activeProjectId) {
+      loadDocuments(activeProjectId);
+    }
+  }, [activeProjectId]);
 
   const loadResults = async () => {
     try {
@@ -84,12 +94,11 @@ export default function CalculatiesPage() {
           .select('*')
           .eq('calculation_version_id', versions.id)
           .order('fase', { ascending: true });
-
         setResults({ version: versions, rows: rows || [] });
         setUiStep('result');
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Fout bij laden resultaten');
     }
   };
 
@@ -101,51 +110,34 @@ export default function CalculatiesPage() {
   const handleSaveNAW = async () => {
     setLoading(true);
     setError(null);
-
     try {
       const { data, error: insertError } = await supabase
         .from('projects')
-        .insert({
-          ...nawData,
-          status: 'input',
-        })
+        .insert({ ...nawData, status: 'input' })
         .select()
         .single();
-
       if (insertError) throw insertError;
-
       setActiveProjectId(data.id);
+      await loadDocuments(data.id);
       setUiStep('documents');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Kon project niet opslaan');
     } finally {
       setLoading(false);
     }
   };
 
   const handleUploadDocument = async (files, documentType) => {
-  if (!files || files.length === 0 || !documentType) return;
-
-  setUploadingDoc(true);
-  setError(null);
-
-  try {
-    const fileArray = Array.from(files);
-
-    for (const file of fileArray) {
-      const filePath = `${activeProjectId}/${Date.now()}_${file.name}`;
-
-      // 1️⃣ Upload naar JUISTE bucket
-      const { error: uploadError } = await supabase.storage
-        .from('sterkcalc')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      // 2️⃣ Koppel bestand aan project
-      const { error: insertError } = await supabase
-        .from('document_sources')
-        .insert([
+    if (!files || files.length === 0 || !documentType) return;
+    setUploadingDoc(true);
+    setError(null);
+    try {
+      const fileArray = Array.from(files);
+      for (const file of fileArray) {
+        const filePath = `${activeProjectId}/${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabase.storage.from('sterkcalc').upload(filePath, file);
+        if (uploadError) throw uploadError;
+        const { error: insertError } = await supabase.from('document_sources').insert([
           {
             project_id: activeProjectId,
             document_type: documentType,
@@ -153,30 +145,24 @@ export default function CalculatiesPage() {
             confidence_level: 'medium',
           },
         ]);
-
-      if (insertError) throw insertError;
+        if (insertError) throw insertError;
+      }
+      await loadDocuments(activeProjectId);
+    } catch (err) {
+      setError(err.message || 'Upload mislukt');
+    } finally {
+      setUploadingDoc(false);
     }
-
-    // 🔴 DIT ONTBRAK
-    await loadDocuments(activeProjectId);
-
-  } catch (err) {
-    setError(err.message || 'Upload mislukt');
-  } finally {
-    setUploadingDoc(false);
-  }
-};
+  };
 
   const handleContinueToSettings = () => {
     const requiredTypes = ['drawing', 'permit'];
-    const uploadedTypes = documents.map(d => d.document_type);
-    const hasRequired = requiredTypes.every(type => uploadedTypes.includes(type));
-
+    const uploadedTypes = documents.map((d) => d.document_type);
+    const hasRequired = requiredTypes.every((type) => uploadedTypes.includes(type));
     if (!hasRequired) {
       setError('Upload minimaal een tekening en vergunning');
       return;
     }
-
     setUiStep('settings');
     setError(null);
   };
@@ -184,7 +170,6 @@ export default function CalculatiesPage() {
   const handleStartAICalculation = async () => {
     setLoading(true);
     setError(null);
-
     try {
       const { data: calculation, error: calcError } = await supabase
         .from('calculations')
@@ -197,33 +182,25 @@ export default function CalculatiesPage() {
         })
         .select()
         .single();
-
       if (calcError) throw calcError;
 
-      const { error: overheadError } = await supabase
-        .from('calculation_overheads')
-        .insert({
-          calculation_id: calculation.id,
-          ak_percentage: settings.ak_percentage,
-          abk_percentage: settings.abk_percentage,
-          risk_percentage: settings.risk_percentage,
-          profit_percentage: settings.profit_percentage,
-        });
-
+      const { error: overheadError } = await supabase.from('calculation_overheads').insert({
+        calculation_id: calculation.id,
+        ak_percentage: settings.ak_percentage,
+        abk_percentage: settings.abk_percentage,
+        risk_percentage: settings.risk_percentage,
+        profit_percentage: settings.profit_percentage,
+      });
       if (overheadError) throw overheadError;
 
-      const { error: updateError } = await supabase
-        .from('projects')
-        .update({ status: 'queued' })
-        .eq('id', activeProjectId);
-
+      const { error: updateError } = await supabase.from('projects').update({ status: 'queued' }).eq('id', activeProjectId);
       if (updateError) throw updateError;
 
       setCalculationId(calculation.id);
       setCalculationStatus('queued');
       setUiStep('running');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Fout bij starten calculatie');
     } finally {
       setLoading(false);
     }
@@ -232,11 +209,9 @@ export default function CalculatiesPage() {
   const groupRowsByFase = (rows) => {
     const phases = ['voorbereiding', 'sloop', 'ruwbouw', 'afbouw', 'installaties', 'oplevering'];
     const grouped = {};
-
-    phases.forEach(phase => {
-      grouped[phase] = rows.filter(r => r.fase === phase);
+    phases.forEach((phase) => {
+      grouped[phase] = rows.filter((r) => r.fase === phase);
     });
-
     return grouped;
   };
 
@@ -271,10 +246,7 @@ export default function CalculatiesPage() {
             <Calculator className="w-16 h-16 text-slate-700 mx-auto mb-4" />
             <h2 className="text-2xl font-semibold text-slate-900 mb-2">Welkom bij SterkCalc</h2>
             <p className="text-slate-600 mb-8">Start een nieuwe AI-calculatie voor uw bouwproject</p>
-            <button
-              onClick={handleStartCalculation}
-              className="bg-slate-900 text-white px-8 py-3 rounded-lg font-medium hover:bg-slate-800 transition-colors"
-            >
+            <button onClick={handleStartCalculation} className="bg-slate-900 text-white px-8 py-3 rounded-lg font-medium hover:bg-slate-800 transition-colors">
               Start nieuwe calculatie
             </button>
           </div>
@@ -283,17 +255,10 @@ export default function CalculatiesPage() {
         {uiStep === 'naw' && (
           <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
             <h2 className="text-xl font-semibold text-slate-900 mb-6">Projectgegevens & Facturatie</h2>
-
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Projectnaam</label>
-                <input
-                  type="text"
-                  value={nawData.project_name}
-                  onChange={(e) => setNawData({ ...nawData, project_name: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                  placeholder="Renovatie Hoofdstraat 123"
-                />
+                <input type="text" value={nawData.project_name} onChange={(e) => setNawData({ ...nawData, project_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" placeholder="Renovatie Hoofdstraat 123" />
               </div>
 
               <div className="border-t border-slate-200 pt-6">
@@ -301,48 +266,27 @@ export default function CalculatiesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Naam</label>
-                    <input
-                      type="text"
-                      value={nawData.client_name}
-                      onChange={(e) => setNawData({ ...nawData, client_name: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="text" value={nawData.client_name} onChange={(e) => setNawData({ ...nawData, client_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
+
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Adres</label>
-                    <input
-                      type="text"
-                      value={nawData.client_address}
-                      onChange={(e) => setNawData({ ...nawData, client_address: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="text" value={nawData.client_address} onChange={(e) => setNawData({ ...nawData, client_address: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Postcode</label>
-                    <input
-                      type="text"
-                      value={nawData.client_postcode}
-                      onChange={(e) => setNawData({ ...nawData, client_postcode: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="text" value={nawData.client_postcode} onChange={(e) => setNawData({ ...nawData, client_postcode: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Plaats</label>
-                    <input
-                      type="text"
-                      value={nawData.client_city}
-                      onChange={(e) => setNawData({ ...nawData, client_city: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="text" value={nawData.client_city} onChange={(e) => setNawData({ ...nawData, client_city: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
+
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Land</label>
-                    <input
-                      type="text"
-                      value={nawData.client_country}
-                      onChange={(e) => setNawData({ ...nawData, client_country: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="text" value={nawData.client_country} onChange={(e) => setNawData({ ...nawData, client_country: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
                 </div>
               </div>
@@ -352,61 +296,35 @@ export default function CalculatiesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Naam</label>
-                    <input
-                      type="text"
-                      value={nawData.billing_name}
-                      onChange={(e) => setNawData({ ...nawData, billing_name: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="text" value={nawData.billing_name} onChange={(e) => setNawData({ ...nawData, billing_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
+
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Adres</label>
-                    <input
-                      type="text"
-                      value={nawData.billing_address}
-                      onChange={(e) => setNawData({ ...nawData, billing_address: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="text" value={nawData.billing_address} onChange={(e) => setNawData({ ...nawData, billing_address: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Postcode</label>
-                    <input
-                      type="text"
-                      value={nawData.billing_postcode}
-                      onChange={(e) => setNawData({ ...nawData, billing_postcode: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="text" value={nawData.billing_postcode} onChange={(e) => setNawData({ ...nawData, billing_postcode: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Plaats</label>
-                    <input
-                      type="text"
-                      value={nawData.billing_city}
-                      onChange={(e) => setNawData({ ...nawData, billing_city: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="text" value={nawData.billing_city} onChange={(e) => setNawData({ ...nawData, billing_city: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
+
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Land</label>
-                    <input
-                      type="text"
-                      value={nawData.billing_country}
-                      onChange={(e) => setNawData({ ...nawData, billing_country: e.target.value })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="text" value={nawData.billing_country} onChange={(e) => setNawData({ ...nawData, billing_country: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="mt-8 flex justify-end">
-              <button
-                onClick={handleSaveNAW}
-                disabled={loading || !nawData.project_name || !nawData.client_name}
-                className="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Opslaan & verder
+              <button onClick={handleSaveNAW} disabled={loading || !nawData.project_name || !nawData.client_name} className="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />} Opslaan & verder
               </button>
             </div>
           </div>
@@ -415,77 +333,42 @@ export default function CalculatiesPage() {
         {uiStep === 'documents' && (
           <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
             <h2 className="text-xl font-semibold text-slate-900 mb-6">Documenten uploaden</h2>
+            <div className="space-y-4 mb-6">
+              {[
+                { type: 'drawing', label: 'Tekeningen (verplicht)', accept: '.pdf,.dwg,.jpg,.png', required: true },
+                { type: 'permit', label: 'Vergunningen (optioneel)', accept: '.pdf', required: false },
+                { type: 'photo', label: 'Foto’s (optioneel)', accept: '.jpg,.jpeg,.png', required: false },
+                { type: 'demolition', label: 'Slooprapporten (optioneel)', accept: '.pdf', required: false },
+                { type: 'sanering', label: 'Saneringsrapporten (optioneel)', accept: '.pdf', required: false },
+              ].map(({ type, label, accept, required }) => {
+                const uploadedCount = documents.filter((d) => d.document_type === type).length;
+                return (
+                  <div key={type} className="border border-slate-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-sm font-medium text-slate-700">{label}</label>
+                      {uploadedCount > 0 && (
+                        <span className="text-sm text-green-600 flex items-center gap-1">
+                          <CheckCircle className="w-4 h-4" /> {uploadedCount} bestand{uploadedCount > 1 ? 'en' : ''}
+                        </span>
+                      )}
+                    </div>
 
-           <div className="space-y-4 mb-6">
-  {[
-    { type: 'drawing', label: 'Tekeningen (verplicht)', accept: '.pdf,.dwg,.jpg,.png', required: true },
-    { type: 'permit', label: 'Vergunningen (optioneel)', accept: '.pdf', required: false },
-    { type: 'photo', label: 'Foto’s (optioneel)', accept: '.jpg,.jpeg,.png', required: false },
-    { type: 'demolition', label: 'Slooprapporten (optioneel)', accept: '.pdf', required: false },
-    { type: 'sanering', label: 'Saneringsrapporten (optioneel)', accept: '.pdf', required: false },
-  ].map(({ type, label, accept, required }) => {
-    const uploadedCount = documents.filter(
-      (d) => d.document_type === type
-    ).length;
+                    <input type="file" multiple accept={accept} onChange={(e) => handleUploadDocument(e.target.files, type)} disabled={uploadingDoc} className="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 disabled:opacity-50" />
 
-    return (
-      <div
-        key={type}
-        className="border border-slate-200 rounded-lg p-4"
-      >
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium text-slate-700">
-            {label}
-          </label>
-
-          {uploadedCount > 0 && (
-            <span className="text-sm text-green-600 flex items-center gap-1">
-              <CheckCircle className="w-4 h-4" />
-              {uploadedCount} bestand{uploadedCount > 1 ? 'en' : ''}
-            </span>
-          )}
-        </div>
-
-        <input
-          type="file"
-          multiple
-          accept={accept}
-          onChange={(e) =>
-            handleUploadDocument(e.target.files, type)
-          }
-          disabled={uploadingDoc}
-          className="w-full text-sm text-slate-600
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-lg file:border-0
-            file:text-sm file:font-medium
-            file:bg-slate-100 file:text-slate-700
-            hover:file:bg-slate-200
-            disabled:opacity-50"
-        />
-
-        {required && uploadedCount === 0 && (
-          <p className="text-xs text-slate-500 mt-1">
-            Minimaal één bestand vereist
-          </p>
-        )}
-      </div>
-    );
-  })}
-</div>
+                    {required && uploadedCount === 0 && <p className="text-xs text-slate-500 mt-1">Minimaal één bestand vereist</p>}
+                  </div>
+                );
+              })}
+            </div>
 
             {uploadingDoc && (
               <div className="flex items-center gap-2 text-sm text-slate-600 mb-4">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Document uploaden...
+                <Loader2 className="w-4 h-4 animate-spin" /> Document uploaden...
               </div>
             )}
 
             <div className="flex justify-end">
-              <button
-                onClick={handleContinueToSettings}
-                disabled={uploadingDoc}
-                className="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+              <button onClick={handleContinueToSettings} disabled={uploadingDoc} className="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 Verder naar instellingen
               </button>
             </div>
@@ -495,26 +378,15 @@ export default function CalculatiesPage() {
         {uiStep === 'settings' && (
           <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
             <h2 className="text-xl font-semibold text-slate-900 mb-6">Instellingen & Type Calculatie</h2>
-
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Scenario naam</label>
-                <input
-                  type="text"
-                  value={settings.scenario_name}
-                  onChange={(e) => setSettings({ ...settings, scenario_name: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                  placeholder="Basis scenario"
-                />
+                <input type="text" value={settings.scenario_name} onChange={(e) => setSettings({ ...settings, scenario_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" placeholder="Basis scenario" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Type calculatie</label>
-                <select
-                  value={settings.calculation_type}
-                  onChange={(e) => setSettings({ ...settings, calculation_type: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                >
+                <select value={settings.calculation_type} onChange={(e) => setSettings({ ...settings, calculation_type: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent">
                   <option value="indicatief">Indicatief</option>
                   <option value="begroting">Begroting</option>
                   <option value="contract">Contract</option>
@@ -523,13 +395,7 @@ export default function CalculatiesPage() {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Vaste prijs (optioneel)</label>
-                <input
-                  type="number"
-                  value={settings.fixed_price}
-                  onChange={(e) => setSettings({ ...settings, fixed_price: e.target.value })}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                  placeholder="€ 0.00"
-                />
+                <input type="number" value={settings.fixed_price} onChange={(e) => setSettings({ ...settings, fixed_price: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" placeholder="€ 0.00" />
               </div>
 
               <div className="border-t border-slate-200 pt-6">
@@ -537,52 +403,30 @@ export default function CalculatiesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">AK %</label>
-                    <input
-                      type="number"
-                      value={settings.ak_percentage}
-                      onChange={(e) => setSettings({ ...settings, ak_percentage: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="number" value={settings.ak_percentage} onChange={(e) => setSettings({ ...settings, ak_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">ABK %</label>
-                    <input
-                      type="number"
-                      value={settings.abk_percentage}
-                      onChange={(e) => setSettings({ ...settings, abk_percentage: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="number" value={settings.abk_percentage} onChange={(e) => setSettings({ ...settings, abk_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Risico %</label>
-                    <input
-                      type="number"
-                      value={settings.risk_percentage}
-                      onChange={(e) => setSettings({ ...settings, risk_percentage: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="number" value={settings.risk_percentage} onChange={(e) => setSettings({ ...settings, risk_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
+
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Winst %</label>
-                    <input
-                      type="number"
-                      value={settings.profit_percentage}
-                      onChange={(e) => setSettings({ ...settings, profit_percentage: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                    />
+                    <input type="number" value={settings.profit_percentage} onChange={(e) => setSettings({ ...settings, profit_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="mt-8 flex justify-end">
-              <button
-                onClick={handleStartAICalculation}
-                disabled={loading || !settings.scenario_name}
-                className="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Start AI calculatie
+              <button onClick={handleStartAICalculation} disabled={loading || !settings.scenario_name} className="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />} Start AI calculatie
               </button>
             </div>
           </div>
@@ -591,67 +435,38 @@ export default function CalculatiesPage() {
         {uiStep === 'running' && (
           <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
             <h2 className="text-xl font-semibold text-slate-900 mb-6">AI Calculatie loopt</h2>
-
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'queued' ? 'bg-slate-200' : 'bg-green-100'}`}>
-                  {calculationStatus === 'queued' ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
-                  ) : (
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                  )}
+                  {calculationStatus === 'queued' ? <Loader2 className="w-4 h-4 animate-spin text-slate-600" /> : <CheckCircle className="w-4 h-4 text-green-600" />}
                 </div>
                 <span className="text-slate-700">In wachtrij</span>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'running' ? 'bg-slate-200' : calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
-                  {calculationStatus === 'running' ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
-                  ) : calculationStatus === 'completed' ? (
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                  ) : (
-                    <div className="w-2 h-2 rounded-full bg-slate-400" />
-                  )}
+                  {calculationStatus === 'running' ? <Loader2 className="w-4 h-4 animate-spin text-slate-600" /> : calculationStatus === 'completed' ? <CheckCircle className="w-4 h-4 text-green-600" /> : <div className="w-2 h-2 rounded-full bg-slate-400" />}
                 </div>
                 <span className="text-slate-700">Documenten analyseren</span>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'running' ? 'bg-slate-200' : calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
-                  {calculationStatus === 'running' ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
-                  ) : calculationStatus === 'completed' ? (
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                  ) : (
-                    <div className="w-2 h-2 rounded-full bg-slate-400" />
-                  )}
+                  {calculationStatus === 'running' ? <Loader2 className="w-4 h-4 animate-spin text-slate-600" /> : calculationStatus === 'completed' ? <CheckCircle className="w-4 h-4 text-green-600" /> : <div className="w-2 h-2 rounded-full bg-slate-400" />}
                 </div>
                 <span className="text-slate-700">STABU mapping</span>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'running' ? 'bg-slate-200' : calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
-                  {calculationStatus === 'running' ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
-                  ) : calculationStatus === 'completed' ? (
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                  ) : (
-                    <div className="w-2 h-2 rounded-full bg-slate-400" />
-                  )}
+                  {calculationStatus === 'running' ? <Loader2 className="w-4 h-4 animate-spin text-slate-600" /> : calculationStatus === 'completed' ? <CheckCircle className="w-4 h-4 text-green-600" /> : <div className="w-2 h-2 rounded-full bg-slate-400" />}
                 </div>
                 <span className="text-slate-700">Berekenen</span>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'running' ? 'bg-slate-200' : calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
-                  {calculationStatus === 'running' ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
-                  ) : calculationStatus === 'completed' ? (
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                  ) : (
-                    <div className="w-2 h-2 rounded-full bg-slate-400" />
-                  )}
+                  {calculationStatus === 'running' ? <Loader2 className="w-4 h-4 animate-spin text-slate-600" /> : calculationStatus === 'completed' ? <CheckCircle className="w-4 h-4 text-green-600" /> : <div className="w-2 h-2 rounded-full bg-slate-400" />}
                 </div>
                 <span className="text-slate-700">Opslagen toepassen</span>
               </div>
@@ -659,11 +474,7 @@ export default function CalculatiesPage() {
               {settings.fixed_price && (
                 <div className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
-                    {calculationStatus === 'completed' ? (
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                    ) : (
-                      <div className="w-2 h-2 rounded-full bg-slate-400" />
-                    )}
+                    {calculationStatus === 'completed' ? <CheckCircle className="w-4 h-4 text-green-600" /> : <div className="w-2 h-2 rounded-full bg-slate-400" />}
                   </div>
                   <span className="text-slate-700">Vaste prijs correctie</span>
                 </div>
@@ -685,25 +496,19 @@ export default function CalculatiesPage() {
                 <h2 className="text-xl font-semibold text-slate-900">Resultaten</h2>
                 <div className="text-right">
                   <p className="text-sm text-slate-600">Totaalbedrag</p>
-                  <p className="text-2xl font-bold text-slate-900">
-                    € {results.version.total_amount?.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </p>
+                  <p className="text-2xl font-bold text-slate-900"> € {results.version.total_amount?.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
               </div>
 
               {Object.entries(groupRowsByFase(results.rows)).map(([fase, rows]) => {
                 if (rows.length === 0) return null;
-
                 const phaseTotal = calculatePhaseTotal(rows);
-
                 return (
                   <div key={fase} className="mb-8">
                     <div className="bg-slate-100 px-4 py-2 rounded-t-lg border-b-2 border-slate-300">
                       <div className="flex items-center justify-between">
                         <h3 className="text-sm font-semibold text-slate-900 uppercase">{fase}</h3>
-                        <span className="text-sm font-semibold text-slate-900">
-                          € {phaseTotal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
+                        <span className="text-sm font-semibold text-slate-900"> € {phaseTotal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </div>
                     </div>
 
@@ -728,24 +533,12 @@ export default function CalculatiesPage() {
                               <td className="px-4 py-2 text-sm text-slate-600">{row.stabu_code}</td>
                               <td className="px-4 py-2 text-sm text-slate-900">{row.omschrijving}</td>
                               <td className="px-4 py-2 text-sm text-slate-600 text-right">{row.hoeveelheid}</td>
-                              <td className="px-4 py-2 text-sm text-slate-600 text-right">
-                                € {parseFloat(row.inkoop).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </td>
-                              <td className="px-4 py-2 text-sm text-slate-600 text-right">
-                                € {parseFloat(row.ak).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </td>
-                              <td className="px-4 py-2 text-sm text-slate-600 text-right">
-                                € {parseFloat(row.abk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </td>
-                              <td className="px-4 py-2 text-sm text-slate-600 text-right">
-                                € {parseFloat(row.risk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </td>
-                              <td className="px-4 py-2 text-sm text-slate-600 text-right">
-                                € {parseFloat(row.profit).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </td>
-                              <td className="px-4 py-2 text-sm font-medium text-slate-900 text-right">
-                                € {parseFloat(row.regel_totaal).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </td>
+                              <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.inkoop).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                              <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.ak).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                              <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.abk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                              <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.risk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                              <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.profit).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                              <td className="px-4 py-2 text-sm font-medium text-slate-900 text-right"> € {parseFloat(row.regel_totaal).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -758,9 +551,7 @@ export default function CalculatiesPage() {
               <div className="border-t-2 border-slate-300 pt-4">
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold text-slate-900">Totaal</span>
-                  <span className="text-2xl font-bold text-slate-900">
-                    € {calculateGrandTotal(results.rows).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
+                  <span className="text-2xl font-bold text-slate-900"> € {calculateGrandTotal(results.rows).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
               </div>
             </div>
