@@ -13,6 +13,17 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 // Icons
 import { 
@@ -35,7 +46,8 @@ import {
   Calendar,
   Building,
   User,
-  ExternalLink
+  ExternalLink,
+  FolderPlus
 } from "lucide-react"
 
 // Loading component
@@ -54,7 +66,9 @@ export default function CalculatiesPage() {
   // State management
   const [calculaties, setCalculaties] = useState([])
   const [filteredCalculaties, setFilteredCalculaties] = useState([])
+  const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadingProjects, setLoadingProjects] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
   const [isCreating, setIsCreating] = useState(false)
@@ -64,6 +78,11 @@ export default function CalculatiesPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [sortBy, setSortBy] = useState("updated_at")
   const [sortOrder, setSortOrder] = useState("desc")
+
+  // Dialog state
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedProjectId, setSelectedProjectId] = useState("")
+  const [isCreatingProject, setIsCreatingProject] = useState(false)
 
   // Stats
   const [stats, setStats] = useState({
@@ -87,6 +106,7 @@ export default function CalculatiesPage() {
   useEffect(() => {
     if (user) {
       loadCalculaties()
+      loadProjects()
     }
   }, [user])
 
@@ -97,6 +117,29 @@ export default function CalculatiesPage() {
   // ======================
   // DATA LOADING FUNCTIES
   // ======================
+
+  const loadProjects = async () => {
+    if (!user) return
+    
+    setLoadingProjects(true)
+    try {
+      const userId = userProfile?.id || user?.id
+      
+      const { data, error: dbError } = await supabase
+        .from('projecten')
+        .select('id, naam, project_nummer, adres')
+        .eq('user_id', userId)
+        .order('naam', { ascending: true })
+      
+      if (dbError) throw dbError
+      
+      setProjects(data || [])
+    } catch (err) {
+      console.error('Error loading projects:', err)
+    } finally {
+      setLoadingProjects(false)
+    }
+  }
 
   const loadCalculaties = async () => {
     if (!user) return
@@ -117,7 +160,7 @@ export default function CalculatiesPage() {
         .from('calculaties')
         .select(`
           *,
-          projecten:project_id (naam, adres)
+          projecten:project_id (naam, adres, project_nummer)
         `)
         .eq('user_id', userId)
         .order('updated_at', { ascending: false })
@@ -146,7 +189,65 @@ export default function CalculatiesPage() {
     }
   }
 
-  const createNewCalculatie = async () => {
+  const createNewProject = async () => {
+    if (!user) return
+    
+    setIsCreatingProject(true)
+    setError(null)
+    
+    try {
+      const userId = userProfile?.id || user?.id
+      
+      // Haal hoogste projectnummer op
+      const { data: existingProjects } = await supabase
+        .from('projecten')
+        .select('project_nummer')
+        .eq('user_id', userId)
+        .order('project_nummer', { ascending: false })
+        .limit(1)
+      
+      const nextProjectNumber = existingProjects?.[0]?.project_nummer 
+        ? existingProjects[0].project_nummer + 1 
+        : 1001
+      
+      // Maak nieuw project
+      const { data: newProject, error: createError } = await supabase
+        .from('projecten')
+        .insert({
+          naam: `Project ${nextProjectNumber}`,
+          project_nummer: nextProjectNumber,
+          user_id: userId,
+          status: 'actief',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          metadata: {
+            aangemaakt_op: new Date().toISOString(),
+            is_nieuw: true
+          }
+        })
+        .select()
+        .single()
+      
+      if (createError) throw createError
+      
+      // Refresh projecten lijst
+      await loadProjects()
+      
+      // Selecteer het nieuwe project
+      setSelectedProjectId(newProject.id)
+      
+      return newProject.id
+      
+    } catch (err) {
+      console.error('Error creating project:', err)
+      setError(`Project aanmaken mislukt: ${err.message}`)
+      return null
+    } finally {
+      setIsCreatingProject(false)
+    }
+  }
+
+  const handleNewCalculatie = async () => {
     if (!user) {
       router.push('/login')
       return
@@ -156,12 +257,18 @@ export default function CalculatiesPage() {
     setError(null)
     
     try {
-      const userId = userProfile?.id || user?.id
-      if (!userId) {
-        throw new Error('Gebruiker niet gevonden')
+      let projectId = selectedProjectId
+      
+      // Als er geen project is geselecteerd, maak er een aan
+      if (!projectId) {
+        projectId = await createNewProject()
+        if (!projectId) {
+          throw new Error('Kon geen project aanmaken')
+        }
       }
       
-      // Haal het hoogste calculatienummer op om de volgende te bepalen
+      // Haal het hoogste calculatienummer op
+      const userId = userProfile?.id || user?.id
       const { data: existingCalculaties } = await supabase
         .from('calculaties')
         .select('calculatie_nummer')
@@ -179,6 +286,7 @@ export default function CalculatiesPage() {
         .insert({
           naam: `Calculatie ${nextNumber}`,
           calculatie_nummer: nextNumber,
+          project_id: projectId,
           user_id: userId,
           status: 'concept',
           created_at: new Date().toISOString(),
@@ -186,7 +294,8 @@ export default function CalculatiesPage() {
           metadata: {
             aangemaakt_op: new Date().toISOString(),
             template: 'standaard',
-            versie: 1
+            versie: 1,
+            project_id: projectId
           }
         })
         .select()
@@ -195,9 +304,10 @@ export default function CalculatiesPage() {
       if (createError) throw createError
       
       setSuccess('Nieuwe calculatie aangemaakt!')
+      setIsDialogOpen(false)
       
       // Navigeer naar de nieuwe calculatie
-      router.push(`/calculaties/${newCalculatie.id}`)
+      router.push(`/calculatie/nieuw?id=${newCalculatie.id}&project_id=${projectId}`)
       
     } catch (err) {
       console.error('Error creating calculatie:', err)
@@ -205,6 +315,11 @@ export default function CalculatiesPage() {
     } finally {
       setIsCreating(false)
     }
+  }
+
+  const openNewCalculatieDialog = () => {
+    setSelectedProjectId("")
+    setIsDialogOpen(true)
   }
 
   const deleteCalculatie = async (calculatie) => {
@@ -400,6 +515,112 @@ export default function CalculatiesPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Dialog voor nieuwe calculatie */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Nieuwe Calculatie</DialogTitle>
+            <DialogDescription>
+              Kies een bestaand project of maak een nieuw project aan voor deze calculatie.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="project">Project selecteren</Label>
+              <Select 
+                value={selectedProjectId} 
+                onValueChange={setSelectedProjectId}
+                disabled={isCreatingProject || loadingProjects}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecteer een project" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.naam} • {project.adres || "Geen adres"}
+                    </SelectItem>
+                  ))}
+                  {projects.length === 0 && (
+                    <SelectItem value="" disabled>
+                      Geen projecten gevonden
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-gray-500">
+                {projects.length} projecten beschikbaar
+              </p>
+            </div>
+            
+            <div className="flex items-center justify-center">
+              <div className="relative w-full">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Of</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Nieuw project aanmaken</Label>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={async () => {
+                  const newProjectId = await createNewProject()
+                  if (newProjectId) {
+                    setSelectedProjectId(newProjectId)
+                  }
+                }}
+                disabled={isCreatingProject || loadingProjects}
+              >
+                {isCreatingProject ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    Project aanmaken...
+                  </>
+                ) : (
+                  <>
+                    <FolderPlus className="h-4 w-4 mr-2" />
+                    Nieuw project aanmaken
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+              disabled={isCreating}
+            >
+              Annuleren
+            </Button>
+            <Button
+              onClick={handleNewCalculatie}
+              disabled={isCreating || (!selectedProjectId && projects.length > 0)}
+            >
+              {isCreating ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Calculatie aanmaken...
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Calculatie aanmaken
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
@@ -418,20 +639,11 @@ export default function CalculatiesPage() {
           
           <Button 
             className="gap-2"
-            onClick={createNewCalculatie}
-            disabled={isCreating}
+            onClick={openNewCalculatieDialog}
+            disabled={isCreating || loading}
           >
-            {isCreating ? (
-              <>
-                <RefreshCw className="h-4 w-4 animate-spin" />
-                Aanmaken...
-              </>
-            ) : (
-              <>
-                <Plus className="h-4 w-4" />
-                Nieuwe Calculatie
-              </>
-            )}
+            <Plus className="h-4 w-4" />
+            Nieuwe Calculatie
           </Button>
         </div>
 
@@ -616,20 +828,11 @@ export default function CalculatiesPage() {
               {calculaties.length === 0 && (
                 <Button 
                   className="gap-2"
-                  onClick={createNewCalculatie}
-                  disabled={isCreating}
+                  onClick={openNewCalculatieDialog}
+                  disabled={isCreating || loading}
                 >
-                  {isCreating ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 animate-spin" />
-                      Aanmaken...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="h-4 w-4" />
-                      Eerste Calculatie
-                    </>
-                  )}
+                  <Plus className="h-4 w-4" />
+                  Eerste Calculatie
                 </Button>
               )}
             </div>
