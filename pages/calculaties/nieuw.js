@@ -19,8 +19,7 @@ import { Upload, FileText, Building, Calculator, Download, Plus, Trash2, CheckCi
 
 // API endpoints
 const API_ENDPOINTS = {
-  EXECUTOR_API: process.env.NEXT_PUBLIC_EXECUTOR_API || "https://sterkbouw-saas-executor-production.up.railway.app",
-  BACKEND_API: process.env.NEXT_PUBLIC_BACKEND_API || "https://sterkbouw-saas-backend-production.up.railway.app",
+  API_BASE: process.env.NEXT_PUBLIC_EXECUTOR_API || "https://sterkbouw-saas-executor-production.up.railway.app",
 }
 
 export default function NieuweCalculatiePage() {
