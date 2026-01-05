@@ -1,20 +1,11 @@
-// SterkBouw-SaaS-Frontend/pages/calculaties/index.js - MET SUPABASE FIX
+// SterkBouw-SaaS-Frontend/pages/calculaties/index.js - OPTIMIZED VERSION
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth"
 import { format } from "date-fns"
 import { nl } from "date-fns/locale"
-
-// Try to import Supabase with fallback
-let supabaseClient = null
-try {
-  const { supabase } = require("@/lib/supabase")
-  supabaseClient = supabase
-} catch (error) {
-  console.error('❌ Supabase import failed:', error.message)
-  // We'll handle this in the component
-}
+import { supabase } from "@/lib/supabase"
 
 // UI Components
 import { Button } from "@/components/ui/button"
@@ -32,9 +23,6 @@ import {
   Trash2, 
   Plus, 
   FileText,
-  Building, 
-  Calendar, 
-  User,
   DollarSign,
   AlertTriangle,
   CheckCircle,
@@ -42,124 +30,34 @@ import {
   XCircle,
   ArrowUpDown,
   RefreshCw,
-  TestTube,
-  Database,
-  ExternalLink,
   Wifi,
-  WifiOff
+  Filter,
+  Calendar,
+  Building,
+  User,
+  ExternalLink
 } from "lucide-react"
 
-// Log de environment configuratie
-console.log('🔧 Environment Configuratie:', {
-  SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Set' : '❌ Not set',
-  SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Not set',
-  NODE_ENV: process.env.NODE_ENV,
-  IS_BROWSER: typeof window !== 'undefined'
-})
-
-// Simple inline Progress component
-function SimpleProgress({ value = 0, className = '' }) {
+// Loading component
+function LoadingSpinner() {
   return (
-    <div className={`h-2 w-full overflow-hidden rounded-full bg-gray-200 ${className}`}>
-      <div
-        className="h-full w-full flex-1 bg-blue-600 transition-all"
-        style={{ width: `${Math.min(Math.max(value, 0), 100)}%` }}
-      />
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
     </div>
   )
 }
 
-// Helper: Genereer mock calculaties voor demo/fallback
-const generateMockCalculaties = (userId) => {
-  return [
-    {
-      id: 'mock-1-' + Date.now(),
-      naam: 'Transformatie Hotel Van der Valk',
-      klant_naam: 'Van der Valk Group',
-      adres: 'Hotelstraat 1',
-      postcode: '1234 AB',
-      plaats: 'Amsterdam',
-      status: 'active',
-      user_id: userId,
-      created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date().toISOString(),
-      metadata: {
-        oppervlakte: 2500,
-        bouwjaar: 1985,
-        kamers: 120,
-        totaal_incl_btw: 1250000,
-        project_type: 'transformatie'
-      },
-      pdf_url: null
-    },
-    {
-      id: 'mock-2-' + Date.now(),
-      naam: 'Renovatie Kantoor ING',
-      klant_naam: 'ING Bank NV',
-      adres: 'Bankstraat 42',
-      postcode: '5678 CD',
-      plaats: 'Rotterdam',
-      status: 'draft',
-      user_id: userId,
-      created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date().toISOString(),
-      metadata: {
-        oppervlakte: 1800,
-        bouwjaar: 1990,
-        kamers: 45,
-        totaal_incl_btw: 750000,
-        project_type: 'renovatie'
-      },
-      pdf_url: null
-    },
-    {
-      id: 'mock-3-' + Date.now(),
-      naam: 'Nieuwbouw Woningen Amstelveen',
-      klant_naam: 'BPD Development',
-      adres: 'Bosweg 15',
-      postcode: '1181 AG',
-      plaats: 'Amstelveen',
-      status: 'completed',
-      user_id: userId,
-      created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-      updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      metadata: {
-        oppervlakte: 3200,
-        bouwjaar: 2024,
-        kamers: 24,
-        totaal_incl_btw: 2850000,
-        project_type: 'nieuwbouw'
-      },
-      pdf_url: 'https://example.com/demo.pdf'
-    }
-  ]
-}
-
 export default function CalculatiesPage() {
   const router = useRouter()
-  
-  // ======================
-  // AUTH
-  // ======================
-  const { 
-    user, 
-    loading: authLoading, 
-    userProfile, 
-    getIdToken 
-  } = useAuth()
+  const { user, loading: authLoading, userProfile } = useAuth()
   
   // State management
   const [calculaties, setCalculaties] = useState([])
   const [filteredCalculaties, setFilteredCalculaties] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
   const [isCreating, setIsCreating] = useState(false)
-  const [databaseStatus, setDatabaseStatus] = useState({
-    connected: false,
-    tableExists: false,
-    message: 'Initialiseren...'
-  })
   
   // Filter and search state
   const [searchTerm, setSearchTerm] = useState("")
@@ -188,7 +86,7 @@ export default function CalculatiesPage() {
 
   useEffect(() => {
     if (user) {
-      fetchCalculaties()
+      loadCalculaties()
     }
   }, [user])
 
@@ -197,15 +95,14 @@ export default function CalculatiesPage() {
   }, [calculaties, searchTerm, statusFilter, sortBy, sortOrder])
 
   // ======================
-  // FUNCTIES - MET SUPABASE FIX
+  // DATA LOADING FUNCTIES
   // ======================
 
-  const fetchCalculaties = async () => {
+  const loadCalculaties = async () => {
     if (!user) return
     
-    setIsLoading(true)
+    setLoading(true)
     setError(null)
-    setDatabaseStatus({ connected: false, tableExists: false, message: 'Controleren...' })
     
     try {
       const userId = userProfile?.id || user?.id
@@ -214,152 +111,47 @@ export default function CalculatiesPage() {
         return
       }
       
-      console.log('🔍 Fetching calculaties voor user:', userId)
+      console.log('📥 Laden calculaties voor user:', userId)
       
-      // Controleer of Supabase beschikbaar is
-      if (!supabaseClient) {
-        console.log('⚠️ Supabase client is niet beschikbaar, gebruik demo data')
-        throw new Error('SUPABASE_CLIENT_UNAVAILABLE')
+      const { data, error: dbError } = await supabase
+        .from('calculaties')
+        .select(`
+          *,
+          projecten:project_id (naam, adres)
+        `)
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false })
+      
+      if (dbError) {
+        console.error('Database error:', dbError)
+        throw new Error(`Database fout: ${dbError.message}`)
       }
       
-      // Test Supabase verbinding
-      try {
-        const { data, error: testError } = await supabaseClient
-          .from('calculaties')
-          .select('id')
-          .limit(1)
-        
-        if (testError) {
-          if (testError.code === 'PGRST301' || testError.message.includes('does not exist')) {
-            setDatabaseStatus({ 
-              connected: true, 
-              tableExists: false, 
-              message: 'Database tabel bestaat nog niet' 
-            })
-            console.log('⚠️ Table "calculaties" does not exist yet')
-          } else {
-            setDatabaseStatus({ 
-              connected: false, 
-              tableExists: false, 
-              message: `Database fout: ${testError.message}` 
-            })
-            throw new Error(`DATABASE_ERROR: ${testError.message}`)
-          }
-        } else {
-          setDatabaseStatus({ 
-            connected: true, 
-            tableExists: true, 
-            message: 'Database verbonden' 
-          })
-        }
-      } catch (testErr) {
-        console.error('Database test error:', testErr)
-        setDatabaseStatus({ 
-          connected: false, 
-          tableExists: false, 
-          message: `Test mislukt: ${testErr.message}` 
-        })
-        throw new Error(`DATABASE_TEST_FAILED: ${testErr.message}`)
-      }
+      const calculatiesData = Array.isArray(data) ? data : []
       
-      // Probeer data op te halen als de tabel bestaat
-      if (databaseStatus.tableExists) {
-        const { data, error } = await supabaseClient
-          .from('calculaties')
-          .select('*')
-          .eq('user_id', userId)
-          .order('updated_at', { ascending: false })
-        
-        if (error) {
-          console.error('Supabase query error:', error)
-          throw new Error(`QUERY_ERROR: ${error.message}`)
-        }
-        
-        const calculatiesArray = Array.isArray(data) ? data : []
-        
-        if (calculatiesArray.length > 0) {
-          console.log(`✅ ${calculatiesArray.length} calculaties gevonden`)
-          setCalculaties(calculatiesArray)
-          updateStats(calculatiesArray)
-          return
-        }
-      }
+      console.log(`✅ ${calculatiesData.length} calculaties geladen`)
       
-      // Geen data of tabel bestaat niet, gebruik mock data
-      console.log('Geen calculaties gevonden, gebruik demo data')
-      const mockData = generateMockCalculaties(userId)
-      setCalculaties(mockData)
-      updateStats(mockData)
-      setSuccess('Geen projecten gevonden, toon demo data')
-      setTimeout(() => setSuccess(null), 3000)
+      setCalculaties(calculatiesData)
+      updateStats(calculatiesData)
+      
+      if (calculatiesData.length === 0) {
+        setSuccess('Nog geen calculaties. Maak je eerste calculatie aan!')
+      }
       
     } catch (err) {
-      console.error('❌ Fetch error:', err.message)
-      
-      // Specifieke error handling
-      if (err.message === 'SUPABASE_CLIENT_UNAVAILABLE') {
-        const mockData = generateMockCalculaties(userProfile?.id || user?.id)
-        setCalculaties(mockData)
-        updateStats(mockData)
-        
-        setError(`
-          ⚠️ Supabase client niet beschikbaar
-          
-          **Oorzaak:** De Supabase client kon niet worden geladen
-          
-          **Mogelijke oplossingen:**
-          1. Controleer of lib/supabase.js bestaat
-          2. Controleer environment variables in Railway
-          3. Herstart de applicatie
-          
-          **Voor nu:** Demo data getoond
-        `)
-      } else if (err.message.includes('DATABASE_ERROR') || err.message.includes('QUERY_ERROR')) {
-        const mockData = generateMockCalculaties(userProfile?.id || user?.id)
-        setCalculaties(mockData)
-        updateStats(mockData)
-        
-        setError(`
-          ⚠️ Database fout
-          
-          **Details:** ${err.message.replace('DATABASE_ERROR: ', '').replace('QUERY_ERROR: ', '')}
-          
-          **Status:** ${databaseStatus.message}
-          
-          **Voor nu:** Demo data getoond
-        `)
-      } else {
-        // Andere error, gebruik mock data
-        const mockData = generateMockCalculaties(userProfile?.id || user?.id)
-        setCalculaties(mockData)
-        updateStats(mockData)
-        
-        setError(`
-          🚨 Fout bij ophalen calculaties
-          
-          **Details:** ${err.message}
-          
-          **Database Status:** ${databaseStatus.message}
-          
-          **Oplossing gebruikt:** Demo data getoond
-        `)
-      }
+      console.error('Error loading calculaties:', err)
+      setError(`Fout bij laden: ${err.message}`)
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  // ======================
-  // NIEUWE CALCULATIE FUNCTIE - MET FIX
-  // ======================
-
-  const handleNieuweCalculatie = async () => {
+  const createNewCalculatie = async () => {
     if (!user) {
-      setError("Je moet ingelogd zijn om een nieuwe calculatie te maken")
       router.push('/login')
       return
     }
-
+    
     setIsCreating(true)
     setError(null)
     
@@ -368,83 +160,87 @@ export default function CalculatiesPage() {
       if (!userId) {
         throw new Error('Gebruiker niet gevonden')
       }
-
-      console.log('🔄 Start nieuwe calculatie voor user:', userId)
       
-      // Controleer of Supabase beschikbaar is
-      if (!supabaseClient) {
-        console.log('⚠️ Supabase niet beschikbaar, gebruik demo mode')
-        const demoId = `demo-${Date.now()}`
-        router.push(`/calculaties/${demoId}?demo=true`)
-        return
-      }
+      // Haal het hoogste calculatienummer op om de volgende te bepalen
+      const { data: existingCalculaties } = await supabase
+        .from('calculaties')
+        .select('calculatie_nummer')
+        .eq('user_id', userId)
+        .order('calculatie_nummer', { ascending: false })
+        .limit(1)
       
-      // Maak nieuwe calculatie aan
-      const { data: newCalc, error: supabaseError } = await supabaseClient
+      const nextNumber = existingCalculaties?.[0]?.calculatie_nummer 
+        ? existingCalculaties[0].calculatie_nummer + 1 
+        : 1001
+      
+      // Maak nieuwe calculatie
+      const { data: newCalculatie, error: createError } = await supabase
         .from('calculaties')
         .insert({
-          naam: `Nieuwe Calculatie ${format(new Date(), 'dd-MM HH:mm')}`,
+          naam: `Calculatie ${nextNumber}`,
+          calculatie_nummer: nextNumber,
           user_id: userId,
-          status: 'draft',
+          status: 'concept',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           metadata: {
-            aangemaakt_via: 'frontend_index',
-            template: 'default',
-            versie: 1,
-            timestamp: new Date().toISOString(),
-            totaal_incl_btw: 0
+            aangemaakt_op: new Date().toISOString(),
+            template: 'standaard',
+            versie: 1
           }
         })
         .select()
         .single()
-
-      if (supabaseError) {
-        console.error('❌ Supabase error:', supabaseError)
-        
-        // Als de tabel niet bestaat, maak demo aan
-        if (supabaseError.code === 'PGRST301' || supabaseError.message.includes('relation')) {
-          console.log('Table does not exist, creating demo')
-          const demoId = `demo-${Date.now()}`
-          setSuccess('Database tabel bestaat nog niet. Demo modus gestart.')
-          router.push(`/calculaties/${demoId}?demo=true`)
-          return
-        }
-        
-        throw new Error(`Aanmaken mislukt: ${supabaseError.message}`)
-      }
-
-      console.log(`✅ Nieuwe calculatie aangemaakt: ${newCalc.id}`)
+      
+      if (createError) throw createError
+      
       setSuccess('Nieuwe calculatie aangemaakt!')
-      setTimeout(() => setSuccess(null), 3000)
-      router.push(`/calculaties/${newCalc.id}`)
-
-    } catch (error) {
-      console.error('❌ Fout bij nieuwe calculatie:', error)
       
-      setError(`
-        Kon geen nieuwe calculatie starten:
-        
-        **Fout:** ${error.message}
-        
-        **Wat nu?**
-        1. Probeer opnieuw
-        2. Contacteer support als probleem aanhoudt
-        3. Gebruik demo modus:
-      `)
+      // Navigeer naar de nieuwe calculatie
+      router.push(`/calculaties/${newCalculatie.id}`)
       
-      // Bied demo optie aan
-      if (confirm('Kon geen nieuwe calculatie starten. Wilt u een demo berekening zien?')) {
-        const demoId = `demo-${Date.now()}`
-        router.push(`/calculaties/${demoId}?demo=true`)
-      }
+    } catch (err) {
+      console.error('Error creating calculatie:', err)
+      setError(`Aanmaken mislukt: ${err.message}`)
     } finally {
       setIsCreating(false)
     }
   }
 
+  const deleteCalculatie = async (calculatie) => {
+    if (!calculatie || !user) return
+    
+    if (!confirm(`Weet u zeker dat u "${calculatie.naam}" wilt verwijderen?\nDeze actie kan niet ongedaan worden gemaakt.`)) {
+      return
+    }
+    
+    try {
+      const userId = userProfile?.id || user?.id
+      
+      const { error } = await supabase
+        .from('calculaties')
+        .delete()
+        .eq('id', calculatie.id)
+        .eq('user_id', userId) // Extra beveiliging
+      
+      if (error) throw error
+      
+      // Update local state
+      const updatedCalculaties = calculaties.filter(c => c.id !== calculatie.id)
+      setCalculaties(updatedCalculaties)
+      updateStats(updatedCalculaties)
+      
+      setSuccess('Calculatie succesvol verwijderd')
+      setTimeout(() => setSuccess(null), 3000)
+      
+    } catch (err) {
+      console.error('Error deleting calculatie:', err)
+      setError(`Verwijderen mislukt: ${err.message}`)
+    }
+  }
+
   // ======================
-  // HULP FUNCTIES
+  // HELPER FUNCTIES
   // ======================
 
   const filterAndSortCalculaties = () => {
@@ -455,6 +251,7 @@ export default function CalculatiesPage() {
     
     let filtered = [...calculaties]
     
+    // Zoekfilter
     if (searchTerm) {
       const term = searchTerm.toLowerCase()
       filtered = filtered.filter(calc => {
@@ -462,15 +259,18 @@ export default function CalculatiesPage() {
           (calc.naam && calc.naam.toLowerCase().includes(term)) ||
           (calc.klant_naam && calc.klant_naam.toLowerCase().includes(term)) ||
           (calc.adres && calc.adres.toLowerCase().includes(term)) ||
-          (calc.plaats && calc.plaats.toLowerCase().includes(term))
+          (calc.plaats && calc.plaats.toLowerCase().includes(term)) ||
+          (calc.calculatie_nummer && calc.calculatie_nummer.toString().includes(term))
         )
       })
     }
     
+    // Status filter
     if (statusFilter !== "all") {
       filtered = filtered.filter(calc => calc.status === statusFilter)
     }
     
+    // Sorteren
     filtered.sort((a, b) => {
       let aValue, bValue
       
@@ -479,11 +279,11 @@ export default function CalculatiesPage() {
           aValue = (a.naam || "").toLowerCase()
           bValue = (b.naam || "").toLowerCase()
           break
-        case "klant_naam":
-          aValue = (a.klant_naam || "").toLowerCase()
-          bValue = (b.klant_naam || "").toLowerCase()
+        case "calculatie_nummer":
+          aValue = a.calculatie_nummer || 0
+          bValue = b.calculatie_nummer || 0
           break
-        case "totaal_incl_btw":
+        case "totaal":
           aValue = a.metadata?.totaal_incl_btw || 0
           bValue = b.metadata?.totaal_incl_btw || 0
           break
@@ -509,80 +309,43 @@ export default function CalculatiesPage() {
       return
     }
     
-    setStats({
+    const stats = {
       total: calculatiesArray.length,
-      active: calculatiesArray.filter(c => c.status === 'active').length,
-      completed: calculatiesArray.filter(c => c.status === 'completed').length,
-      draft: calculatiesArray.filter(c => c.status === 'draft').length,
-      totalValue: calculatiesArray.reduce((sum, c) => sum + (c.metadata?.totaal_incl_btw || 0), 0)
-    })
-  }
-
-  const handleDeleteClick = (calculatie) => {
-    if (confirm(`Weet u zeker dat u "${calculatie.naam || 'calculatie'}" wilt verwijderen?\nDeze actie kan niet ongedaan worden gemaakt.`)) {
-      deleteCalculatie(calculatie)
+      active: calculatiesArray.filter(c => c.status === 'actief' || c.status === 'active').length,
+      completed: calculatiesArray.filter(c => c.status === 'voltooid' || c.status === 'completed').length,
+      draft: calculatiesArray.filter(c => c.status === 'concept' || c.status === 'draft').length,
+      totalValue: calculatiesArray.reduce((sum, c) => {
+        const value = c.metadata?.totaal_incl_btw || 
+                     c.totaal_incl_btw || 
+                     c.totaal_bedrag || 
+                     c.totaal || 
+                     0
+        return sum + Number(value)
+      }, 0)
     }
-  }
-
-  const deleteCalculatie = async (calculatie) => {
-    if (!calculatie || !user) return
     
-    setIsLoading(true)
-    setError(null)
-    
-    try {
-      const userId = userProfile?.id || user?.id
-      if (!userId) {
-        setError("Gebruiker niet gevonden")
-        return
-      }
-      
-      // Controleer of Supabase beschikbaar is
-      if (!supabaseClient) {
-        throw new Error('Database niet beschikbaar')
-      }
-      
-      // Direct Supabase delete
-      const { error } = await supabaseClient
-        .from('calculaties')
-        .delete()
-        .eq('id', calculatie.id)
-        .eq('user_id', userId) // Extra beveiliging
-      
-      if (error) {
-        throw new Error(`Verwijderen mislukt: ${error.message}`)
-      }
-      
-      const updatedCalculaties = calculaties.filter(c => c.id !== calculatie.id)
-      setCalculaties(updatedCalculaties)
-      updateStats(updatedCalculaties)
-      
-      setSuccess('Calculatie succesvol verwijderd')
-      setTimeout(() => setSuccess(null), 3000)
-      
-    } catch (err) {
-      console.error('Delete error:', err)
-      setError(err instanceof Error ? err.message : 'Verwijderen mislukt')
-    } finally {
-      setIsLoading(false)
-    }
+    setStats(stats)
   }
 
   const getStatusBadge = (status) => {
-    if (!status) status = 'draft'
+    if (!status) status = 'concept'
     
     const variants = {
-      draft: { variant: "outline", icon: Clock, text: "Concept" },
-      active: { variant: "secondary", icon: RefreshCw, text: "Actief" },
-      completed: { variant: "default", icon: CheckCircle, text: "Voltooid" },
-      cancelled: { variant: "destructive", icon: XCircle, text: "Geannuleerd" }
+      'concept': { variant: "outline", icon: Clock, text: "Concept", color: "text-gray-600" },
+      'draft': { variant: "outline", icon: Clock, text: "Concept", color: "text-gray-600" },
+      'actief': { variant: "secondary", icon: RefreshCw, text: "Actief", color: "text-blue-600" },
+      'active': { variant: "secondary", icon: RefreshCw, text: "Actief", color: "text-blue-600" },
+      'voltooid': { variant: "default", icon: CheckCircle, text: "Voltooid", color: "text-green-600" },
+      'completed': { variant: "default", icon: CheckCircle, text: "Voltooid", color: "text-green-600" },
+      'geannuleerd': { variant: "destructive", icon: XCircle, text: "Geannuleerd", color: "text-red-600" },
+      'cancelled': { variant: "destructive", icon: XCircle, text: "Geannuleerd", color: "text-red-600" }
     }
     
-    const config = variants[status] || variants.draft
+    const config = variants[status] || variants.concept
     const Icon = config.icon
     
     return (
-      <Badge variant={config.variant} className="gap-1">
+      <Badge variant={config.variant} className={`gap-1 ${config.color}`}>
         <Icon className="h-3 w-3" />
         {config.text}
       </Badge>
@@ -591,127 +354,33 @@ export default function CalculatiesPage() {
 
   const formatDate = (dateString) => {
     try {
-      if (!dateString) return "Onbekend"
+      if (!dateString) return "-"
       return format(new Date(dateString), 'dd-MM-yyyy', { locale: nl })
     } catch {
-      return "Onbekend"
+      return "-"
     }
   }
 
   const formatCurrency = (amount) => {
-    if (!amount && amount !== 0) return "€ 0,00"
+    if (amount === null || amount === undefined) return "€ -"
     return new Intl.NumberFormat('nl-NL', {
       style: 'currency',
       currency: 'EUR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
-    }).format(amount || 0)
+    }).format(Number(amount))
   }
 
-  // Test database verbinding
-  const testDatabaseConnection = async () => {
-    setIsLoading(true)
-    try {
-      console.log('🔍 Test database connection...')
-      
-      if (!supabaseClient) {
-        alert('Supabase client is niet beschikbaar. Controleer je imports en environment variables.')
-        return
-      }
-      
-      // Test 1: Basic connection
-      const { data: tables, error: tablesError } = await supabaseClient
-        .from('pg_tables')
-        .select('tablename')
-        .eq('schemaname', 'public')
-        .limit(5)
-      
-      console.log('Tables test:', tablesError ? 'Error' : 'Success', tables)
-      
-      // Test 2: Try to query calculaties
-      const { data: calculatiesData, error: calcError } = await supabaseClient
-        .from('calculaties')
-        .select('id')
-        .limit(1)
-      
-      console.log('Calculaties test:', calcError ? 'Error' : 'Success', calculatiesData)
-      
-      // Show results
-      const results = `
-        Database Test Resultaten:
-        
-        1. Supabase URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅' : '❌'}
-        2. Anon Key: ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅' : '❌'}
-        3. Tables query: ${tablesError ? '❌ ' + tablesError.message : '✅'}
-        4. Calculaties query: ${calcError ? '❌ ' + calcError.message : '✅'}
-        5. Client: ${supabaseClient ? '✅ Geladen' : '❌ Niet geladen'}
-        
-        Controleer de browser console (F12) voor details.
-      `
-      
-      alert(results)
-      
-    } catch (err) {
-      console.error('Test error:', err)
-      alert(`Test error: ${err.message}`)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const createDatabaseTable = async () => {
-    if (!confirm('Wil je de database tabel "calculaties" aanmaken via SQL? Dit vereist Supabase toegang.')) {
-      return
+  const formatProjectInfo = (calculatie) => {
+    if (calculatie.projecten) {
+      return `${calculatie.projecten.naam} • ${calculatie.projecten.adres}`
     }
     
-    const sql = `
-CREATE TABLE IF NOT EXISTS public.calculaties (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  naam TEXT,
-  klant_naam TEXT,
-  klant_email TEXT,
-  klant_telefoon TEXT,
-  adres TEXT,
-  postcode TEXT,
-  plaats TEXT,
-  status TEXT DEFAULT 'draft',
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  metadata JSONB DEFAULT '{}'::jsonb,
-  pdf_url TEXT
-);
-
--- Enable Row Level Security
-ALTER TABLE public.calculaties ENABLE ROW LEVEL SECURITY;
-
--- Create policy to allow users to see only their own calculaties
-CREATE POLICY "Users can view own calculaties" 
-ON public.calculaties 
-FOR SELECT 
-USING (auth.uid() = user_id);
-
--- Create policy to allow users to insert their own calculaties
-CREATE POLICY "Users can insert own calculaties" 
-ON public.calculaties 
-FOR INSERT 
-WITH CHECK (auth.uid() = user_id);
-
--- Create policy to allow users to update their own calculaties
-CREATE POLICY "Users can update own calculaties" 
-ON public.calculaties 
-FOR UPDATE 
-USING (auth.uid() = user_id);
-
--- Create policy to allow users to delete their own calculaties
-CREATE POLICY "Users can delete own calculaties" 
-ON public.calculaties 
-FOR DELETE 
-USING (auth.uid() = user_id);
-    `
+    if (calculatie.adres || calculatie.plaats) {
+      return `${calculatie.adres || ''} • ${calculatie.plaats || ''}`
+    }
     
-    alert(`Voer deze SQL in in je Supabase dashboard SQL Editor:\n\n${sql}`)
-    window.open('https://app.supabase.com/project/' + process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0] + '/sql', '_blank')
+    return "Geen projectinformatie"
   }
 
   // ======================
@@ -722,7 +391,7 @@ USING (auth.uid() = user_id);
     return (
       <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <SimpleProgress value={100} className="w-64 mb-4" />
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
           <p className="text-gray-600">Authenticatie controleren...</p>
         </div>
       </div>
@@ -733,74 +402,100 @@ USING (auth.uid() = user_id);
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Calculaties</h1>
-            <p className="text-gray-600">Overzicht van al uw bouwcalculaties</p>
-            <div className="flex items-center gap-2 mt-2">
-              <Badge 
-                variant={databaseStatus.connected ? 'default' : 'outline'} 
-                className={`gap-1 ${databaseStatus.connected ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
-              >
-                {databaseStatus.connected ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-                {databaseStatus.message}
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className="gap-1">
+                <Wifi className="h-3 w-3 text-green-500" />
+                Database verbonden
               </Badge>
-              {!databaseStatus.tableExists && databaseStatus.connected && (
-                <span className="text-xs text-yellow-600">⚠️ Tabel ontbreekt</span>
-              )}
+              <span className="text-sm text-gray-500">
+                {calculaties.length} calculaties gevonden
+              </span>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button 
-              className="gap-2"
-              onClick={handleNieuweCalculatie}
-              disabled={isCreating || isLoading}
-            >
-              {isCreating ? (
-                <>
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                  Aanmaken...
-                </>
-              ) : (
-                <>
-                  <Plus className="h-4 w-4" />
-                  Nieuwe Calculatie
-                </>
-              )}
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={testDatabaseConnection}
-              title="Test database verbinding"
-            >
-              <TestTube className="h-4 w-4" />
-            </Button>
-          </div>
+          
+          <Button 
+            className="gap-2"
+            onClick={createNewCalculatie}
+            disabled={isCreating}
+          >
+            {isCreating ? (
+              <>
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                Aanmaken...
+              </>
+            ) : (
+              <>
+                <Plus className="h-4 w-4" />
+                Nieuwe Calculatie
+              </>
+            )}
+          </Button>
         </div>
-        
-        {/* Stats */}
+
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-          {[
-            { key: 'total', label: 'Totaal', value: stats.total, icon: FileText, color: 'blue' },
-            { key: 'draft', label: 'Concept', value: stats.draft, icon: Clock, color: 'gray' },
-            { key: 'active', label: 'Actief', value: stats.active, icon: RefreshCw, color: 'blue' },
-            { key: 'completed', label: 'Voltooid', value: stats.completed, icon: CheckCircle, color: 'green' },
-            { key: 'totalValue', label: 'Totale waarde', value: formatCurrency(stats.totalValue), icon: DollarSign, color: 'green' }
-          ].map((stat) => (
-            <Card key={stat.key}>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                  </div>
-                  <stat.icon className={`h-8 w-8 text-${stat.color}-500`} />
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Totaal</p>
+                  <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <FileText className="h-8 w-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Concept</p>
+                  <p className="text-2xl font-bold">{stats.draft}</p>
+                </div>
+                <Clock className="h-8 w-8 text-gray-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Actief</p>
+                  <p className="text-2xl font-bold">{stats.active}</p>
+                </div>
+                <RefreshCw className="h-8 w-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Voltooid</p>
+                  <p className="text-2xl font-bold">{stats.completed}</p>
+                </div>
+                <CheckCircle className="h-8 w-8 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Totale waarde</p>
+                  <p className="text-xl font-bold">{formatCurrency(stats.totalValue)}</p>
+                </div>
+                <DollarSign className="h-8 w-8 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
@@ -811,35 +506,16 @@ USING (auth.uid() = user_id);
             <AlertTriangle className="h-4 w-4" />
             <h3 className="font-medium">Fout</h3>
           </div>
-          <p className="text-red-700 mt-1 whitespace-pre-line">{error}</p>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <p className="text-red-700 mt-1">{error}</p>
+          <div className="mt-3">
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => fetchCalculaties()}
-              className="mr-2"
+              onClick={() => loadCalculaties()}
             >
               <RefreshCw className="h-4 w-4 mr-1" />
               Probeer opnieuw
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={testDatabaseConnection}
-            >
-              <Database className="h-4 w-4 mr-1" />
-              Test Database
-            </Button>
-            {databaseStatus.connected && !databaseStatus.tableExists && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={createDatabaseTable}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Maak Tabel
-              </Button>
-            )}
           </div>
         </div>
       )}
@@ -861,7 +537,7 @@ USING (auth.uid() = user_id);
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Zoeken op project, klant, adres..."
+                placeholder="Zoeken op naam, klant, nummer..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9"
@@ -871,16 +547,17 @@ USING (auth.uid() = user_id);
             <div className="flex flex-col">
               <label className="text-sm font-medium mb-2">Status</label>
               <div className="flex gap-2">
-                {["all", "draft", "active", "completed"].map((status) => (
+                {["all", "concept", "actief", "voltooid"].map((status) => (
                   <Button
                     key={status}
                     variant={statusFilter === status ? "default" : "outline"}
                     size="sm"
                     onClick={() => setStatusFilter(status)}
                   >
+                    <Filter className="h-3 w-3 mr-1" />
                     {status === "all" ? "Alle" : 
-                     status === "draft" ? "Concept" :
-                     status === "active" ? "Actief" : "Voltooid"}
+                     status === "concept" ? "Concept" :
+                     status === "actief" ? "Actief" : "Voltooid"}
                   </Button>
                 ))}
               </div>
@@ -889,25 +566,23 @@ USING (auth.uid() = user_id);
             <div className="flex flex-col">
               <label className="text-sm font-medium mb-2">Sorteren op</label>
               <div className="flex gap-2">
-                <Button
-                  variant={sortBy === "updated_at" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSortBy("updated_at")}
+                <select 
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
                 >
-                  Datum
-                </Button>
+                  <option value="updated_at">Laatst gewijzigd</option>
+                  <option value="created_at">Aanmaakdatum</option>
+                  <option value="naam">Naam</option>
+                  <option value="calculatie_nummer">Calculatie nummer</option>
+                  <option value="totaal">Totale waarde</option>
+                </select>
                 <Button
-                  variant={sortBy === "naam" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSortBy("naam")}
-                >
-                  Naam
-                </Button>
-                <Button
-                  variant={sortOrder === "desc" ? "default" : "outline"}
+                  variant="outline"
                   size="sm"
                   onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
                 >
+                  <ArrowUpDown className="h-4 w-4" />
                   {sortOrder === "desc" ? "↓" : "↑"}
                 </Button>
               </div>
@@ -921,18 +596,12 @@ USING (auth.uid() = user_id);
         <CardHeader>
           <CardTitle>Alle Calculaties ({filteredCalculaties.length})</CardTitle>
           <CardDescription>
-            {isCreating && <span className="text-blue-600">• Nieuwe calculatie aanmaken...</span>}
-            {!databaseStatus.connected && (
-              <span className="text-yellow-600">⚠️ Database niet verbonden</span>
-            )}
+            {loading && <span className="text-blue-600">• Laden...</span>}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="text-center py-12">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto mb-4" />
-              <p className="text-gray-600">Calculaties laden...</p>
-            </div>
+          {loading ? (
+            <LoadingSpinner />
           ) : filteredCalculaties.length === 0 ? (
             <div className="text-center py-12">
               <FileText className="h-12 w-12 mx-auto text-gray-400 mb-4" />
@@ -941,13 +610,13 @@ USING (auth.uid() = user_id);
               </h3>
               <p className="text-gray-600 mb-6">
                 {calculaties.length === 0 
-                  ? "Maak uw eerste calculatie aan om te beginnen" 
-                  : "Pas uw zoekopdracht aan om meer resultaten te zien"}
+                  ? "Maak je eerste calculatie aan om te beginnen" 
+                  : "Pas je zoekopdracht aan om meer resultaten te zien"}
               </p>
               {calculaties.length === 0 && (
                 <Button 
                   className="gap-2"
-                  onClick={handleNieuweCalculatie}
+                  onClick={createNewCalculatie}
                   disabled={isCreating}
                 >
                   {isCreating ? (
@@ -958,7 +627,7 @@ USING (auth.uid() = user_id);
                   ) : (
                     <>
                       <Plus className="h-4 w-4" />
-                      Nieuwe Calculatie
+                      Eerste Calculatie
                     </>
                   )}
                 </Button>
@@ -969,16 +638,8 @@ USING (auth.uid() = user_id);
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[250px]">
-                      <button 
-                        onClick={() => setSortBy("naam")}
-                        className="flex items-center gap-1 hover:text-blue-600"
-                      >
-                        Project
-                        <ArrowUpDown className="h-3 w-3" />
-                      </button>
-                    </TableHead>
-                    <TableHead>Klant</TableHead>
+                    <TableHead className="w-[250px]">Calculatie</TableHead>
+                    <TableHead>Klant/Project</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Totaal</TableHead>
                     <TableHead>Laatst gewijzigd</TableHead>
@@ -989,47 +650,57 @@ USING (auth.uid() = user_id);
                   {filteredCalculaties.map((calculatie) => (
                     <TableRow key={calculatie.id} className="hover:bg-gray-50">
                       <TableCell>
-                        <div className="font-medium">{calculatie.naam || "Naamloos project"}</div>
+                        <div className="font-medium">{calculatie.naam || "Naamloos"}</div>
                         <div className="text-sm text-gray-500">
-                          {calculatie.adres || "Geen adres"}, {calculatie.postcode || ""} {calculatie.plaats || ""}
+                          Calc. #{calculatie.calculatie_nummer || calculatie.id?.substring(0, 8)}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="font-medium">{calculatie.klant_naam || "Geen klant"}</div>
-                        {calculatie.klant_email && (
-                          <div className="text-sm text-gray-500">{calculatie.klant_email}</div>
-                        )}
-                      </TableCell>
-                      <TableCell>{getStatusBadge(calculatie.status)}</TableCell>
-                      <TableCell className="font-semibold">
-                        {formatCurrency(calculatie.metadata?.totaal_incl_btw)}
+                        <div className="text-sm text-gray-500">
+                          {formatProjectInfo(calculatie)}
+                        </div>
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm">{formatDate(calculatie.updated_at)}</div>
+                        {getStatusBadge(calculatie.status)}
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        {formatCurrency(
+                          calculatie.metadata?.totaal_incl_btw || 
+                          calculatie.totaal_incl_btw || 
+                          calculatie.totaal_bedrag || 
+                          0
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-3 w-3 text-gray-400" />
+                          <span className="text-sm">{formatDate(calculatie.updated_at)}</span>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-2">
-                          {calculatie.pdf_url && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => window.open(calculatie.pdf_url, '_blank')}
-                              title="Download PDF"
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          )}
-                          
                           <Link href={`/calculaties/${calculatie.id}`}>
                             <Button variant="ghost" size="sm" title="Bekijken">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
                           
+                          {calculatie.pdf_url && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => window.open(calculatie.pdf_url, '_blank')}
+                              title="PDF Downloaden"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          )}
+                          
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDeleteClick(calculatie)}
+                            onClick={() => deleteCalculatie(calculatie)}
                             title="Verwijderen"
                           >
                             <Trash2 className="h-4 w-4 text-red-500" />
