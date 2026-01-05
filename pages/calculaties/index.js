@@ -1,4 +1,4 @@
-// pages/calculaties/index.js - ZONDER EXTERNE PROGRESS
+// pages/calculaties/index.js - MET SUPABASE AUTH
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
@@ -53,7 +53,16 @@ function SimpleProgress({ value = 0, className = '' }) {
 
 export default function CalculatiesPage() {
   const router = useRouter()
-  const { user, loading: authLoading } = useAuth()
+  
+  // ======================
+  // AUTH - GEBRUIK NIEUWE FUNCTIES
+  // ======================
+  const { 
+    user, 
+    loading: authLoading, 
+    userProfile, 
+    getIdToken 
+  } = useAuth()
   
   // State management
   const [calculaties, setCalculaties] = useState([])
@@ -98,7 +107,7 @@ export default function CalculatiesPage() {
   }, [calculaties, searchTerm, statusFilter, sortBy, sortOrder])
 
   // ======================
-  // FUNCTIES
+  // FUNCTIES - GEWIJZIGD VOOR SUPABASE
   // ======================
 
   const fetchCalculaties = async () => {
@@ -108,16 +117,22 @@ export default function CalculatiesPage() {
     setError(null)
     
     try {
-      let token
-      try {
-        token = await user.getIdToken()
-      } catch (tokenError) {
-        console.error("Token error:", tokenError)
-        setError("Authenticatie probleem. Probeer opnieuw in te loggen.")
+      // GEBRUIK DE NIEUWE getIdToken FUNCTIE
+      const token = await getIdToken()
+      
+      if (!token) {
+        setError("Authenticatie token niet beschikbaar. Log opnieuw in.")
         return
       }
       
-      const response = await fetch(`${API_ENDPOINTS.BACKEND_API}/api/projects?user_id=${user.id}`, {
+      // GEBRUIK userProfile.id VOOR USER ID
+      const userId = userProfile?.id || user?.id
+      if (!userId) {
+        setError("Gebruiker niet gevonden")
+        return
+      }
+      
+      const response = await fetch(`${API_ENDPOINTS.BACKEND_API}/api/projects?user_id=${userId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -126,6 +141,13 @@ export default function CalculatiesPage() {
       })
       
       if (!response.ok) {
+        // Check voor auth errors
+        if (response.status === 401 || response.status === 403) {
+          setError("U heeft geen toegang tot deze data. Log opnieuw in.")
+          setTimeout(() => router.push('/login'), 2000)
+          return
+        }
+        
         const errorText = await response.text()
         throw new Error(`Fout bij het ophalen: ${response.status} - ${errorText}`)
       }
@@ -227,7 +249,14 @@ export default function CalculatiesPage() {
     setError(null)
     
     try {
-      const token = await user.getIdToken()
+      // GEBRUIK DE NIEUWE getIdToken FUNCTIE
+      const token = await getIdToken()
+      
+      if (!token) {
+        setError("Authenticatie token niet beschikbaar. Log opnieuw in.")
+        return
+      }
+      
       const response = await fetch(`${API_ENDPOINTS.BACKEND_API}/api/projects/${calculatie.id}`, {
         method: 'DELETE',
         headers: {
@@ -236,7 +265,13 @@ export default function CalculatiesPage() {
         }
       })
       
-      if (!response.ok) throw new Error('Verwijderen mislukt')
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          setError("U heeft geen toestemming om deze calculatie te verwijderen")
+          return
+        }
+        throw new Error('Verwijderen mislukt')
+      }
       
       const updatedCalculaties = calculaties.filter(c => c.id !== calculatie.id)
       setCalculaties(updatedCalculaties)
