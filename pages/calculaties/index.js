@@ -9,6 +9,9 @@ export default function CalculatiesPage() {
   const [uiStep, setUiStep] = useState('start');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [calculationModel, setCalculationModel] = useState('');
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [autoStarted, setAutoStarted] = useState(false);
   const [nawData, setNawData] = useState({
     project_name: '',
     client_name: '',
@@ -36,6 +39,14 @@ export default function CalculatiesPage() {
   const [calculationStatus, setCalculationStatus] = useState(null);
   const [results, setResults] = useState(null);
 
+  const CALCULATION_MODELS = {
+    nieuwbouw: { ak: 6, abk: 5, risk: 4, profit: 6 },
+    transformatie: { ak: 7, abk: 6, risk: 6, profit: 6 },
+    renovatie: { ak: 8, abk: 6, risk: 7, profit: 5 },
+    uitbreiding: { ak: 7, abk: 5, risk: 6, profit: 6 },
+    verduurzaming: { ak: 6, abk: 4, risk: 3, profit: 5 },
+  };
+
   const loadDocuments = async (projectId) => {
     if (!projectId) return;
     try {
@@ -61,7 +72,22 @@ export default function CalculatiesPage() {
           (payload) => {
             setCalculationStatus(payload.new.status);
             if (payload.new.status === 'completed') {
+              // load results and then request server-side PDF generation (if not exists)
               loadResults();
+              // trigger server-side PDF generation
+              (async () => {
+                try {
+                  await fetch('/api/generate-pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ calculation_id: calculationId }),
+                  });
+                  const { data: calc } = await supabase.from('calculations').select('*').eq('id', calculationId).maybeSingle();
+                  if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
+                } catch (e) {
+                  console.error('PDF generation trigger failed', e);
+                }
+              })();
             }
           }
         )
@@ -171,6 +197,10 @@ export default function CalculatiesPage() {
     setLoading(true);
     setError(null);
     try {
+      if (!calculationModel) throw new Error('Kies een type calculatie');
+      const model = CALCULATION_MODELS[calculationModel];
+      if (!model) throw new Error('Ongeldig calculatiemodel');
+
       const { data: calculation, error: calcError } = await supabase
         .from('calculations')
         .insert({
@@ -184,12 +214,13 @@ export default function CalculatiesPage() {
         .single();
       if (calcError) throw calcError;
 
+      // Snapshot overheads from chosen model (trusted, immutable)
       const { error: overheadError } = await supabase.from('calculation_overheads').insert({
         calculation_id: calculation.id,
-        ak_percentage: settings.ak_percentage,
-        abk_percentage: settings.abk_percentage,
-        risk_percentage: settings.risk_percentage,
-        profit_percentage: settings.profit_percentage,
+        ak_percentage: model.ak,
+        abk_percentage: model.abk,
+        risk_percentage: model.risk,
+        profit_percentage: model.profit,
       });
       if (overheadError) throw overheadError;
 
@@ -199,12 +230,23 @@ export default function CalculatiesPage() {
       setCalculationId(calculation.id);
       setCalculationStatus('queued');
       setUiStep('running');
+      setAutoStarted(true);
     } catch (err) {
       setError(err.message || 'Fout bij starten calculatie');
     } finally {
       setLoading(false);
     }
   };
+
+  // Auto-start when requirements are met: at least one drawing uploaded, settings filled and model chosen
+  useEffect(() => {
+    if (uiStep !== 'settings' || autoStarted) return;
+    const hasDrawing = documents.some((d) => d.document_type === 'drawing');
+    const settingsFilled = settings.scenario_name && calculationModel;
+    if (hasDrawing && settingsFilled && !loading) {
+      handleStartAICalculation();
+    }
+  }, [uiStep, documents, settings, calculationModel, autoStarted]);
 
   const groupRowsByFase = (rows) => {
     const phases = ['voorbereiding', 'sloop', 'ruwbouw', 'afbouw', 'installaties', 'oplevering'];
@@ -223,6 +265,33 @@ export default function CalculatiesPage() {
     return rows.reduce((sum, row) => sum + (parseFloat(row.regel_totaal) || 0), 0);
   };
 
+  const handleDownloadPdf = async () => {
+    try {
+      if (!pdfUrl) {
+        const { data: calc } = await supabase.from('calculations').select('*').eq('id', calculationId).maybeSingle();
+        if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
+        else throw new Error('Geen PDF beschikbaar');
+      }
+      const { data } = supabase.storage.from('sterkcalc').getPublicUrl(pdfUrl || '');
+      if (data?.publicURL) {
+        window.open(data.publicURL, '_blank');
+      } else {
+        throw new Error('Kon PDF niet ophalen');
+      }
+    } catch (e) {
+      setError(e.message || 'Download mislukt');
+    }
+  };
+
+  useEffect(() => {
+    if (calculationStatus === 'completed' && calculationId) {
+      (async () => {
+        const { data: calc } = await supabase.from('calculations').select('*').eq('id', calculationId).maybeSingle();
+        if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
+      })();
+    }
+  }, [calculationStatus, calculationId]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
@@ -233,6 +302,18 @@ export default function CalculatiesPage() {
 
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Type calculatie</label>
+                <select value={calculationModel} onChange={(e) => setCalculationModel(e.target.value)} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent">
+                  <option value="">-- Kies type calculatie --</option>
+                  <option value="nieuwbouw">Nieuwbouw</option>
+                  <option value="transformatie">Transformatie</option>
+                  <option value="renovatie">Renovatie</option>
+                  <option value="uitbreiding">Uitbreiding</option>
+                  <option value="verduurzaming">Verduurzaming</option>
+                </select>
+                {!calculationModel && <p className="text-xs text-slate-500 mt-1">Verplicht</p>}
+              </div>
             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-red-800">Fout</p>
@@ -425,7 +506,7 @@ export default function CalculatiesPage() {
             </div>
 
             <div className="mt-8 flex justify-end">
-              <button onClick={handleStartAICalculation} disabled={loading || !settings.scenario_name} className="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+              <button onClick={handleStartAICalculation} disabled={loading || !settings.scenario_name || !calculationModel} className="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />} Start AI calculatie
               </button>
             </div>
@@ -498,6 +579,11 @@ export default function CalculatiesPage() {
                   <p className="text-sm text-slate-600">Totaalbedrag</p>
                   <p className="text-2xl font-bold text-slate-900"> € {results.version.total_amount?.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
+                {calculationStatus === 'completed' && (
+                  <div className="flex items-center gap-2">
+                    <button onClick={handleDownloadPdf} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">Download 2jours PDF</button>
+                  </div>
+                )}
               </div>
 
               {Object.entries(groupRowsByFase(results.rows)).map(([fase, rows]) => {
