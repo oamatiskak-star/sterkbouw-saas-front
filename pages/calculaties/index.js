@@ -1,4 +1,4 @@
-// SterkBouw-SaaS-Frontend/pages/calculaties/index.js - MET GECORRIGEERDE "NIEUWE CALCULATIE" KNOOP
+// SterkBouw-SaaS-Frontend/pages/calculaties/index.js - MET DIRECT SUPABASE
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
@@ -34,24 +34,15 @@ import {
   ArrowUpDown,
   RefreshCw,
   TestTube,
-  Database
+  Database,
+  ExternalLink
 } from "lucide-react"
 
-// API endpoints - GEBRUIK JUISTE ENV VARIABLES
-const API_ENDPOINTS = {
-  // Gebruik API_URL (zoals in je Railway staat), anders AO_CORE_URL, anders fallback
-  API_BASE: process.env.NEXT_PUBLIC_API_URL || 
-            process.env.NEXT_PUBLIC_AO_CORE_URL || 
-            process.env.NEXT_PUBLIC_EXECUTOR_API || 
-            "https://sterkbouw-saas-executor-production.up.railway.app",
-}
-
-// Log de API configuratie voor debugging
-console.log('🔧 API Configuratie:', {
-  API_URL: process.env.NEXT_PUBLIC_API_URL,
-  AO_CORE_URL: process.env.NEXT_PUBLIC_AO_CORE_URL,
-  EXECUTOR_API: process.env.NEXT_PUBLIC_EXECUTOR_API,
-  API_BASE: API_ENDPOINTS.API_BASE
+// Log de Supabase configuratie voor debugging
+console.log('🔧 Supabase Configuratie:', {
+  SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Set' : '❌ Not set',
+  SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Not set',
+  HOST: typeof window !== 'undefined' ? window.location.host : 'server'
 });
 
 // Simple inline Progress component
@@ -66,121 +57,7 @@ function SimpleProgress({ value = 0, className = '' }) {
   )
 }
 
-// Helper function voor CORS-compliant API calls - GEFIXTE VERSIE
-const createApiClient = (getToken) => {
-  return {
-    async request(endpoint, options = {}) {
-      const token = await getToken();
-      
-      // Bepaal of we proxy moeten gebruiken (client-side CORS issues)
-      const isBrowser = typeof window !== 'undefined';
-      const apiBase = API_ENDPOINTS.API_BASE;
-      
-      // Controleer of apiBase geldig is
-      if (!apiBase || typeof apiBase !== 'string') {
-        throw new Error(`Invalid API base URL: ${apiBase}`);
-      }
-      
-      let url;
-      let fetchOptions = {
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
-          ...options.headers,
-        },
-      };
-      
-      // Als we in de browser zijn en het is cross-origin, gebruik CORS mode
-      if (isBrowser) {
-        try {
-          const apiOrigin = new URL(apiBase).origin;
-          const frontendOrigin = window.location.origin;
-          
-          // Als origins verschillend zijn, gebruik CORS mode
-          if (apiOrigin !== frontendOrigin) {
-            fetchOptions.mode = 'cors';
-            fetchOptions.credentials = 'include';
-          }
-        } catch (urlError) {
-          console.warn('URL parsing error, using CORS mode:', urlError);
-          fetchOptions.mode = 'cors';
-          fetchOptions.credentials = 'include';
-        }
-        
-        url = `${apiBase}${endpoint}`;
-      } else {
-        // Server-side, directe URL
-        url = `${apiBase}${endpoint}`;
-      }
-      
-      try {
-        console.log('API Request:', { url, method: options.method || 'GET' });
-        const response = await fetch(url, fetchOptions);
-        
-        // Als CORS error, probeer proxy
-        if (response.status === 0 || response.type === 'opaque') {
-          console.warn('CORS error detected, trying proxy...');
-          
-          // Gebruik Next.js API route als proxy
-          const proxyUrl = `/api/proxy${endpoint}`;
-          const proxyResponse = await fetch(proxyUrl, {
-            method: options.method || 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              ...(token && { 'Authorization': `Bearer ${token}` }),
-            }
-          });
-          
-          return proxyResponse;
-        }
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`HTTP ${response.status}: ${errorText}`);
-        }
-        
-        return response;
-      } catch (error) {
-        console.error('API request error:', error);
-        
-        // Als fetch mislukt, probeer proxy
-        if (isBrowser && error.message.includes('Failed to fetch')) {
-          console.log('Trying proxy as fallback...');
-          const proxyUrl = `/api/proxy${endpoint}`;
-          return fetch(proxyUrl, {
-            method: options.method || 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              ...(token && { 'Authorization': `Bearer ${token}` }),
-            }
-          });
-        }
-        
-        throw error;
-      }
-    },
-    
-    async get(endpoint, options = {}) {
-      return this.request(endpoint, { ...options, method: 'GET' });
-    },
-    
-    async post(endpoint, data, options = {}) {
-      return this.request(endpoint, { 
-        ...options, 
-        method: 'POST',
-        body: JSON.stringify(data)
-      });
-    },
-    
-    async delete(endpoint, options = {}) {
-      return this.request(endpoint, { ...options, method: 'DELETE' });
-    }
-  };
-};
-
-// Helper: Genereer mock calculaties voor demo/falleback
+// Helper: Genereer mock calculaties voor demo/fallback
 const generateMockCalculaties = (userId) => {
   return [
     {
@@ -246,57 +123,6 @@ const generateMockCalculaties = (userId) => {
   ];
 };
 
-// Functie om API endpoints te testen
-const testApiEndpoints = async (apiBase) => {
-  const testEndpoints = [
-    '/',
-    '/health',
-    '/api',
-    '/ai/health',
-    '/ai/api',
-    '/docs',
-    '/openapi.json',
-    '/api/health',
-    '/status'
-  ];
-  
-  const results = [];
-  
-  for (const endpoint of testEndpoints) {
-    try {
-      const response = await fetch(`${apiBase}${endpoint}`, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' }
-      });
-      
-      results.push({
-        endpoint,
-        status: response.status,
-        ok: response.ok,
-        contentType: response.headers.get('content-type')
-      });
-      
-      if (response.ok) {
-        try {
-          const data = await response.text();
-          results[results.length - 1].preview = data.substring(0, 200);
-        } catch (e) {
-          results[results.length - 1].preview = 'Could not parse response';
-        }
-      }
-    } catch (error) {
-      results.push({
-        endpoint,
-        status: 'ERROR',
-        ok: false,
-        error: error.message
-      });
-    }
-  }
-  
-  return results;
-};
-
 export default function CalculatiesPage() {
   const router = useRouter()
   
@@ -317,6 +143,7 @@ export default function CalculatiesPage() {
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
   const [isCreating, setIsCreating] = useState(false) // Voor nieuwe calculatie knop
+  const [supabaseStatus, setSupabaseStatus] = useState('unknown') // 'connected', 'error', 'unknown'
   
   // Filter and search state
   const [searchTerm, setSearchTerm] = useState("")
@@ -354,7 +181,7 @@ export default function CalculatiesPage() {
   }, [calculaties, searchTerm, statusFilter, sortBy, sortOrder])
 
   // ======================
-  // FUNCTIES - GEFIXTE VERSIE
+  // FUNCTIES - DIRECT SUPABASE VERSIE
   // ======================
 
   const fetchCalculaties = async () => {
@@ -364,13 +191,6 @@ export default function CalculatiesPage() {
     setError(null)
     
     try {
-      const token = await getIdToken()
-      
-      if (!token) {
-        setError("Authenticatie token niet beschikbaar. Log opnieuw in.")
-        return
-      }
-      
       const userId = userProfile?.id || user?.id
       if (!userId) {
         setError("Gebruiker niet gevonden")
@@ -378,239 +198,116 @@ export default function CalculatiesPage() {
       }
       
       console.log('🔍 Fetching calculaties voor user:', userId);
-      console.log('📡 API Base URL:', API_ENDPOINTS.API_BASE);
+      console.log('📡 Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
       
-      // Controleer of API_BASE geldig is
-      if (!API_ENDPOINTS.API_BASE || API_ENDPOINTS.API_BASE.includes('<executor-service>')) {
-        throw new Error(`
-          ⚠️ API URL niet correct geconfigureerd!
-          
-          Huidige API_BASE: ${API_ENDPOINTS.API_BASE}
-          
-          **Railway Variables:**
-          - NEXT_PUBLIC_API_URL: ${process.env.NEXT_PUBLIC_API_URL || '❌ Niet ingesteld'}
-          - NEXT_PUBLIC_AO_CORE_URL: ${process.env.NEXT_PUBLIC_AO_CORE_URL || '❌ Niet ingesteld'}
-          
-          **Fix in Railway:**
-          1. Ga naar SterkBouw-SaaS-Frontend → Variables
-          2. Zet NEXT_PUBLIC_API_URL = https://sterkbouw-saas-executor-production.up.railway.app
-          3. Klik Save & Redeploy
-        `);
-      }
-      
-      // Test eerst of Executor online is
-      console.log('Testing Executor health...');
+      // Test eerst of Supabase connectie werkt
       try {
-        const healthResponse = await fetch(`${API_ENDPOINTS.API_BASE}/health`, {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        });
-        console.log('Executor health:', healthResponse.status, healthResponse.ok);
-      } catch (healthError) {
-        console.warn('Executor health check failed:', healthError.message);
+        const { error: testError } = await supabase
+          .from('calculaties')
+          .select('id')
+          .limit(1)
+        
+        if (testError && testError.code === 'PGRST301') {
+          // Table doesn't exist yet
+          console.log('⚠️ Table "calculaties" might not exist yet, will create demo data');
+          setSupabaseStatus('table_missing')
+        } else if (testError) {
+          console.error('Supabase test error:', testError)
+          setSupabaseStatus('error')
+        } else {
+          setSupabaseStatus('connected')
+        }
+      } catch (testErr) {
+        console.error('Supabase connection test failed:', testErr)
+        setSupabaseStatus('error')
       }
       
-      // Gebruik de API client helper
-      const api = createApiClient(() => Promise.resolve(token));
-      const endpoint = `/api/projects?user_id=${userId}`;
+      // Haal calculaties op uit Supabase
+      const { data, error } = await supabase
+        .from('calculaties')
+        .select('*')
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false })
       
-      const response = await api.get(endpoint);
-      
-      if (!response.ok) {
-        // Check voor auth errors
-        if (response.status === 401 || response.status === 403) {
-          setError("U heeft geen toegang tot deze data. Log opnieuw in.")
-          setTimeout(() => router.push('/login'), 2000)
+      if (error) {
+        console.error('Supabase query error:', error)
+        
+        // Als de tabel niet bestaat, gebruik mock data
+        if (error.code === 'PGRST301' || error.message.includes('relation') || error.message.includes('does not exist')) {
+          console.log('Table "calculaties" does not exist yet, using mock data')
+          const mockData = generateMockCalculaties(userId)
+          setCalculaties(mockData)
+          updateStats(mockData)
+          setSuccess('Tabel "calculaties" bestaat nog niet, toon demo data')
+          setTimeout(() => setSuccess(null), 3000)
           return
         }
         
-        // 404 betekent dat Executor geen /api/projects endpoint heeft
-        if (response.status === 404) {
-          console.warn('Executor heeft geen /api/projects endpoint, gebruik mock data');
-          throw new Error('EXECUTOR_NO_PROJECTS_ENDPOINT');
-        }
-        
-        const errorText = await response.text();
-        throw new Error(`Fout bij het ophalen: ${response.status} - ${errorText}`);
+        throw new Error(`Supabase fout: ${error.message}`)
       }
       
-      const data = await response.json();
-      const calculatiesArray = Array.isArray(data) ? data : [];
+      const calculatiesArray = Array.isArray(data) ? data : []
       
       // Als er data is, gebruik die
       if (calculatiesArray.length > 0) {
-        console.log(`✅ ${calculatiesArray.length} calculaties gevonden`);
-        setCalculaties(calculatiesArray);
-        updateStats(calculatiesArray);
+        console.log(`✅ ${calculatiesArray.length} calculaties gevonden in Supabase`)
+        setCalculaties(calculatiesArray)
+        updateStats(calculatiesArray)
       } else {
         // Geen data, gebruik mock voor demo
-        console.log('Geen calculaties gevonden, gebruik demo data');
-        const mockData = generateMockCalculaties(userId);
-        setCalculaties(mockData);
-        updateStats(mockData);
-        setSuccess('Geen projecten gevonden, toon demo data');
-        setTimeout(() => setSuccess(null), 3000);
+        console.log('Geen calculaties gevonden in Supabase, gebruik demo data')
+        const mockData = generateMockCalculaties(userId)
+        setCalculaties(mockData)
+        updateStats(mockData)
+        setSuccess('Geen projecten gevonden in database, toon demo data')
+        setTimeout(() => setSuccess(null), 3000)
       }
       
     } catch (err) {
-      console.error('❌ Fetch error:', err);
+      console.error('❌ Fetch error:', err)
       
-      // Specifieke error handling
-      if (err.message === 'EXECUTOR_NO_PROJECTS_ENDPOINT') {
-        // Executor heeft geen project endpoint, gebruik mock data
-        const mockData = generateMockCalculaties(userProfile?.id || user?.id);
-        setCalculaties(mockData);
-        updateStats(mockData);
+      // Fallback naar mock data
+      const mockData = generateMockCalculaties(userProfile?.id || user?.id)
+      setCalculaties(mockData)
+      updateStats(mockData)
+      
+      setError(`
+        🚨 Fout bij ophalen calculaties
         
-        setError(`
-          ⚠️ Executor heeft geen project endpoint
-          
-          **API:** ${API_ENDPOINTS.API_BASE}
-          **Endpoint:** /api/projects
-          
-          **Wat te doen:**
-          1. Voeg project endpoints toe aan Executor
-          2. Of gebruik direct Supabase in frontend
-          
-          **Voor nu:** Demo data getoond
-        `);
-      } else if (err.message.includes('Failed to fetch') || err.message.includes('CORS') || err.message.includes('NetworkError')) {
-        // CORS/network error, gebruik mock data
-        const mockData = generateMockCalculaties(userProfile?.id || user?.id);
-        setCalculaties(mockData);
-        updateStats(mockData);
+        **Details:** ${err.message}
         
-        setError(`
-          🌐 Netwerk/CORS Fout
-          
-          Kan geen verbinding maken met Executor.
-          
-          **API:** ${API_ENDPOINTS.API_BASE}
-          **Fout:** ${err.message}
-          
-          **Mogelijke oorzaken:**
-          1. Executor staat CORS niet toe voor dit domein
-          2. Executor is offline
-          3. Firewall/netwerk probleem
-          
-          **Voor nu:** Demo data getoond
-        `);
-      } else {
-        // Andere error, gebruik mock data
-        const mockData = generateMockCalculaties(userProfile?.id || user?.id);
-        setCalculaties(mockData);
-        updateStats(mockData);
+        **Oplossing gebruikt:** Demo data getoond
         
-        setError(`
-          🚨 Fout bij ophalen calculaties
-          
-          **Details:** ${err.message}
-          
-          **API Config:**
-          - NEXT_PUBLIC_API_URL: ${process.env.NEXT_PUBLIC_API_URL || '❌ Niet ingesteld'}
-          - NEXT_PUBLIC_AO_CORE_URL: ${process.env.NEXT_PUBLIC_AO_CORE_URL || '❌ Niet ingesteld'}
-          - API_BASE: ${API_ENDPOINTS.API_BASE}
-          
-          **Oplossing gebruikt:** Demo data getoond
-        `);
-      }
+        **Supabase Status:** ${supabaseStatus}
+      `)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   // ======================
-  // NIEUWE CALCULATIE FUNCTIE - GECORRIGEERDE VERSIE
+  // NIEUWE CALCULATIE FUNCTIE - SIMPELE SUPABASE VERSIE
   // ======================
 
   const handleNieuweCalculatie = async () => {
     if (!user) {
-      setError("Je moet ingelogd zijn om een nieuwe calculatie te maken");
-      router.push('/login');
-      return;
+      setError("Je moet ingelogd zijn om een nieuwe calculatie te maken")
+      router.push('/login')
+      return
     }
 
-    setIsCreating(true);
-    setError(null);
+    setIsCreating(true)
+    setError(null)
     
     try {
-      const userId = userProfile?.id || user?.id;
+      const userId = userProfile?.id || user?.id
       if (!userId) {
-        throw new Error('Gebruiker niet gevonden');
+        throw new Error('Gebruiker niet gevonden')
       }
 
-      const apiBase = API_ENDPOINTS.API_BASE;
-      console.log('🔄 Start nieuwe calculatie voor user:', userId);
-      console.log('📡 API Base URL:', apiBase);
-
-      // Probeer verschillende endpoints voor nieuwe calculatie
-      const endpoints = [
-        '/ai/start',           // AI Engine endpoint
-        '/ai/calculate/start',  // AI Engine berekening starten
-        '/api/start',          // AO Executor API endpoint
-        '/api/calculaties/new', // Mogelijk calculatie endpoint
-        '/start',              // Direct AO Executor endpoint
-        '/calculate/start',    // Berekening starten
-        '/projects/new'        // Mogelijk project endpoint
-      ];
-
-      let newCalculatieId = null;
-      let lastError = null;
-
-      // Probeer eerst executor endpoints
-      for (const endpoint of endpoints) {
-        try {
-          console.log(`🔍 Probeer executor endpoint: ${apiBase}${endpoint}`);
-          
-          const response = await fetch(`${apiBase}${endpoint}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-              action: 'create_calculatie',
-              user_id: userId,
-              timestamp: new Date().toISOString(),
-              type: 'bouw_calculatie',
-              parameters: {
-                template: 'default',
-                mode: 'draft'
-              }
-            })
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            console.log('✅ Executor response:', data);
-
-            // Extract ID uit verschillende response formaten
-            if (data.id) newCalculatieId = data.id;
-            else if (data.calculation_id) newCalculatieId = data.calculation_id;
-            else if (data.result?.id) newCalculatieId = data.result.id;
-            else if (data.calculatie_id) newCalculatieId = data.calculatie_id;
-            else if (data.projectId) newCalculatieId = data.projectId;
-            
-            if (newCalculatieId) {
-              console.log(`🎯 ID ontvangen van executor: ${newCalculatieId}`);
-              break;
-            }
-          }
-        } catch (err) {
-          lastError = err;
-          console.log(`❌ Executor endpoint ${endpoint} faalde:`, err.message);
-        }
-      }
-
-      // Als executor ID geeft, redirect
-      if (newCalculatieId) {
-        router.push(`/calculaties/${newCalculatieId}`);
-        return;
-      }
-
-      // Geen ID van executor, gebruik Supabase als fallback
-      console.log('⚠️ Geen ID van executor ontvangen, probeer Supabase...');
+      console.log('🔄 Start nieuwe calculatie voor user:', userId)
       
+      // Maak nieuwe calculatie aan in Supabase
       const { data: newCalc, error: supabaseError } = await supabase
         .from('calculaties')
         .insert({
@@ -620,30 +317,38 @@ export default function CalculatiesPage() {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           metadata: {
-            aangemaakt_via: 'frontend_fallback',
+            aangemaakt_via: 'frontend_index',
             template: 'default',
             versie: 1,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            totaal_incl_btw: 0
           }
         })
         .select()
-        .single();
+        .single()
 
       if (supabaseError) {
-        console.error('❌ Supabase error:', supabaseError);
+        console.error('❌ Supabase error:', supabaseError)
         
-        // Laatste fallback: demo ID
-        const demoId = `demo-${Date.now()}`;
-        setSuccess(`Geen live backend beschikbaar. Demo modus gestart met ID: ${demoId}`);
-        router.push(`/calculaties/${demoId}?demo=true&source=fallback`);
-      } else {
-        console.log(`✅ Nieuwe calculatie aangemaakt in Supabase: ${newCalc.id}`);
-        setSuccess('Nieuwe calculatie aangemaakt in Supabase');
-        router.push(`/calculaties/${newCalc.id}`);
+        // Als de tabel niet bestaat, maak dan een demo ID aan
+        if (supabaseError.code === 'PGRST301' || supabaseError.message.includes('relation')) {
+          console.log('Table "calculaties" does not exist, creating demo ID')
+          const demoId = `demo-${Date.now()}`
+          setSuccess('Database tabel bestaat nog niet. Demo modus gestart.')
+          router.push(`/calculaties/${demoId}?demo=true`)
+          return
+        }
+        
+        throw new Error(`Aanmaken mislukt: ${supabaseError.message}`)
       }
 
+      console.log(`✅ Nieuwe calculatie aangemaakt in Supabase: ${newCalc.id}`)
+      setSuccess('Nieuwe calculatie aangemaakt!')
+      setTimeout(() => setSuccess(null), 3000)
+      router.push(`/calculaties/${newCalc.id}`)
+
     } catch (error) {
-      console.error('❌ Fout bij nieuwe calculatie:', error);
+      console.error('❌ Fout bij nieuwe calculatie:', error)
       
       setError(`
         Kon geen nieuwe calculatie starten:
@@ -654,17 +359,17 @@ export default function CalculatiesPage() {
         1. Probeer opnieuw
         2. Contacteer support als probleem aanhoudt
         3. Gebruik demo modus:
-      `);
+      `)
       
       // Bied demo optie aan
       if (confirm('Kon geen nieuwe calculatie starten. Wilt u een demo berekening zien?')) {
-        const demoId = `demo-${Date.now()}`;
-        router.push(`/calculaties/${demoId}?demo=true`);
+        const demoId = `demo-${Date.now()}`
+        router.push(`/calculaties/${demoId}?demo=true`)
       }
     } finally {
-      setIsCreating(false);
+      setIsCreating(false)
     }
-  };
+  }
 
   // ======================
   // HULP FUNCTIES
@@ -754,27 +459,21 @@ export default function CalculatiesPage() {
     setError(null)
     
     try {
-      const token = await getIdToken()
-      
-      if (!token) {
-        setError("Authenticatie token niet beschikbaar. Log opnieuw in.")
+      const userId = userProfile?.id || user?.id
+      if (!userId) {
+        setError("Gebruiker niet gevonden")
         return
       }
       
-      // Gebruik de API client helper
-      const api = createApiClient(() => Promise.resolve(token));
-      const endpoint = `/api/projects/${calculatie.id}`;
+      // Direct Supabase delete
+      const { error } = await supabase
+        .from('calculaties')
+        .delete()
+        .eq('id', calculatie.id)
+        .eq('user_id', userId) // Extra beveiliging
       
-      const response = await api.delete(endpoint);
-      
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          setError("U heeft geen toestemming om deze calculatie te verwijderen")
-          return
-        }
-        
-        const errorText = await response.text();
-        throw new Error(`Verwijderen mislukt: ${response.status} - ${errorText}`);
+      if (error) {
+        throw new Error(`Verwijderen mislukt: ${error.message}`)
       }
       
       const updatedCalculaties = calculaties.filter(c => c.id !== calculatie.id)
@@ -785,10 +484,10 @@ export default function CalculatiesPage() {
       setTimeout(() => setSuccess(null), 3000)
       
     } catch (err) {
-      console.error('Delete error:', err);
-      setError(err instanceof Error ? err.message : 'Verwijderen mislukt');
+      console.error('Delete error:', err)
+      setError(err instanceof Error ? err.message : 'Verwijderen mislukt')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
@@ -832,37 +531,66 @@ export default function CalculatiesPage() {
     }).format(amount || 0)
   }
 
-  // Functie om API endpoints te testen
-  const handleTestEndpoints = async () => {
-    setIsLoading(true);
+  // Functie om Supabase tabel te testen
+  const testSupabaseConnection = async () => {
+    setIsLoading(true)
     try {
-      const results = await testApiEndpoints(API_ENDPOINTS.API_BASE);
-      console.log('API Test Results:', results);
+      console.log('🔍 Test Supabase connection...')
       
-      // Toon resultaten in console
-      alert('API test resultaten in browser console bekijken (F12)');
+      // Test 1: Check if we can query
+      const { data: tables, error: tablesError } = await supabase
+        .from('pg_tables')
+        .select('tablename')
+        .eq('schemaname', 'public')
+        .limit(5)
       
-      // Toon ook in error state voor gebruiker
-      const workingEndpoints = results.filter(r => r.ok);
-      const errorEndpoints = results.filter(r => !r.ok);
+      console.log('Tables query result:', tablesError ? 'Error' : 'Success', tables)
       
-      setError(`
-        🔧 API Endpoint Test Resultaten:
+      // Test 2: Try to count calculaties
+      const { count, error: countError } = await supabase
+        .from('calculaties')
+        .select('*', { count: 'exact', head: true })
+      
+      console.log('Calculaties count:', count, 'Error:', countError)
+      
+      // Test 3: Try to get user's calculaties
+      const userId = userProfile?.id || user?.id
+      if (userId) {
+        const { data, error } = await supabase
+          .from('calculaties')
+          .select('id')
+          .eq('user_id', userId)
+          .limit(1)
         
-        **Werkende endpoints (${workingEndpoints.length}):**
-        ${workingEndpoints.map(r => `✓ ${r.endpoint}: ${r.status}`).join('\n')}
+        console.log('User calculaties test:', data, error)
+      }
+      
+      alert(`
+        Supabase Test Resultaten (zie console voor details):
         
-        **Niet-werkende endpoints (${errorEndpoints.length}):**
-        ${errorEndpoints.map(r => `✗ ${r.endpoint}: ${r.error || r.status}`).join('\n')}
+        1. Tables query: ${tablesError ? 'Error' : 'Success'}
+        2. Calculaties count: ${count !== null ? count : 'N/A'} (Error: ${countError ? 'Yes' : 'No'})
+        3. Database: ${process.env.NEXT_PUBLIC_SUPABASE_URL}
         
-        **API Base:** ${API_ENDPOINTS.API_BASE}
-      `);
+        Controleer de browser console (F12) voor gedetailleerde logs.
+      `)
+      
     } catch (err) {
-      setError(`Fout bij testen endpoints: ${err.message}`);
+      console.error('Test error:', err)
+      alert(`Test error: ${err.message}`)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
+
+  const openSupabaseDashboard = () => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace('https://', 'https://app.supabase.com/project/')
+    if (url) {
+      window.open(url, '_blank')
+    } else {
+      alert('Supabase URL is niet geconfigureerd')
+    }
+  }
 
   // ======================
   // RENDER
@@ -887,6 +615,17 @@ export default function CalculatiesPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Calculaties</h1>
             <p className="text-gray-600">Overzicht van al uw bouwcalculaties</p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant={supabaseStatus === 'connected' ? 'default' : 'outline'} className="gap-1">
+                <Database className="h-3 w-3" />
+                {supabaseStatus === 'connected' ? 'Supabase verbonden' : 
+                 supabaseStatus === 'table_missing' ? 'Tabel ontbreekt' : 
+                 supabaseStatus === 'error' ? 'Fout' : 'Status onbekend'}
+              </Badge>
+              <span className="text-xs text-gray-500">
+                {process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Database: Aan' : 'Database: Uit'}
+              </span>
+            </div>
           </div>
           <div className="flex gap-2">
             <Button 
@@ -897,7 +636,7 @@ export default function CalculatiesPage() {
               {isCreating ? (
                 <>
                   <RefreshCw className="h-4 w-4 animate-spin" />
-                  Initialiseren...
+                  Aanmaken...
                 </>
               ) : (
                 <>
@@ -910,8 +649,8 @@ export default function CalculatiesPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={handleTestEndpoints}
-              title="Test API endpoints"
+              onClick={testSupabaseConnection}
+              title="Test Supabase verbinding"
             >
               <TestTube className="h-4 w-4" />
             </Button>
@@ -963,18 +702,18 @@ export default function CalculatiesPage() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => window.open(`${API_ENDPOINTS.API_BASE}/health`, '_blank')}
+              onClick={testSupabaseConnection}
             >
-              <Building className="h-4 w-4 mr-1" />
-              Test Executor
+              <Database className="h-4 w-4 mr-1" />
+              Test Database
             </Button>
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={handleTestEndpoints}
+              onClick={openSupabaseDashboard}
             >
-              <TestTube className="h-4 w-4 mr-1" />
-              Test Endpoints
+              <ExternalLink className="h-4 w-4 mr-1" />
+              Supabase Dashboard
             </Button>
           </div>
         </div>
@@ -1057,8 +796,10 @@ export default function CalculatiesPage() {
         <CardHeader>
           <CardTitle>Alle Calculaties ({filteredCalculaties.length})</CardTitle>
           <CardDescription>
-            API Base: {API_ENDPOINTS.API_BASE}
-            {isCreating && <span className="ml-2 text-blue-600">• Nieuwe calculatie aanmaken...</span>}
+            {isCreating && <span className="text-blue-600">• Nieuwe calculatie aanmaken...</span>}
+            {supabaseStatus === 'table_missing' && (
+              <span className="text-yellow-600">⚠️ Database tabel "calculaties" bestaat nog niet</span>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -1087,7 +828,7 @@ export default function CalculatiesPage() {
                   {isCreating ? (
                     <>
                       <RefreshCw className="h-4 w-4 animate-spin" />
-                      Initialiseren...
+                      Aanmaken...
                     </>
                   ) : (
                     <>
