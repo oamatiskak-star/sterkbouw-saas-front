@@ -124,18 +124,38 @@ export default function CalculatiesPage() {
     try {
       const userId = userProfile?.id || user?.id
       
-      const { data, error: dbError } = await supabase
+      // Probeer verschillende kolomnamen voor user ID
+      let query = supabase
         .from('projecten')
         .select('id, naam, project_nummer, adres, plaats, klant_naam')
-        .eq('gebruiker_id', userId)  // Changed from user_id to gebruiker_id
         .order('naam', { ascending: true })
       
-      if (dbError) {
-        console.error('Error loading projects:', dbError)
-        return
+      // Probeer verschillende gebruiker ID kolommen
+      if (userId) {
+        // Eerst proberen met 'gebruiker_id'
+        const { data: data1, error: error1 } = await query.eq('gebruiker_id', userId)
+        if (!error1 && data1) {
+          setProjects(data1 || [])
+          return
+        }
+        
+        // Dan proberen met 'user_id'
+        const { data: data2, error: error2 } = await query.eq('user_id', userId)
+        if (!error2 && data2) {
+          setProjects(data2 || [])
+          return
+        }
+        
+        // Als beide falen, probeer zonder filter (voor debugging)
+        console.warn('Kan gebruiker ID kolom niet vinden, laad alle projecten (debug)')
+        const { data: data3, error: error3 } = await query
+        if (!error3) {
+          setProjects(data3 || [])
+        } else {
+          console.error('Error loading projects:', error3)
+        }
       }
       
-      setProjects(data || [])
     } catch (err) {
       console.error('Error loading projects:', err)
     } finally {
@@ -156,25 +176,55 @@ export default function CalculatiesPage() {
         return
       }
       
-      console.log('📥 Laden calculaties voor gebruiker:', userId)
+      console.log('📥 Laden calculaties voor gebruiker ID:', userId)
       
-      // Eerst calculaties ophalen
-      const { data: calculatiesData, error: dbError } = await supabase
+      // Eerst calculaties ophalen - probeer verschillende kolomnamen
+      let calculatiesData = null
+      let calculatiesError = null
+      
+      // Optie 1: Probeer met 'gebruiker_id'
+      let query1 = supabase
         .from('calculaties')
         .select('*')
-        .eq('gebruiker_id', userId)  // Changed from user_id to gebruiker_id
         .order('updated_at', { ascending: false })
       
-      if (dbError) {
-        console.error('Database error bij calculaties:', dbError)
-        throw new Error(`Database fout: ${dbError.message}`)
+      const { data: data1, error: error1 } = await query1.eq('gebruiker_id', userId)
+      if (!error1) {
+        calculatiesData = data1
+        console.log('✅ Calculaties gevonden met gebruiker_id kolom')
+      } else {
+        console.log('❌ gebruiker_id kolom niet gevonden, fout:', error1.message)
+        
+        // Optie 2: Probeer met 'user_id'
+        const { data: data2, error: error2 } = await query1.eq('user_id', userId)
+        if (!error2) {
+          calculatiesData = data2
+          console.log('✅ Calculaties gevonden met user_id kolom')
+        } else {
+          console.log('❌ user_id kolom niet gevonden, fout:', error2.message)
+          calculatiesError = error2
+          
+          // Optie 3: Probeer zonder filter (alleen voor debugging)
+          console.warn('⚠️  Probeer calculaties zonder gebruiker filter (debug)')
+          const { data: data3, error: error3 } = await query1
+          if (!error3) {
+            calculatiesData = data3
+            console.log('⚠️  Geladen zonder gebruiker filter:', data3?.length, 'calculaties')
+          } else {
+            calculatiesError = error3
+          }
+        }
+      }
+      
+      if (calculatiesError) {
+        console.error('Database error bij calculaties:', calculatiesError)
+        throw new Error(`Database fout: ${calculatiesError.message}`)
       }
       
       // Dan projecten ophalen voor mapping
       const { data: projectenData, error: projectError } = await supabase
         .from('projecten')
         .select('id, naam, adres, plaats, klant_naam')
-        .eq('gebruiker_id', userId)  // Changed from user_id to gebruiker_id
       
       if (projectError) {
         console.error('Database error bij projecten:', projectError)
@@ -228,7 +278,6 @@ export default function CalculatiesPage() {
       const { data: existingProjects } = await supabase
         .from('projecten')
         .select('project_nummer')
-        .eq('gebruiker_id', userId)  // Changed from user_id to gebruiker_id
         .order('project_nummer', { ascending: false })
         .limit(1)
       
@@ -236,28 +285,66 @@ export default function CalculatiesPage() {
         ? existingProjects[0].project_nummer + 1 
         : 1001
       
-      // Maak nieuw project
-      const { data: newProject, error: createError } = await supabase
-        .from('projecten')
-        .insert({
-          naam: `Nieuw Project ${nextProjectNumber}`,
-          project_nummer: nextProjectNumber,
-          gebruiker_id: userId,  // Changed from user_id to gebruiker_id
-          status: 'actief',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          klant_naam: 'Nieuwe Klant',
-          adres: 'Nog in te vullen',
-          plaats: 'Nog in te vullen',
-          metadata: {
-            aangemaakt_op: new Date().toISOString(),
-            is_nieuw: true
-          }
-        })
-        .select()
-        .single()
+      // Maak nieuw project - probeer verschillende gebruiker ID kolommen
+      const projectData = {
+        naam: `Nieuw Project ${nextProjectNumber}`,
+        project_nummer: nextProjectNumber,
+        status: 'actief',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        klant_naam: 'Nieuwe Klant',
+        adres: 'Nog in te vullen',
+        plaats: 'Nog in te vullen',
+        metadata: {
+          aangemaakt_op: new Date().toISOString(),
+          is_nieuw: true
+        }
+      }
       
-      if (createError) throw createError
+      // Probeer eerst met 'gebruiker_id', dan met 'user_id'
+      let newProject = null
+      let createError = null
+      
+      try {
+        const { data, error } = await supabase
+          .from('projecten')
+          .insert({
+            ...projectData,
+            gebruiker_id: userId
+          })
+          .select()
+          .single()
+        
+        if (!error) {
+          newProject = data
+        } else {
+          createError = error
+        }
+      } catch (err) {
+        createError = err
+      }
+      
+      // Als 'gebruiker_id' faalt, probeer 'user_id'
+      if (createError) {
+        console.log('Probeer project aanmaken met user_id kolom')
+        const { data, error } = await supabase
+          .from('projecten')
+          .insert({
+            ...projectData,
+            user_id: userId
+          })
+          .select()
+          .single()
+        
+        if (error) {
+          throw error
+        }
+        newProject = data
+      }
+      
+      if (!newProject) {
+        throw new Error('Kon project niet aanmaken')
+      }
       
       // Refresh projecten lijst
       await loadProjects()
@@ -303,7 +390,6 @@ export default function CalculatiesPage() {
       const { data: existingCalculaties } = await supabase
         .from('calculaties')
         .select('calculatie_nummer')
-        .eq('gebruiker_id', userId)  // Changed from user_id to gebruiker_id
         .order('calculatie_nummer', { ascending: false })
         .limit(1)
       
@@ -311,28 +397,66 @@ export default function CalculatiesPage() {
         ? existingCalculaties[0].calculatie_nummer + 1 
         : 1001
       
-      // Maak nieuwe calculatie
-      const { data: newCalculatie, error: createError } = await supabase
-        .from('calculaties')
-        .insert({
-          naam: `Calculatie ${nextNumber}`,
-          calculatie_nummer: nextNumber,
-          project_id: projectId,
-          gebruiker_id: userId,  // Changed from user_id to gebruiker_id
-          status: 'concept',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          metadata: {
-            aangemaakt_op: new Date().toISOString(),
-            template: 'standaard',
-            versie: 1,
-            project_id: projectId
-          }
-        })
-        .select()
-        .single()
+      // Maak nieuwe calculatie - probeer verschillende gebruiker ID kolommen
+      const calculatieData = {
+        naam: `Calculatie ${nextNumber}`,
+        calculatie_nummer: nextNumber,
+        project_id: projectId,
+        status: 'concept',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        metadata: {
+          aangemaakt_op: new Date().toISOString(),
+          template: 'standaard',
+          versie: 1,
+          project_id: projectId
+        }
+      }
       
-      if (createError) throw createError
+      let newCalculatie = null
+      let createError = null
+      
+      try {
+        // Probeer eerst met 'gebruiker_id'
+        const { data, error } = await supabase
+          .from('calculaties')
+          .insert({
+            ...calculatieData,
+            gebruiker_id: userId
+          })
+          .select()
+          .single()
+        
+        if (!error) {
+          newCalculatie = data
+        } else {
+          createError = error
+        }
+      } catch (err) {
+        createError = err
+      }
+      
+      // Als 'gebruiker_id' faalt, probeer 'user_id'
+      if (createError) {
+        console.log('Probeer calculatie aanmaken met user_id kolom')
+        const { data, error } = await supabase
+          .from('calculaties')
+          .insert({
+            ...calculatieData,
+            user_id: userId
+          })
+          .select()
+          .single()
+        
+        if (error) {
+          throw error
+        }
+        newCalculatie = data
+      }
+      
+      if (!newCalculatie) {
+        throw new Error('Kon calculatie niet aanmaken')
+      }
       
       setSuccess('Nieuwe calculatie aangemaakt!')
       setIsDialogOpen(false)
@@ -363,11 +487,31 @@ export default function CalculatiesPage() {
     try {
       const userId = userProfile?.id || user?.id
       
-      const { error } = await supabase
-        .from('calculaties')
-        .delete()
-        .eq('id', calculatie.id)
-        .eq('gebruiker_id', userId) // Changed from user_id to gebruiker_id
+      // Probeer eerst met 'gebruiker_id'
+      let error = null
+      
+      try {
+        const result = await supabase
+          .from('calculaties')
+          .delete()
+          .eq('id', calculatie.id)
+          .eq('gebruiker_id', userId)
+        
+        error = result.error
+      } catch (err) {
+        error = err
+      }
+      
+      // Als 'gebruiker_id' faalt, probeer 'user_id'
+      if (error) {
+        const result = await supabase
+          .from('calculaties')
+          .delete()
+          .eq('id', calculatie.id)
+          .eq('user_id', userId)
+        
+        error = result.error
+      }
       
       if (error) throw error
       
@@ -853,6 +997,11 @@ export default function CalculatiesPage() {
           <CardTitle>Alle Calculaties ({filteredCalculaties.length})</CardTitle>
           <CardDescription>
             {loading && <span className="text-blue-600">• Laden...</span>}
+            {!loading && (
+              <span className="text-gray-600">
+                {calculaties.length > 0 && `Laatst geladen: ${new Date().toLocaleTimeString('nl-NL')}`}
+              </span>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
