@@ -11,7 +11,7 @@ export default function CalculatiesPage() {
   const [error, setError] = useState(null);
   const [calculationModel, setCalculationModel] = useState('');
   const [pdfUrl, setPdfUrl] = useState(null);
-  const [autoStarted, setAutoStarted] = useState(false);
+  const [startingCalculation, setStartingCalculation] = useState(false);
   const [nawData, setNawData] = useState({
     project_name: '',
     client_name: '',
@@ -193,62 +193,79 @@ export default function CalculatiesPage() {
     setError(null);
   };
 
-  const handleStartAICalculation = async () => {
-    setLoading(true);
+  // Rewritten handler per requirements
+  async function handleStartCalculation() {
+    console.log('START CALCULATION CLICKED');
     setError(null);
-    try {
-      if (!calculationModel) throw new Error('Kies een type calculatie');
-      const model = CALCULATION_MODELS[calculationModel];
-      if (!model) throw new Error('Ongeldig calculatiemodel');
+    // Log current values
+    const scenarioName = settings.scenario_name;
+    const calculationType = settings.calculation_type;
+    const fixedPrice = settings.fixed_price;
+    console.log({ activeProjectId, scenarioName, calculationType, fixedPrice });
 
-      const { data: run, error: runError } = await supabase
+    // Validate required inputs
+    if (!activeProjectId) {
+      const msg = 'Geen actief project geselecteerd (activeProjectId ontbreekt)';
+      console.error(msg);
+      setError(msg);
+      return;
+    }
+    if (!scenarioName) {
+      const msg = 'Scenario naam ontbreekt';
+      console.error(msg);
+      setError(msg);
+      return;
+    }
+    if (!calculationType) {
+      const msg = 'Type calculatie ontbreekt';
+      console.error(msg);
+      setError(msg);
+      return;
+    }
+
+    setStartingCalculation(true);
+
+    try {
+      const { data, error } = await supabase
         .from('calculation_runs')
         .insert([
           {
             project_id: activeProjectId,
-            scenario_name: settings.scenario_name,
-            calculation_type: settings.calculation_type,
-            fixed_price: settings.fixed_price || null,
+            scenario_name: scenarioName,
+            calculation_type: calculationType,
+            fixed_price: fixedPrice || null,
             status: 'queued',
           },
         ])
         .select()
-        .maybeSingle();
-      if (runError) throw runError;
+        .single();
 
-      // Snapshot overheads from chosen model (trusted, immutable)
-      const { error: overheadError } = await supabase.from('calculation_overheads').insert({
-        calculation_id: run.id,
-        ak_percentage: model.ak,
-        abk_percentage: model.abk,
-        risk_percentage: model.risk,
-        profit_percentage: model.profit,
-      });
-      if (overheadError) throw overheadError;
+      console.log('INSERT RESULT', { data, error });
 
-      const { error: updateError } = await supabase.from('projects').update({ status: 'queued' }).eq('id', activeProjectId);
-      if (updateError) throw updateError;
+      if (error) {
+        console.error('Insert error', error);
+        setError(error.message || 'Fout bij insert calculation_runs');
+        setStartingCalculation(false);
+        return;
+      }
 
-      setCalculationId(run.id);
+      // success
+      // setCalculationRunId -> alias to existing setter
+      setCalculationId(data.id);
       setCalculationStatus('queued');
       setUiStep('running');
-      setAutoStarted(true);
-    } catch (err) {
-      setError(err.message || 'Fout bij starten calculatie');
-    } finally {
-      setLoading(false);
+      setStartingCalculation(false);
+      return;
+    } catch (e) {
+      console.error('Unexpected error during insert', e);
+      setError(e.message || 'Onverwachte fout');
+      setStartingCalculation(false);
+      return;
     }
-  };
+  }
 
   // Auto-start when requirements are met: at least one drawing uploaded, settings filled and model chosen
-  useEffect(() => {
-    if (uiStep !== 'settings' || autoStarted) return;
-    const hasDrawing = documents.some((d) => d.document_type === 'drawing');
-    const settingsFilled = settings.scenario_name && calculationModel;
-    if (hasDrawing && settingsFilled && !loading) {
-      handleStartAICalculation();
-    }
-  }, [uiStep, documents, settings, calculationModel, autoStarted]);
+  // No automatic starts: user must click the Start button to enqueue a run.
 
   const groupRowsByFase = (rows) => {
     const phases = ['voorbereiding', 'sloop', 'ruwbouw', 'afbouw', 'installaties', 'oplevering'];
@@ -508,8 +525,13 @@ export default function CalculatiesPage() {
             </div>
 
             <div className="mt-8 flex justify-end">
-              <button onClick={handleStartAICalculation} disabled={loading || !settings.scenario_name || !calculationModel} className="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                {loading && <Loader2 className="w-4 h-4 animate-spin" />} Start AI calculatie
+              <button
+                type="button"
+                onClick={handleStartCalculation}
+                disabled={startingCalculation}
+                className="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {startingCalculation && <Loader2 className="w-4 h-4 animate-spin" />} Start AI calculatie
               </button>
             </div>
           </div>
