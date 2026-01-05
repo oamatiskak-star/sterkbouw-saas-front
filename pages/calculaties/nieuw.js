@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/router"
-import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth"
 
 // UI Components - CORRECT GELET OP IMPORTS
@@ -26,7 +25,17 @@ const API_ENDPOINTS = {
 
 export default function NieuweCalculatiePage() {
   const router = useRouter()
-  const { user } = useAuth()
+  
+  // ======================
+  // AUTH - GEBRUIK GECORRIGEERDE FUNCTIES
+  // ======================
+  const { 
+    user, 
+    loading: authLoading, 
+    userProfile, 
+    getIdToken 
+  } = useAuth()
+  
   const fileInputRef = useRef(null)
   
   // State management
@@ -158,10 +167,10 @@ export default function NieuweCalculatiePage() {
   // ======================
   
   useEffect(() => {
-    if (!user) {
+    if (authLoading === false && !user) {
       router.push('/login')
     }
-  }, [user, router])
+  }, [user, authLoading, router])
   
   useEffect(() => {
     if (analyseResultaat?.oppervlakte_m2) {
@@ -203,7 +212,7 @@ export default function NieuweCalculatiePage() {
   }, [projectId, analyseStatus])
   
   // ======================
-  // FUNCTIES
+  // FUNCTIES - GEWIJZIGD VOOR SUPABASE AUTH
   // ======================
   
   const handleFormChange = (field, value) => {
@@ -214,7 +223,7 @@ export default function NieuweCalculatiePage() {
     setNieuwePost(prev => ({ ...prev, [field]: value }))
   }
   
-  // STAP 1: Project aanmaken
+  // STAP 1: Project aanmaken - GEWIJZIGD
   const createProject = async () => {
     if (!user) {
       setError("Je moet ingelogd zijn om een project aan te maken")
@@ -225,6 +234,20 @@ export default function NieuweCalculatiePage() {
     setError(null)
     
     try {
+      // GEBRUIK getIdToken UIT AUTH CONTEXT
+      const token = await getIdToken()
+      if (!token) {
+        setError("Authenticatie token niet beschikbaar. Log opnieuw in.")
+        return
+      }
+      
+      // GEBRUIK userProfile.id VOOR USER ID
+      const userId = userProfile?.id || user?.id
+      if (!userId) {
+        setError("Gebruiker niet gevonden")
+        return
+      }
+      
       const projectData = {
         naam: formData.project_naam || `Nieuw project ${new Date().toLocaleDateString()}`,
         klant_naam: formData.klant_naam,
@@ -233,7 +256,7 @@ export default function NieuweCalculatiePage() {
         plaats: formData.plaats,
         project_type: formData.project_type,
         status: 'draft',
-        gebruiker_id: user.id,
+        gebruiker_id: userId,
         metadata: {
           oppervlakte: formData.oppervlakte_m2,
           bouwjaar: formData.bouwjaar,
@@ -246,13 +269,18 @@ export default function NieuweCalculatiePage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await user.getIdToken()}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(projectData)
       })
       
       if (!response.ok) {
-        throw new Error('Project aanmaken mislukt')
+        if (response.status === 401 || response.status === 403) {
+          setError("U heeft geen toestemming om projecten aan te maken")
+          return
+        }
+        const errorText = await response.text()
+        throw new Error(`Project aanmaken mislukt: ${response.status} - ${errorText}`)
       }
       
       const data = await response.json()
@@ -264,6 +292,7 @@ export default function NieuweCalculatiePage() {
       setTimeout(() => setSuccess(null), 3000)
       
     } catch (err) {
+      console.error('Create project error:', err)
       setError(err instanceof Error ? err.message : 'Er is een fout opgetreden')
     } finally {
       setIsLoading(false)
@@ -283,15 +312,21 @@ export default function NieuweCalculatiePage() {
     setIsLoading(true)
     
     try {
+      // GEBRUIK getIdToken VOOR API AUTH
+      const token = await getIdToken()
+      
       const formData = new FormData()
       fileArray.forEach(file => {
         formData.append('files', file)
       })
       formData.append('project_id', projectId)
-      formData.append('user_id', user?.id || '')
+      formData.append('user_id', userProfile?.id || user?.id || '')
+      
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
       
       const response = await fetch(`${API_ENDPOINTS.EXECUTOR_API}/api/analyze`, {
         method: 'POST',
+        headers,
         body: formData
       })
       
@@ -308,6 +343,7 @@ export default function NieuweCalculatiePage() {
       }
       
     } catch (err) {
+      console.error('Upload error:', err)
       setError(err instanceof Error ? err.message : 'Upload mislukt')
       setAnalyseStatus('error')
     } finally {
@@ -319,7 +355,12 @@ export default function NieuweCalculatiePage() {
     if (!projectId) return
     
     try {
-      const response = await fetch(`${API_ENDPOINTS.EXECUTOR_API}/api/analyse/status/${projectId}`)
+      const token = await getIdToken()
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {}
+      
+      const response = await fetch(`${API_ENDPOINTS.EXECUTOR_API}/api/analyse/status/${projectId}`, {
+        headers
+      })
       
       if (response.ok) {
         const data = await response.json()
@@ -363,6 +404,9 @@ export default function NieuweCalculatiePage() {
     setError(null)
     
     try {
+      // GEBRUIK getIdToken VOOR API AUTH
+      const token = await getIdToken()
+      
       const subtotaal = berekenSubtotaal()
       const opslagBedragen = berekenOpslagen(subtotaal)
       const totaalData = berekenTotaal(opslagBedragen)
@@ -384,16 +428,20 @@ export default function NieuweCalculatiePage() {
         }
       }
       
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+      }
+      
       const response = await fetch(`${API_ENDPOINTS.EXECUTOR_API}/api/generate-pdf`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify(calculatieData)
       })
       
       if (!response.ok) {
-        throw new Error('PDF generatie mislukt')
+        const errorText = await response.text()
+        throw new Error(`PDF generatie mislukt: ${response.status} - ${errorText}`)
       }
       
       const pdfData = await response.json()
@@ -405,6 +453,7 @@ export default function NieuweCalculatiePage() {
       }
       
     } catch (err) {
+      console.error('Generate calculatie error:', err)
       setError(err instanceof Error ? err.message : 'Genereren mislukt')
     } finally {
       setIsLoading(false)
@@ -412,14 +461,20 @@ export default function NieuweCalculatiePage() {
   }
   
   const updateProjectWithPDF = async (pdfUrl) => {
-    if (!projectId || !user) return
+    if (!projectId) return
     
     try {
-      await fetch(`${API_ENDPOINTS.BACKEND_API}/api/projects/${projectId}`, {
+      const token = await getIdToken()
+      if (!token) {
+        console.warn('No token for project update')
+        return
+      }
+      
+      const response = await fetch(`${API_ENDPOINTS.BACKEND_API}/api/projects/${projectId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await user.getIdToken()}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           pdf_url: pdfUrl,
@@ -427,6 +482,10 @@ export default function NieuweCalculatiePage() {
           updated_at: new Date().toISOString()
         })
       })
+      
+      if (!response.ok) {
+        console.error('Project update failed:', await response.text())
+      }
     } catch (err) {
       console.error('Project update error:', err)
     }
@@ -444,6 +503,7 @@ export default function NieuweCalculatiePage() {
   }
   
   const getGemiddeldUurloon = () => {
+    if (uurlonen.length === 0) return 50 // default
     const total = uurlonen.reduce((som, u) => som + u.uurloon, 0)
     return total / uurlonen.length
   }
@@ -520,6 +580,25 @@ export default function NieuweCalculatiePage() {
   const subtotaal = berekenSubtotaal()
   const opslagBedragen = berekenOpslagen(subtotaal)
   const totaalData = berekenTotaal(opslagBedragen)
+  
+  // ======================
+  // RENDER - MET AUTH CHECK
+  // ======================
+  
+  if (authLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto mb-4" />
+          <p className="text-gray-600">Authenticatie controleren...</p>
+        </div>
+      </div>
+    )
+  }
+  
+  if (!user) {
+    return null // Redirect gebeurt in useEffect
+  }
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -689,7 +768,13 @@ export default function NieuweCalculatiePage() {
                     disabled={currentStep > 1}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecteer type" />
+                      <SelectValue placeholder="Selecteer type">
+                        {formData.project_type === "nieuwbouw" && "Nieuwbouw"}
+                        {formData.project_type === "renovatie" && "Renovatie"}
+                        {formData.project_type === "transformatie" && "Transformatie"}
+                        {formData.project_type === "verduurzaming" && "Verduurzaming"}
+                        {formData.project_type === "onderhoud" && "Onderhoud"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="nieuwbouw">Nieuwbouw</SelectItem>
@@ -1337,11 +1422,11 @@ export default function NieuweCalculatiePage() {
                       
                       <Button
                         variant="outline"
-                        onClick={() => router.push('/dashboard')}
+                        onClick={() => router.push('/calculaties')}
                         className="gap-2"
                         size="lg"
                       >
-                        Naar Dashboard
+                        Naar Overzicht
                       </Button>
                       
                       <Button
@@ -1353,6 +1438,20 @@ export default function NieuweCalculatiePage() {
                           setUploadedFiles([])
                           setAnalyseResultaat(null)
                           setAnalyseStatus('idle')
+                          setFormData({
+                            klant_naam: "",
+                            klant_email: "",
+                            klant_telefoon: "",
+                            adres: "",
+                            postcode: "",
+                            plaats: "",
+                            project_naam: "",
+                            project_type: "transformatie",
+                            oppervlakte_m2: "",
+                            bouwjaar: "",
+                            aantal_kamers: "",
+                            opmerkingen: "",
+                          })
                         }}
                         className="gap-2"
                         size="lg"
