@@ -1,4 +1,4 @@
-// SterkBouw-SaaS-Frontend/pages/calculaties/index.js - OPTIMIZED VERSION
+// SterkBouw-SaaS-Frontend/pages/calculaties/index.js
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
@@ -127,11 +127,14 @@ export default function CalculatiesPage() {
       
       const { data, error: dbError } = await supabase
         .from('projecten')
-        .select('id, naam, project_nummer, adres')
+        .select('id, naam, project_nummer, adres, plaats, klant_naam')
         .eq('user_id', userId)
         .order('naam', { ascending: true })
       
-      if (dbError) throw dbError
+      if (dbError) {
+        console.error('Error loading projects:', dbError)
+        return
+      }
       
       setProjects(data || [])
     } catch (err) {
@@ -156,28 +159,52 @@ export default function CalculatiesPage() {
       
       console.log('📥 Laden calculaties voor user:', userId)
       
-      const { data, error: dbError } = await supabase
+      // Eerst calculaties ophalen zonder JOIN (want er is problem met relatie)
+      const { data: calculatiesData, error: dbError } = await supabase
         .from('calculaties')
-        .select(`
-          *,
-          projecten:project_id (naam, adres, project_nummer)
-        `)
+        .select('*')
         .eq('user_id', userId)
         .order('updated_at', { ascending: false })
       
       if (dbError) {
-        console.error('Database error:', dbError)
+        console.error('Database error bij calculaties:', dbError)
         throw new Error(`Database fout: ${dbError.message}`)
       }
       
-      const calculatiesData = Array.isArray(data) ? data : []
+      // Dan projecten ophalen voor mapping
+      const { data: projectenData, error: projectError } = await supabase
+        .from('projecten')
+        .select('id, naam, adres, plaats, klant_naam')
+        .eq('user_id', userId)
       
-      console.log(`✅ ${calculatiesData.length} calculaties geladen`)
+      if (projectError) {
+        console.error('Database error bij projecten:', projectError)
+        // We kunnen doorgaan zonder projecten
+      }
       
-      setCalculaties(calculatiesData)
-      updateStats(calculatiesData)
+      // Maak een map van projecten voor snelle lookup
+      const projectMap = {}
+      if (projectenData) {
+        projectenData.forEach(project => {
+          projectMap[project.id] = project
+        })
+      }
       
-      if (calculatiesData.length === 0) {
+      // Combineer calculaties met projectgegevens
+      const combinedCalculaties = (calculatiesData || []).map(calculatie => {
+        const project = projectMap[calculatie.project_id]
+        return {
+          ...calculatie,
+          projecten: project || null
+        }
+      })
+      
+      console.log(`✅ ${combinedCalculaties.length} calculaties geladen`)
+      
+      setCalculaties(combinedCalculaties)
+      updateStats(combinedCalculaties)
+      
+      if (combinedCalculaties.length === 0) {
         setSuccess('Nog geen calculaties. Maak je eerste calculatie aan!')
       }
       
@@ -214,12 +241,15 @@ export default function CalculatiesPage() {
       const { data: newProject, error: createError } = await supabase
         .from('projecten')
         .insert({
-          naam: `Project ${nextProjectNumber}`,
+          naam: `Nieuw Project ${nextProjectNumber}`,
           project_nummer: nextProjectNumber,
           user_id: userId,
           status: 'actief',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          klant_naam: 'Nieuwe Klant',
+          adres: 'Nog in te vullen',
+          plaats: 'Nog in te vullen',
           metadata: {
             aangemaakt_op: new Date().toISOString(),
             is_nieuw: true
@@ -257,6 +287,9 @@ export default function CalculatiesPage() {
     setError(null)
     
     try {
+      const userId = userProfile?.id || user?.id
+      
+      // Bepaal project ID
       let projectId = selectedProjectId
       
       // Als er geen project is geselecteerd, maak er een aan
@@ -268,7 +301,6 @@ export default function CalculatiesPage() {
       }
       
       // Haal het hoogste calculatienummer op
-      const userId = userProfile?.id || user?.id
       const { data: existingCalculaties } = await supabase
         .from('calculaties')
         .select('calculatie_nummer')
@@ -306,7 +338,7 @@ export default function CalculatiesPage() {
       setSuccess('Nieuwe calculatie aangemaakt!')
       setIsDialogOpen(false)
       
-      // Navigeer naar de nieuwe calculatie
+      // Navigeer naar de calculatie/nieuw pagina met de juiste parameters
       router.push(`/calculatie/nieuw?id=${newCalculatie.id}&project_id=${projectId}`)
       
     } catch (err) {
@@ -375,7 +407,8 @@ export default function CalculatiesPage() {
           (calc.klant_naam && calc.klant_naam.toLowerCase().includes(term)) ||
           (calc.adres && calc.adres.toLowerCase().includes(term)) ||
           (calc.plaats && calc.plaats.toLowerCase().includes(term)) ||
-          (calc.calculatie_nummer && calc.calculatie_nummer.toString().includes(term))
+          (calc.calculatie_nummer && calc.calculatie_nummer.toString().includes(term)) ||
+          (calc.projecten?.naam && calc.projecten.naam.toLowerCase().includes(term))
         )
       })
     }
@@ -399,8 +432,16 @@ export default function CalculatiesPage() {
           bValue = b.calculatie_nummer || 0
           break
         case "totaal":
-          aValue = a.metadata?.totaal_incl_btw || 0
-          bValue = b.metadata?.totaal_incl_btw || 0
+          aValue = a.metadata?.totaal_incl_btw || 
+                  a.totaal_incl_btw || 
+                  a.totaal_bedrag || 
+                  a.totaal || 
+                  0
+          bValue = b.metadata?.totaal_incl_btw || 
+                  b.totaal_incl_btw || 
+                  b.totaal_bedrag || 
+                  b.totaal || 
+                  0
           break
         case "created_at":
           aValue = new Date(a.created_at || 0).getTime()
@@ -427,7 +468,7 @@ export default function CalculatiesPage() {
     const stats = {
       total: calculatiesArray.length,
       active: calculatiesArray.filter(c => c.status === 'actief' || c.status === 'active').length,
-      completed: calculatiesArray.filter(c => c.status === 'voltooid' || c.status === 'completed').length,
+      completed: calculatiesArray.filter(c => c.status === 'voltooid' || c.status === 'completed' || c.status === 'afgerond').length,
       draft: calculatiesArray.filter(c => c.status === 'concept' || c.status === 'draft').length,
       totalValue: calculatiesArray.reduce((sum, c) => {
         const value = c.metadata?.totaal_incl_btw || 
@@ -445,18 +486,19 @@ export default function CalculatiesPage() {
   const getStatusBadge = (status) => {
     if (!status) status = 'concept'
     
-    const variants = {
+    const statusMap = {
       'concept': { variant: "outline", icon: Clock, text: "Concept", color: "text-gray-600" },
       'draft': { variant: "outline", icon: Clock, text: "Concept", color: "text-gray-600" },
       'actief': { variant: "secondary", icon: RefreshCw, text: "Actief", color: "text-blue-600" },
       'active': { variant: "secondary", icon: RefreshCw, text: "Actief", color: "text-blue-600" },
       'voltooid': { variant: "default", icon: CheckCircle, text: "Voltooid", color: "text-green-600" },
       'completed': { variant: "default", icon: CheckCircle, text: "Voltooid", color: "text-green-600" },
+      'afgerond': { variant: "default", icon: CheckCircle, text: "Afgerond", color: "text-green-600" },
       'geannuleerd': { variant: "destructive", icon: XCircle, text: "Geannuleerd", color: "text-red-600" },
       'cancelled': { variant: "destructive", icon: XCircle, text: "Geannuleerd", color: "text-red-600" }
     }
     
-    const config = variants[status] || variants.concept
+    const config = statusMap[status] || statusMap.concept
     const Icon = config.icon
     
     return (
@@ -477,25 +519,40 @@ export default function CalculatiesPage() {
   }
 
   const formatCurrency = (amount) => {
-    if (amount === null || amount === undefined) return "€ -"
+    if (amount === null || amount === undefined || amount === "") return "€ -"
+    const numAmount = Number(amount)
+    if (isNaN(numAmount)) return "€ -"
     return new Intl.NumberFormat('nl-NL', {
       style: 'currency',
       currency: 'EUR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
-    }).format(Number(amount))
+    }).format(numAmount)
   }
 
   const formatProjectInfo = (calculatie) => {
     if (calculatie.projecten) {
-      return `${calculatie.projecten.naam} • ${calculatie.projecten.adres}`
+      const address = calculatie.projecten.adres || ""
+      const city = calculatie.projecten.plaats || ""
+      if (address || city) {
+        return `${address}${address && city ? " • " : ""}${city}`
+      }
+      return calculatie.projecten.naam || "Geen projectinformatie"
     }
     
     if (calculatie.adres || calculatie.plaats) {
-      return `${calculatie.adres || ''} • ${calculatie.plaats || ''}`
+      return `${calculatie.adres || ''}${calculatie.adres && calculatie.plaats ? " • " : ""}${calculatie.plaats || ''}`
     }
     
     return "Geen projectinformatie"
+  }
+
+  const handleViewCalculatie = (calculatieId) => {
+    router.push(`/calculaties/${calculatieId}`)
+  }
+
+  const handleEditCalculatie = (calculatieId) => {
+    router.push(`/calculaties/${calculatieId}/edit`)
   }
 
   // ======================
@@ -534,18 +591,24 @@ export default function CalculatiesPage() {
                 disabled={isCreatingProject || loadingProjects}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecteer een project" />
+                  <SelectValue placeholder={loadingProjects ? "Projecten laden..." : "Selecteer een project"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      {project.naam} • {project.adres || "Geen adres"}
-                    </SelectItem>
-                  ))}
-                  {projects.length === 0 && (
+                  {projects.length === 0 ? (
                     <SelectItem value="" disabled>
-                      Geen projecten gevonden
+                      {loadingProjects ? "Laden..." : "Geen projecten gevonden"}
                     </SelectItem>
+                  ) : (
+                    <>
+                      <SelectItem value="new">
+                        + Nieuw project aanmaken
+                      </SelectItem>
+                      {projects.map((project) => (
+                        <SelectItem key={project.id} value={project.id}>
+                          {project.naam} • {project.adres || "Geen adres"}
+                        </SelectItem>
+                      ))}
+                    </>
                   )}
                 </SelectContent>
               </Select>
@@ -554,43 +617,14 @@ export default function CalculatiesPage() {
               </p>
             </div>
             
-            <div className="flex items-center justify-center">
-              <div className="relative w-full">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Of</span>
+            {selectedProjectId === "new" && (
+              <div className="space-y-2">
+                <Label>Nieuw project aanmaken</Label>
+                <div className="text-sm text-gray-600">
+                  Er wordt automatisch een nieuw project aangemaakt met een volgend projectnummer.
                 </div>
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Nieuw project aanmaken</Label>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={async () => {
-                  const newProjectId = await createNewProject()
-                  if (newProjectId) {
-                    setSelectedProjectId(newProjectId)
-                  }
-                }}
-                disabled={isCreatingProject || loadingProjects}
-              >
-                {isCreatingProject ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                    Project aanmaken...
-                  </>
-                ) : (
-                  <>
-                    <FolderPlus className="h-4 w-4 mr-2" />
-                    Nieuw project aanmaken
-                  </>
-                )}
-              </Button>
-            </div>
+            )}
           </div>
           
           <DialogFooter>
@@ -603,17 +637,17 @@ export default function CalculatiesPage() {
             </Button>
             <Button
               onClick={handleNewCalculatie}
-              disabled={isCreating || (!selectedProjectId && projects.length > 0)}
+              disabled={isCreating}
             >
               {isCreating ? (
                 <>
                   <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Calculatie aanmaken...
+                  Aanmaken...
                 </>
               ) : (
                 <>
                   <Plus className="h-4 w-4 mr-2" />
-                  Calculatie aanmaken
+                  {selectedProjectId === "new" ? "Project & Calculatie aanmaken" : "Calculatie aanmaken"}
                 </>
               )}
             </Button>
@@ -629,7 +663,7 @@ export default function CalculatiesPage() {
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="gap-1">
                 <Wifi className="h-3 w-3 text-green-500" />
-                Database verbonden
+                Verbonden
               </Badge>
               <span className="text-sm text-gray-500">
                 {calculaties.length} calculaties gevonden
@@ -637,14 +671,24 @@ export default function CalculatiesPage() {
             </div>
           </div>
           
-          <Button 
-            className="gap-2"
-            onClick={openNewCalculatieDialog}
-            disabled={isCreating || loading}
-          >
-            <Plus className="h-4 w-4" />
-            Nieuwe Calculatie
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => loadCalculaties()}
+              disabled={loading}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Vernieuwen
+            </Button>
+            <Button 
+              className="gap-2"
+              onClick={openNewCalculatieDialog}
+              disabled={loading || isCreating}
+            >
+              <Plus className="h-4 w-4" />
+              Nieuwe Calculatie
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -758,18 +802,18 @@ export default function CalculatiesPage() {
             
             <div className="flex flex-col">
               <label className="text-sm font-medium mb-2">Status</label>
-              <div className="flex gap-2">
-                {["all", "concept", "actief", "voltooid"].map((status) => (
+              <div className="flex flex-wrap gap-2">
+                {["all", "concept", "actief", "voltooid", "geannuleerd"].map((status) => (
                   <Button
                     key={status}
                     variant={statusFilter === status ? "default" : "outline"}
                     size="sm"
                     onClick={() => setStatusFilter(status)}
                   >
-                    <Filter className="h-3 w-3 mr-1" />
                     {status === "all" ? "Alle" : 
                      status === "concept" ? "Concept" :
-                     status === "actief" ? "Actief" : "Voltooid"}
+                     status === "actief" ? "Actief" : 
+                     status === "voltooid" ? "Voltooid" : "Geannuleerd"}
                   </Button>
                 ))}
               </div>
@@ -829,7 +873,7 @@ export default function CalculatiesPage() {
                 <Button 
                   className="gap-2"
                   onClick={openNewCalculatieDialog}
-                  disabled={isCreating || loading}
+                  disabled={loading || isCreating}
                 >
                   <Plus className="h-4 w-4" />
                   Eerste Calculatie
@@ -856,10 +900,20 @@ export default function CalculatiesPage() {
                         <div className="font-medium">{calculatie.naam || "Naamloos"}</div>
                         <div className="text-sm text-gray-500">
                           Calc. #{calculatie.calculatie_nummer || calculatie.id?.substring(0, 8)}
+                          {calculatie.projecten?.naam && (
+                            <div className="mt-1">
+                              <Badge variant="outline" className="text-xs">
+                                <Building className="h-3 w-3 mr-1" />
+                                {calculatie.projecten.naam}
+                              </Badge>
+                            </div>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{calculatie.klant_naam || "Geen klant"}</div>
+                        <div className="font-medium">
+                          {calculatie.klant_naam || calculatie.projecten?.klant_naam || "Geen klant"}
+                        </div>
                         <div className="text-sm text-gray-500">
                           {formatProjectInfo(calculatie)}
                         </div>
@@ -883,11 +937,23 @@ export default function CalculatiesPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center justify-end gap-2">
-                          <Link href={`/calculaties/${calculatie.id}`}>
-                            <Button variant="ghost" size="sm" title="Bekijken">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </Link>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            title="Bekijken"
+                            onClick={() => handleViewCalculatie(calculatie.id)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title="Bewerken"
+                            onClick={() => handleEditCalculatie(calculatie.id)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
                           
                           {calculatie.pdf_url && (
                             <Button
