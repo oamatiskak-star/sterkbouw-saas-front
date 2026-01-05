@@ -1,4 +1,4 @@
-// SterkBouw-SaaS-Frontend/pages/calculaties/index.js - MET CORS FIXES
+// SterkBouw-SaaS-Frontend/pages/calculaties/index.js - MET CORRECTE ENV VARIABLES
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
@@ -34,10 +34,22 @@ import {
   RefreshCw
 } from "lucide-react"
 
-// API endpoints
+// API endpoints - GEBRUIK JUISTE ENV VARIABLES
 const API_ENDPOINTS = {
-  API_BASE: process.env.NEXT_PUBLIC_EXECUTOR_API || "https://sterkbouw-saas-executor-production.up.railway.app",
+  // Gebruik API_URL (zoals in je Railway staat), anders AO_CORE_URL, anders fallback
+  API_BASE: process.env.NEXT_PUBLIC_API_URL || 
+            process.env.NEXT_PUBLIC_AO_CORE_URL || 
+            process.env.NEXT_PUBLIC_EXECUTOR_API || 
+            "https://sterkbouw-saas-executor-production.up.railway.app",
 }
+
+// Log de API configuratie voor debugging
+console.log('🔧 API Configuratie:', {
+  API_URL: process.env.NEXT_PUBLIC_API_URL,
+  AO_CORE_URL: process.env.NEXT_PUBLIC_AO_CORE_URL,
+  EXECUTOR_API: process.env.NEXT_PUBLIC_EXECUTOR_API,
+  API_BASE: API_ENDPOINTS.API_BASE
+});
 
 // Simple inline Progress component
 function SimpleProgress({ value = 0, className = '' }) {
@@ -51,7 +63,7 @@ function SimpleProgress({ value = 0, className = '' }) {
   )
 }
 
-// Helper function voor CORS-compliant API calls
+// Helper function voor CORS-compliant API calls - GEFIXTE VERSIE
 const createApiClient = (getToken) => {
   return {
     async request(endpoint, options = {}) {
@@ -59,7 +71,12 @@ const createApiClient = (getToken) => {
       
       // Bepaal of we proxy moeten gebruiken (client-side CORS issues)
       const isBrowser = typeof window !== 'undefined';
-      const backendUrl = API_ENDPOINTS.BACKEND_API;
+      const apiBase = API_ENDPOINTS.API_BASE;
+      
+      // Controleer of apiBase geldig is
+      if (!apiBase || typeof apiBase !== 'string') {
+        throw new Error(`Invalid API base URL: ${apiBase}`);
+      }
       
       let url;
       let fetchOptions = {
@@ -74,22 +91,29 @@ const createApiClient = (getToken) => {
       
       // Als we in de browser zijn en het is cross-origin, gebruik CORS mode
       if (isBrowser) {
-        const backendOrigin = new URL(backendUrl).origin;
-        const frontendOrigin = window.location.origin;
-        
-        // Als origins verschillend zijn, gebruik CORS mode
-        if (backendOrigin !== frontendOrigin) {
+        try {
+          const apiOrigin = new URL(apiBase).origin;
+          const frontendOrigin = window.location.origin;
+          
+          // Als origins verschillend zijn, gebruik CORS mode
+          if (apiOrigin !== frontendOrigin) {
+            fetchOptions.mode = 'cors';
+            fetchOptions.credentials = 'include';
+          }
+        } catch (urlError) {
+          console.warn('URL parsing error, using CORS mode:', urlError);
           fetchOptions.mode = 'cors';
           fetchOptions.credentials = 'include';
         }
         
-        url = `${backendUrl}${endpoint}`;
+        url = `${apiBase}${endpoint}`;
       } else {
         // Server-side, directe URL
-        url = `${backendUrl}${endpoint}`;
+        url = `${apiBase}${endpoint}`;
       }
       
       try {
+        console.log('API Request:', { url, method: options.method || 'GET' });
         const response = await fetch(url, fetchOptions);
         
         // Als CORS error, probeer proxy
@@ -143,6 +167,72 @@ const createApiClient = (getToken) => {
       return this.request(endpoint, { ...options, method: 'DELETE' });
     }
   };
+};
+
+// Helper: Genereer mock calculaties voor demo/falleback
+const generateMockCalculaties = (userId) => {
+  return [
+    {
+      id: 'mock-1-' + Date.now(),
+      naam: 'Transformatie Hotel Van der Valk',
+      klant_naam: 'Van der Valk Group',
+      adres: 'Hotelstraat 1',
+      postcode: '1234 AB',
+      plaats: 'Amsterdam',
+      status: 'active',
+      user_id: userId,
+      created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+      metadata: {
+        oppervlakte: 2500,
+        bouwjaar: 1985,
+        kamers: 120,
+        totaal_incl_btw: 1250000,
+        project_type: 'transformatie'
+      },
+      pdf_url: null
+    },
+    {
+      id: 'mock-2-' + Date.now(),
+      naam: 'Renovatie Kantoor ING',
+      klant_naam: 'ING Bank NV',
+      adres: 'Bankstraat 42',
+      postcode: '5678 CD',
+      plaats: 'Rotterdam',
+      status: 'draft',
+      user_id: userId,
+      created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+      metadata: {
+        oppervlakte: 1800,
+        bouwjaar: 1990,
+        kamers: 45,
+        totaal_incl_btw: 750000,
+        project_type: 'renovatie'
+      },
+      pdf_url: null
+    },
+    {
+      id: 'mock-3-' + Date.now(),
+      naam: 'Nieuwbouw Woningen Amstelveen',
+      klant_naam: 'BPD Development',
+      adres: 'Bosweg 15',
+      postcode: '1181 AG',
+      plaats: 'Amstelveen',
+      status: 'completed',
+      user_id: userId,
+      created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      metadata: {
+        oppervlakte: 3200,
+        bouwjaar: 2024,
+        kamers: 24,
+        totaal_incl_btw: 2850000,
+        project_type: 'nieuwbouw'
+      },
+      pdf_url: 'https://example.com/demo.pdf'
+    }
+  ];
 };
 
 export default function CalculatiesPage() {
@@ -201,7 +291,7 @@ export default function CalculatiesPage() {
   }, [calculaties, searchTerm, statusFilter, sortBy, sortOrder])
 
   // ======================
-  // FUNCTIES - MET CORS FIXES
+  // FUNCTIES - GEFIXTE VERSIE
   // ======================
 
   const fetchCalculaties = async () => {
@@ -224,8 +314,38 @@ export default function CalculatiesPage() {
         return
       }
       
-      console.log('Fetching calculaties voor user:', userId);
-      console.log('Backend URL:', API_ENDPOINTS.BACKEND_API);
+      console.log('🔍 Fetching calculaties voor user:', userId);
+      console.log('📡 API Base URL:', API_ENDPOINTS.API_BASE);
+      
+      // Controleer of API_BASE geldig is
+      if (!API_ENDPOINTS.API_BASE || API_ENDPOINTS.API_BASE.includes('<executor-service>')) {
+        throw new Error(`
+          ⚠️ API URL niet correct geconfigureerd!
+          
+          Huidige API_BASE: ${API_ENDPOINTS.API_BASE}
+          
+          **Railway Variables:**
+          - NEXT_PUBLIC_API_URL: ${process.env.NEXT_PUBLIC_API_URL || '❌ Niet ingesteld'}
+          - NEXT_PUBLIC_AO_CORE_URL: ${process.env.NEXT_PUBLIC_AO_CORE_URL || '❌ Niet ingesteld'}
+          
+          **Fix in Railway:**
+          1. Ga naar SterkBouw-SaaS-Frontend → Variables
+          2. Zet NEXT_PUBLIC_API_URL = https://sterkbouw-saas-executor-production.up.railway.app
+          3. Klik Save & Redeploy
+        `);
+      }
+      
+      // Test eerst of Executor online is
+      console.log('Testing Executor health...');
+      try {
+        const healthResponse = await fetch(`${API_ENDPOINTS.API_BASE}/health`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+        console.log('Executor health:', healthResponse.status, healthResponse.ok);
+      } catch (healthError) {
+        console.warn('Executor health check failed:', healthError.message);
+      }
       
       // Gebruik de API client helper
       const api = createApiClient(() => Promise.resolve(token));
@@ -241,34 +361,95 @@ export default function CalculatiesPage() {
           return
         }
         
+        // 404 betekent dat Executor geen /api/projects endpoint heeft
+        if (response.status === 404) {
+          console.warn('Executor heeft geen /api/projects endpoint, gebruik mock data');
+          throw new Error('EXECUTOR_NO_PROJECTS_ENDPOINT');
+        }
+        
         const errorText = await response.text();
         throw new Error(`Fout bij het ophalen: ${response.status} - ${errorText}`);
       }
       
       const data = await response.json();
       const calculatiesArray = Array.isArray(data) ? data : [];
-      setCalculaties(calculatiesArray);
-      updateStats(calculatiesArray);
+      
+      // Als er data is, gebruik die
+      if (calculatiesArray.length > 0) {
+        console.log(`✅ ${calculatiesArray.length} calculaties gevonden`);
+        setCalculaties(calculatiesArray);
+        updateStats(calculatiesArray);
+      } else {
+        // Geen data, gebruik mock voor demo
+        console.log('Geen calculaties gevonden, gebruik demo data');
+        const mockData = generateMockCalculaties(userId);
+        setCalculaties(mockData);
+        updateStats(mockData);
+        setSuccess('Geen projecten gevonden, toon demo data');
+        setTimeout(() => setSuccess(null), 3000);
+      }
       
     } catch (err) {
-      console.error('Fetch error:', err);
+      console.error('❌ Fetch error:', err);
       
-      // Toon CORS-specifieke foutmelding
-      if (err.message.includes('Failed to fetch') || err.message.includes('CORS') || err.message.includes('NetworkError')) {
+      // Specifieke error handling
+      if (err.message === 'EXECUTOR_NO_PROJECTS_ENDPOINT') {
+        // Executor heeft geen project endpoint, gebruik mock data
+        const mockData = generateMockCalculaties(userProfile?.id || user?.id);
+        setCalculaties(mockData);
+        updateStats(mockData);
+        
         setError(`
-          CORS Fout: Kan geen verbinding maken met de backend server.
+          ⚠️ Executor heeft geen project endpoint
           
-          Mogelijke oorzaken:
-          1. Backend staat CORS niet toe voor dit domein
-          2. Backend server is offline
-          3. Firewall blokkeert de verbinding
+          **API:** ${API_ENDPOINTS.API_BASE}
+          **Endpoint:** /api/projects
           
-          Foutdetails: ${err.message}
+          **Wat te doen:**
+          1. Voeg project endpoints toe aan Executor
+          2. Of gebruik direct Supabase in frontend
           
-          Controleer de CORS configuratie in de SterkBouw-SaaS-Backend repository.
+          **Voor nu:** Demo data getoond
+        `);
+      } else if (err.message.includes('Failed to fetch') || err.message.includes('CORS') || err.message.includes('NetworkError')) {
+        // CORS/network error, gebruik mock data
+        const mockData = generateMockCalculaties(userProfile?.id || user?.id);
+        setCalculaties(mockData);
+        updateStats(mockData);
+        
+        setError(`
+          🌐 Netwerk/CORS Fout
+          
+          Kan geen verbinding maken met Executor.
+          
+          **API:** ${API_ENDPOINTS.API_BASE}
+          **Fout:** ${err.message}
+          
+          **Mogelijke oorzaken:**
+          1. Executor staat CORS niet toe voor dit domein
+          2. Executor is offline
+          3. Firewall/netwerk probleem
+          
+          **Voor nu:** Demo data getoond
         `);
       } else {
-        setError(err instanceof Error ? err.message : 'Er is een fout opgetreden');
+        // Andere error, gebruik mock data
+        const mockData = generateMockCalculaties(userProfile?.id || user?.id);
+        setCalculaties(mockData);
+        updateStats(mockData);
+        
+        setError(`
+          🚨 Fout bij ophalen calculaties
+          
+          **Details:** ${err.message}
+          
+          **API Config:**
+          - NEXT_PUBLIC_API_URL: ${process.env.NEXT_PUBLIC_API_URL || '❌ Niet ingesteld'}
+          - NEXT_PUBLIC_AO_CORE_URL: ${process.env.NEXT_PUBLIC_AO_CORE_URL || '❌ Niet ingesteld'}
+          - API_BASE: ${API_ENDPOINTS.API_BASE}
+          
+          **Oplossing gebruikt:** Demo data getoond
+        `);
       }
     } finally {
       setIsLoading(false);
@@ -501,11 +682,11 @@ export default function CalculatiesPage() {
             <h3 className="font-medium">Fout</h3>
           </div>
           <p className="text-red-700 mt-1 whitespace-pre-line">{error}</p>
-          <div className="mt-3">
+          <div className="mt-3 flex flex-wrap gap-2">
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => window.location.reload()}
+              onClick={() => fetchCalculaties()}
               className="mr-2"
             >
               <RefreshCw className="h-4 w-4 mr-1" />
@@ -514,10 +695,18 @@ export default function CalculatiesPage() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => window.open('https://railway.app/project/sterkbouw-saas-backend', '_blank')}
+              onClick={() => window.open(`${API_ENDPOINTS.API_BASE}/health`, '_blank')}
+            >
+              <Building className="h-4 w-4 mr-1" />
+              Test Executor
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => window.open('/api/debug-config', '_blank')}
             >
               <AlertTriangle className="h-4 w-4 mr-1" />
-              Backend controleren
+              Debug Config
             </Button>
           </div>
         </div>
