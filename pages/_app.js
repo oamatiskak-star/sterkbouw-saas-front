@@ -27,10 +27,15 @@ import ClientOnly from '@/components/ClientOnly'
 import AntdClientRoot from '@/components/AntdClientRoot'
 
 // ===============================
+// AUTH PROVIDER
+// ===============================
+import { AuthProvider } from '@/lib/auth'  
+
+// ===============================
 // LAYOUTS (NIETS VERWIJDERD)
 // ===============================
 import AdminLayout from '@/components/AdminLayout'
-import TablerLayout from '@/components/TablerLayout' // bewust behouden
+import TablerLayout from '@/components/TablerLayout' 
 
 // ===============================
 // APP
@@ -53,19 +58,22 @@ export default function App({ Component, pageProps }) {
   return (
     <ClientOnly>
       <AntdClientRoot>
-        {AUTH_DISABLED ? (
-          // ⬅️ AUTH VOLLEDIG GEPASSEERD, MAAR LAYOUT BLIJFT
-          <AdminLayout>
+        {/* ⬇️ VOEG AuthProvider HIER TOE, BOVEN ALLES */}
+        <AuthProvider>
+          {AUTH_DISABLED ? (
+            // ⬅️ AUTH VOLLEDIG GEPASSEERD, MAAR LAYOUT BLIJFT
+            <AdminLayout>
+              <Component {...pageProps} />
+            </AdminLayout>
+          ) : isPublicRoute ? (
             <Component {...pageProps} />
-          </AdminLayout>
-        ) : isPublicRoute ? (
-          <Component {...pageProps} />
-        ) : (
-          // ⬇️ ADMIN SIDEBAR NORMAAL GEDWONGEN
-          <AdminLayout>
-            <Component {...pageProps} />
-          </AdminLayout>
-        )}
+          ) : (
+            // ⬇️ ADMIN SIDEBAR NORMAAL GEDWONGEN
+            <AdminLayout>
+              <Component {...pageProps} />
+            </AdminLayout>
+          )}
+        </AuthProvider>
       </AntdClientRoot>
     </ClientOnly>
   )
