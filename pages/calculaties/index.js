@@ -20,7 +20,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -128,7 +127,7 @@ export default function CalculatiesPage() {
       const { data, error: dbError } = await supabase
         .from('projecten')
         .select('id, naam, project_nummer, adres, plaats, klant_naam')
-        .eq('user_id', userId)
+        .eq('gebruiker_id', userId)  // Changed from user_id to gebruiker_id
         .order('naam', { ascending: true })
       
       if (dbError) {
@@ -157,13 +156,13 @@ export default function CalculatiesPage() {
         return
       }
       
-      console.log('📥 Laden calculaties voor user:', userId)
+      console.log('📥 Laden calculaties voor gebruiker:', userId)
       
-      // Eerst calculaties ophalen zonder JOIN (want er is problem met relatie)
+      // Eerst calculaties ophalen
       const { data: calculatiesData, error: dbError } = await supabase
         .from('calculaties')
         .select('*')
-        .eq('user_id', userId)
+        .eq('gebruiker_id', userId)  // Changed from user_id to gebruiker_id
         .order('updated_at', { ascending: false })
       
       if (dbError) {
@@ -175,7 +174,7 @@ export default function CalculatiesPage() {
       const { data: projectenData, error: projectError } = await supabase
         .from('projecten')
         .select('id, naam, adres, plaats, klant_naam')
-        .eq('user_id', userId)
+        .eq('gebruiker_id', userId)  // Changed from user_id to gebruiker_id
       
       if (projectError) {
         console.error('Database error bij projecten:', projectError)
@@ -229,7 +228,7 @@ export default function CalculatiesPage() {
       const { data: existingProjects } = await supabase
         .from('projecten')
         .select('project_nummer')
-        .eq('user_id', userId)
+        .eq('gebruiker_id', userId)  // Changed from user_id to gebruiker_id
         .order('project_nummer', { ascending: false })
         .limit(1)
       
@@ -243,7 +242,7 @@ export default function CalculatiesPage() {
         .insert({
           naam: `Nieuw Project ${nextProjectNumber}`,
           project_nummer: nextProjectNumber,
-          user_id: userId,
+          gebruiker_id: userId,  // Changed from user_id to gebruiker_id
           status: 'actief',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -304,7 +303,7 @@ export default function CalculatiesPage() {
       const { data: existingCalculaties } = await supabase
         .from('calculaties')
         .select('calculatie_nummer')
-        .eq('user_id', userId)
+        .eq('gebruiker_id', userId)  // Changed from user_id to gebruiker_id
         .order('calculatie_nummer', { ascending: false })
         .limit(1)
       
@@ -319,7 +318,7 @@ export default function CalculatiesPage() {
           naam: `Calculatie ${nextNumber}`,
           calculatie_nummer: nextNumber,
           project_id: projectId,
-          user_id: userId,
+          gebruiker_id: userId,  // Changed from user_id to gebruiker_id
           status: 'concept',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -368,7 +367,7 @@ export default function CalculatiesPage() {
         .from('calculaties')
         .delete()
         .eq('id', calculatie.id)
-        .eq('user_id', userId) // Extra beveiliging
+        .eq('gebruiker_id', userId) // Changed from user_id to gebruiker_id
       
       if (error) throw error
       
@@ -408,7 +407,8 @@ export default function CalculatiesPage() {
           (calc.adres && calc.adres.toLowerCase().includes(term)) ||
           (calc.plaats && calc.plaats.toLowerCase().includes(term)) ||
           (calc.calculatie_nummer && calc.calculatie_nummer.toString().includes(term)) ||
-          (calc.projecten?.naam && calc.projecten.naam.toLowerCase().includes(term))
+          (calc.projecten?.naam && calc.projecten.naam.toLowerCase().includes(term)) ||
+          (calc.projecten?.klant_naam && calc.projecten.klant_naam.toLowerCase().includes(term))
         )
       })
     }
@@ -552,7 +552,7 @@ export default function CalculatiesPage() {
   }
 
   const handleEditCalculatie = (calculatieId) => {
-    router.push(`/calculaties/${calculatieId}/edit`)
+    router.push(`/calculatie/nieuw?id=${calculatieId}`)
   }
 
   // ======================
