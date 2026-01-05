@@ -1,10 +1,11 @@
-// SterkBouw-SaaS-Frontend/pages/calculaties/index.js - MET CORRECTE ENV VARIABLES
+// SterkBouw-SaaS-Frontend/pages/calculaties/index.js - MET GECORRIGEERDE "NIEUWE CALCULATIE" KNOOP
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth"
 import { format } from "date-fns"
 import { nl } from "date-fns/locale"
+import { supabase } from "@/lib/supabase" // Supabase import toegevoegd
 
 // UI Components
 import { Button } from "@/components/ui/button"
@@ -31,7 +32,9 @@ import {
   Clock,
   XCircle,
   ArrowUpDown,
-  RefreshCw
+  RefreshCw,
+  TestTube,
+  Database
 } from "lucide-react"
 
 // API endpoints - GEBRUIK JUISTE ENV VARIABLES
@@ -163,6 +166,14 @@ const createApiClient = (getToken) => {
       return this.request(endpoint, { ...options, method: 'GET' });
     },
     
+    async post(endpoint, data, options = {}) {
+      return this.request(endpoint, { 
+        ...options, 
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+    },
+    
     async delete(endpoint, options = {}) {
       return this.request(endpoint, { ...options, method: 'DELETE' });
     }
@@ -235,6 +246,57 @@ const generateMockCalculaties = (userId) => {
   ];
 };
 
+// Functie om API endpoints te testen
+const testApiEndpoints = async (apiBase) => {
+  const testEndpoints = [
+    '/',
+    '/health',
+    '/api',
+    '/ai/health',
+    '/ai/api',
+    '/docs',
+    '/openapi.json',
+    '/api/health',
+    '/status'
+  ];
+  
+  const results = [];
+  
+  for (const endpoint of testEndpoints) {
+    try {
+      const response = await fetch(`${apiBase}${endpoint}`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+      
+      results.push({
+        endpoint,
+        status: response.status,
+        ok: response.ok,
+        contentType: response.headers.get('content-type')
+      });
+      
+      if (response.ok) {
+        try {
+          const data = await response.text();
+          results[results.length - 1].preview = data.substring(0, 200);
+        } catch (e) {
+          results[results.length - 1].preview = 'Could not parse response';
+        }
+      }
+    } catch (error) {
+      results.push({
+        endpoint,
+        status: 'ERROR',
+        ok: false,
+        error: error.message
+      });
+    }
+  }
+  
+  return results;
+};
+
 export default function CalculatiesPage() {
   const router = useRouter()
   
@@ -254,6 +316,7 @@ export default function CalculatiesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
+  const [isCreating, setIsCreating] = useState(false) // Voor nieuwe calculatie knop
   
   // Filter and search state
   const [searchTerm, setSearchTerm] = useState("")
@@ -456,6 +519,157 @@ export default function CalculatiesPage() {
     }
   };
 
+  // ======================
+  // NIEUWE CALCULATIE FUNCTIE - GECORRIGEERDE VERSIE
+  // ======================
+
+  const handleNieuweCalculatie = async () => {
+    if (!user) {
+      setError("Je moet ingelogd zijn om een nieuwe calculatie te maken");
+      router.push('/login');
+      return;
+    }
+
+    setIsCreating(true);
+    setError(null);
+    
+    try {
+      const userId = userProfile?.id || user?.id;
+      if (!userId) {
+        throw new Error('Gebruiker niet gevonden');
+      }
+
+      const apiBase = API_ENDPOINTS.API_BASE;
+      console.log('🔄 Start nieuwe calculatie voor user:', userId);
+      console.log('📡 API Base URL:', apiBase);
+
+      // Probeer verschillende endpoints voor nieuwe calculatie
+      const endpoints = [
+        '/ai/start',           // AI Engine endpoint
+        '/ai/calculate/start',  // AI Engine berekening starten
+        '/api/start',          // AO Executor API endpoint
+        '/api/calculaties/new', // Mogelijk calculatie endpoint
+        '/start',              // Direct AO Executor endpoint
+        '/calculate/start',    // Berekening starten
+        '/projects/new'        // Mogelijk project endpoint
+      ];
+
+      let newCalculatieId = null;
+      let lastError = null;
+
+      // Probeer eerst executor endpoints
+      for (const endpoint of endpoints) {
+        try {
+          console.log(`🔍 Probeer executor endpoint: ${apiBase}${endpoint}`);
+          
+          const response = await fetch(`${apiBase}${endpoint}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+              action: 'create_calculatie',
+              user_id: userId,
+              timestamp: new Date().toISOString(),
+              type: 'bouw_calculatie',
+              parameters: {
+                template: 'default',
+                mode: 'draft'
+              }
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log('✅ Executor response:', data);
+
+            // Extract ID uit verschillende response formaten
+            if (data.id) newCalculatieId = data.id;
+            else if (data.calculation_id) newCalculatieId = data.calculation_id;
+            else if (data.result?.id) newCalculatieId = data.result.id;
+            else if (data.calculatie_id) newCalculatieId = data.calculatie_id;
+            else if (data.projectId) newCalculatieId = data.projectId;
+            
+            if (newCalculatieId) {
+              console.log(`🎯 ID ontvangen van executor: ${newCalculatieId}`);
+              break;
+            }
+          }
+        } catch (err) {
+          lastError = err;
+          console.log(`❌ Executor endpoint ${endpoint} faalde:`, err.message);
+        }
+      }
+
+      // Als executor ID geeft, redirect
+      if (newCalculatieId) {
+        router.push(`/calculaties/${newCalculatieId}`);
+        return;
+      }
+
+      // Geen ID van executor, gebruik Supabase als fallback
+      console.log('⚠️ Geen ID van executor ontvangen, probeer Supabase...');
+      
+      const { data: newCalc, error: supabaseError } = await supabase
+        .from('calculaties')
+        .insert({
+          naam: `Nieuwe Calculatie ${format(new Date(), 'dd-MM HH:mm')}`,
+          user_id: userId,
+          status: 'draft',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          metadata: {
+            aangemaakt_via: 'frontend_fallback',
+            template: 'default',
+            versie: 1,
+            timestamp: new Date().toISOString()
+          }
+        })
+        .select()
+        .single();
+
+      if (supabaseError) {
+        console.error('❌ Supabase error:', supabaseError);
+        
+        // Laatste fallback: demo ID
+        const demoId = `demo-${Date.now()}`;
+        setSuccess(`Geen live backend beschikbaar. Demo modus gestart met ID: ${demoId}`);
+        router.push(`/calculaties/${demoId}?demo=true&source=fallback`);
+      } else {
+        console.log(`✅ Nieuwe calculatie aangemaakt in Supabase: ${newCalc.id}`);
+        setSuccess('Nieuwe calculatie aangemaakt in Supabase');
+        router.push(`/calculaties/${newCalc.id}`);
+      }
+
+    } catch (error) {
+      console.error('❌ Fout bij nieuwe calculatie:', error);
+      
+      setError(`
+        Kon geen nieuwe calculatie starten:
+        
+        **Fout:** ${error.message}
+        
+        **Wat nu?**
+        1. Probeer opnieuw
+        2. Contacteer support als probleem aanhoudt
+        3. Gebruik demo modus:
+      `);
+      
+      // Bied demo optie aan
+      if (confirm('Kon geen nieuwe calculatie starten. Wilt u een demo berekening zien?')) {
+        const demoId = `demo-${Date.now()}`;
+        router.push(`/calculaties/${demoId}?demo=true`);
+      }
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  // ======================
+  // HULP FUNCTIES
+  // ======================
+
   const filterAndSortCalculaties = () => {
     if (!calculaties || !Array.isArray(calculaties)) {
       setFilteredCalculaties([])
@@ -618,6 +832,38 @@ export default function CalculatiesPage() {
     }).format(amount || 0)
   }
 
+  // Functie om API endpoints te testen
+  const handleTestEndpoints = async () => {
+    setIsLoading(true);
+    try {
+      const results = await testApiEndpoints(API_ENDPOINTS.API_BASE);
+      console.log('API Test Results:', results);
+      
+      // Toon resultaten in console
+      alert('API test resultaten in browser console bekijken (F12)');
+      
+      // Toon ook in error state voor gebruiker
+      const workingEndpoints = results.filter(r => r.ok);
+      const errorEndpoints = results.filter(r => !r.ok);
+      
+      setError(`
+        🔧 API Endpoint Test Resultaten:
+        
+        **Werkende endpoints (${workingEndpoints.length}):**
+        ${workingEndpoints.map(r => `✓ ${r.endpoint}: ${r.status}`).join('\n')}
+        
+        **Niet-werkende endpoints (${errorEndpoints.length}):**
+        ${errorEndpoints.map(r => `✗ ${r.endpoint}: ${r.error || r.status}`).join('\n')}
+        
+        **API Base:** ${API_ENDPOINTS.API_BASE}
+      `);
+    } catch (err) {
+      setError(`Fout bij testen endpoints: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // ======================
   // RENDER
   // ======================
@@ -642,12 +888,34 @@ export default function CalculatiesPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Calculaties</h1>
             <p className="text-gray-600">Overzicht van al uw bouwcalculaties</p>
           </div>
-          <Link href="/calculaties/nieuw">
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Nieuwe Calculatie
+          <div className="flex gap-2">
+            <Button 
+              className="gap-2"
+              onClick={handleNieuweCalculatie}
+              disabled={isCreating || isLoading}
+            >
+              {isCreating ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Initialiseren...
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4" />
+                  Nieuwe Calculatie
+                </>
+              )}
             </Button>
-          </Link>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleTestEndpoints}
+              title="Test API endpoints"
+            >
+              <TestTube className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
         
         {/* Stats */}
@@ -703,10 +971,10 @@ export default function CalculatiesPage() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => window.open('/api/debug-config', '_blank')}
+              onClick={handleTestEndpoints}
             >
-              <AlertTriangle className="h-4 w-4 mr-1" />
-              Debug Config
+              <TestTube className="h-4 w-4 mr-1" />
+              Test Endpoints
             </Button>
           </div>
         </div>
@@ -788,6 +1056,10 @@ export default function CalculatiesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Alle Calculaties ({filteredCalculaties.length})</CardTitle>
+          <CardDescription>
+            API Base: {API_ENDPOINTS.API_BASE}
+            {isCreating && <span className="ml-2 text-blue-600">• Nieuwe calculatie aanmaken...</span>}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -807,12 +1079,23 @@ export default function CalculatiesPage() {
                   : "Pas uw zoekopdracht aan om meer resultaten te zien"}
               </p>
               {calculaties.length === 0 && (
-                <Link href="/calculaties/nieuw">
-                  <Button className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Nieuwe Calculatie
-                  </Button>
-                </Link>
+                <Button 
+                  className="gap-2"
+                  onClick={handleNieuweCalculatie}
+                  disabled={isCreating}
+                >
+                  {isCreating ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      Initialiseren...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4" />
+                      Nieuwe Calculatie
+                    </>
+                  )}
+                </Button>
               )}
             </div>
           ) : (
