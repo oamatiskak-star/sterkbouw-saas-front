@@ -1,351 +1,733 @@
-// SterkBouw-SaaS-Frontend/pages/calculaties/index.js
+'use client';
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/router"
-import { useAuth } from "@/lib/auth"
-import { format } from "date-fns"
-import { nl } from "date-fns/locale"
-import { supabase } from "@/lib/supabase"
-
-// UI Components
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
-// Icons
-import {
-  Search,
-  Download,
-  Eye,
-  Edit,
-  Trash2,
-  Plus,
-  FileText,
-  DollarSign,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  XCircle,
-  ArrowUpDown,
-  RefreshCw,
-  Wifi,
-  Calendar,
-  Building,
-} from "lucide-react"
-
-// Loading component
-function LoadingSpinner() {
-  return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-    </div>
-  )
-}
+import { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
+import { Upload, FileText, Calculator, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function CalculatiesPage() {
-  const router = useRouter()
-  const { user, loading: authLoading } = useAuth()
+  const [activeProjectId, setActiveProjectId] = useState(null);
+  const [calculationId, setCalculationId] = useState(null);
+  const [uiStep, setUiStep] = useState('start');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const [calculaties, setCalculaties] = useState([])
-  const [filteredCalculaties, setFilteredCalculaties] = useState([])
-  const [projects, setProjects] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [loadingProjects, setLoadingProjects] = useState(false)
-  const [error, setError] = useState(null)
-  const [success, setSuccess] = useState(null)
-  const [isCreating, setIsCreating] = useState(false)
+  const [nawData, setNawData] = useState({
+    project_name: '',
+    client_name: '',
+    client_address: '',
+    client_postcode: '',
+    client_city: '',
+    client_country: 'Nederland',
+    billing_name: '',
+    billing_address: '',
+    billing_postcode: '',
+    billing_city: '',
+    billing_country: 'Nederland',
+  });
 
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [sortBy, setSortBy] = useState("updated_at")
-  const [sortOrder, setSortOrder] = useState("desc")
+  const [documents, setDocuments] = useState([]);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [selectedProjectId, setSelectedProjectId] = useState("")
+  const [settings, setSettings] = useState({
+    scenario_name: '',
+    calculation_type: 'indicatief',
+    fixed_price: '',
+    ak_percentage: 10,
+    abk_percentage: 5,
+    risk_percentage: 3,
+    profit_percentage: 7,
+  });
 
-  const [stats, setStats] = useState({
-    total: 0,
-    active: 0,
-    completed: 0,
-    draft: 0,
-    totalValue: 0,
-  })
-
-  useEffect(() => {
-    if (authLoading === false && !user) {
-      router.push("/login")
-    }
-  }, [user, authLoading, router])
-
-  useEffect(() => {
-    if (user) {
-      loadProjects()
-      loadCalculaties()
-    }
-  }, [user])
+  const [calculationStatus, setCalculationStatus] = useState(null);
+  const [results, setResults] = useState(null);
 
   useEffect(() => {
-    filterAndSortCalculaties()
-  }, [calculaties, searchTerm, statusFilter, sortBy, sortOrder])
+    if (calculationId) {
+      const channel = supabase
+        .channel(`calculation_${calculationId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'calculations',
+            filter: `id=eq.${calculationId}`,
+          },
+          (payload) => {
+            setCalculationStatus(payload.new.status);
+            if (payload.new.status === 'completed') {
+              loadResults();
+            }
+          }
+        )
+        .subscribe();
 
-  // ======================
-  // DATA
-  // ======================
-
-  const loadProjects = async () => {
-    setLoadingProjects(true)
-    try {
-      const { data, error } = await supabase
-        .from("projecten")
-        .select("id, naam, adres, plaats")
-        .order("naam")
-
-      if (error) throw error
-      setProjects(data || [])
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoadingProjects(false)
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
-  }
+  }, [calculationId]);
 
-  const loadCalculaties = async () => {
-    setLoading(true)
-    setError(null)
-
+  const loadResults = async () => {
     try {
-      const { data, error } = await supabase
-        .from("calculaties")
-        .select("*")
-        .order("updated_at", { ascending: false })
-
-      if (error) throw error
-
-      const { data: projecten } = await supabase
-        .from("projecten")
-        .select("id, naam, adres, plaats")
-
-      const projectMap = {}
-      ;(projecten || []).forEach((p) => {
-        projectMap[p.id] = p
-      })
-
-      const combined = (data || []).map((c) => ({
-        ...c,
-        projecten: projectMap[c.project_id] || null,
-      }))
-
-      setCalculaties(combined)
-      updateStats(combined)
-    } catch (err) {
-      setError(`Fout bij laden: ${err.message}`)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleNewCalculatie = async () => {
-    setIsCreating(true)
-    setError(null)
-
-    try {
-      let projectId = selectedProjectId
-
-      if (!projectId) {
-        throw new Error("Geen project geselecteerd")
-      }
-
-      const { data: last } = await supabase
-        .from("calculaties")
-        .select("calculatie_nummer")
-        .order("calculatie_nummer", { ascending: false })
+      const { data: versions } = await supabase
+        .from('calculation_versions')
+        .select('*')
+        .eq('calculation_id', calculationId)
+        .order('created_at', { ascending: false })
         .limit(1)
+        .maybeSingle();
 
-      const nextNumber = last?.[0]?.calculatie_nummer
-        ? last[0].calculatie_nummer + 1
-        : 1001
+      if (versions) {
+        const { data: rows } = await supabase
+          .from('calculation_rows')
+          .select('*')
+          .eq('calculation_version_id', versions.id)
+          .order('fase', { ascending: true });
 
-      const { data, error } = await supabase
-        .from("calculaties")
+        setResults({ version: versions, rows: rows || [] });
+        setUiStep('result');
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleStartCalculation = () => {
+    setUiStep('naw');
+    setError(null);
+  };
+
+  const handleSaveNAW = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, error: insertError } = await supabase
+        .from('projects')
         .insert({
-          naam: `Calculatie ${nextNumber}`,
-          calculatie_nummer: nextNumber,
-          project_id: projectId,
-          status: "concept",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          ...nawData,
+          status: 'input',
         })
         .select()
-        .single()
+        .single();
 
-      if (error) throw error
+      if (insertError) throw insertError;
 
-      router.push(`/calculatie/nieuw?id=${data.id}&project_id=${projectId}`)
+      setActiveProjectId(data.id);
+      setUiStep('documents');
     } catch (err) {
-      setError(`Aanmaken mislukt: ${err.message}`)
+      setError(err.message);
     } finally {
-      setIsCreating(false)
-      setIsDialogOpen(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const deleteCalculatie = async (calculatie) => {
-    if (!confirm(`Calculatie "${calculatie.naam}" verwijderen?`)) return
+  const handleUploadDocument = async (file, documentType) => {
+    if (!file || !documentType) return;
+
+    setUploadingDoc(true);
+    setError(null);
 
     try {
-      const { error } = await supabase
-        .from("calculaties")
-        .delete()
-        .eq("id", calculatie.id)
+      const fileName = `${activeProjectId}/${Date.now()}_${file.name}`;
 
-      if (error) throw error
+      const { error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(fileName, file);
 
-      const updated = calculaties.filter((c) => c.id !== calculatie.id)
-      setCalculaties(updated)
-      updateStats(updated)
+      if (uploadError) throw uploadError;
+
+      const { error: insertError } = await supabase
+        .from('document_sources')
+        .insert({
+          project_id: activeProjectId,
+          document_type: documentType,
+          file_name: fileName,
+          confidence_level: 'high',
+        });
+
+      if (insertError) throw insertError;
+
+      setDocuments([...documents, { file_name: file.name, document_type: documentType }]);
     } catch (err) {
-      setError(`Verwijderen mislukt: ${err.message}`)
+      setError(err.message);
+    } finally {
+      setUploadingDoc(false);
     }
-  }
+  };
 
-  // ======================
-  // HELPERS
-  // ======================
+  const handleContinueToSettings = () => {
+    const requiredTypes = ['drawing', 'permit'];
+    const uploadedTypes = documents.map(d => d.document_type);
+    const hasRequired = requiredTypes.every(type => uploadedTypes.includes(type));
 
-  const filterAndSortCalculaties = () => {
-    let filtered = [...calculaties]
-
-    if (searchTerm) {
-      const t = searchTerm.toLowerCase()
-      filtered = filtered.filter(
-        (c) =>
-          c.naam?.toLowerCase().includes(t) ||
-          c.calculatie_nummer?.toString().includes(t) ||
-          c.projecten?.naam?.toLowerCase().includes(t)
-      )
+    if (!hasRequired) {
+      setError('Upload minimaal een tekening en vergunning');
+      return;
     }
 
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((c) => c.status === statusFilter)
+    setUiStep('settings');
+    setError(null);
+  };
+
+  const handleStartAICalculation = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data: calculation, error: calcError } = await supabase
+        .from('calculations')
+        .insert({
+          project_id: activeProjectId,
+          scenario_name: settings.scenario_name,
+          calculation_type: settings.calculation_type,
+          fixed_price: settings.fixed_price || null,
+          status: 'queued',
+        })
+        .select()
+        .single();
+
+      if (calcError) throw calcError;
+
+      const { error: overheadError } = await supabase
+        .from('calculation_overheads')
+        .insert({
+          calculation_id: calculation.id,
+          ak_percentage: settings.ak_percentage,
+          abk_percentage: settings.abk_percentage,
+          risk_percentage: settings.risk_percentage,
+          profit_percentage: settings.profit_percentage,
+        });
+
+      if (overheadError) throw overheadError;
+
+      const { error: updateError } = await supabase
+        .from('projects')
+        .update({ status: 'queued' })
+        .eq('id', activeProjectId);
+
+      if (updateError) throw updateError;
+
+      setCalculationId(calculation.id);
+      setCalculationStatus('queued');
+      setUiStep('running');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    filtered.sort((a, b) => {
-      const aVal = new Date(a[sortBy] || 0).getTime()
-      const bVal = new Date(b[sortBy] || 0).getTime()
-      return sortOrder === "asc" ? aVal - bVal : bVal - aVal
-    })
+  const groupRowsByFase = (rows) => {
+    const phases = ['voorbereiding', 'sloop', 'ruwbouw', 'afbouw', 'installaties', 'oplevering'];
+    const grouped = {};
 
-    setFilteredCalculaties(filtered)
-  }
+    phases.forEach(phase => {
+      grouped[phase] = rows.filter(r => r.fase === phase);
+    });
 
-  const updateStats = (list) => {
-    setStats({
-      total: list.length,
-      active: list.filter((c) => c.status === "actief").length,
-      completed: list.filter((c) => c.status === "voltooid").length,
-      draft: list.filter((c) => c.status === "concept").length,
-      totalValue: list.reduce((s, c) => s + Number(c.totaal || 0), 0),
-    })
-  }
+    return grouped;
+  };
 
-  const formatDate = (d) =>
-    d ? format(new Date(d), "dd-MM-yyyy", { locale: nl }) : "-"
+  const calculatePhaseTotal = (rows) => {
+    return rows.reduce((sum, row) => sum + (parseFloat(row.regel_totaal) || 0), 0);
+  };
 
-  // ======================
-  // RENDER
-  // ======================
-
-  if (authLoading) return null
+  const calculateGrandTotal = (rows) => {
+    return rows.reduce((sum, row) => sum + (parseFloat(row.regel_totaal) || 0), 0);
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {error && (
-        <div className="mb-4 p-3 border border-red-300 bg-red-50 rounded">
-          <AlertTriangle className="inline mr-2 h-4 w-4 text-red-600" />
-          {error}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900">SterkCalc AI Calculatie</h1>
+          <p className="mt-2 text-slate-600">Centrale calculatiepagina met AI-analyse</p>
         </div>
-      )}
 
-      <div className="flex justify-between mb-6">
-        <h1 className="text-3xl font-bold">Calculaties</h1>
-        <Button onClick={() => setIsDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" /> Nieuwe calculatie
-        </Button>
-      </div>
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-red-800">Fout</p>
+              <p className="text-sm text-red-700 mt-1">{error}</p>
+            </div>
+          </div>
+        )}
 
-      {loading ? (
-        <LoadingSpinner />
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Naam</TableHead>
-              <TableHead>Project</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Laatst gewijzigd</TableHead>
-              <TableHead />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredCalculaties.map((c) => (
-              <TableRow key={c.id}>
-                <TableCell>{c.naam}</TableCell>
-                <TableCell>{c.projecten?.naam || "-"}</TableCell>
-                <TableCell>{c.status}</TableCell>
-                <TableCell>{formatDate(c.updated_at)}</TableCell>
-                <TableCell className="text-right">
-                  <Button size="sm" variant="ghost" onClick={() => router.push(`/calculaties/${c.id}`)}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => deleteCalculatie(c)}>
-                    <Trash2 className="h-4 w-4 text-red-500" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
+        {uiStep === 'start' && (
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center">
+            <Calculator className="w-16 h-16 text-slate-700 mx-auto mb-4" />
+            <h2 className="text-2xl font-semibold text-slate-900 mb-2">Welkom bij SterkCalc</h2>
+            <p className="text-slate-600 mb-8">Start een nieuwe AI-calculatie voor uw bouwproject</p>
+            <button
+              onClick={handleStartCalculation}
+              className="bg-slate-900 text-white px-8 py-3 rounded-lg font-medium hover:bg-slate-800 transition-colors"
+            >
+              Start nieuwe calculatie
+            </button>
+          </div>
+        )}
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Nieuwe calculatie</DialogTitle>
-            <DialogDescription>Selecteer een project</DialogDescription>
-          </DialogHeader>
+        {uiStep === 'naw' && (
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
+            <h2 className="text-xl font-semibold text-slate-900 mb-6">Projectgegevens & Facturatie</h2>
 
-          <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecteer project" />
-            </SelectTrigger>
-            <SelectContent>
-              {projects.map((p) => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.naam}
-                </SelectItem>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Projectnaam</label>
+                <input
+                  type="text"
+                  value={nawData.project_name}
+                  onChange={(e) => setNawData({ ...nawData, project_name: e.target.value })}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                  placeholder="Renovatie Hoofdstraat 123"
+                />
+              </div>
+
+              <div className="border-t border-slate-200 pt-6">
+                <h3 className="text-lg font-medium text-slate-900 mb-4">Klantgegevens</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Naam</label>
+                    <input
+                      type="text"
+                      value={nawData.client_name}
+                      onChange={(e) => setNawData({ ...nawData, client_name: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Adres</label>
+                    <input
+                      type="text"
+                      value={nawData.client_address}
+                      onChange={(e) => setNawData({ ...nawData, client_address: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Postcode</label>
+                    <input
+                      type="text"
+                      value={nawData.client_postcode}
+                      onChange={(e) => setNawData({ ...nawData, client_postcode: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Plaats</label>
+                    <input
+                      type="text"
+                      value={nawData.client_city}
+                      onChange={(e) => setNawData({ ...nawData, client_city: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Land</label>
+                    <input
+                      type="text"
+                      value={nawData.client_country}
+                      onChange={(e) => setNawData({ ...nawData, client_country: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-200 pt-6">
+                <h3 className="text-lg font-medium text-slate-900 mb-4">Facturatieadres</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Naam</label>
+                    <input
+                      type="text"
+                      value={nawData.billing_name}
+                      onChange={(e) => setNawData({ ...nawData, billing_name: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Adres</label>
+                    <input
+                      type="text"
+                      value={nawData.billing_address}
+                      onChange={(e) => setNawData({ ...nawData, billing_address: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Postcode</label>
+                    <input
+                      type="text"
+                      value={nawData.billing_postcode}
+                      onChange={(e) => setNawData({ ...nawData, billing_postcode: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Plaats</label>
+                    <input
+                      type="text"
+                      value={nawData.billing_city}
+                      onChange={(e) => setNawData({ ...nawData, billing_city: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Land</label>
+                    <input
+                      type="text"
+                      value={nawData.billing_country}
+                      onChange={(e) => setNawData({ ...nawData, billing_country: e.target.value })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 flex justify-end">
+              <button
+                onClick={handleSaveNAW}
+                disabled={loading || !nawData.project_name || !nawData.client_name}
+                className="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                Opslaan & verder
+              </button>
+            </div>
+          </div>
+        )}
+
+        {uiStep === 'documents' && (
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
+            <h2 className="text-xl font-semibold text-slate-900 mb-6">Documenten uploaden</h2>
+
+            <div className="space-y-4 mb-6">
+              {['drawing', 'permit', 'photo', 'demolition', 'sanering'].map((type) => (
+                <div key={type} className="border border-slate-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm font-medium text-slate-700 capitalize">
+                      {type === 'drawing' && 'Tekening (verplicht)'}
+                      {type === 'permit' && 'Vergunning (verplicht)'}
+                      {type === 'photo' && 'Foto'}
+                      {type === 'demolition' && 'Slooprapport'}
+                      {type === 'sanering' && 'Saneringsrapport'}
+                    </label>
+                    {documents.some(d => d.document_type === type) && (
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleUploadDocument(file, type);
+                    }}
+                    disabled={uploadingDoc}
+                    className="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 disabled:opacity-50"
+                  />
+                </div>
               ))}
-            </SelectContent>
-          </Select>
+            </div>
 
-          <DialogFooter>
-            <Button onClick={handleNewCalculatie} disabled={isCreating}>
-              Aanmaken
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            {uploadingDoc && (
+              <div className="flex items-center gap-2 text-sm text-slate-600 mb-4">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Document uploaden...
+              </div>
+            )}
+
+            <div className="flex justify-end">
+              <button
+                onClick={handleContinueToSettings}
+                disabled={uploadingDoc}
+                className="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Verder naar instellingen
+              </button>
+            </div>
+          </div>
+        )}
+
+        {uiStep === 'settings' && (
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
+            <h2 className="text-xl font-semibold text-slate-900 mb-6">Instellingen & Type Calculatie</h2>
+
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Scenario naam</label>
+                <input
+                  type="text"
+                  value={settings.scenario_name}
+                  onChange={(e) => setSettings({ ...settings, scenario_name: e.target.value })}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                  placeholder="Basis scenario"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Type calculatie</label>
+                <select
+                  value={settings.calculation_type}
+                  onChange={(e) => setSettings({ ...settings, calculation_type: e.target.value })}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                >
+                  <option value="indicatief">Indicatief</option>
+                  <option value="begroting">Begroting</option>
+                  <option value="contract">Contract</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Vaste prijs (optioneel)</label>
+                <input
+                  type="number"
+                  value={settings.fixed_price}
+                  onChange={(e) => setSettings({ ...settings, fixed_price: e.target.value })}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                  placeholder="€ 0.00"
+                />
+              </div>
+
+              <div className="border-t border-slate-200 pt-6">
+                <h3 className="text-lg font-medium text-slate-900 mb-4">Opslagen</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">AK %</label>
+                    <input
+                      type="number"
+                      value={settings.ak_percentage}
+                      onChange={(e) => setSettings({ ...settings, ak_percentage: parseFloat(e.target.value) })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">ABK %</label>
+                    <input
+                      type="number"
+                      value={settings.abk_percentage}
+                      onChange={(e) => setSettings({ ...settings, abk_percentage: parseFloat(e.target.value) })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Risico %</label>
+                    <input
+                      type="number"
+                      value={settings.risk_percentage}
+                      onChange={(e) => setSettings({ ...settings, risk_percentage: parseFloat(e.target.value) })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Winst %</label>
+                    <input
+                      type="number"
+                      value={settings.profit_percentage}
+                      onChange={(e) => setSettings({ ...settings, profit_percentage: parseFloat(e.target.value) })}
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 flex justify-end">
+              <button
+                onClick={handleStartAICalculation}
+                disabled={loading || !settings.scenario_name}
+                className="bg-slate-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                Start AI calculatie
+              </button>
+            </div>
+          </div>
+        )}
+
+        {uiStep === 'running' && (
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
+            <h2 className="text-xl font-semibold text-slate-900 mb-6">AI Calculatie loopt</h2>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'queued' ? 'bg-slate-200' : 'bg-green-100'}`}>
+                  {calculationStatus === 'queued' ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
+                  ) : (
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                  )}
+                </div>
+                <span className="text-slate-700">In wachtrij</span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'running' ? 'bg-slate-200' : calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
+                  {calculationStatus === 'running' ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
+                  ) : calculationStatus === 'completed' ? (
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <div className="w-2 h-2 rounded-full bg-slate-400" />
+                  )}
+                </div>
+                <span className="text-slate-700">Documenten analyseren</span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'running' ? 'bg-slate-200' : calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
+                  {calculationStatus === 'running' ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
+                  ) : calculationStatus === 'completed' ? (
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <div className="w-2 h-2 rounded-full bg-slate-400" />
+                  )}
+                </div>
+                <span className="text-slate-700">STABU mapping</span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'running' ? 'bg-slate-200' : calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
+                  {calculationStatus === 'running' ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
+                  ) : calculationStatus === 'completed' ? (
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <div className="w-2 h-2 rounded-full bg-slate-400" />
+                  )}
+                </div>
+                <span className="text-slate-700">Berekenen</span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'running' ? 'bg-slate-200' : calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
+                  {calculationStatus === 'running' ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-600" />
+                  ) : calculationStatus === 'completed' ? (
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <div className="w-2 h-2 rounded-full bg-slate-400" />
+                  )}
+                </div>
+                <span className="text-slate-700">Opslagen toepassen</span>
+              </div>
+
+              {settings.fixed_price && (
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
+                    {calculationStatus === 'completed' ? (
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <div className="w-2 h-2 rounded-full bg-slate-400" />
+                    )}
+                  </div>
+                  <span className="text-slate-700">Vaste prijs correctie</span>
+                </div>
+              )}
+            </div>
+
+            {calculationStatus === 'completed' && (
+              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm font-medium text-green-800">Calculatie voltooid! Resultaten worden geladen...</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {uiStep === 'result' && results && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-slate-900">Resultaten</h2>
+                <div className="text-right">
+                  <p className="text-sm text-slate-600">Totaalbedrag</p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    € {results.version.total_amount?.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                </div>
+              </div>
+
+              {Object.entries(groupRowsByFase(results.rows)).map(([fase, rows]) => {
+                if (rows.length === 0) return null;
+
+                const phaseTotal = calculatePhaseTotal(rows);
+
+                return (
+                  <div key={fase} className="mb-8">
+                    <div className="bg-slate-100 px-4 py-2 rounded-t-lg border-b-2 border-slate-300">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-slate-900 uppercase">{fase}</h3>
+                        <span className="text-sm font-semibold text-slate-900">
+                          € {phaseTotal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="bg-slate-50 border-b border-slate-200">
+                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-700">STABU</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-700">Omschrijving</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Hoeveelheid</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Inkoop</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">AK</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">ABK</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Risico</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Winst</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Totaal</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rows.map((row, idx) => (
+                            <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
+                              <td className="px-4 py-2 text-sm text-slate-600">{row.stabu_code}</td>
+                              <td className="px-4 py-2 text-sm text-slate-900">{row.omschrijving}</td>
+                              <td className="px-4 py-2 text-sm text-slate-600 text-right">{row.hoeveelheid}</td>
+                              <td className="px-4 py-2 text-sm text-slate-600 text-right">
+                                € {parseFloat(row.inkoop).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-slate-600 text-right">
+                                € {parseFloat(row.ak).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-slate-600 text-right">
+                                € {parseFloat(row.abk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-slate-600 text-right">
+                                € {parseFloat(row.risk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-slate-600 text-right">
+                                € {parseFloat(row.profit).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </td>
+                              <td className="px-4 py-2 text-sm font-medium text-slate-900 text-right">
+                                € {parseFloat(row.regel_totaal).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })}
+
+              <div className="border-t-2 border-slate-300 pt-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-bold text-slate-900">Totaal</span>
+                  <span className="text-2xl font-bold text-slate-900">
+                    € {calculateGrandTotal(results.rows).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-  )
+  );
 }
