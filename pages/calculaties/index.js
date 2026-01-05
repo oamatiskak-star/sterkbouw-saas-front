@@ -1,11 +1,20 @@
-// SterkBouw-SaaS-Frontend/pages/calculaties/index.js - MET DIRECT SUPABASE
+// SterkBouw-SaaS-Frontend/pages/calculaties/index.js - MET SUPABASE FIX
 import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth"
 import { format } from "date-fns"
 import { nl } from "date-fns/locale"
-import { supabase } from "@/lib/supabase" // Supabase import toegevoegd
+
+// Try to import Supabase with fallback
+let supabaseClient = null
+try {
+  const { supabase } = require("@/lib/supabase")
+  supabaseClient = supabase
+} catch (error) {
+  console.error('❌ Supabase import failed:', error.message)
+  // We'll handle this in the component
+}
 
 // UI Components
 import { Button } from "@/components/ui/button"
@@ -35,15 +44,18 @@ import {
   RefreshCw,
   TestTube,
   Database,
-  ExternalLink
+  ExternalLink,
+  Wifi,
+  WifiOff
 } from "lucide-react"
 
-// Log de Supabase configuratie voor debugging
-console.log('🔧 Supabase Configuratie:', {
+// Log de environment configuratie
+console.log('🔧 Environment Configuratie:', {
   SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Set' : '❌ Not set',
   SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Set' : '❌ Not set',
-  HOST: typeof window !== 'undefined' ? window.location.host : 'server'
-});
+  NODE_ENV: process.env.NODE_ENV,
+  IS_BROWSER: typeof window !== 'undefined'
+})
 
 // Simple inline Progress component
 function SimpleProgress({ value = 0, className = '' }) {
@@ -120,14 +132,14 @@ const generateMockCalculaties = (userId) => {
       },
       pdf_url: 'https://example.com/demo.pdf'
     }
-  ];
-};
+  ]
+}
 
 export default function CalculatiesPage() {
   const router = useRouter()
   
   // ======================
-  // AUTH - GEBRUIK NIEUWE FUNCTIES
+  // AUTH
   // ======================
   const { 
     user, 
@@ -142,8 +154,12 @@ export default function CalculatiesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
-  const [isCreating, setIsCreating] = useState(false) // Voor nieuwe calculatie knop
-  const [supabaseStatus, setSupabaseStatus] = useState('unknown') // 'connected', 'error', 'unknown'
+  const [isCreating, setIsCreating] = useState(false)
+  const [databaseStatus, setDatabaseStatus] = useState({
+    connected: false,
+    tableExists: false,
+    message: 'Initialiseren...'
+  })
   
   // Filter and search state
   const [searchTerm, setSearchTerm] = useState("")
@@ -181,7 +197,7 @@ export default function CalculatiesPage() {
   }, [calculaties, searchTerm, statusFilter, sortBy, sortOrder])
 
   // ======================
-  // FUNCTIES - DIRECT SUPABASE VERSIE
+  // FUNCTIES - MET SUPABASE FIX
   // ======================
 
   const fetchCalculaties = async () => {
@@ -189,6 +205,7 @@ export default function CalculatiesPage() {
     
     setIsLoading(true)
     setError(null)
+    setDatabaseStatus({ connected: false, tableExists: false, message: 'Controleren...' })
     
     try {
       const userId = userProfile?.id || user?.id
@@ -197,96 +214,143 @@ export default function CalculatiesPage() {
         return
       }
       
-      console.log('🔍 Fetching calculaties voor user:', userId);
-      console.log('📡 Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+      console.log('🔍 Fetching calculaties voor user:', userId)
       
-      // Test eerst of Supabase connectie werkt
+      // Controleer of Supabase beschikbaar is
+      if (!supabaseClient) {
+        console.log('⚠️ Supabase client is niet beschikbaar, gebruik demo data')
+        throw new Error('SUPABASE_CLIENT_UNAVAILABLE')
+      }
+      
+      // Test Supabase verbinding
       try {
-        const { error: testError } = await supabase
+        const { data, error: testError } = await supabaseClient
           .from('calculaties')
           .select('id')
           .limit(1)
         
-        if (testError && testError.code === 'PGRST301') {
-          // Table doesn't exist yet
-          console.log('⚠️ Table "calculaties" might not exist yet, will create demo data');
-          setSupabaseStatus('table_missing')
-        } else if (testError) {
-          console.error('Supabase test error:', testError)
-          setSupabaseStatus('error')
+        if (testError) {
+          if (testError.code === 'PGRST301' || testError.message.includes('does not exist')) {
+            setDatabaseStatus({ 
+              connected: true, 
+              tableExists: false, 
+              message: 'Database tabel bestaat nog niet' 
+            })
+            console.log('⚠️ Table "calculaties" does not exist yet')
+          } else {
+            setDatabaseStatus({ 
+              connected: false, 
+              tableExists: false, 
+              message: `Database fout: ${testError.message}` 
+            })
+            throw new Error(`DATABASE_ERROR: ${testError.message}`)
+          }
         } else {
-          setSupabaseStatus('connected')
+          setDatabaseStatus({ 
+            connected: true, 
+            tableExists: true, 
+            message: 'Database verbonden' 
+          })
         }
       } catch (testErr) {
-        console.error('Supabase connection test failed:', testErr)
-        setSupabaseStatus('error')
+        console.error('Database test error:', testErr)
+        setDatabaseStatus({ 
+          connected: false, 
+          tableExists: false, 
+          message: `Test mislukt: ${testErr.message}` 
+        })
+        throw new Error(`DATABASE_TEST_FAILED: ${testErr.message}`)
       }
       
-      // Haal calculaties op uit Supabase
-      const { data, error } = await supabase
-        .from('calculaties')
-        .select('*')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false })
-      
-      if (error) {
-        console.error('Supabase query error:', error)
+      // Probeer data op te halen als de tabel bestaat
+      if (databaseStatus.tableExists) {
+        const { data, error } = await supabaseClient
+          .from('calculaties')
+          .select('*')
+          .eq('user_id', userId)
+          .order('updated_at', { ascending: false })
         
-        // Als de tabel niet bestaat, gebruik mock data
-        if (error.code === 'PGRST301' || error.message.includes('relation') || error.message.includes('does not exist')) {
-          console.log('Table "calculaties" does not exist yet, using mock data')
-          const mockData = generateMockCalculaties(userId)
-          setCalculaties(mockData)
-          updateStats(mockData)
-          setSuccess('Tabel "calculaties" bestaat nog niet, toon demo data')
-          setTimeout(() => setSuccess(null), 3000)
-          return
+        if (error) {
+          console.error('Supabase query error:', error)
+          throw new Error(`QUERY_ERROR: ${error.message}`)
         }
         
-        throw new Error(`Supabase fout: ${error.message}`)
+        const calculatiesArray = Array.isArray(data) ? data : []
+        
+        if (calculatiesArray.length > 0) {
+          console.log(`✅ ${calculatiesArray.length} calculaties gevonden`)
+          setCalculaties(calculatiesArray)
+          updateStats(calculatiesArray)
+          return
+        }
       }
       
-      const calculatiesArray = Array.isArray(data) ? data : []
-      
-      // Als er data is, gebruik die
-      if (calculatiesArray.length > 0) {
-        console.log(`✅ ${calculatiesArray.length} calculaties gevonden in Supabase`)
-        setCalculaties(calculatiesArray)
-        updateStats(calculatiesArray)
-      } else {
-        // Geen data, gebruik mock voor demo
-        console.log('Geen calculaties gevonden in Supabase, gebruik demo data')
-        const mockData = generateMockCalculaties(userId)
-        setCalculaties(mockData)
-        updateStats(mockData)
-        setSuccess('Geen projecten gevonden in database, toon demo data')
-        setTimeout(() => setSuccess(null), 3000)
-      }
-      
-    } catch (err) {
-      console.error('❌ Fetch error:', err)
-      
-      // Fallback naar mock data
-      const mockData = generateMockCalculaties(userProfile?.id || user?.id)
+      // Geen data of tabel bestaat niet, gebruik mock data
+      console.log('Geen calculaties gevonden, gebruik demo data')
+      const mockData = generateMockCalculaties(userId)
       setCalculaties(mockData)
       updateStats(mockData)
+      setSuccess('Geen projecten gevonden, toon demo data')
+      setTimeout(() => setSuccess(null), 3000)
       
-      setError(`
-        🚨 Fout bij ophalen calculaties
+    } catch (err) {
+      console.error('❌ Fetch error:', err.message)
+      
+      // Specifieke error handling
+      if (err.message === 'SUPABASE_CLIENT_UNAVAILABLE') {
+        const mockData = generateMockCalculaties(userProfile?.id || user?.id)
+        setCalculaties(mockData)
+        updateStats(mockData)
         
-        **Details:** ${err.message}
+        setError(`
+          ⚠️ Supabase client niet beschikbaar
+          
+          **Oorzaak:** De Supabase client kon niet worden geladen
+          
+          **Mogelijke oplossingen:**
+          1. Controleer of lib/supabase.js bestaat
+          2. Controleer environment variables in Railway
+          3. Herstart de applicatie
+          
+          **Voor nu:** Demo data getoond
+        `)
+      } else if (err.message.includes('DATABASE_ERROR') || err.message.includes('QUERY_ERROR')) {
+        const mockData = generateMockCalculaties(userProfile?.id || user?.id)
+        setCalculaties(mockData)
+        updateStats(mockData)
         
-        **Oplossing gebruikt:** Demo data getoond
+        setError(`
+          ⚠️ Database fout
+          
+          **Details:** ${err.message.replace('DATABASE_ERROR: ', '').replace('QUERY_ERROR: ', '')}
+          
+          **Status:** ${databaseStatus.message}
+          
+          **Voor nu:** Demo data getoond
+        `)
+      } else {
+        // Andere error, gebruik mock data
+        const mockData = generateMockCalculaties(userProfile?.id || user?.id)
+        setCalculaties(mockData)
+        updateStats(mockData)
         
-        **Supabase Status:** ${supabaseStatus}
-      `)
+        setError(`
+          🚨 Fout bij ophalen calculaties
+          
+          **Details:** ${err.message}
+          
+          **Database Status:** ${databaseStatus.message}
+          
+          **Oplossing gebruikt:** Demo data getoond
+        `)
+      }
     } finally {
       setIsLoading(false)
     }
   }
 
   // ======================
-  // NIEUWE CALCULATIE FUNCTIE - SIMPELE SUPABASE VERSIE
+  // NIEUWE CALCULATIE FUNCTIE - MET FIX
   // ======================
 
   const handleNieuweCalculatie = async () => {
@@ -307,8 +371,16 @@ export default function CalculatiesPage() {
 
       console.log('🔄 Start nieuwe calculatie voor user:', userId)
       
-      // Maak nieuwe calculatie aan in Supabase
-      const { data: newCalc, error: supabaseError } = await supabase
+      // Controleer of Supabase beschikbaar is
+      if (!supabaseClient) {
+        console.log('⚠️ Supabase niet beschikbaar, gebruik demo mode')
+        const demoId = `demo-${Date.now()}`
+        router.push(`/calculaties/${demoId}?demo=true`)
+        return
+      }
+      
+      // Maak nieuwe calculatie aan
+      const { data: newCalc, error: supabaseError } = await supabaseClient
         .from('calculaties')
         .insert({
           naam: `Nieuwe Calculatie ${format(new Date(), 'dd-MM HH:mm')}`,
@@ -330,9 +402,9 @@ export default function CalculatiesPage() {
       if (supabaseError) {
         console.error('❌ Supabase error:', supabaseError)
         
-        // Als de tabel niet bestaat, maak dan een demo ID aan
+        // Als de tabel niet bestaat, maak demo aan
         if (supabaseError.code === 'PGRST301' || supabaseError.message.includes('relation')) {
-          console.log('Table "calculaties" does not exist, creating demo ID')
+          console.log('Table does not exist, creating demo')
           const demoId = `demo-${Date.now()}`
           setSuccess('Database tabel bestaat nog niet. Demo modus gestart.')
           router.push(`/calculaties/${demoId}?demo=true`)
@@ -342,7 +414,7 @@ export default function CalculatiesPage() {
         throw new Error(`Aanmaken mislukt: ${supabaseError.message}`)
       }
 
-      console.log(`✅ Nieuwe calculatie aangemaakt in Supabase: ${newCalc.id}`)
+      console.log(`✅ Nieuwe calculatie aangemaakt: ${newCalc.id}`)
       setSuccess('Nieuwe calculatie aangemaakt!')
       setTimeout(() => setSuccess(null), 3000)
       router.push(`/calculaties/${newCalc.id}`)
@@ -465,8 +537,13 @@ export default function CalculatiesPage() {
         return
       }
       
+      // Controleer of Supabase beschikbaar is
+      if (!supabaseClient) {
+        throw new Error('Database niet beschikbaar')
+      }
+      
       // Direct Supabase delete
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('calculaties')
         .delete()
         .eq('id', calculatie.id)
@@ -531,49 +608,48 @@ export default function CalculatiesPage() {
     }).format(amount || 0)
   }
 
-  // Functie om Supabase tabel te testen
-  const testSupabaseConnection = async () => {
+  // Test database verbinding
+  const testDatabaseConnection = async () => {
     setIsLoading(true)
     try {
-      console.log('🔍 Test Supabase connection...')
+      console.log('🔍 Test database connection...')
       
-      // Test 1: Check if we can query
-      const { data: tables, error: tablesError } = await supabase
+      if (!supabaseClient) {
+        alert('Supabase client is niet beschikbaar. Controleer je imports en environment variables.')
+        return
+      }
+      
+      // Test 1: Basic connection
+      const { data: tables, error: tablesError } = await supabaseClient
         .from('pg_tables')
         .select('tablename')
         .eq('schemaname', 'public')
         .limit(5)
       
-      console.log('Tables query result:', tablesError ? 'Error' : 'Success', tables)
+      console.log('Tables test:', tablesError ? 'Error' : 'Success', tables)
       
-      // Test 2: Try to count calculaties
-      const { count, error: countError } = await supabase
+      // Test 2: Try to query calculaties
+      const { data: calculatiesData, error: calcError } = await supabaseClient
         .from('calculaties')
-        .select('*', { count: 'exact', head: true })
+        .select('id')
+        .limit(1)
       
-      console.log('Calculaties count:', count, 'Error:', countError)
+      console.log('Calculaties test:', calcError ? 'Error' : 'Success', calculatiesData)
       
-      // Test 3: Try to get user's calculaties
-      const userId = userProfile?.id || user?.id
-      if (userId) {
-        const { data, error } = await supabase
-          .from('calculaties')
-          .select('id')
-          .eq('user_id', userId)
-          .limit(1)
+      // Show results
+      const results = `
+        Database Test Resultaten:
         
-        console.log('User calculaties test:', data, error)
-      }
+        1. Supabase URL: ${process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅' : '❌'}
+        2. Anon Key: ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅' : '❌'}
+        3. Tables query: ${tablesError ? '❌ ' + tablesError.message : '✅'}
+        4. Calculaties query: ${calcError ? '❌ ' + calcError.message : '✅'}
+        5. Client: ${supabaseClient ? '✅ Geladen' : '❌ Niet geladen'}
+        
+        Controleer de browser console (F12) voor details.
+      `
       
-      alert(`
-        Supabase Test Resultaten (zie console voor details):
-        
-        1. Tables query: ${tablesError ? 'Error' : 'Success'}
-        2. Calculaties count: ${count !== null ? count : 'N/A'} (Error: ${countError ? 'Yes' : 'No'})
-        3. Database: ${process.env.NEXT_PUBLIC_SUPABASE_URL}
-        
-        Controleer de browser console (F12) voor gedetailleerde logs.
-      `)
+      alert(results)
       
     } catch (err) {
       console.error('Test error:', err)
@@ -583,13 +659,59 @@ export default function CalculatiesPage() {
     }
   }
 
-  const openSupabaseDashboard = () => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace('https://', 'https://app.supabase.com/project/')
-    if (url) {
-      window.open(url, '_blank')
-    } else {
-      alert('Supabase URL is niet geconfigureerd')
+  const createDatabaseTable = async () => {
+    if (!confirm('Wil je de database tabel "calculaties" aanmaken via SQL? Dit vereist Supabase toegang.')) {
+      return
     }
+    
+    const sql = `
+CREATE TABLE IF NOT EXISTS public.calculaties (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  naam TEXT,
+  klant_naam TEXT,
+  klant_email TEXT,
+  klant_telefoon TEXT,
+  adres TEXT,
+  postcode TEXT,
+  plaats TEXT,
+  status TEXT DEFAULT 'draft',
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  metadata JSONB DEFAULT '{}'::jsonb,
+  pdf_url TEXT
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.calculaties ENABLE ROW LEVEL SECURITY;
+
+-- Create policy to allow users to see only their own calculaties
+CREATE POLICY "Users can view own calculaties" 
+ON public.calculaties 
+FOR SELECT 
+USING (auth.uid() = user_id);
+
+-- Create policy to allow users to insert their own calculaties
+CREATE POLICY "Users can insert own calculaties" 
+ON public.calculaties 
+FOR INSERT 
+WITH CHECK (auth.uid() = user_id);
+
+-- Create policy to allow users to update their own calculaties
+CREATE POLICY "Users can update own calculaties" 
+ON public.calculaties 
+FOR UPDATE 
+USING (auth.uid() = user_id);
+
+-- Create policy to allow users to delete their own calculaties
+CREATE POLICY "Users can delete own calculaties" 
+ON public.calculaties 
+FOR DELETE 
+USING (auth.uid() = user_id);
+    `
+    
+    alert(`Voer deze SQL in in je Supabase dashboard SQL Editor:\n\n${sql}`)
+    window.open('https://app.supabase.com/project/' + process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0] + '/sql', '_blank')
   }
 
   // ======================
@@ -616,15 +738,16 @@ export default function CalculatiesPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Calculaties</h1>
             <p className="text-gray-600">Overzicht van al uw bouwcalculaties</p>
             <div className="flex items-center gap-2 mt-2">
-              <Badge variant={supabaseStatus === 'connected' ? 'default' : 'outline'} className="gap-1">
-                <Database className="h-3 w-3" />
-                {supabaseStatus === 'connected' ? 'Supabase verbonden' : 
-                 supabaseStatus === 'table_missing' ? 'Tabel ontbreekt' : 
-                 supabaseStatus === 'error' ? 'Fout' : 'Status onbekend'}
+              <Badge 
+                variant={databaseStatus.connected ? 'default' : 'outline'} 
+                className={`gap-1 ${databaseStatus.connected ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
+              >
+                {databaseStatus.connected ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+                {databaseStatus.message}
               </Badge>
-              <span className="text-xs text-gray-500">
-                {process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Database: Aan' : 'Database: Uit'}
-              </span>
+              {!databaseStatus.tableExists && databaseStatus.connected && (
+                <span className="text-xs text-yellow-600">⚠️ Tabel ontbreekt</span>
+              )}
             </div>
           </div>
           <div className="flex gap-2">
@@ -649,8 +772,8 @@ export default function CalculatiesPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={testSupabaseConnection}
-              title="Test Supabase verbinding"
+              onClick={testDatabaseConnection}
+              title="Test database verbinding"
             >
               <TestTube className="h-4 w-4" />
             </Button>
@@ -702,19 +825,21 @@ export default function CalculatiesPage() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={testSupabaseConnection}
+              onClick={testDatabaseConnection}
             >
               <Database className="h-4 w-4 mr-1" />
               Test Database
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={openSupabaseDashboard}
-            >
-              <ExternalLink className="h-4 w-4 mr-1" />
-              Supabase Dashboard
-            </Button>
+            {databaseStatus.connected && !databaseStatus.tableExists && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={createDatabaseTable}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Maak Tabel
+              </Button>
+            )}
           </div>
         </div>
       )}
@@ -797,8 +922,8 @@ export default function CalculatiesPage() {
           <CardTitle>Alle Calculaties ({filteredCalculaties.length})</CardTitle>
           <CardDescription>
             {isCreating && <span className="text-blue-600">• Nieuwe calculatie aanmaken...</span>}
-            {supabaseStatus === 'table_missing' && (
-              <span className="text-yellow-600">⚠️ Database tabel "calculaties" bestaat nog niet</span>
+            {!databaseStatus.connected && (
+              <span className="text-yellow-600">⚠️ Database niet verbonden</span>
             )}
           </CardDescription>
         </CardHeader>
