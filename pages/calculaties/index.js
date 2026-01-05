@@ -36,7 +36,7 @@ import {
 
 // API endpoints
 const API_ENDPOINTS = {
-  BACKEND_API: process.env.NEXT_PUBLIC_BACKEND_API || "https://sterkbouw-saas-backend-production.up.railway.app",
+  API_BASE: process.env.NEXT_PUBLIC_EXECUTOR_API || "https://sterkbouw-saas-executor-production.up.railway.app",
 }
 
 // Simple inline Progress component
