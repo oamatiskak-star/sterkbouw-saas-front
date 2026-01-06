@@ -9,7 +9,6 @@ export default function CalculatiesPage() {
   const [uiStep, setUiStep] = useState('start');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [calculationModel, setCalculationModel] = useState('');
   const [pdfUrl, setPdfUrl] = useState(null);
   const [startingCalculation, setStartingCalculation] = useState(false);
   const [projectType, setProjectType] = useState('');
@@ -217,13 +216,13 @@ export default function CalculatiesPage() {
       return;
     }
     if (!projectType) {
-      const msg = 'Projecttype ontbreekt';
+      const msg = 'Kies een projecttype';
       console.error(msg);
       setError(msg);
       return;
     }
     if (!calculationLevel) {
-      const msg = 'Rekenniveau ontbreekt';
+      const msg = 'Kies een rekenniveau';
       console.error(msg);
       setError(msg);
       return;
@@ -239,7 +238,7 @@ export default function CalculatiesPage() {
             project_id: activeProjectId,
             scenario_name: scenarioName,
             calculation_type: projectType,
-            calculation_level: calculationLevel, // TODO: ensure column exists
+            calculation_level: calculationLevel, // requires calculation_level column in calculation_runs
             fixed_price: fixedPrice || null,
             status: 'queued',
           },
@@ -328,18 +327,6 @@ export default function CalculatiesPage() {
 
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Type calculatie</label>
-                <select value={calculationModel} onChange={(e) => setCalculationModel(e.target.value)} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent">
-                  <option value="">-- Kies type calculatie --</option>
-                  <option value="nieuwbouw">Nieuwbouw</option>
-                  <option value="transformatie">Transformatie</option>
-                  <option value="renovatie">Renovatie</option>
-                  <option value="uitbreiding">Uitbreiding</option>
-                  <option value="verduurzaming">Verduurzaming</option>
-                </select>
-                {!calculationModel && <p className="text-xs text-slate-500 mt-1">Verplicht</p>}
-              </div>
             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-red-800">Fout</p>
