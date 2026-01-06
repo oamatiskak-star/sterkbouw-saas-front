@@ -200,74 +200,70 @@ export default function CalculatiesPage() {
     setError(null);
   };
 
-  // Rewritten handler per requirements
   async function handleStartCalculation() {
     console.log('START CALCULATION CLICKED');
     setError(null);
-    // Log current values
+
     const scenarioName = settings.scenario_name;
     const fixedPrice = settings.fixed_price;
-    console.log({ activeProjectId, scenarioName, projectType, calculationLevel, fixedPrice });
 
-    // Validate required inputs
+    console.log({
+      activeProjectId,
+      scenarioName,
+      projectType,
+      calculationLevel,
+      fixedPrice,
+    });
+
     if (!activeProjectId) {
-      const msg = 'Geen actief project geselecteerd (activeProjectId ontbreekt)';
-      console.error(msg);
-      setError(msg);
+      setError('Geen actief project geselecteerd');
       return;
     }
     if (!scenarioName) {
-      const msg = 'Scenario naam ontbreekt';
-      console.error(msg);
-      setError(msg);
+      setError('Scenario naam ontbreekt');
       return;
     }
     if (!projectType) {
-      const msg = 'Kies een projecttype';
-      console.error(msg);
-      setError(msg);
+      setError('Kies een projecttype');
       return;
     }
     if (!calculationLevel) {
-      const msg = 'Kies een rekenniveau';
-      console.error(msg);
-      setError(msg);
+      setError('Kies een rekenniveau');
       return;
     }
 
     setStartingCalculation(true);
 
     try {
-      const { error } = await supabase
-        .from('executor_tasks')
-        .insert({
-          project_id: activeProjectId, // ✅ VERPLICHT
-          action: 'start_calculation',
-          assigned_to: 'executor',
-          status: 'open',
-          payload: {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_EXECUTOR_URL}/api/executor/start-calculation`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
             project_id: activeProjectId,
             scenario_name: scenarioName,
             calculation_type: projectType,
             calculation_level: calculationLevel,
             fixed_price: fixedPrice || null,
-          },
-        });
+          }),
+        }
+      );
 
-      if (error) {
-        setError(error.message);
-        setStartingCalculation(false);
-        return;
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || 'Executor start mislukt');
       }
 
       setCalculationStatus('queued');
       setUiStep('running');
+    } catch (err) {
+      console.error('Executor start error', err);
+      setError(err.message || 'Kon executor niet starten');
+    } finally {
       setStartingCalculation(false);
-    } catch (e) {
-      console.error('Unexpected error during insert', e);
-      setError(e.message || 'Onverwachte fout');
-      setStartingCalculation(false);
-      return;
     }
   }
 
