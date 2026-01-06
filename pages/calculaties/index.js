@@ -251,20 +251,34 @@ export default function CalculatiesPage() {
         }
       });
 
-      console.log('INSERT EXECUTOR_TASK RESULT', { data, error });
+      const { error } = await supabase
+  .from('executor_tasks')
+  .insert({
+    action: 'start_calculation',
+    assigned_to: 'executor',
+    status: 'open',
+    payload: {
+      project_id: activeProjectId,
+      scenario_name: scenarioName,
+      calculation_type: projectType,
+      calculation_level: calculationLevel,
+      fixed_price: fixedPrice || null,
+    },
+  });
 
-      if (error) {
-        console.error('Insert error', error);
-        setError(error.message || 'Fout bij starten calculatie');
-        setStartingCalculation(false);
-        return;
-      }
+if (error) {
+  console.error('Insert error', error);
+  setError(error.message || 'Fout bij starten calculatie');
+  setStartingCalculation(false);
+  return;
+}
 
-      // success
-      setCalculationStatus('queued');
-      setUiStep('running');
-      setStartingCalculation(false);
-      return;
+// success
+setCalculationStatus('queued');
+setUiStep('running');
+setStartingCalculation(false);
+return;
+
     } catch (e) {
       console.error('Unexpected error during insert', e);
       setError(e.message || 'Onverwachte fout');
