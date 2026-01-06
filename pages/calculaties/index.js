@@ -12,6 +12,8 @@ export default function CalculatiesPage() {
   const [calculationModel, setCalculationModel] = useState('');
   const [pdfUrl, setPdfUrl] = useState(null);
   const [startingCalculation, setStartingCalculation] = useState(false);
+  const [projectType, setProjectType] = useState('');
+  const [calculationLevel, setCalculationLevel] = useState('');
   const [nawData, setNawData] = useState({
     project_name: '',
     client_name: '',
@@ -29,7 +31,6 @@ export default function CalculatiesPage() {
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [settings, setSettings] = useState({
     scenario_name: '',
-    calculation_type: 'indicatief',
     fixed_price: '',
     ak_percentage: 10,
     abk_percentage: 5,
@@ -199,9 +200,8 @@ export default function CalculatiesPage() {
     setError(null);
     // Log current values
     const scenarioName = settings.scenario_name;
-    const calculationType = settings.calculation_type;
     const fixedPrice = settings.fixed_price;
-    console.log({ activeProjectId, scenarioName, calculationType, fixedPrice });
+    console.log({ activeProjectId, scenarioName, projectType, calculationLevel, fixedPrice });
 
     // Validate required inputs
     if (!activeProjectId) {
@@ -216,8 +216,14 @@ export default function CalculatiesPage() {
       setError(msg);
       return;
     }
-    if (!calculationType) {
-      const msg = 'Type calculatie ontbreekt';
+    if (!projectType) {
+      const msg = 'Projecttype ontbreekt';
+      console.error(msg);
+      setError(msg);
+      return;
+    }
+    if (!calculationLevel) {
+      const msg = 'Rekenniveau ontbreekt';
       console.error(msg);
       setError(msg);
       return;
@@ -232,7 +238,8 @@ export default function CalculatiesPage() {
           {
             project_id: activeProjectId,
             scenario_name: scenarioName,
-            calculation_type: calculationType,
+            calculation_type: projectType,
+            calculation_level: calculationLevel, // TODO: ensure column exists
             fixed_price: fixedPrice || null,
             status: 'queued',
           },
@@ -478,25 +485,38 @@ export default function CalculatiesPage() {
         {uiStep === 'settings' && (
           <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
             <h2 className="text-xl font-semibold text-slate-900 mb-6">Instellingen & Type Calculatie</h2>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Scenario naam</label>
-                <input type="text" value={settings.scenario_name} onChange={(e) => setSettings({ ...settings, scenario_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" placeholder="Basis scenario" />
-              </div>
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Scenario naam</label>
+                        <input type="text" value={settings.scenario_name} onChange={(e) => setSettings({ ...settings, scenario_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" placeholder="Basis scenario" />
+                      </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Type calculatie</label>
-                <select value={settings.calculation_type} onChange={(e) => setSettings({ ...settings, calculation_type: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent">
-                  <option value="indicatief">Indicatief</option>
-                  <option value="begroting">Begroting</option>
-                  <option value="contract">Contract</option>
-                </select>
-              </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Projecttype</label>
+                        <select value={projectType} onChange={(e) => setProjectType(e.target.value)} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent">
+                          <option value="">-- Kies projecttype --</option>
+                          <option value="nieuwbouw">Nieuwbouw</option>
+                          <option value="transformatie">Transformatie</option>
+                          <option value="renovatie">Renovatie</option>
+                          <option value="uitbreiding">Uitbreiding</option>
+                          <option value="verduurzaming">Verduurzaming</option>
+                        </select>
+                      </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Vaste prijs (optioneel)</label>
-                <input type="number" value={settings.fixed_price} onChange={(e) => setSettings({ ...settings, fixed_price: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" placeholder="€ 0.00" />
-              </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Rekenniveau</label>
+                        <select value={calculationLevel} onChange={(e) => setCalculationLevel(e.target.value)} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent">
+                          <option value="">-- Kies rekenniveau --</option>
+                          <option value="indicatief">Indicatief</option>
+                          <option value="begroting">Begroting</option>
+                          <option value="contract">Contract</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Vaste prijs (optioneel)</label>
+                        <input type="number" value={settings.fixed_price} onChange={(e) => setSettings({ ...settings, fixed_price: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" placeholder="€ 0.00" />
+                      </div>
 
               <div className="border-t border-slate-200 pt-6">
                 <h3 className="text-lg font-medium text-slate-900 mb-4">Opslagen</h3>
