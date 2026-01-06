@@ -63,31 +63,38 @@ export default function CalculatiesPage() {
   };
 
   useEffect(() => {
-    if (calculationId) {
+    if (activeProjectId) {
       const channel = supabase
-        .channel(`calculation_${calculationId}`)
+        .channel(`project_calculations_${activeProjectId}`)
         .on(
           'postgres_changes',
-          { event: 'UPDATE', schema: 'public', table: 'calculations', filter: `id=eq.${calculationId}` },
+          { event: '*', schema: 'public', table: 'calculation_runs', filter: `project_id=eq.${activeProjectId}` },
           (payload) => {
-            setCalculationStatus(payload.new.status);
-            if (payload.new.status === 'completed') {
-              // load results and then request server-side PDF generation (if not exists)
-              loadResults();
-              // trigger server-side PDF generation
-              (async () => {
-                try {
-                  await fetch('/api/generate-pdf', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ calculation_id: calculationId }),
-                  });
-                  const { data: calc } = await supabase.from('calculations').select('*').eq('id', calculationId).maybeSingle();
-                  if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
-                } catch (e) {
-                  console.error('PDF generation trigger failed', e);
-                }
-              })();
+            if (payload.eventType === 'INSERT') {
+              setCalculationId(payload.new.id);
+              setCalculationStatus(payload.new.status);
+              setCurrentStep(payload.new.current_step);
+            } else if (payload.eventType === 'UPDATE') {
+              setCalculationStatus(payload.new.status);
+              setCurrentStep(payload.new.current_step);
+              if (payload.new.status === 'completed') {
+                // load results and then request server-side PDF generation (if not exists)
+                loadResults();
+                // trigger server-side PDF generation
+                (async () => {
+                  try {
+                    await fetch('/api/generate-pdf', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ calculation_id: payload.new.id }),
+                    });
+                    const { data: calc } = await supabase.from('calculation_runs').select('*').eq('id', payload.new.id).maybeSingle();
+                    if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
+                  } catch (e) {
+                    console.error('PDF generation trigger failed', e);
+                  }
+                })();
+              }
             }
           }
         )
@@ -96,7 +103,7 @@ export default function CalculatiesPage() {
         supabase.removeChannel(channel);
       };
     }
-  }, [calculationId]);
+  }, [activeProjectId]);
 
   useEffect(() => {
     if (activeProjectId) {
@@ -231,33 +238,29 @@ export default function CalculatiesPage() {
     setStartingCalculation(true);
 
     try {
-      const { data, error } = await supabase
-        .from('calculation_runs')
-        .insert([
-          {
-            project_id: activeProjectId,
-            scenario_name: scenarioName,
-            calculation_type: projectType,
-            calculation_level: calculationLevel, // requires calculation_level column in calculation_runs
-            fixed_price: fixedPrice || null,
-            status: 'queued',
-          },
-        ])
-        .select()
-        .single();
+      await supabase.from("executor_tasks").insert({
+        action: "start_calculation",
+        assigned_to: "executor",
+        status: "open",
+        payload: {
+          project_id: activeProjectId,
+          scenario_name: scenarioName,
+          calculation_type: projectType,
+          calculation_level: calculationLevel,
+          fixed_price: fixedPrice || null
+        }
+      });
 
-      console.log('INSERT RESULT', { data, error });
+      console.log('INSERT EXECUTOR_TASK RESULT', { data, error });
 
       if (error) {
         console.error('Insert error', error);
-        setError(error.message || 'Fout bij insert calculation_runs');
+        setError(error.message || 'Fout bij starten calculatie');
         setStartingCalculation(false);
         return;
       }
 
       // success
-      // setCalculationRunId -> alias to existing setter
-      setCalculationId(data.id);
       setCalculationStatus('queued');
       setUiStep('running');
       setStartingCalculation(false);
@@ -293,7 +296,7 @@ export default function CalculatiesPage() {
   const handleDownloadPdf = async () => {
     try {
       if (!pdfUrl) {
-        const { data: calc } = await supabase.from('calculations').select('*').eq('id', calculationId).maybeSingle();
+        const { data: calc } = await supabase.from('calculation_runs').select('*').eq('id', calculationId).maybeSingle();
         if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
         else throw new Error('Geen PDF beschikbaar');
       }
@@ -311,7 +314,7 @@ export default function CalculatiesPage() {
   useEffect(() => {
     if (calculationStatus === 'completed' && calculationId) {
       (async () => {
-        const { data: calc } = await supabase.from('calculations').select('*').eq('id', calculationId).maybeSingle();
+        const { data: calc } = await supabase.from('calculation_runs').select('*').eq('id', calculationId).maybeSingle();
         if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
       })();
     }
