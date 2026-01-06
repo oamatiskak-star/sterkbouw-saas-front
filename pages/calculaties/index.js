@@ -234,42 +234,32 @@ export default function CalculatiesPage() {
 
     setStartingCalculation(true);
 
-    try {
-      const EXECUTOR_URL = process.env.NEXT_PUBLIC_AO_CORE_URL;
+    const { error } = await supabase
+      .from('executor_tasks')
+      .insert({
+        project_id: activeProjectId,
+        action: 'start_calculation',
+        assigned_to: 'executor',
+        status: 'open',
+        payload: {
+          project_id: activeProjectId,
+          scenario_name: scenarioName,
+          calculation_type: projectType,
+          calculation_level: calculationLevel,
+          fixed_price: fixedPrice || null,
+        },
+      });
 
-      if (!EXECUTOR_URL) {
-        console.error("NEXT_PUBLIC_AO_CORE_URL is niet beschikbaar in runtime");
-        throw new Error("Executor URL ontbreekt (configuratie fout)");
-      }
-
-      const response = await fetch(
-        `${EXECUTOR_URL}/api/executor/start-calculation`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            project_id: activeProjectId,
-            scenario_name: scenarioName,
-            calculation_type: projectType,
-            calculation_level: calculationLevel,
-            fixed_price: fixedPrice || null,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text);
-      }
-
-      setCalculationStatus('queued');
-      setUiStep('running');
-    } catch (err) {
-      console.error('Executor start error', err);
-      setError(err.message || 'Kon executor niet starten');
-    } finally {
+    if (error) {
+      console.error('EXECUTOR_TASK_INSERT_ERROR', error);
+      setError(error.message);
       setStartingCalculation(false);
+      return;
     }
+
+    setCalculationStatus('queued');
+    setUiStep('running');
+    setStartingCalculation(false);
   }
 
   // Auto-start when requirements are met: at least one drawing uploaded, settings filled and model chosen
