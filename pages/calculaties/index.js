@@ -128,7 +128,7 @@ export default function CalculatiesPage() {
     }
   };
 
-  const handleStartCalculation = () => {
+  const handleGoToNAW = () => {
     setUiStep('naw');
     setError(null);
   };
@@ -346,7 +346,7 @@ export default function CalculatiesPage() {
             <Calculator className="w-16 h-16 text-slate-700 mx-auto mb-4" />
             <h2 className="text-2xl font-semibold text-slate-900 mb-2">Welkom bij SterkCalc</h2>
             <p className="text-slate-600 mb-8">Start een nieuwe AI-calculatie voor uw bouwproject</p>
-            <button onClick={handleStartCalculation} className="bg-slate-900 text-white px-8 py-3 rounded-lg font-medium hover:bg-slate-800 transition-colors">
+            <button onClick={handleGoToNAW} className="bg-slate-900 text-white px-8 py-3 rounded-lg font-medium hover:bg-slate-800 transition-colors">
               Start nieuwe calculatie
             </button>
           </div>
