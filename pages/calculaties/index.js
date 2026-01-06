@@ -235,35 +235,31 @@ export default function CalculatiesPage() {
     setStartingCalculation(true);
 
     try {
-      const executorBaseUrl = process.env.NEXT_PUBLIC_AO_CORE_URL;
+      const EXECUTOR_URL = process.env.NEXT_PUBLIC_AO_CORE_URL;
 
-if (!executorBaseUrl) {
-  console.error('NEXT_PUBLIC_AO_CORE_URL is niet gezet');
-  setError('Executor URL ontbreekt (configuratie fout)');
-  setStartingCalculation(false);
-  return;
-}
+      if (!EXECUTOR_URL) {
+        console.error("NEXT_PUBLIC_AO_CORE_URL is niet beschikbaar in runtime");
+        throw new Error("Executor URL ontbreekt (configuratie fout)");
+      }
 
-const response = await fetch(
-  `${executorBaseUrl}/api/executor/start-calculation`,
-  {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      project_id: activeProjectId,
-      scenario_name: scenarioName,
-      calculation_type: projectType,
-      calculation_level: calculationLevel,
-      fixed_price: fixedPrice || null,
-    }),
-  }
-);
+      const response = await fetch(
+        `${EXECUTOR_URL}/api/executor/start-calculation`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            project_id: activeProjectId,
+            scenario_name: scenarioName,
+            calculation_type: projectType,
+            calculation_level: calculationLevel,
+            fixed_price: fixedPrice || null,
+          }),
+        }
+      );
 
       if (!response.ok) {
         const text = await response.text();
-        throw new Error(text || 'Executor start mislukt');
+        throw new Error(text);
       }
 
       setCalculationStatus('queued');
