@@ -236,7 +236,7 @@ export default function CalculatiesPage() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_EXECUTOR_URL}/api/executor/start-calculation`,
+        `${process.env.NEXT_PUBLIC_AO_CORE_URL}/api/executor/start-calculation`,
         {
           method: 'POST',
           headers: {
