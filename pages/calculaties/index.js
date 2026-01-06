@@ -238,47 +238,31 @@ export default function CalculatiesPage() {
     setStartingCalculation(true);
 
     try {
-      await supabase.from("executor_tasks").insert({
-        action: "start_calculation",
-        assigned_to: "executor",
-        status: "open",
-        payload: {
-          project_id: activeProjectId,
-          scenario_name: scenarioName,
-          calculation_type: projectType,
-          calculation_level: calculationLevel,
-          fixed_price: fixedPrice || null
-        }
-      });
-
       const { error } = await supabase
-  .from('executor_tasks')
-  .insert({
-    action: 'start_calculation',
-    assigned_to: 'executor',
-    status: 'open',
-    payload: {
-      project_id: activeProjectId,
-      scenario_name: scenarioName,
-      calculation_type: projectType,
-      calculation_level: calculationLevel,
-      fixed_price: fixedPrice || null,
-    },
-  });
+        .from('executor_tasks')
+        .insert({
+          project_id: activeProjectId, // ✅ VERPLICHT
+          action: 'start_calculation',
+          assigned_to: 'executor',
+          status: 'open',
+          payload: {
+            project_id: activeProjectId,
+            scenario_name: scenarioName,
+            calculation_type: projectType,
+            calculation_level: calculationLevel,
+            fixed_price: fixedPrice || null,
+          },
+        });
 
-if (error) {
-  console.error('Insert error', error);
-  setError(error.message || 'Fout bij starten calculatie');
-  setStartingCalculation(false);
-  return;
-}
+      if (error) {
+        setError(error.message);
+        setStartingCalculation(false);
+        return;
+      }
 
-// success
-setCalculationStatus('queued');
-setUiStep('running');
-setStartingCalculation(false);
-return;
-
+      setCalculationStatus('queued');
+      setUiStep('running');
+      setStartingCalculation(false);
     } catch (e) {
       console.error('Unexpected error during insert', e);
       setError(e.message || 'Onverwachte fout');
