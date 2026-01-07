@@ -763,9 +763,8 @@ export default function CalculatiesPage() {
             </span>
           </div>
         </div>
+              )}
       </div>
-    )}
-        </div>
     </div>
   );
 }
