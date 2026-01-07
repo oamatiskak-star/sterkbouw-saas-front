@@ -38,6 +38,50 @@ export default function CalculatiesPage() {
   });
   const [calculationStatus, setCalculationStatus] = useState(null);
   const [results, setResults] = useState(null);
+  useEffect(() => {
+    console.log('🔄 Calculatie pagina geladen - resetting state');
+    
+    // Reset alle state
+    setActiveProjectId(null);
+    setCalculationId(null);
+    setUiStep('start');
+    setLoading(false);
+    setError(null);
+    setPdfUrl(null);
+    setStartingCalculation(false);
+    setProjectType('');
+    setCalculationLevel('');
+    setNawData({
+      project_name: '',
+      client_name: '',
+      client_address: '',
+      client_postcode: '',
+      client_city: '',
+      client_country: 'Nederland',
+      billing_name: '',
+      billing_address: '',
+      billing_postcode: '',
+      billing_city: '',
+      billing_country: 'Nederland',
+    });
+    setDocuments([]);
+    setUploadingDoc(false);
+    setSettings({
+      scenario_name: '',
+      fixed_price: '',
+      ak_percentage: 10,
+      abk_percentage: 5,
+      risk_percentage: 3,
+      profit_percentage: 7,
+    });
+    setCalculationStatus(null);
+    setResults(null);
+  }, []); // Alleen runnen bij mount
+
+  // DIRECTE STATUS CHECK - Toegevoegd als extra laag
+  useEffect(() => {
+    // ... bestaande code blijft hier
+  }, [activeProjectId, uiStep]);
   // DIRECTE STATUS CHECK - Toegevoegd als extra laag
 useEffect(() => {
   if (!activeProjectId || uiStep !== 'running') return;
