@@ -41,29 +41,37 @@ export default function CalculatiesPage() {
   useEffect(() => {
   if (!activeProjectId) return;
 
-  let cancelled = false;
+  console.log('🔔 Setting up real-time subscription for project:', activeProjectId);
 
-  const checkPdf = async () => {
-    const { data, error } = await supabase
-      .from('projects')
-      .select('pdf_url, status')
-      .eq('id', activeProjectId)
-      .maybeSingle();
-
-    if (!cancelled && data?.pdf_url && data?.status === 'completed') {
-      // Alleen naar result gaan als de project status 'completed' is
-      setPdfUrl(data.pdf_url);
-      setUiStep('result');
-      setCalculationStatus('completed');
-    }
-  };
-
-  checkPdf();
-  const interval = setInterval(checkPdf, 3000);
+  const channel = supabase
+    .channel(`project_calculations_${activeProjectId}`)
+    .on(
+      'postgres_changes',
+      { 
+        event: '*', 
+        schema: 'public', 
+        table: 'calculation_runs', 
+        filter: `project_id=eq.${activeProjectId}` 
+      },
+      (payload) => {
+        console.log('🔔 Real-time update received:', payload);
+        // ... rest van je code
+      }
+    )
+    .subscribe((status) => {
+      console.log('🔔 Subscription status:', status);
+      if (status === 'SUBSCRIBED') {
+        console.log('✅ Successfully subscribed to real-time updates');
+      } else if (status === 'CHANNEL_ERROR') {
+        console.log('❌ Channel error');
+      } else if (status === 'TIMED_OUT') {
+        console.log('⏰ Subscription timed out');
+      }
+    });
 
   return () => {
-    cancelled = true;
-    clearInterval(interval);
+    console.log('🧹 Cleaning up subscription');
+    supabase.removeChannel(channel);
   };
 }, [activeProjectId]);
 
