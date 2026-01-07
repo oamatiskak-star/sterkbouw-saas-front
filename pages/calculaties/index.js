@@ -648,42 +648,51 @@ export default function CalculatiesPage() {
         )}
 
         {uiStep === 'result' && (
-          <div className="space-y-6">
-          {!results && pdfUrl && (
-  <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 mb-6">
-    <h2 className="text-xl font-semibold text-slate-900 mb-4">
-      Calculatie voltooid
-    </h2>
-    <p className="text-slate-600 mb-6">
-      De calculatie is afgerond. Download hieronder de 2jours-offerte.
-    </p>
-    <button
-      onClick={handleDownloadPdf}
-      className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
-    >
-      Download 2jours PDF
-    </button>
-  </div>
-)}
-            {results && (
-  <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
-    <div className="flex items-center justify-between mb-6">
-      <h2 className="text-xl font-semibold text-slate-900">Resultaten</h2>
-      <div className="text-right">
-        <p className="text-sm text-slate-600">Totaalbedrag</p>
-        <p className="text-2xl font-bold text-slate-900">
-          € {results.version.total_amount?.toLocaleString('nl-NL', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          })}
+  <div className="space-y-6">
+
+    {/* PDF-only fallback */}
+    {!results && pdfUrl && (
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">
+          Calculatie voltooid
+        </h2>
+        <p className="text-slate-600 mb-6">
+          De calculatie is afgerond. Download hieronder de 2jours-offerte.
         </p>
+        <button
+          onClick={handleDownloadPdf}
+          className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
+        >
+          Download 2jours PDF
+        </button>
       </div>
-                {calculationStatus === 'completed' && (
-                  <div className="flex items-center gap-2">
-                    <button onClick={handleDownloadPdf} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">Download 2jours PDF</button>
-                  </div>
-                )}
-              </div>
+    )}
+
+    {/* Volledige resultaten (alleen als results bestaat) */}
+    {results && (
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-slate-900">Resultaten</h2>
+
+          <div className="text-right">
+            <p className="text-sm text-slate-600">Totaalbedrag</p>
+            <p className="text-2xl font-bold text-slate-900">
+              € {results.version.total_amount?.toLocaleString('nl-NL', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
+            </p>
+          </div>
+
+          {calculationStatus === 'completed' && (
+            <button
+              onClick={handleDownloadPdf}
+              className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm"
+            >
+              Download 2jours PDF
+            </button>
+          )}
+        </div>
 
               {Object.entries(groupRowsByFase(results.rows)).map(([fase, rows]) => {
                 if (rows.length === 0) return null;
