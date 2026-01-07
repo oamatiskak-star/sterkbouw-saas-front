@@ -117,7 +117,7 @@ useEffect(() => {
             .from('projects')
             .select('pdf_url')
             .eq('id', activeProjectId)
-            .single();
+            .maybeSingle();
           
           if (project?.pdf_url) {
             setPdfUrl(project.pdf_url);
