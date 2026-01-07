@@ -221,35 +221,35 @@ useEffect(() => {
       loadDocuments(activeProjectId);
     }
   }, [activeProjectId]);
-  // useEffect(() => {
-//   const restoreLastProjectWithPdf = async () => {
-//     if (activeProjectId) return;
-// 
-//     const { data: lastTask } = await supabase
-//       .from('executor_tasks')
-//       .select('project_id, created_at')
-//       .order('created_at', { ascending: false })
-//       .limit(1)
-//       .maybeSingle();
-// 
-//     if (!lastTask?.project_id) return;
-// 
-//     const { data: project } = await supabase
-//       .from('projects')
-//       .select('pdf_url, status')
-//       .eq('id', lastTask.project_id)
-//       .maybeSingle();
-// 
-//     if (project?.pdf_url && project?.status === 'completed') {
-//       setActiveProjectId(lastTask.project_id);
-//       setPdfUrl(project.pdf_url);
-//       setCalculationStatus('completed');
-//       setUiStep('result');
-//     }
-//   };
-// 
-//   restoreLastProjectWithPdf();
-// }, []);
+  useEffect(() => {
+  const restoreLastProjectWithPdf = async () => {
+    if (activeProjectId) return;
+
+    const { data: lastTask } = await supabase
+      .from('executor_tasks')
+      .select('project_id, created_at')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!lastTask?.project_id) return;
+
+    const { data: project } = await supabase
+      .from('projects')
+      .select('pdf_url, status')
+      .eq('id', lastTask.project_id)
+      .maybeSingle();
+
+    if (project?.pdf_url && project?.status === 'completed') {
+      setActiveProjectId(lastTask.project_id);
+      setPdfUrl(project.pdf_url);
+      setCalculationStatus('completed');
+      setUiStep('result');
+    }
+  };
+
+  restoreLastProjectWithPdf();
+}, []);
   
   const loadResults = async () => {
     try {
@@ -292,8 +292,9 @@ useEffect(() => {
         pdf_url: null  // Zorg dat er geen oude pdf_url is voor nieuw project
       })
       .select()
-      .single();
+      .maybeSingle();
     if (insertError) throw insertError;
+    if (!data) throw new Error('Could not create project.');
     setActiveProjectId(data.id);
     await loadDocuments(data.id);
     setUiStep('documents');
