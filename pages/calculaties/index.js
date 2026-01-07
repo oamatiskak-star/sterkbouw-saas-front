@@ -186,10 +186,8 @@ useEffect(() => {
             if (payload.eventType === 'INSERT') {
               setCalculationId(payload.new.id);
               setCalculationStatus(payload.new.status);
-              setCurrentStep(payload.new.current_step);
             } else if (payload.eventType === 'UPDATE') {
               setCalculationStatus(payload.new.status);
-              setCurrentStep(payload.new.current_step);
               if (payload.new.status === 'completed') {
                 // load results and then request server-side PDF generation (if not exists)
                 loadResults();
@@ -334,12 +332,12 @@ useEffect(() => {
     }
   };
 
-  const handleContinueToSettings = () => {
-    const requiredTypes = ['drawing', 'permit'];
+   const handleContinueToSettings = () => {
+    const requiredTypes = ['drawing'];
     const uploadedTypes = documents.map((d) => d.document_type);
     const hasRequired = requiredTypes.every((type) => uploadedTypes.includes(type));
     if (!hasRequired) {
-      setError('Upload minimaal een tekening en vergunning');
+      setError('Upload minimaal een tekening');
       return;
     }
     setUiStep('settings');
@@ -435,12 +433,16 @@ useEffect(() => {
 const handleDownloadPdf = () => {
   if (!activeProjectId) {
     setError('Geen actief project');
+    if (!pdfUrl) {
+    setError('Geen PDF beschikbaar om te downloaden.');
+    return;
+  }
     return;
   }
   
   const directUrl = `https://pmovazftwoxjopqkuuhp.supabase.co/storage/v1/object/public/sterkcalc/${activeProjectId}/offerte_2jours.pdf`;
-  console.log('Opening PDF:', directUrl);
-  window.open(directUrl, '_blank');
+console.log('Opening PDF:', pdfUrl);
+  window.open(pdfUrl, '_blank');
 };
   useEffect(() => {
     if (calculationStatus === 'completed' && calculationId) {
