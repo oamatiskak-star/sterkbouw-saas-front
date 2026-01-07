@@ -46,11 +46,12 @@ export default function CalculatiesPage() {
   const checkPdf = async () => {
     const { data, error } = await supabase
       .from('projects')
-      .select('pdf_url')
+      .select('pdf_url, status')
       .eq('id', activeProjectId)
       .maybeSingle();
 
-    if (!cancelled && data?.pdf_url) {
+    if (!cancelled && data?.pdf_url && data?.status === 'completed') {
+      // Alleen naar result gaan als de project status 'completed' is
       setPdfUrl(data.pdf_url);
       setUiStep('result');
       setCalculationStatus('completed');
@@ -138,9 +139,7 @@ export default function CalculatiesPage() {
     }
   }, [activeProjectId]);
   useEffect(() => {
-  // Herstel laatste afgeronde calculatie bij page load / refresh
   const restoreLastProjectWithPdf = async () => {
-    // Alleen uitvoeren als we nog niets actief hebben
     if (activeProjectId) return;
 
     const { data: lastTask } = await supabase
@@ -154,11 +153,11 @@ export default function CalculatiesPage() {
 
     const { data: project } = await supabase
       .from('projects')
-      .select('pdf_url')
+      .select('pdf_url, status')
       .eq('id', lastTask.project_id)
       .maybeSingle();
 
-    if (project?.pdf_url) {
+    if (project?.pdf_url && project?.status === 'completed') {
       setActiveProjectId(lastTask.project_id);
       setPdfUrl(project.pdf_url);
       setCalculationStatus('completed');
@@ -167,8 +166,8 @@ export default function CalculatiesPage() {
   };
 
   restoreLastProjectWithPdf();
-}, []);  // ← Dit moet er staan
-
+}, []);
+  
   const loadResults = async () => {
     try {
       const { data: versions } = await supabase
@@ -198,25 +197,29 @@ export default function CalculatiesPage() {
     setError(null);
   };
 
-  const handleSaveNAW = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { data, error: insertError } = await supabase
-        .from('projects')
-        .insert({ ...nawData, status: 'input' })
-        .select()
-        .single();
-      if (insertError) throw insertError;
-      setActiveProjectId(data.id);
-      await loadDocuments(data.id);
-      setUiStep('documents');
-    } catch (err) {
-      setError(err.message || 'Kon project niet opslaan');
-    } finally {
-      setLoading(false);
-    }
-  };
+ const handleSaveNAW = async () => {
+  setLoading(true);
+  setError(null);
+  try {
+    const { data, error: insertError } = await supabase
+      .from('projects')
+      .insert({ 
+        ...nawData, 
+        status: 'input',
+        pdf_url: null  // Zorg dat er geen oude pdf_url is voor nieuw project
+      })
+      .select()
+      .single();
+    if (insertError) throw insertError;
+    setActiveProjectId(data.id);
+    await loadDocuments(data.id);
+    setUiStep('documents');
+  } catch (err) {
+    setError(err.message || 'Kon project niet opslaan');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleUploadDocument = async (files, documentType) => {
     if (!files || files.length === 0 || !documentType) return;
@@ -259,8 +262,12 @@ export default function CalculatiesPage() {
   };
 
   async function handleStartCalculation() {
-    console.log('START CALCULATION CLICKED');
-    setError(null);
+  console.log('START CALCULATION CLICKED');
+  setError(null);
+  
+  // Reset pdfUrl voor een nieuwe berekening
+  setPdfUrl(null);
+  setResults(null);
 
     const scenarioName = settings.scenario_name;
     const fixedPrice = settings.fixed_price;
