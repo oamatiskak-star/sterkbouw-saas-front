@@ -700,67 +700,70 @@ export default function CalculatiesPage() {
 
           return (
             <div key={fase} className="mb-8">
-              <div className="bg-slate-100 px-4 py-2 rounded-t-lg border-b-2 border-slate-300 flex justify-between">
+              <div className="bg-slate-100 px-4 py-2 rounded-t-lg border-b-2 border-slate-300 flex justify-between mb-4">
                 <h3 className="text-sm font-semibold uppercase">{fase}</h3>
                 <span className="text-sm font-semibold">
-                  € {phaseTotal.toLocaleString('nl-NL')}
+                  € {phaseTotal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
+              </div>
+
+              {/* Tabel voor deze fase */}
+              <div className="overflow-x-auto mb-4">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-200">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-700">STABU</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-700">Omschrijving</th>
+                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Hoeveelheid</th>
+                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Inkoop</th>
+                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">AK</th>
+                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">ABK</th>
+                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Risico</th>
+                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Winst</th>
+                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Totaal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((row, idx) => (
+                      <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
+                        <td className="px-4 py-2 text-sm text-slate-600">{row.stabu_code}</td>
+                        <td className="px-4 py-2 text-sm text-slate-900">{row.omschrijving}</td>
+                        <td className="px-4 py-2 text-sm text-slate-600 text-right">{row.hoeveelheid}</td>
+                        <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.inkoop).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.ak).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.abk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.risk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.profit).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td className="px-4 py-2 text-sm font-medium text-slate-900 text-right"> € {parseFloat(row.regel_totaal).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Fase totaal (optioneel - je hebt het al in de header) */}
+              <div className="flex justify-end mb-6">
+                <div className="text-right">
+                  <span className="text-sm text-slate-600 mr-4">Subtotaal {fase}:</span>
+                  <span className="text-lg font-semibold text-slate-900">
+                    € {phaseTotal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
               </div>
             </div>
           );
         })}
+
+        {/* Grand total na alle fases */}
+        <div className="border-t-2 border-slate-300 pt-4 mt-6">
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-bold text-slate-900">Totaal offerte</span>
+            <span className="text-2xl font-bold text-slate-900">
+              € {calculateGrandTotal(results.rows).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          </div>
+        </div>
       </div>
     )}
   </div>
 )}
-
-
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="bg-slate-50 border-b border-slate-200">
-                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-700">STABU</th>
-                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-700">Omschrijving</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Hoeveelheid</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Inkoop</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">AK</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">ABK</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Risico</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Winst</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Totaal</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {rows.map((row, idx) => (
-                            <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                              <td className="px-4 py-2 text-sm text-slate-600">{row.stabu_code}</td>
-                              <td className="px-4 py-2 text-sm text-slate-900">{row.omschrijving}</td>
-                              <td className="px-4 py-2 text-sm text-slate-600 text-right">{row.hoeveelheid}</td>
-                              <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.inkoop).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                              <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.ak).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                              <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.abk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                              <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.risk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                              <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.profit).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                              <td className="px-4 py-2 text-sm font-medium text-slate-900 text-right"> € {parseFloat(row.regel_totaal).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                );
-              })}
-
-              <div className="border-t-2 border-slate-300 pt-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold text-slate-900">Totaal</span>
-                  <span className="text-2xl font-bold text-slate-900"> € {calculateGrandTotal(results.rows).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
