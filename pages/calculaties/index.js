@@ -308,6 +308,26 @@ export default function CalculatiesPage() {
       })();
     }
   }, [calculationStatus, calculationId]);
+  useEffect(() => {
+  if (!activeProjectId) return;
+
+  const checkPdf = async () => {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('pdf_url')
+      .eq('id', activeProjectId)
+      .maybeSingle();
+
+    if (data?.pdf_url) {
+      setPdfUrl(data.pdf_url);
+      setCalculationStatus('completed');
+      setUiStep('result');
+    }
+  };
+
+  const interval = setInterval(checkPdf, 2000);
+  return () => clearInterval(interval);
+}, [activeProjectId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
