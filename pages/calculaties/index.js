@@ -99,7 +99,7 @@ useEffect(() => {
         .limit(1)
         .maybeSingle();
 
-      console.log('📊 Directe calculation check:', calc?.status);
+      console.log('📊 Directe calculation check:', calc?.status || 'No run found yet');
 
       if (calc?.status === 'completed') {
         console.log('✅ Calculation is completed via direct check!');
