@@ -309,7 +309,10 @@ export default function CalculatiesPage() {
     }
   }, [calculationStatus, calculationId]);
   useEffect(() => {
-  if (!activeProjectId) return;
+  if (!activeProjectId) {
+    setUiStep('start');   
+    return;
+  }
 
   const checkPdf = async () => {
     const { data, error } = await supabase
