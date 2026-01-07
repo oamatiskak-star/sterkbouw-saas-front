@@ -292,8 +292,9 @@ useEffect(() => {
         pdf_url: null  // Zorg dat er geen oude pdf_url is voor nieuw project
       })
       .select()
-      .single();
+      .maybeSingle();
     if (insertError) throw insertError;
+    if (!data) throw new Error('Could not create project.');
     setActiveProjectId(data.id);
     await loadDocuments(data.id);
     setUiStep('documents');
