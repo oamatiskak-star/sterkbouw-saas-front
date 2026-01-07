@@ -647,8 +647,24 @@ export default function CalculatiesPage() {
           </div>
         )}
 
-        {uiStep === 'result' && results && (
+        {uiStep === 'result' && (
           <div className="space-y-6">
+          {!results && pdfUrl && (
+  <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8 mb-6">
+    <h2 className="text-xl font-semibold text-slate-900 mb-4">
+      Calculatie voltooid
+    </h2>
+    <p className="text-slate-600 mb-6">
+      De calculatie is afgerond. Download hieronder de 2jours-offerte.
+    </p>
+    <button
+      onClick={handleDownloadPdf}
+      className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
+    >
+      Download 2jours PDF
+    </button>
+  </div>
+)}
             <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-slate-900">Resultaten</h2>
