@@ -665,13 +665,19 @@ export default function CalculatiesPage() {
     </button>
   </div>
 )}
-            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-slate-900">Resultaten</h2>
-                <div className="text-right">
-                  <p className="text-sm text-slate-600">Totaalbedrag</p>
-                  <p className="text-2xl font-bold text-slate-900"> € {results.version.total_amount?.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                </div>
+            {results && (
+  <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="text-xl font-semibold text-slate-900">Resultaten</h2>
+      <div className="text-right">
+        <p className="text-sm text-slate-600">Totaalbedrag</p>
+        <p className="text-2xl font-bold text-slate-900">
+          € {results.version.total_amount?.toLocaleString('nl-NL', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          })}
+        </p>
+      </div>
                 {calculationStatus === 'completed' && (
                   <div className="flex items-center gap-2">
                     <button onClick={handleDownloadPdf} className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">Download 2jours PDF</button>
