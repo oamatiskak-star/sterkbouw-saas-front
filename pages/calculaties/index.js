@@ -389,66 +389,22 @@ useEffect(() => {
   };
 
 const handleDownloadPdf = async () => {
-  try {
-    console.log('🔄 Download PDF start...');
-    
-    // Option 1: Directe URL (meest betrouwbaar)
-    const directUrl = `https://pmovazftwoxjopqkuuhp.supabase.co/storage/v1/object/public/sterkcalc/${activeProjectId}/offerte_2jours.pdf`;
-    console.log('Direct URL:', directUrl);
-    
-    // Test of de URL werkt
-    const response = await fetch(directUrl, { method: 'HEAD' });
-    console.log('Response status:', response.status);
-    
-    if (response.ok) {
-      window.open(directUrl, '_blank');
-      return;
+    try {
+      if (!pdfUrl) {
+        const { data: calc } = await supabase.from('calculation_runs').select('*').eq('id', calculationId).maybeSingle();
+        if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
+        else throw new Error('Geen PDF beschikbaar');
+      }
+      const { data } = supabase.storage.from('sterkcalc').getPublicUrl(pdfUrl || '');
+      if (data?.publicURL) {
+        window.open(data.publicURL, '_blank');
+      } else {
+        throw new Error('Kon PDF niet ophalen');
+      }
+    } catch (e) {
+      setError(e.message || 'Download mislukt');
     }
-    
-    // Option 2: Als directe URL niet werkt, probeer uit database
-    console.log('Direct URL failed, trying database...');
-    
-    // Probeer projects table
-    const { data: project } = await supabase
-      .from('projects')
-      .select('pdf_url')
-      .eq('id', activeProjectId)
-      .single();
-    
-    if (project?.pdf_url) {
-      console.log('Found PDF URL in projects:', project.pdf_url);
-      window.open(project.pdf_url, '_blank');
-      return;
-    }
-    
-    // Option 3: Probeer calculation_runs
-    const { data: calc } = await supabase
-      .from('calculation_runs')
-      .select('pdf_url')
-      .eq('project_id', activeProjectId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-    
-    if (calc?.pdf_url) {
-      console.log('Found PDF URL in calculation_runs:', calc.pdf_url);
-      window.open(calc.pdf_url, '_blank');
-      return;
-    }
-    
-    throw new Error('Geen PDF gevonden');
-    
-  } catch (e) {
-    console.error('❌ Download error:', e);
-    setError('Kon PDF niet ophalen: ' + (e.message || 'Onbekende fout'));
-    
-    // Laatste fallback: probeer de directe URL toch
-    const lastResortUrl = `https://pmovazftwoxjopqkuuhp.supabase.co/storage/v1/object/public/sterkcalc/${activeProjectId}/offerte_2jours.pdf`;
-    console.log('Last resort URL:', lastResortUrl);
-    window.open(lastResortUrl, '_blank');
-  }
-};
-
+  };
   useEffect(() => {
     if (calculationStatus === 'completed' && calculationId) {
       (async () => {
