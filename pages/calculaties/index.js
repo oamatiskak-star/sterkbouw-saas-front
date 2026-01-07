@@ -167,7 +167,7 @@ export default function CalculatiesPage() {
   };
 
   restoreLastProjectWithPdf();
-}, []);
+}, []);  // ← Dit moet er staan
 
   const loadResults = async () => {
     try {
