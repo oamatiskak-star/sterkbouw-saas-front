@@ -97,7 +97,7 @@ useEffect(() => {
         .eq('project_id', activeProjectId)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       console.log('📊 Directe calculation check:', calc?.status);
 
