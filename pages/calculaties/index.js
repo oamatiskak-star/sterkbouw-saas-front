@@ -110,6 +110,37 @@ export default function CalculatiesPage() {
       loadDocuments(activeProjectId);
     }
   }, [activeProjectId]);
+  useEffect(() => {
+  // Herstel laatste afgeronde calculatie bij page load / refresh
+  const restoreLastProjectWithPdf = async () => {
+    // Alleen uitvoeren als we nog niets actief hebben
+    if (activeProjectId) return;
+
+    const { data: lastTask } = await supabase
+      .from('executor_tasks')
+      .select('project_id, created_at')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!lastTask?.project_id) return;
+
+    const { data: project } = await supabase
+      .from('projects')
+      .select('pdf_url')
+      .eq('id', lastTask.project_id)
+      .maybeSingle();
+
+    if (project?.pdf_url) {
+      setActiveProjectId(lastTask.project_id);
+      setPdfUrl(project.pdf_url);
+      setCalculationStatus('completed');
+      setUiStep('result');
+    }
+  };
+
+  restoreLastProjectWithPdf();
+}, []);
 
   const loadResults = async () => {
     try {
