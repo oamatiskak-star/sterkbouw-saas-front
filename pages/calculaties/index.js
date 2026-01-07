@@ -388,77 +388,15 @@ useEffect(() => {
     return rows.reduce((sum, row) => sum + (parseFloat(row.regel_totaal) || 0), 0);
   };
 
-const handleDownloadPdf = async () => {
-  console.log('📄 PDF URL bij start:', pdfUrl);
-  console.log('🆔 Active Project ID:', activeProjectId);
-  console.log('🆔 Calculation ID:', calculationId);
-  
-  try {
-    if (!pdfUrl) {
-      console.log('❌ Geen pdfUrl in state, zoeken in database...');
-      const { data: calc } = await supabase
-        .from('calculation_runs')
-        .select('*')
-        .eq('id', calculationId)
-        .maybeSingle();
-      console.log('📊 Calculation data:', calc);
-      
-      if (calc?.pdf_url) {
-        setPdfUrl(calc.pdf_url);
-        console.log('✅ PDF URL uit calculation_runs:', calc.pdf_url);
-      } else {
-        console.log('⚠️ Geen PDF in calculation_runs, probeer projects...');
-        const { data: project } = await supabase
-          .from('projects')
-          .select('pdf_url')
-          .eq('id', activeProjectId)
-          .maybeSingle();
-        console.log('📊 Project data:', project);
-        
-        if (project?.pdf_url) {
-          setPdfUrl(project.pdf_url);
-          console.log('✅ PDF URL uit projects:', project.pdf_url);
-        } else {
-          throw new Error('Geen PDF beschikbaar in database');
-        }
-      }
-    }
-    
-    console.log('🔧 Raw pdfUrl voor getPublicUrl:', pdfUrl);
-    
-    // Extract alleen het pad na 'sterkcalc/'
-    let filePath = pdfUrl;
-    if (pdfUrl.includes('sterkcalc/')) {
-      // Haal alles na 'sterkcalc/' eruit
-      const match = pdfUrl.match(/sterkcalc\/(.+)/);
-      if (match && match[1]) {
-        filePath = match[1];
-      } else {
-        // Fallback: gebruik project ID
-        filePath = `${activeProjectId}/offerte_2jours.pdf`;
-      }
-    }
-    
-    console.log('📁 File path voor storage:', filePath);
-    
-    const { data } = supabase.storage.from('sterkcalc').getPublicUrl(filePath);
-    console.log('🌐 Public URL response:', data);
-    
-    if (data?.publicURL) {
-      console.log('✅ Opening public URL:', data.publicURL);
-      window.open(data.publicURL, '_blank');
-    } else {
-      throw new Error('Kon public URL niet genereren');
-    }
-  } catch (e) {
-    console.error('❌ Error details:', e);
-    setError(e.message || 'Download mislukt');
-    
-    // Fallback: probeer directe URL
-    const fallbackUrl = `https://pmovazftwoxjopqkuuhp.supabase.co/storage/v1/object/public/sterkcalc/${activeProjectId}/offerte_2jours.pdf`;
-    console.log('🔄 Fallback URL:', fallbackUrl);
-    window.open(fallbackUrl, '_blank');
+const handleDownloadPdf = () => {
+  if (!activeProjectId) {
+    setError('Geen actief project');
+    return;
   }
+  
+  const directUrl = `https://pmovazftwoxjopqkuuhp.supabase.co/storage/v1/object/public/sterkcalc/${activeProjectId}/offerte_2jours.pdf`;
+  console.log('Opening PDF:', directUrl);
+  window.open(directUrl, '_blank');
 };
   useEffect(() => {
     if (calculationStatus === 'completed' && calculationId) {
