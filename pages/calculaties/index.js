@@ -578,7 +578,9 @@ useEffect(() => {
 
     setStartingCalculation(true);
 
-    const response = await fetch('/api/executor/start-calculation', {
+    const response = await fetch(
+  `${process.env.NEXT_PUBLIC_EXECUTOR_API}/api/executor/start-calculation`,
+  {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
