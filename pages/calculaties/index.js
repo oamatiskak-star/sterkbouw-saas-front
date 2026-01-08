@@ -507,9 +507,6 @@ useEffect(() => {
       for (const file of fileArray) {
         const bucketName = 'sterkcalc';
         const filePath = `${activeProjectId}/${file.name}`;
-        if (bucketName !== 'sterkcalc') {
-          throw new Error('UPLOAD_BUCKET_INVALID');
-        }
         if (!filePath) {
           throw new Error('UPLOAD_STORAGE_PATH_MISSING');
         }
@@ -521,7 +518,6 @@ useEffect(() => {
             document_type: documentType,
             storage_path: filePath,
             file_name: file.name,
-            bucket: bucketName,
             confidence_level: 'medium',
           },
         ]);
@@ -582,7 +578,7 @@ useEffect(() => {
 
     setStartingCalculation(true);
 
-    const response = await fetch('/api/proxy/api/executor/start-calculation', {
+    const response = await fetch('/api/executor/start-calculation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
