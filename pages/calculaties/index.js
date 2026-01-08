@@ -216,6 +216,7 @@ export default function CalculatiesPage() {
   });
   const [calculationStatus, setCalculationStatus] = useState(null);
   const [results, setResults] = useState(null);
+  const [confidenceScore, setConfidenceScore] = useState(null);
   useEffect(() => {
     console.log('🔄 Calculatie pagina geladen - resetting state');
     
@@ -360,25 +361,32 @@ useEffect(() => {
             if (payload.eventType === 'INSERT') {
               setCalculationId(payload.new.id);
               setCalculationStatus(payload.new.status);
+              if (payload.new.confidence_score !== null && payload.new.confidence_score !== undefined) {
+                setConfidenceScore(payload.new.confidence_score);
+              }
             } else if (payload.eventType === 'UPDATE') {
               setCalculationStatus(payload.new.status);
+              if (payload.new.confidence_score !== null && payload.new.confidence_score !== undefined) {
+                setConfidenceScore(payload.new.confidence_score);
+              }
               if (payload.new.status === 'completed') {
                 // load results and then request server-side PDF generation (if not exists)
                 loadResults();
-                // trigger server-side PDF generation
-                (async () => {
-                  try {
-                    await fetch('/api/generate-pdf', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ calculation_id: payload.new.id }),
-                    });
-                    const { data: calc } = await supabase.from('calculation_runs').select('*').eq('id', payload.new.id).maybeSingle();
-                    if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
-                  } catch (e) {
-                    console.error('PDF generation trigger failed', e);
-                  }
-                })();
+                if (payload.new.pdf_url) {
+                  setPdfUrl(payload.new.pdf_url);
+                } else {
+                  (async () => {
+                    try {
+                      const { data: calc } = await supabase.from('calculation_runs').select('*').eq('id', payload.new.id).maybeSingle();
+                      if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
+                      if (calc?.confidence_score !== null && calc?.confidence_score !== undefined) {
+                        setConfidenceScore(calc.confidence_score);
+                      }
+                    } catch (e) {
+                      console.error('PDF fetch failed', e);
+                    }
+                  })();
+                }
               }
             }
           }
@@ -498,13 +506,14 @@ useEffect(() => {
       const fileArray = Array.from(files);
       for (const file of fileArray) {
         const filePath = `${activeProjectId}/${Date.now()}_${file.name}`;
-        const { error: uploadError } = await supabase.storage.from('sterkcalc').upload(filePath, file);
+        const { error: uploadError } = await supabase.storage.from('project_input_files').upload(filePath, file);
         if (uploadError) throw uploadError;
         const { error: insertError } = await supabase.from('document_sources').insert([
           {
             project_id: activeProjectId,
             document_type: documentType,
-            file_name: filePath,
+            storage_path: filePath,
+            file_name: file.name,
             confidence_level: 'medium',
           },
         ]);
@@ -565,29 +574,28 @@ useEffect(() => {
 
     setStartingCalculation(true);
 
-    const { error } = await supabase
-      .from('executor_tasks')
-      .insert({
+    const response = await fetch('/api/proxy/api/executor/start-calculation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         project_id: activeProjectId,
-        action: 'start_calculation',
-        assigned_to: 'executor',
-        status: 'open',
-        payload: {
-          project_id: activeProjectId,
-          scenario_name: scenarioName,
-          calculation_type: projectType,
-          calculation_level: calculationLevel,
-          fixed_price: fixedPrice || null,
-          ak_percentage: settings.selectedModel.ak_percentage,
-          abk_percentage: settings.selectedModel.abk_percentage,
-          risk_percentage: settings.selectedModel.risk_percentage,
-          profit_percentage: settings.selectedModel.profit_percentage,
-        },
-      });
+        scenario_name: scenarioName,
+        calculation_type: projectType,
+        calculation_level: calculationLevel,
+        fixed_price: fixedPrice || null,
+        ak_percentage: settings.selectedModel.ak_percentage,
+        abk_percentage: settings.selectedModel.abk_percentage,
+        risk_percentage: settings.selectedModel.risk_percentage,
+        profit_percentage: settings.selectedModel.profit_percentage,
+      }),
+    });
 
-    if (error) {
-      console.error('EXECUTOR_TASK_INSERT_ERROR', error);
-      setError(error.message);
+    const responseBody = await response.json();
+    console.log('START_CALCULATION_RESPONSE', responseBody);
+
+    if (!response.ok) {
+      console.error('START_CALCULATION_API_ERROR', responseBody);
+      setError(responseBody?.error || 'Start calculatie mislukt');
       setStartingCalculation(false);
       return;
     }
@@ -629,9 +637,21 @@ const handleDownloadPdf = () => {
       (async () => {
         const { data: calc } = await supabase.from('calculation_runs').select('*').eq('id', calculationId).maybeSingle();
         if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
+        if (calc?.confidence_score !== null && calc?.confidence_score !== undefined) {
+          setConfidenceScore(calc.confidence_score);
+        }
       })();
     }
   }, [calculationStatus, calculationId]);
+
+  const confidenceLabel =
+    confidenceScore === null || confidenceScore === undefined
+      ? null
+      : confidenceScore >= 80
+        ? 'Hoge betrouwbaarheid'
+        : confidenceScore >= 60
+          ? 'Gemiddelde betrouwbaarheid'
+          : 'Indicatief';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -892,6 +912,11 @@ const handleDownloadPdf = () => {
                 maximumFractionDigits: 2,
               })}
             </p>
+            {confidenceLabel && (
+              <p className="text-sm text-slate-600 mt-1">
+                {confidenceLabel}
+              </p>
+            )}
           </div>
 
 
