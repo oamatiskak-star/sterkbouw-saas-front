@@ -25,16 +25,11 @@ export default function CalculatiesPage() {
     billing_postcode: '',
     billing_city: '',
     billing_country: 'Nederland',
-    calculation_type: 'Renovatie',
-    naw_field1: '',
-    naw_field2: '',
-    billing_field1: '',
-    billing_field2: '',
   });
   const [documents, setDocuments] = useState([]);
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [settings, setSettings] = useState({
-    scenario_name: '',
+    calculation_type: 'Renovatie',
     fixed_price: '',
     ak_percentage: 10,
     abk_percentage: 5,
@@ -69,15 +64,11 @@ export default function CalculatiesPage() {
       billing_city: '',
       billing_country: 'Nederland',
       calculation_type: 'Renovatie',
-      naw_field1: '',
-      naw_field2: '',
-      billing_field1: '',
-      billing_field2: '',
     });
     setDocuments([]);
     setUploadingDoc(false);
     setSettings({
-      scenario_name: '',
+      calculation_type: '',
       fixed_price: '',
       ak_percentage: 10,
       abk_percentage: 5,
