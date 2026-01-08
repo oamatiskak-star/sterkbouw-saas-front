@@ -43,16 +43,6 @@ export default function CalculatiesPage() {
   // Calculation states
   const [calculationStatus, setCalculationStatus] = useState(null);
   const [results, setResults] = useState(null);
-  const [pollingInterval, setPollingInterval] = useState(null);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (pollingInterval) {
-        clearInterval(pollingInterval);
-      }
-    };
-  }, [pollingInterval]);
 
   // Load documents for current project
   const loadDocuments = useCallback(async (projectId) => {
@@ -95,81 +85,68 @@ export default function CalculatiesPage() {
     }
   }, [calculationId]);
 
-  // Polling function for calculation status
-  const pollCalculationStatus = useCallback(async (projectId) => {
-    try {
-      const { data: calc } = await supabase
-        .from('calculation_runs')
-        .select('*')
-        .eq('project_id', projectId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (!calc) return null;
-
-      setCalculationStatus(calc.status);
-      
-      if (calc.id !== calculationId) {
-        setCalculationId(calc.id);
-      }
-
-      if (calc.status === 'completed') {
-        // Load results
-        await loadResults();
-        
-        // Set PDF URL with fallback
-        if (calc.pdf_url) {
-          setPdfUrl(calc.pdf_url);
-        } else {
-          const { data: project } = await supabase
-            .from('projects')
-            .select('pdf_url')
-            .eq('id', projectId)
-            .maybeSingle();
-          if (project?.pdf_url) {
-            setPdfUrl(project.pdf_url);
-          }
-        }
-        
-        // Stop polling and go to result
-        if (pollingInterval) {
-          clearInterval(pollingInterval);
-          setPollingInterval(null);
-        }
-        
-        setUiStep('result');
-        return true;
-      }
-      
-      return false;
-    } catch (error) {
-      console.error('Polling error:', error);
-      return null;
-    }
-  }, [calculationId, loadResults, pollingInterval]);
-
-  // Start polling when entering running state
+  // Poll calculation status when in running state
   useEffect(() => {
-    if (uiStep === 'running' && activeProjectId && !pollingInterval) {
-      // Initial check
-      pollCalculationStatus(activeProjectId);
-      
-      // Start interval
-      const interval = setInterval(() => {
-        pollCalculationStatus(activeProjectId);
-      }, 2000);
-      
-      setPollingInterval(interval);
-    }
-    
-    return () => {
-      if (pollingInterval && uiStep !== 'running') {
-        clearInterval(pollingInterval);
-        setPollingInterval(null);
+    let intervalId = null;
+
+    const pollStatus = async () => {
+      if (!activeProjectId || uiStep !== 'running') return;
+
+      try {
+        const { data: calc } = await supabase
+          .from('calculation_runs')
+          .select('*')
+          .eq('project_id', activeProjectId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (!calc) return;
+
+        setCalculationStatus(calc.status);
+        setCalculationId(calc.id);
+
+        if (calc.status === 'completed') {
+          // Load results
+          await loadResults();
+          
+          // Set PDF URL with fallback
+          if (calc.pdf_url) {
+            setPdfUrl(calc.pdf_url);
+          } else {
+            const { data: project } = await supabase
+              .from('projects')
+              .select('pdf_url')
+              .eq('id', activeProjectId)
+              .maybeSingle();
+            if (project?.pdf_url) {
+              setPdfUrl(project.pdf_url);
+            }
+          }
+          
+          // Stop polling and go to result
+          if (intervalId) {
+            clearInterval(intervalId);
+          }
+          setUiStep('result');
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
       }
     };
-  }, [uiStep, activeProjectId, pollCalculationStatus, pollingInterval]);
+
+    if (uiStep === 'running' && activeProjectId) {
+      // Start polling immediately and then every 2 seconds
+      pollStatus();
+      intervalId = setInterval(pollStatus, 2000);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [uiStep, activeProjectId, loadResults]);
 
   // Handle UI step transitions
   const handleGoToNAW = () => {
@@ -292,8 +269,10 @@ export default function CalculatiesPage() {
 
       if (error) throw error;
 
+      // CRITICAL FIX: Always set these states regardless of what happens next
       setCalculationStatus('queued');
       setUiStep('running');
+      
     } catch (err) {
       setError(err.message || 'Kon calculatie niet starten');
     } finally {
