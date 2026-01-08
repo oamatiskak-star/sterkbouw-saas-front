@@ -505,8 +505,15 @@ useEffect(() => {
     try {
       const fileArray = Array.from(files);
       for (const file of fileArray) {
-        const filePath = `${activeProjectId}/${Date.now()}_${file.name}`;
-        const { error: uploadError } = await supabase.storage.from('project_input_files').upload(filePath, file);
+        const bucketName = 'sterkcalc';
+        const filePath = `${activeProjectId}/${file.name}`;
+        if (bucketName !== 'sterkcalc') {
+          throw new Error('UPLOAD_BUCKET_INVALID');
+        }
+        if (!filePath) {
+          throw new Error('UPLOAD_STORAGE_PATH_MISSING');
+        }
+        const { error: uploadError } = await supabase.storage.from(bucketName).upload(filePath, file);
         if (uploadError) throw uploadError;
         const { error: insertError } = await supabase.from('document_sources').insert([
           {
@@ -514,6 +521,7 @@ useEffect(() => {
             document_type: documentType,
             storage_path: filePath,
             file_name: file.name,
+            bucket: bucketName,
             confidence_level: 'medium',
           },
         ]);
@@ -636,7 +644,11 @@ const handleDownloadPdf = () => {
     if (calculationStatus === 'completed' && calculationId) {
       (async () => {
         const { data: calc } = await supabase.from('calculation_runs').select('*').eq('id', calculationId).maybeSingle();
-        if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
+        if (!calc?.pdf_url) {
+          setError('PDF_URL_MISSING');
+          return;
+        }
+        setPdfUrl(calc.pdf_url);
         if (calc?.confidence_score !== null && calc?.confidence_score !== undefined) {
           setConfidenceScore(calc.confidence_score);
         }
@@ -880,7 +892,7 @@ const handleDownloadPdf = () => {
               >
                 {startingCalculation && <Loader2 className="w-4 h-4 animate-spin" />} Start AI calculatie
               </button>
-              {pdfUrl && (
+              {calculationStatus === 'completed' && pdfUrl && (
                 <button
                   onClick={handleDownloadPdf}
                   className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ml-4"
