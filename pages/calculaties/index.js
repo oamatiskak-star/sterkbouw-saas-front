@@ -25,6 +25,11 @@ export default function CalculatiesPage() {
     billing_postcode: '',
     billing_city: '',
     billing_country: 'Nederland',
+    calculation_type: 'Renovatie',
+    naw_field1: '',
+    naw_field2: '',
+    billing_field1: '',
+    billing_field2: '',
   });
   const [documents, setDocuments] = useState([]);
   const [uploadingDoc, setUploadingDoc] = useState(false);
@@ -63,6 +68,11 @@ export default function CalculatiesPage() {
       billing_postcode: '',
       billing_city: '',
       billing_country: 'Nederland',
+      calculation_type: 'Renovatie',
+      naw_field1: '',
+      naw_field2: '',
+      billing_field1: '',
+      billing_field2: '',
     });
     setDocuments([]);
     setUploadingDoc(false);
@@ -432,19 +442,12 @@ useEffect(() => {
   };
 
 const handleDownloadPdf = () => {
-  if (!activeProjectId) {
-    setError('Geen actief project');
     if (!pdfUrl) {
-    setError('Geen PDF beschikbaar om te downloaden.');
-    return;
-  }
-    return;
-  }
-  
-  const directUrl = `https://pmovazftwoxjopqkuuhp.supabase.co/storage/v1/object/public/sterkcalc/${activeProjectId}/offerte_2jours.pdf`;
-console.log('Opening PDF:', pdfUrl);
-  window.open(pdfUrl, '_blank');
-};
+      setError('Geen PDF beschikbaar om te downloaden.');
+      return;
+    }
+    window.open(pdfUrl, '_blank');
+  };
   useEffect(() => {
     if (calculationStatus === 'completed' && calculationId) {
       (async () => {
@@ -492,6 +495,15 @@ console.log('Opening PDF:', pdfUrl);
                 <input type="text" value={nawData.project_name} onChange={(e) => setNawData({ ...nawData, project_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" placeholder="Renovatie Hoofdstraat 123" />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Type Calculatie</label>
+                <select value={nawData.calculation_type} onChange={(e) => setNawData({ ...nawData, calculation_type: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent">
+                  <option value="Renovatie">Renovatie</option>
+                  <option value="Nieuwbouw">Nieuwbouw</option>
+                  <option value="Transformatie">Transformatie</option>
+                </select>
+              </div>
+
               <div className="border-t border-slate-200 pt-6">
                 <h3 className="text-lg font-medium text-slate-900 mb-4">Klantgegevens</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -518,6 +530,12 @@ console.log('Opening PDF:', pdfUrl);
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Land</label>
                     <input type="text" value={nawData.client_country} onChange={(e) => setNawData({ ...nawData, client_country: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <input type="text" value={nawData.naw_field1} onChange={(e) => setNawData({ ...nawData, naw_field1: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" placeholder="Naw Field 1" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <input type="text" value={nawData.naw_field2} onChange={(e) => setNawData({ ...nawData, naw_field2: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" placeholder="Naw Field 2" />
                   </div>
                 </div>
               </div>
@@ -548,6 +566,12 @@ console.log('Opening PDF:', pdfUrl);
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Land</label>
                     <input type="text" value={nawData.billing_country} onChange={(e) => setNawData({ ...nawData, billing_country: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <input type="text" value={nawData.billing_field1} onChange={(e) => setNawData({ ...nawData, billing_field1: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" placeholder="Factuur Field 1" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <input type="text" value={nawData.billing_field2} onChange={(e) => setNawData({ ...nawData, billing_field2: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" placeholder="Factuur Field 2" />
                   </div>
                 </div>
               </div>
