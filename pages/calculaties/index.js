@@ -260,71 +260,6 @@ export default function CalculatiesPage() {
   // DIRECTE STATUS CHECK - Toegevoegd als extra laag
 useEffect(() => {
   if (!activeProjectId || uiStep !== 'running') return;
-
-  console.log('🔄 Directe status polling gestart voor project:', activeProjectId);
-
-  const checkStatusDirectly = async () => {
-    try {
-      // 1. Check calculation_runs
-      const { data: calc } = await supabase
-        .from('calculation_runs')
-        .select('*')
-        .eq('project_id', activeProjectId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      console.log('📊 Directe calculation check:', calc?.status);
-
-      if (calc?.status === 'completed') {
-        console.log('✅ Calculation is completed via direct check!');
-        setCalculationStatus('completed');
-        setCalculationId(calc.id);
-        
-        // 2. Load results
-        await loadResults();
-        
-        // 3. Check for PDF
-        if (calc.pdf_url) {
-          setPdfUrl(calc.pdf_url);
-        } else {
-          const { data: project } = await supabase
-            .from('projects')
-            .select('pdf_url')
-            .eq('id', activeProjectId)
-            .maybeSingle();
-          
-          if (project?.pdf_url) {
-            setPdfUrl(project.pdf_url);
-          }
-        }
-        
-        // 4. Go to result step
-        setUiStep('result');
-        return true;
-      }
-    } catch (error) {
-      console.log('⚠️ Direct check error:', error.message);
-    }
-    return false;
-  };
-
-  // Start direct
-  checkStatusDirectly();
-  
-  // Poll elke 2 seconden
-  const interval = setInterval(async () => {
-    const completed = await checkStatusDirectly();
-    if (completed) {
-      clearInterval(interval);
-      console.log('✅ Polling gestopt - calculatie voltooid');
-    }
-  }, 2000);
-
-  return () => {
-    console.log('🧹 Directe polling cleanup');
-    clearInterval(interval);
-  };
 }, [activeProjectId, uiStep]);
 
   const CALCULATION_MODELS = {
@@ -578,9 +513,7 @@ useEffect(() => {
 
     setStartingCalculation(true);
 
-    const response = await fetch(
-  `${process.env.NEXT_PUBLIC_EXECUTOR_API}/api/executor/start-calculation`,
-  {
+    const response = await fetch('/api/executor/start-calculation', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
