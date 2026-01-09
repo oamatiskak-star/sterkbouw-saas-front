@@ -253,15 +253,6 @@ export default function CalculatiesPage() {
     setResults(null);
   }, []); // Alleen runnen bij mount
 
-  // DIRECTE STATUS CHECK - Toegevoegd als extra laag
-  useEffect(() => {
-    // ... bestaande code blijft hier
-  }, [activeProjectId, uiStep]);
-  // DIRECTE STATUS CHECK - Toegevoegd als extra laag
-useEffect(() => {
-  if (!activeProjectId || uiStep !== 'running') return;
-}, [activeProjectId, uiStep]);
-
   const CALCULATION_MODELS = {
     nieuwbouw: { ak: 6, abk: 5, risk: 4, profit: 6 },
     transformatie: { ak: 7, abk: 6, risk: 6, profit: 6 },
@@ -301,6 +292,9 @@ useEffect(() => {
               }
             } else if (payload.eventType === 'UPDATE') {
               setCalculationStatus(payload.new.status);
+              if (payload.new.status === 'completed' || payload.new.status === 'failed') {
+              supabase.removeChannel(channel);
+            }
               if (payload.new.confidence_score !== null && payload.new.confidence_score !== undefined) {
                 setConfidenceScore(payload.new.confidence_score);
               }
@@ -341,6 +335,7 @@ useEffect(() => {
   useEffect(() => {
   const restoreLastProjectWithPdf = async () => {
     try {
+      if (uiStep !== 'start') return;
       if (activeProjectId) return;
 
       const { data: lastTask, error: taskError } = await supabase
@@ -512,6 +507,12 @@ useEffect(() => {
     }
 
     setStartingCalculation(true);
+if (startingCalculation) return;
+
+if (calculationStatus === 'queued' || calculationStatus === 'running') {
+  setError('Er loopt al een calculatie voor dit project.');
+  return;
+}
 
     const response = await fetch('/api/executor/start-calculation', {
       method: 'POST',
