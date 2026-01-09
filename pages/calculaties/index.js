@@ -3,188 +3,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Upload, FileText, Calculator, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
-const CALCULATION_MODEL_DEFAULTS = {
-  nieuwbouw: {
-    label: 'Nieuwbouw',
-    description: 'Calculatie voor volledig nieuwe bouwprojecten, startend vanaf de fundering.',
-    ak_percentage: 7,
-    abk_percentage: 6,
-    risk_percentage: 2,
-    profit_percentage: 5,
-    calculation_flow: [
-      'fundering',
-      'casco',
-      'schil',
-      'installaties',
-      'afbouw'
-    ],
-    forced_rules: {
-      must_include: ['fundering', 'casco', 'schil', 'installaties', 'afbouw'],
-      may_include: [],
-      must_exclude: ['bestaande_constructie_analyse', 'gedeeltelijke_sloop']
-    },
-    logic_constraints: {
-      allow_overlap_existing_new: false,
-      allow_partial_demolition: false,
-      require_existing_structure_analysis: false
-    },
-    default_assumptions: {
-      reuse_percentage: 0,
-      demolition_separate: true,
-      installaties_volledig_vervangen: true
-    }
-  },
-  transformatie: {
-    label: 'Transformatie',
-    description: 'Herbestemming of ingrijpende wijziging van een bestaand gebouw, inclusief aanpassing en nieuwe toevoegingen.',
-    ak_percentage: 8,
-    abk_percentage: 7,
-    risk_percentage: 8,
-    profit_percentage: 6,
-    calculation_flow: [
-      'bestaande_constructie_analyse',
-      'fundering', // Can include new foundation if structural changes
-      'casco',
-      'schil',
-      'installaties',
-      'afbouw'
-    ],
-    forced_rules: {
-      must_include: ['bestaande_constructie_analyse'],
-      may_include: ['gedeeltelijke_sloop'],
-      must_exclude: []
-    },
-    logic_constraints: {
-      allow_overlap_existing_new: true,
-      allow_partial_demolition: true,
-      require_existing_structure_analysis: true
-    },
-    default_assumptions: {
-      reuse_percentage: null,
-      demolition_separate: false,
-      installaties_volledig_vervangen: false
-    }
-  },
-  renovatie: {
-    label: 'Renovatie',
-    description: 'Vernieuwing of verbetering van een bestaand gebouw met maximaal behoud van de bestaande structuur.',
-    ak_percentage: 9,
-    abk_percentage: 7,
-    risk_percentage: 10,
-    profit_percentage: 6,
-    calculation_flow: [
-      'bestaande_constructie_analyse',
-      'schil',
-      'installaties',
-      'afbouw'
-    ],
-    forced_rules: {
-      must_include: [],
-      may_include: ['maximaal_hergebruik'],
-      must_exclude: ['nieuwe_fundering_totaal']
-    },
-    logic_constraints: {
-      allow_overlap_existing_new: true,
-      allow_partial_demolition: true,
-      require_existing_structure_analysis: true
-    },
-    default_assumptions: {
-      reuse_percentage: null,
-      demolition_separate: false,
-      installaties_volledig_vervangen: false
-    }
-  },
-  uitbreiding: {
-    label: 'Uitbreiding',
-    description: 'Toevoeging van nieuwe bouwdelen aan een bestaand gebouw, met focus op koppeling.',
-    ak_percentage: 8,
-    abk_percentage: 6,
-    risk_percentage: 6,
-    profit_percentage: 5,
-    calculation_flow: [
-      'bestaand_nieuw_koppeling',
-      'fundering', // specific for extension
-      'casco',    // specific for extension
-      'schil',    // specific for extension
-      'installaties', // specific for extension
-      'afbouw'    // specific for extension
-    ],
-    forced_rules: {
-      must_include: ['bestaand_nieuw_koppeling'],
-      may_include: [],
-      must_exclude: ['sloop_bestaand_gebouw_totaal']
-    },
-    logic_constraints: {
-      allow_overlap_existing_new: true,
-      allow_partial_demolition: false, // only for connection point, not general
-      require_existing_structure_analysis: true
-    },
-    default_assumptions: {
-      reuse_percentage: 0,
-      demolition_separate: false,
-      installaties_volledig_vervangen: false
-    }
-  },
-  verduurzaming: {
-    label: 'Verduurzaming',
-    description: 'Maatregelen gericht op energiebesparing en duurzaamheid van een bestaand gebouw.',
-    ak_percentage: 6,
-    abk_percentage: 5,
-    risk_percentage: 4,
-    profit_percentage: 5,
-    calculation_flow: [
-      'schil',
-      'installaties',
-      'energie_maatregelen'
-    ],
-    forced_rules: {
-      must_include: ['schil', 'installaties', 'energie_maatregelen'],
-      may_include: [],
-      must_exclude: ['fundering', 'casco']
-    },
-    logic_constraints: {
-      allow_overlap_existing_new: false,
-      allow_partial_demolition: false,
-      require_existing_structure_analysis: true
-    },
-    default_assumptions: {
-      reuse_percentage: null,
-      demolition_separate: false,
-      installaties_volledig_vervangen: false
-    }
-  },
-  default: {
-    label: 'Standaard (Generiek)',
-    description: 'Generieke rekenmethode toegepast bij gebrek aan specifiek type.',
-    ak_percentage: 8,
-    abk_percentage: 6,
-    risk_percentage: 3,
-    profit_percentage: 5,
-    calculation_flow: [
-      'fundering',
-      'casco',
-      'schil',
-      'installaties',
-      'afbouw'
-    ],
-    forced_rules: {
-      must_include: [],
-      may_include: [],
-      must_exclude: []
-    },
-    logic_constraints: {
-      allow_overlap_existing_new: true,
-      allow_partial_demolition: true,
-      require_existing_structure_analysis: true
-    },
-    default_assumptions: {
-      reuse_percentage: null,
-      demolition_separate: false,
-      installaties_volledig_vervangen: false
-    }
-  }
-};
-
 export default function CalculatiesPage() {
   const [activeProjectId, setActiveProjectId] = useState(null);
   const [calculationId, setCalculationId] = useState(null);
@@ -211,12 +29,15 @@ export default function CalculatiesPage() {
   const [documents, setDocuments] = useState([]);
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [settings, setSettings] = useState({
+    scenario_name: '',
     fixed_price: '',
-    selectedModel: CALCULATION_MODEL_DEFAULTS.default, // Initialize with default model
+    ak_percentage: 10,
+    abk_percentage: 5,
+    risk_percentage: 3,
+    profit_percentage: 7,
   });
   const [calculationStatus, setCalculationStatus] = useState(null);
   const [results, setResults] = useState(null);
-  const [confidenceScore, setConfidenceScore] = useState(null);
   useEffect(() => {
     console.log('🔄 Calculatie pagina geladen - resetting state');
     
@@ -246,12 +67,90 @@ export default function CalculatiesPage() {
     setDocuments([]);
     setUploadingDoc(false);
     setSettings({
+      scenario_name: '',
       fixed_price: '',
-      selectedModel: CALCULATION_MODEL_DEFAULTS.default,
+      ak_percentage: 10,
+      abk_percentage: 5,
+      risk_percentage: 3,
+      profit_percentage: 7,
     });
     setCalculationStatus(null);
     setResults(null);
   }, []); // Alleen runnen bij mount
+
+  // DIRECTE STATUS CHECK - Toegevoegd als extra laag
+  useEffect(() => {
+    // ... bestaande code blijft hier
+  }, [activeProjectId, uiStep]);
+  // DIRECTE STATUS CHECK - Toegevoegd als extra laag
+useEffect(() => {
+  if (!activeProjectId || uiStep !== 'running') return;
+
+  console.log('🔄 Directe status polling gestart voor project:', activeProjectId);
+
+  const checkStatusDirectly = async () => {
+    try {
+      // 1. Check calculation_runs
+      const { data: calc } = await supabase
+        .from('calculation_runs')
+        .select('*')
+        .eq('project_id', activeProjectId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      console.log('📊 Directe calculation check:', calc?.status);
+
+      if (calc?.status === 'completed') {
+        console.log('✅ Calculation is completed via direct check!');
+        setCalculationStatus('completed');
+        setCalculationId(calc.id);
+        
+        // 2. Load results
+        await loadResults();
+        
+        // 3. Check for PDF
+        if (calc.pdf_url) {
+          setPdfUrl(calc.pdf_url);
+        } else {
+          const { data: project } = await supabase
+            .from('projects')
+            .select('pdf_url')
+            .eq('id', activeProjectId)
+            .maybeSingle();
+          
+          if (project?.pdf_url) {
+            setPdfUrl(project.pdf_url);
+          }
+        }
+        
+        // 4. Go to result step
+        setUiStep('result');
+        return true;
+      }
+    } catch (error) {
+      console.log('⚠️ Direct check error:', error.message);
+    }
+    return false;
+  };
+
+  // Start direct
+  checkStatusDirectly();
+  
+  // Poll elke 2 seconden
+  const interval = setInterval(async () => {
+    const completed = await checkStatusDirectly();
+    if (completed) {
+      clearInterval(interval);
+      console.log('✅ Polling gestopt - calculatie voltooid');
+    }
+  }, 2000);
+
+  return () => {
+    console.log('🧹 Directe polling cleanup');
+    clearInterval(interval);
+  };
+}, [activeProjectId, uiStep]);
 
   const CALCULATION_MODELS = {
     nieuwbouw: { ak: 6, abk: 5, risk: 4, profit: 6 },
@@ -287,35 +186,25 @@ export default function CalculatiesPage() {
             if (payload.eventType === 'INSERT') {
               setCalculationId(payload.new.id);
               setCalculationStatus(payload.new.status);
-              if (payload.new.confidence_score !== null && payload.new.confidence_score !== undefined) {
-                setConfidenceScore(payload.new.confidence_score);
-              }
             } else if (payload.eventType === 'UPDATE') {
               setCalculationStatus(payload.new.status);
-              if (payload.new.status === 'completed' || payload.new.status === 'failed') {
-              supabase.removeChannel(channel);
-            }
-              if (payload.new.confidence_score !== null && payload.new.confidence_score !== undefined) {
-                setConfidenceScore(payload.new.confidence_score);
-              }
               if (payload.new.status === 'completed') {
                 // load results and then request server-side PDF generation (if not exists)
                 loadResults();
-                if (payload.new.pdf_url) {
-                  setPdfUrl(payload.new.pdf_url);
-                } else {
-                  (async () => {
-                    try {
-                      const { data: calc } = await supabase.from('calculation_runs').select('*').eq('id', payload.new.id).maybeSingle();
-                      if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
-                      if (calc?.confidence_score !== null && calc?.confidence_score !== undefined) {
-                        setConfidenceScore(calc.confidence_score);
-                      }
-                    } catch (e) {
-                      console.error('PDF fetch failed', e);
-                    }
-                  })();
-                }
+                // trigger server-side PDF generation
+                (async () => {
+                  try {
+                    await fetch('/api/generate-pdf', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ calculation_id: payload.new.id }),
+                    });
+                    const { data: calc } = await supabase.from('calculation_runs').select('*').eq('id', payload.new.id).maybeSingle();
+                    if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
+                  } catch (e) {
+                    console.error('PDF generation trigger failed', e);
+                  }
+                })();
               }
             }
           }
@@ -334,36 +223,28 @@ export default function CalculatiesPage() {
   }, [activeProjectId]);
   useEffect(() => {
   const restoreLastProjectWithPdf = async () => {
-    try {
-      if (uiStep !== 'start') return;
-      if (activeProjectId) return;
+    if (activeProjectId) return;
 
-      const { data: lastTask, error: taskError } = await supabase
-        .from('executor_tasks')
-        .select('project_id, created_at')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+    const { data: lastTask } = await supabase
+      .from('executor_tasks')
+      .select('project_id, created_at')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-      if (taskError) throw taskError;
-      if (!lastTask?.project_id) return;
+    if (!lastTask?.project_id) return;
 
-      const { data: project, error: projectError } = await supabase
-        .from('projects')
-        .select('pdf_url, status')
-        .eq('id', lastTask.project_id)
-        .maybeSingle();
+    const { data: project } = await supabase
+      .from('projects')
+      .select('pdf_url, status')
+      .eq('id', lastTask.project_id)
+      .maybeSingle();
 
-      if (projectError) throw projectError;
-      if (project?.pdf_url && project?.status === 'completed') {
-        setActiveProjectId(lastTask.project_id);
-        setPdfUrl(project.pdf_url);
-        setCalculationStatus('completed');
-        setUiStep('result');
-      }
-    } catch (err) {
-      console.error('Failed to restore last project:', err.message);
-      setError('Fout bij herstellen laatste project: ' + err.message);
+    if (project?.pdf_url && project?.status === 'completed') {
+      setActiveProjectId(lastTask.project_id);
+      setPdfUrl(project.pdf_url);
+      setCalculationStatus('completed');
+      setUiStep('result');
     }
   };
 
@@ -371,7 +252,6 @@ export default function CalculatiesPage() {
 }, []);
   
   const loadResults = async () => {
-    if(!calculationId) return;
     try {
       const { data: versions } = await supabase
         .from('calculation_versions')
@@ -389,12 +269,9 @@ export default function CalculatiesPage() {
           .order('fase', { ascending: true });
         setResults({ version: versions, rows: rows || [] });
         setUiStep('result');
-      } else {
-        setResults({}); // Set to empty object if no versions found, to stop infinite loop
       }
     } catch (err) {
       setError(err.message || 'Fout bij laden resultaten');
-      setResults({}); // Set to empty object on error, to stop infinite loop
     }
   };
 
@@ -435,19 +312,14 @@ export default function CalculatiesPage() {
     try {
       const fileArray = Array.from(files);
       for (const file of fileArray) {
-        const bucketName = 'sterkcalc';
-        const filePath = `${activeProjectId}/${file.name}`;
-        if (!filePath) {
-          throw new Error('UPLOAD_STORAGE_PATH_MISSING');
-        }
-        const { error: uploadError } = await supabase.storage.from(bucketName).upload(filePath, file);
+        const filePath = `${activeProjectId}/${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabase.storage.from('sterkcalc').upload(filePath, file);
         if (uploadError) throw uploadError;
         const { error: insertError } = await supabase.from('document_sources').insert([
           {
             project_id: activeProjectId,
             document_type: documentType,
-            storage_path: filePath,
-            file_name: file.name,
+            file_name: filePath,
             confidence_level: 'medium',
           },
         ]);
@@ -476,21 +348,17 @@ export default function CalculatiesPage() {
   async function handleStartCalculation() {
   console.log('START CALCULATION CLICKED');
   setError(null);
-    if (startingCalculation) {
-    console.log('[START_CALCULATION] skipped — already running');
-    return;
-  }
   
   // Reset pdfUrl voor een nieuwe berekening
   setPdfUrl(null);
   setResults(null);
 
-    const scenarioName = settings.selectedModel.label; // Derived from selectedModel
+    const scenarioName = settings.scenario_name;
     const fixedPrice = settings.fixed_price;
 
     console.log({
       activeProjectId,
-      scenarioName, // Now derived
+      scenarioName,
       projectType,
       calculationLevel,
       fixedPrice,
@@ -500,8 +368,11 @@ export default function CalculatiesPage() {
       setError('Geen actief project geselecteerd');
       return;
     }
-    // No longer need scenarioName validation as it's derived from projectType
-    if (!projectType) { // projectType validation implicitly covers scenarioName
+    if (!scenarioName) {
+      setError('Scenario naam ontbreekt');
+      return;
+    }
+    if (!projectType) {
       setError('Kies een projecttype');
       return;
     }
@@ -511,35 +382,23 @@ export default function CalculatiesPage() {
     }
 
     setStartingCalculation(true);
-if (startingCalculation) return;
 
-if (calculationStatus === 'queued' || calculationStatus === 'running') {
-  setError('Er loopt al een calculatie voor dit project.');
-  return;
-}
-
-    const response = await fetch('/api/executor/start-calculation', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("/api/executor/start-calculation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         project_id: activeProjectId,
         scenario_name: scenarioName,
         calculation_type: projectType,
         calculation_level: calculationLevel,
-        fixed_price: fixedPrice || null,
-        ak_percentage: settings.selectedModel.ak_percentage,
-        abk_percentage: settings.selectedModel.abk_percentage,
-        risk_percentage: settings.selectedModel.risk_percentage,
-        profit_percentage: settings.selectedModel.profit_percentage,
-      }),
+        fixed_price: fixedPrice || null
+      })
     });
 
-    const responseBody = await response.json();
-    console.log('START_CALCULATION_RESPONSE', responseBody);
-
     if (!response.ok) {
-      console.error('START_CALCULATION_API_ERROR', responseBody);
-      setError(responseBody?.error || 'Start calculatie mislukt');
+      const payload = await response.json();
+      console.error("EXECUTOR_TASK_INSERT_ERROR", payload);
+      setError(payload.error || "Start calculation failed");
       setStartingCalculation(false);
       return;
     }
@@ -570,36 +429,27 @@ if (calculationStatus === 'queued' || calculationStatus === 'running') {
   };
 
 const handleDownloadPdf = () => {
+  if (!activeProjectId) {
+    setError('Geen actief project');
     if (!pdfUrl) {
-      setError('Geen PDF beschikbaar om te downloaden.');
-      return;
-    }
-    window.open(pdfUrl, '_blank');
-  };
+    setError('Geen PDF beschikbaar om te downloaden.');
+    return;
+  }
+    return;
+  }
+  
+  const directUrl = `https://pmovazftwoxjopqkuuhp.supabase.co/storage/v1/object/public/sterkcalc/${activeProjectId}/offerte_2jours.pdf`;
+console.log('Opening PDF:', pdfUrl);
+  window.open(pdfUrl, '_blank');
+};
   useEffect(() => {
     if (calculationStatus === 'completed' && calculationId) {
       (async () => {
         const { data: calc } = await supabase.from('calculation_runs').select('*').eq('id', calculationId).maybeSingle();
-        if (!calc?.pdf_url) {
-          setError('PDF_URL_MISSING');
-          return;
-        }
-        setPdfUrl(calc.pdf_url);
-        if (calc?.confidence_score !== null && calc?.confidence_score !== undefined) {
-          setConfidenceScore(calc.confidence_score);
-        }
+        if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
       })();
     }
   }, [calculationStatus, calculationId]);
-
-  const confidenceLabel =
-    confidenceScore === null || confidenceScore === undefined
-      ? null
-      : confidenceScore >= 80
-        ? 'Hoge betrouwbaarheid'
-        : confidenceScore >= 60
-          ? 'Gemiddelde betrouwbaarheid'
-          : 'Indicatief';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -757,18 +607,14 @@ const handleDownloadPdf = () => {
           <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
             <h2 className="text-xl font-semibold text-slate-900 mb-6">Instellingen & Type Calculatie</h2>
                     <div className="space-y-6">
-
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Scenario naam</label>
+                        <input type="text" value={settings.scenario_name} onChange={(e) => setSettings({ ...settings, scenario_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" placeholder="Basis scenario" />
+                      </div>
 
                       <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">Projecttype</label>
-                        <select value={projectType} onChange={(e) => {
-                          const selectedType = e.target.value;
-                          setProjectType(selectedType);
-                          setSettings(prevSettings => ({
-                            ...prevSettings,
-                            selectedModel: CALCULATION_MODEL_DEFAULTS[selectedType] || CALCULATION_MODEL_DEFAULTS.default,
-                          }));
-                        }} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent">
+                        <select value={projectType} onChange={(e) => setProjectType(e.target.value)} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent">
                           <option value="">-- Kies projecttype --</option>
                           <option value="nieuwbouw">Nieuwbouw</option>
                           <option value="transformatie">Transformatie</option>
@@ -798,22 +644,22 @@ const handleDownloadPdf = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">AK %</label>
-                    <input type="number" value={settings.selectedModel.ak_percentage} readOnly className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="number" value={settings.ak_percentage} onChange={(e) => setSettings({ ...settings, ak_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">ABK %</label>
-                    <input type="number" value={settings.selectedModel.abk_percentage} readOnly className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="number" value={settings.abk_percentage} onChange={(e) => setSettings({ ...settings, abk_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Risico %</label>
-                    <input type="number" value={settings.selectedModel.risk_percentage} readOnly className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="number" value={settings.risk_percentage} onChange={(e) => setSettings({ ...settings, risk_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Winst %</label>
-                    <input type="number" value={settings.selectedModel.profit_percentage} readOnly className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="number" value={settings.profit_percentage} onChange={(e) => setSettings({ ...settings, profit_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
                   </div>
                 </div>
               </div>
@@ -828,24 +674,86 @@ const handleDownloadPdf = () => {
               >
                 {startingCalculation && <Loader2 className="w-4 h-4 animate-spin" />} Start AI calculatie
               </button>
-              {calculationStatus === 'completed' && pdfUrl && (
-                <button
-                  onClick={handleDownloadPdf}
-                  className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ml-4"
-                >
-                  <FileText className="w-4 h-4" /> Download 2jours PDF
-                </button>
-              )}
             </div>
           </div>
         )}
 
+        {uiStep === 'running' && (
+          <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
+            <h2 className="text-xl font-semibold text-slate-900 mb-6">AI Calculatie loopt</h2>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'queued' ? 'bg-slate-200' : 'bg-green-100'}`}>
+                  {calculationStatus === 'queued' ? <Loader2 className="w-4 h-4 animate-spin text-slate-600" /> : <CheckCircle className="w-4 h-4 text-green-600" />}
+                </div>
+                <span className="text-slate-700">In wachtrij</span>
+              </div>
 
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'running' ? 'bg-slate-200' : calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
+                  {calculationStatus === 'running' ? <Loader2 className="w-4 h-4 animate-spin text-slate-600" /> : calculationStatus === 'completed' ? <CheckCircle className="w-4 h-4 text-green-600" /> : <div className="w-2 h-2 rounded-full bg-slate-400" />}
+                </div>
+                <span className="text-slate-700">Documenten analyseren</span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'running' ? 'bg-slate-200' : calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
+                  {calculationStatus === 'running' ? <Loader2 className="w-4 h-4 animate-spin text-slate-600" /> : calculationStatus === 'completed' ? <CheckCircle className="w-4 h-4 text-green-600" /> : <div className="w-2 h-2 rounded-full bg-slate-400" />}
+                </div>
+                <span className="text-slate-700">STABU mapping</span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'running' ? 'bg-slate-200' : calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
+                  {calculationStatus === 'running' ? <Loader2 className="w-4 h-4 animate-spin text-slate-600" /> : calculationStatus === 'completed' ? <CheckCircle className="w-4 h-4 text-green-600" /> : <div className="w-2 h-2 rounded-full bg-slate-400" />}
+                </div>
+                <span className="text-slate-700">Berekenen</span>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'running' ? 'bg-slate-200' : calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
+                  {calculationStatus === 'running' ? <Loader2 className="w-4 h-4 animate-spin text-slate-600" /> : calculationStatus === 'completed' ? <CheckCircle className="w-4 h-4 text-green-600" /> : <div className="w-2 h-2 rounded-full bg-slate-400" />}
+                </div>
+                <span className="text-slate-700">Opslagen toepassen</span>
+              </div>
+
+              {settings.fixed_price && (
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${calculationStatus === 'completed' ? 'bg-green-100' : 'bg-slate-100'}`}>
+                    {calculationStatus === 'completed' ? <CheckCircle className="w-4 h-4 text-green-600" /> : <div className="w-2 h-2 rounded-full bg-slate-400" />}
+                  </div>
+                  <span className="text-slate-700">Vaste prijs correctie</span>
+                </div>
+              )}
+            </div>
+
+            {calculationStatus === 'completed' && (
+              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm font-medium text-green-800">Calculatie voltooid! Resultaten worden geladen...</p>
+              </div>
+            )}
+          </div>
+        )}
 
        {uiStep === 'result' && (
   <div className="space-y-6">
 
-
+    {!results && pdfUrl && (
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">
+          Calculatie voltooid
+        </h2>
+        <p className="text-slate-600 mb-6">
+          De calculatie is afgerond. Download hieronder de 2jours-offerte.
+        </p>
+        <button
+          onClick={handleDownloadPdf}
+          className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
+        >
+          Download 2jours PDF
+        </button>
+      </div>
+    )}
 
     {results && (
       <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
@@ -860,14 +768,14 @@ const handleDownloadPdf = () => {
                 maximumFractionDigits: 2,
               })}
             </p>
-            {confidenceLabel && (
-              <p className="text-sm text-slate-600 mt-1">
-                {confidenceLabel}
-              </p>
-            )}
           </div>
 
-
+          <button
+            onClick={handleDownloadPdf}
+            className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm"
+          >
+            Download 2jours PDF
+          </button>
         </div>
 
         {Object.entries(groupRowsByFase(results.rows)).map(([fase, rows]) => {
