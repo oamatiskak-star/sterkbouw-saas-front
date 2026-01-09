@@ -476,6 +476,10 @@ export default function CalculatiesPage() {
   async function handleStartCalculation() {
   console.log('START CALCULATION CLICKED');
   setError(null);
+    if (startingCalculation) {
+    console.log('[START_CALCULATION] skipped — already running');
+    return;
+  }
   
   // Reset pdfUrl voor een nieuwe berekening
   setPdfUrl(null);
