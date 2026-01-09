@@ -1,6 +1,5 @@
 import { useState, useRef } from "react"
 import { useRouter } from "next/router"
-import supabase from "@/lib/supabase"
 
 /* ======================
    HARDE UPLOAD ZONDER SDK
@@ -108,21 +107,19 @@ export default function ProjectInitOptionsModal({ projectId, onConfirm, onCancel
 
     setStarting(true)
 
-    const { error } = await supabase
-      .from("executor_tasks")
-      .insert({
+    const response = await fetch("/api/executor/project-scan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         project_id: projectId,
-        action: "PROJECT_SCAN",
-        status: "open",
-        assigned_to: "executor",
-        payload: {
-          options,
-          uploaded_files: uploadCount
-        }
+        options,
+        uploaded_files: uploadCount
       })
+    })
 
-    if (error) {
-      console.error(error)
+    if (!response.ok) {
+      const payload = await response.json()
+      console.error(payload)
       alert("Initialisatie kon niet worden gestart")
       setStarting(false)
       return
