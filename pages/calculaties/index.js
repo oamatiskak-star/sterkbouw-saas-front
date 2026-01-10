@@ -86,9 +86,10 @@ export default function CalculatiesPage() {
   async function handleCreateCustomer() {
     try {
       const payload = await request(API_ROUTE, {
-  type: 'create_project'
-  customer
+  type: 'create_project',
+  customer: customer
 });
+
       }
       setProjectId(payload.project_id);
       setStatus('Klant aangemaakt');
@@ -301,12 +302,16 @@ export default function CalculatiesPage() {
   const canDownloadPdf = projectId && pdfUrl;
 
   function getStepClasses(step) {
-    return `rounded-xl border p-6 transition ${
-      currentStep === step
-        ? 'border-slate-900 bg-slate-50 shadow-sm'
-        : 'border-slate-200 bg-white'
-    }`;
+  if (step === 2) {
+    return 'rounded-xl border border-slate-200 bg-white p-6';
   }
+  return `rounded-xl border p-6 transition ${
+    activeStep === step
+      ? 'border-slate-900 bg-slate-50 shadow-sm'
+      : 'border-slate-200 bg-white'
+  }`;
+}
+
 
   function getStepNumberClasses(step) {
     return `flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
