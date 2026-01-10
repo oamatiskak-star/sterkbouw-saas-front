@@ -2,6 +2,16 @@
 import { useState } from 'react';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_ROUTE = process.env.NEXT_PUBLIC_API_ROUTE;
+
+if (!API_BASE_URL) {
+  throw new Error('NEXT_PUBLIC_API_URL is not defined');
+}
+
+if (!API_ROUTE) {
+  throw new Error('NEXT_PUBLIC_API_ROUTE is not defined');
+}
+
 
 export default function CalculatiesPage() {
 
@@ -75,9 +85,10 @@ export default function CalculatiesPage() {
 
   async function handleCreateCustomer() {
     try {
-      const payload = await request('/api/customer/create', customer);
-      if (payload.project_name) {
-        setProject({ name: payload.project_name });
+      const payload = await request(API_ROUTE, {
+  type: 'create_project',
+  customer
+});
       }
       setProjectId(payload.project_id);
       setStatus('Klant aangemaakt');
