@@ -86,7 +86,7 @@ export default function CalculatiesPage() {
   async function handleCreateCustomer() {
     try {
       const payload = await request(API_ROUTE, {
-  type: 'create_project',
+  type: 'create_project'
   customer
 });
       }
