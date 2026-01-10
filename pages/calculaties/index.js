@@ -84,20 +84,20 @@ export default function CalculatiesPage() {
   }
 
   async function handleCreateCustomer() {
-    try {
-      const payload = await request(API_ROUTE, {
-  type: 'create_project',
-  customer: customer
-});
+  try {
+    const payload = await request('/api/projects/create', {
+      type: 'create_project',
+      customer: customer
+    });
 
-      }
-      setProjectId(payload.project_id);
-      setStatus('Klant aangemaakt');
-      setCurrentStep(2);
-    } catch (err) {
-      setError(err.message);
-    }
+    setProjectId(payload.project_id);
+    setStatus('Klant aangemaakt');
+    setCurrentStep(2);
+  } catch (err) {
+    setError(err.message);
   }
+}
+
 
   async function handleCreateProject() {
     try {
@@ -306,11 +306,12 @@ export default function CalculatiesPage() {
     return 'rounded-xl border border-slate-200 bg-white p-6';
   }
   return `rounded-xl border p-6 transition ${
-    activeStep === step
+    currentStep === step
       ? 'border-slate-900 bg-slate-50 shadow-sm'
       : 'border-slate-200 bg-white'
   }`;
 }
+
 
 
   function getStepNumberClasses(step) {
