@@ -1,10 +1,10 @@
 'use client';
 import { useState } from 'react';
 
-export default function CalculatiesPage() {
-  const backendUrl =
-    process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+const API_BASE =
+  `${process.env.NEXT_PUBLIC_API_URL}${process.env.NEXT_PUBLIC_API_ROUTE}`;
 
+  export default function CalculatiesPage() {
   const [projectId, setProjectId] = useState('');
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
@@ -49,10 +49,10 @@ export default function CalculatiesPage() {
     setError('');
     setStatus('');
 
-    const response = await fetch(`${backendUrl}${path}`, {
+    const response = await fetch(`${API_BASE}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body || {}),
+      body: JSON.stringify(body || {})
     });
 
     const payload = await response.json();
