@@ -1,10 +1,12 @@
 'use client';
 import { useState } from 'react';
 
-const API_BASE =
-  `${process.env.NEXT_PUBLIC_API_URL}${process.env.NEXT_PUBLIC_API_ROUTE}`;
-
 export default function CalculatiesPage() {
+  const backendBase =
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+  const api = (path) => `${backendBase}${path}`;
+
   const [projectId, setProjectId] = useState('');
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
@@ -19,8 +21,18 @@ export default function CalculatiesPage() {
     phone: ''
   });
 
-  const [project, setProject] = useState({ name: '' });
+  const [project, setProject] = useState({
+    name: ''
+  });
 
+  const [settings, setSettings] = useState({
+    scenario_name: '',
+    calculation_type: '',
+    calculation_level: '',
+    fixed_price: ''
+  });
+
+  const [splitRequest, setSplitRequest] = useState('');
   const [projectType, setProjectType] = useState('');
   const [budgetType, setBudgetType] = useState('');
 
@@ -30,16 +42,15 @@ export default function CalculatiesPage() {
   const [stabuConfirmed, setStabuConfirmed] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const [splitRequest, setSplitRequest] = useState('');
 
   async function request(path, body) {
     setError('');
     setStatus('');
 
-    const response = await fetch(`${API_BASE}${path}`, {
+    const response = await fetch(api(path), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body || {})
+      headers: body instanceof FormData ? {} : { 'Content-Type': 'application/json' },
+      body: body instanceof FormData ? body : JSON.stringify(body || {})
     });
 
     const payload = await response.json();
@@ -53,10 +64,9 @@ export default function CalculatiesPage() {
 
   async function handleCreateCustomer() {
     try {
-      const payload = await request('/customer/create', customer);
+      const payload = await request('/api/customer/create', customer);
       setProjectId(payload.project_id);
-      setProject({ name: payload.project_name || '' });
-      setStatus('Klant en project aangemaakt');
+      setStatus('Klant aangemaakt');
       setCurrentStep(3);
     } catch (err) {
       setError(err.message);
@@ -65,44 +75,44 @@ export default function CalculatiesPage() {
 
   async function handleSaveSettings() {
     try {
-      await request('/project/settings', {
+      const payload = await request('/api/project/settings', {
         project_id: projectId,
+        scenario_name: project.name || settings.scenario_name,
         calculation_type: projectType,
-        calculation_level: budgetType
+        calculation_level: budgetType,
+        fixed_price: settings.fixed_price || null
       });
-      setStatus('Projectinstellingen opgeslagen');
+
+      setStatus(`Instellingen opgeslagen (${payload.calculation_type})`);
       setCurrentStep(4);
     } catch (err) {
       setError(err.message);
     }
   }
 
-  function handleFileChange(e) {
-    setSelectedFiles(Array.from(e.target.files || []));
+  function handleFileChange(event) {
+    const files = Array.from(event.target.files || []);
+    setSelectedFiles(files);
+    setFilesUploaded(false);
   }
 
   async function handleUploadFiles() {
     if (!projectId || selectedFiles.length === 0) {
-      setError('Selecteer bestanden');
+      setError('Selecteer bestanden en een project');
       return;
     }
 
     setIsUploading(true);
+
     try {
       const formData = new FormData();
       formData.append('project_id', projectId);
-      selectedFiles.forEach(f => formData.append('files[]', f));
+      selectedFiles.forEach((file) => formData.append('files[]', file));
 
-      const res = await fetch(`${API_BASE}/files/upload`, {
-        method: 'POST',
-        body: formData
-      });
-
-      const payload = await res.json();
-      if (!res.ok) throw new Error(payload.error || 'UPLOAD_FAILED');
+      await request('/api/files/upload', formData);
 
       setFilesUploaded(true);
-      setStatus('Bestanden geüpload');
+      setStatus('Bestanden geupload');
       setCurrentStep(5);
     } catch (err) {
       setError(err.message);
@@ -113,7 +123,7 @@ export default function CalculatiesPage() {
 
   async function handleStartAnalysis() {
     try {
-      const payload = await request('/analysis/start', { project_id: projectId });
+      const payload = await request('/api/analysis/start', { project_id: projectId });
       setAnalysisStarted(true);
       setStatus(`Analyse gestart (${payload.task_id})`);
       setCurrentStep(6);
@@ -124,7 +134,7 @@ export default function CalculatiesPage() {
 
   async function handleConfirmStabu() {
     try {
-      await request('/stabu/confirm', { project_id: projectId });
+      await request('/api/stabu/confirm', { project_id: projectId });
       setStabuConfirmed(true);
       setStatus('STABU bevestigd');
       setCurrentStep(7);
@@ -135,12 +145,34 @@ export default function CalculatiesPage() {
 
   async function handleRunCalculation() {
     try {
-      const payload = await request('/calculation/run', {
+      const payload = await request('/api/calculation/run', {
         project_id: projectId,
+        scenario_name: project.name || settings.scenario_name,
         calculation_type: projectType,
-        calculation_level: budgetType
+        calculation_level: budgetType,
+        fixed_price: settings.fixed_price || null
       });
+
       setStatus(`Calculatie gestart (${payload.task_id})`);
+      setCurrentStep(7);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleRiskAnalysis() {
+    try {
+      const payload = await request('/api/risk/analyse', { project_id: projectId });
+      setStatus(`Risico analyse gestart (${payload.task_id})`);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handlePlanning() {
+    try {
+      const payload = await request('/api/planning/generate', { project_id: projectId });
+      setStatus(`Termijnschema gestart (${payload.task_id})`);
     } catch (err) {
       setError(err.message);
     }
@@ -148,11 +180,11 @@ export default function CalculatiesPage() {
 
   async function handleSplitCalculation() {
     try {
-      await request('/calculation/split', {
+      await request('/api/calculation/split', {
         project_id: projectId,
         split_request: splitRequest
       });
-      setStatus('Calculatie gesplitst');
+      setStatus('Calculatie split opgeslagen');
     } catch (err) {
       setError(err.message);
     }
@@ -160,115 +192,65 @@ export default function CalculatiesPage() {
 
   async function handleOfferGenerate() {
     try {
-      const payload = await request('/offer/generate', { project_id: projectId });
+      const payload = await request('/api/offer/generate', { project_id: projectId });
       if (payload.pdf_url) setPdfUrl(payload.pdf_url);
-      setStatus('Offerte gegenereerd');
+      setStatus(`Offerte taak gestart (${payload.task_id || 'ready'})`);
     } catch (err) {
       setError(err.message);
     }
   }
 
   async function handleDownloadPdf() {
-    if (!pdfUrl) return;
-    window.open(pdfUrl, '_blank');
+    try {
+      if (!pdfUrl) {
+        setError('PDF is nog niet beschikbaar');
+        return;
+      }
+      window.open(pdfUrl, '_blank');
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  function getStepClasses(step) {
+    return `rounded-xl border p-6 transition ${
+      currentStep === step
+        ? 'border-slate-900 bg-slate-50 shadow-sm'
+        : 'border-slate-200 bg-white'
+    }`;
+  }
+
+  function getStepNumberClasses(step) {
+    return `flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
+      currentStep === step
+        ? 'bg-slate-900 text-white'
+        : 'bg-slate-200 text-slate-700'
+    }`;
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
-      <h1 className="mb-6 text-3xl font-bold">SterkCalc – Calculatie</h1>
+    <div className="min-h-screen bg-slate-100 p-10">
+      <h1 className="text-3xl font-bold mb-6">SterkCalc Calculatie Flow</h1>
 
-      {error && <div className="mb-4 rounded bg-red-100 p-3 text-red-800">{error}</div>}
-      {status && <div className="mb-4 rounded bg-green-100 p-3 text-green-800">{status}</div>}
+      {error && <div className="mb-4 text-red-600">{error}</div>}
+      {status && <div className="mb-4 text-green-600">{status}</div>}
 
-      {/* Stap 1 */}
-      <section className="mb-6 rounded bg-white p-6">
-        <h2 className="mb-4 font-semibold">Stap 1 – Klant</h2>
-        <div className="grid grid-cols-2 gap-3">
-          <input className="border p-2" placeholder="Naam" value={customer.name}
-            onChange={e => setCustomer({ ...customer, name: e.target.value })} />
-          <input className="border p-2" placeholder="Email" value={customer.email}
-            onChange={e => setCustomer({ ...customer, email: e.target.value })} />
+      <section className={getStepClasses(1)}>
+        <div className="flex gap-4">
+          <div className={getStepNumberClasses(1)}>1</div>
+          <div className="flex-1">
+            <h2 className="font-semibold mb-2">Klant aanmaken</h2>
+            <input
+              className="border p-2 w-full mb-2"
+              placeholder="Naam opdrachtgever"
+              value={customer.name}
+              onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
+            />
+            <button className="bg-black text-white px-4 py-2" onClick={handleCreateCustomer}>
+              Klant aanmaken
+            </button>
+          </div>
         </div>
-        <button className="mt-4 bg-black px-4 py-2 text-white"
-          onClick={handleCreateCustomer}>
-          Klant aanmaken
-        </button>
-      </section>
-
-      {/* Stap 3 */}
-      <section className="mb-6 rounded bg-white p-6">
-        <h2 className="mb-4 font-semibold">Stap 3 – Instellingen</h2>
-        <div className="grid grid-cols-2 gap-3">
-          <select className="border p-2" value={projectType}
-            onChange={e => setProjectType(e.target.value)}>
-            <option value="">Projecttype</option>
-            <option value="Nieuwbouw">Nieuwbouw</option>
-            <option value="Transformatie">Transformatie</option>
-          </select>
-          <select className="border p-2" value={budgetType}
-            onChange={e => setBudgetType(e.target.value)}>
-            <option value="">Begroting</option>
-            <option value="Open">Open</option>
-            <option value="Gesloten">Gesloten</option>
-          </select>
-        </div>
-        <button className="mt-4 bg-black px-4 py-2 text-white"
-          onClick={handleSaveSettings}
-          disabled={!projectId || !projectType || !budgetType}>
-          Opslaan
-        </button>
-      </section>
-
-      {/* Upload */}
-      <section className="mb-6 rounded bg-white p-6">
-        <h2 className="mb-4 font-semibold">Stap 4 – Upload bestanden</h2>
-        <input type="file" multiple onChange={handleFileChange} />
-        <button className="mt-4 bg-black px-4 py-2 text-white"
-          onClick={handleUploadFiles}
-          disabled={isUploading}>
-          Upload
-        </button>
-      </section>
-
-      {/* Analyse & calculatie */}
-      <section className="rounded bg-white p-6">
-        <button className="mr-3 bg-black px-4 py-2 text-white"
-          onClick={handleStartAnalysis}
-          disabled={!filesUploaded}>
-          Start analyse
-        </button>
-        <button className="mr-3 bg-black px-4 py-2 text-white"
-          onClick={handleConfirmStabu}
-          disabled={!analysisStarted}>
-          Bevestig STABU
-        </button>
-        <button className="bg-black px-4 py-2 text-white"
-          onClick={handleRunCalculation}
-          disabled={!stabuConfirmed}>
-          Start calculatie
-        </button>
-      </section>
-
-      {/* Optioneel */}
-      <section className="mt-6 rounded bg-white p-6">
-        <h2 className="mb-3 font-semibold">Opties</h2>
-        <input className="mb-3 w-full border p-2"
-          placeholder="Split verzoek"
-          value={splitRequest}
-          onChange={e => setSplitRequest(e.target.value)} />
-        <button className="mr-3 bg-black px-4 py-2 text-white"
-          onClick={handleSplitCalculation}>
-          Splits calculatie
-        </button>
-        <button className="mr-3 bg-black px-4 py-2 text-white"
-          onClick={handleOfferGenerate}>
-          Maak offerte
-        </button>
-        <button className="bg-black px-4 py-2 text-white"
-          onClick={handleDownloadPdf}
-          disabled={!pdfUrl}>
-          Download PDF
-        </button>
       </section>
     </div>
   );
