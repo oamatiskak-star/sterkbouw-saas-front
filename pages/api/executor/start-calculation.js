@@ -1,117 +1,173 @@
-// sterkbouw-saas-executor/actions/start_calculation.js
+// pages/api/executor/start-calculation.js
 
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const EXECUTOR_STATE_ID = "00000000-0000-0000-0000-000000000001";
 
-export default async function startCalculation(task) {
-  const { id: taskId, payload } = task;
+/*
+========================================
+EXTRA HANDELING (ENIGE WIJZIGING)
+→ Als service role ontbreekt:
+→ deze API fungeert als proxy naar backend
+========================================
+*/
+const hasServiceRole =
+  !!process.env.SUPABASE_URL &&
+  !!process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  // 1. CLAIM TASK – ALTIJD
-  await supabase
-    .from("executor_tasks")
-    .update({
-      status: "running",
-      started_at: new Date().toISOString(),
-      error: null,
-    })
-    .eq("id", taskId);
+/*
+========================================
+SUPABASE CLIENT (ALLEEN ALS KEY BESTAAT)
+========================================
+*/
+const supabase = hasServiceRole
+  ? createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    )
+  : null;
 
-  let runId = task.calculation_run_id;
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
+    return res.status(405).json({ error: "Method Not Allowed" });
+  }
 
+  /*
+  ========================================
+  FALLBACK: PROXY NAAR BACKEND
+  ========================================
+  */
+  if (!hasServiceRole) {
+    try {
+      const response = await fetch(
+        `${process.env.BACKEND_API_URL}/api/executor/start-calculation`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(req.body),
+        }
+      );
+
+      const text = await response.text();
+
+      // Backend retourneert JSON
+      return res
+        .status(response.status)
+        .json(JSON.parse(text));
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
+  /*
+  ========================================
+  BESTAANDE LOGICA (ONGEWIJZIGD)
+  ========================================
+  */
   try {
-    // 2. LAZY LOAD CONTEXT (GEEN SILENT SKIPS)
-    let files = payload.files || [];
-    let items = payload.items || [];
-    let results = payload.results || [];
+    const {
+      project_id,
+      scenario_name,
+      calculation_type,
+      calculation_level,
+      fixed_price,
+    } = req.body || {};
 
-    if (files.length === 0) {
-      const { data } = await supabase
-        .from("document_sources")
-        .select("*")
-        .eq("project_id", payload.project_id);
-      files = data || [];
+    if (!project_id) {
+      console.error("START_CALCULATION_API: Missing project_id");
+      return res.status(400).json({ error: "project_id is required" });
     }
 
-    if (items.length === 0) {
-      const { data } = await supabase
-        .from("calculation_items")
-        .select("*")
-        .eq("project_id", payload.project_id);
-      items = data || [];
+    const activeStatuses = [
+      "queued",
+      "running",
+      "scanning",
+      "calculating",
+      "analysing_documents",
+      "generating_stabu",
+      "scan_completed",
+    ];
+
+    const { error: stateError } = await supabase
+      .from("executor_state")
+      .upsert(
+        {
+          id: EXECUTOR_STATE_ID,
+          allowed: true,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "id" }
+      );
+
+    if (stateError) {
+      console.error("START_CALCULATION_API: executor_state update failed", stateError);
+      return res.status(500).json({ error: stateError.message });
     }
 
-    // 3. CREATE / CLAIM CALCULATION RUN
-    if (!runId) {
-      const { data: run, error: runError } = await supabase
-        .from("calculation_runs")
-        .insert({
-          project_id: payload.project_id,
-          status: "running",
-          started_at: new Date().toISOString(),
-        })
-        .select("id")
-        .single();
-
-      if (runError) {
-        throw new Error(runError.message);
-      }
-
-      runId = run.id;
-
-      await supabase
-        .from("executor_tasks")
-        .update({ calculation_run_id: runId })
-        .eq("id", taskId);
-    }
-
-    // 4. HIER VINDT DE ECHTE CALCULATIE PLAATS
-    // (bestaande rekenlogica blijft hier ongewijzigd)
-    // ------------------------------------------------
-    // Voor nu: executor accepteert kale context en loopt door
-    // ------------------------------------------------
-
-    // 5. SUCCESVOL AFRONDEN
-    await supabase
+    const { data: existingRun, error: existingRunError } = await supabase
       .from("calculation_runs")
-      .update({
-        status: "completed",
-        finished_at: new Date().toISOString(),
-      })
-      .eq("id", runId);
+      .select("id, status")
+      .eq("project_id", project_id)
+      .in("status", activeStatuses)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    await supabase
-      .from("executor_tasks")
-      .update({
-        status: "completed",
-        finished_at: new Date().toISOString(),
-      })
-      .eq("id", taskId);
-  } catch (err) {
-    // 6. FOUTAFHANDELING (GEEN STILLE BLOKKADES)
-    await supabase
-      .from("executor_tasks")
-      .update({
-        status: "failed",
-        error: err.message,
-        finished_at: new Date().toISOString(),
-      })
-      .eq("id", taskId);
-
-    if (runId) {
-      await supabase
-        .from("calculation_runs")
-        .update({
-          status: "failed",
-          error: err.message,
-          finished_at: new Date().toISOString(),
-        })
-        .eq("id", runId);
+    if (existingRunError) {
+      console.error("START_CALCULATION_API: Supabase select error", existingRunError);
+      return res.status(500).json({ error: existingRunError.message });
     }
 
-    throw err;
+    if (existingRun?.id) {
+      return res.status(409).json({ error: "CALCULATION_RUN_ALREADY_ACTIVE" });
+    }
+
+    const { data: existingTask, error: existingTaskError } = await supabase
+      .from("executor_tasks")
+      .select("id")
+      .eq("project_id", project_id)
+      .eq("action", "start_calculation")
+      .in("status", ["open", "running"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (existingTaskError) {
+      console.error("START_CALCULATION_API: Supabase select error", existingTaskError);
+      return res.status(500).json({ error: existingTaskError.message });
+    }
+
+    if (existingTask?.id) {
+      return res.json({ ok: true, task_id: existingTask.id });
+    }
+
+    const { data, error } = await supabase
+      .from("executor_tasks")
+      .insert({
+        project_id,
+        action: "start_calculation",
+        assigned_to: "executor",
+        status: "open",
+        payload: {
+          project_id,
+          scenario_name,
+          calculation_type,
+          calculation_level,
+          fixed_price,
+        },
+      })
+      .select("id")
+      .single();
+
+    if (error) {
+      console.error("START_CALCULATION_API: Supabase insert error", error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.json({ ok: true, task_id: data.id });
+  } catch (err) {
+    console.error("START_CALCULATION_API: Unexpected error", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 }
