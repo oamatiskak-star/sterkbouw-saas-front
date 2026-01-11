@@ -305,7 +305,8 @@ export default function CalculatiesPage() {
       setError('Geen PDF beschikbaar om te downloaden.');
       return;
     }
-    window.open(pdfUrl, '_blank');
+    const downloadUrl = `/api/files/download?url=${encodeURIComponent(pdfUrl)}`;
+    window.open(downloadUrl, '_blank');
   };
 
   useEffect(() => {
