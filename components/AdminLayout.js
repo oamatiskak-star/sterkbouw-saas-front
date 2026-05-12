@@ -12,8 +12,7 @@ import {
   theme,
   Badge,
   Tooltip,
-  ConfigProvider,
-  Drawer
+  ConfigProvider
 } from 'antd';
 import {
   DashboardOutlined,
@@ -36,32 +35,19 @@ import {
   ShoppingOutlined,
   MailOutlined,
   ScheduleOutlined,
-  ContainerOutlined,
-  MenuOutlined
+  ContainerOutlined
 } from '@ant-design/icons';
 
 const { Header, Sider, Content } = Layout;
 
-const MOBILE_BREAKPOINT = 768;
-
 const AdminLayout = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const router = useRouter();
   const { token } = theme.useToken();
 
   useEffect(() => {
     setMounted(true);
-
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const handleMenuClick = ({ key }) => {
@@ -83,12 +69,15 @@ const AdminLayout = ({ children }) => {
       'projectportaal': '/projectportaal',
       'instellingen': '/instellingen'
     };
-
+    
     const target = routes[key];
-    if (!target) return;
-
-    if (isMobile) setDrawerOpen(false);
-
+    if (!target) {
+      console.warn('No route found for key:', key);
+      return;
+    }
+    
+    console.log('Navigating to:', target);
+    
     if (target.startsWith('http')) {
       window.open(target, '_blank');
     } else {
@@ -97,36 +86,104 @@ const AdminLayout = ({ children }) => {
   };
 
   const menuItems = [
-    { key: 'dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
-    { key: 'administratie', icon: <FileTextOutlined />, label: 'Administratie' },
-    { key: 'bim', icon: <ApartmentOutlined />, label: 'BIM' },
-    { key: 'bouwplaats', icon: <BuildOutlined />, label: 'Bouwplaats' },
-    { key: 'calculatie', icon: <CalculatorOutlined />, label: 'Calculatie' },
-    { key: 'constructie', icon: <SettingOutlined />, label: 'Constructie' },
-    { key: 'documenten', icon: <FolderOutlined />, label: 'Documenten' },
-    { key: 'financien', icon: <WalletOutlined />, label: 'Financiën' },
-    { key: 'financiering', icon: <PercentageOutlined />, label: 'Financieringen' },
-    { key: 'inkoop', icon: <ShoppingOutlined />, label: 'Inkoop' },
-    { key: 'kopersportaal', icon: <UserOutlined />, label: 'Kopersportaal' },
-    { key: 'mail', icon: <MailOutlined />, label: 'Mail' },
-    { key: 'planning', icon: <ScheduleOutlined />, label: 'Planning' },
-    { key: 'projecten', icon: <ProjectOutlined />, label: 'Projecten' },
-    { key: 'projectportaal', icon: <ContainerOutlined />, label: 'Projectportaal' },
-    { key: 'instellingen', icon: <SettingOutlined />, label: 'Instellingen' }
+    {
+      key: 'dashboard',
+      icon: <DashboardOutlined />,
+      label: 'Dashboard'
+    },
+    {
+      key: 'administratie',
+      icon: <FileTextOutlined />,
+      label: 'Administratie',
+    },
+    {
+      key: 'bim',
+      icon: <ApartmentOutlined />,
+      label: 'BIM',
+    },
+    {
+      key: 'bouwplaats',
+      icon: <BuildOutlined />,
+      label: 'Bouwplaats'
+    },
+    {
+      key: 'calculatie',
+      icon: <CalculatorOutlined />,
+      label: 'Calculatie',
+    },
+    {
+      key: 'constructie',
+      icon: <SettingOutlined />,
+      label: 'Constructie'
+    },
+    {
+      key: 'documenten',
+      icon: <FolderOutlined />,
+      label: 'Documenten'
+    },
+    {
+      key: 'financien',
+      icon: <WalletOutlined />,
+      label: 'Financiën'
+    },
+    {
+      key: 'financiering',
+      icon: <PercentageOutlined />,
+      label: 'Financieringen'
+    },
+    {
+      key: 'inkoop',
+      icon: <ShoppingOutlined />,
+      label: 'Inkoop'
+    },
+    {
+      key: 'kopersportaal',
+      icon: <UserOutlined />,
+      label: 'Kopersportaal'
+    },
+    {
+      key: 'mail',
+      icon: <MailOutlined />,
+      label: 'Mail'
+    },
+    {
+      key: 'planning',
+      icon: <ScheduleOutlined />,
+      label: 'Planning'
+    },
+    {
+      key: 'projecten',
+      icon: <ProjectOutlined />,
+      label: 'Projecten'
+    },
+    {
+      key: 'projectportaal',
+      icon: <ContainerOutlined />,
+      label: 'Projectportaal'
+    },
+    {
+      key: 'instellingen',
+      icon: <SettingOutlined />,
+      label: 'Instellingen'
+    }
   ];
 
-  const getBreadcrumbItems = () => {
+ const getBreadcrumbItems = () => {
     const path = router.pathname;
     const parts = path.split('/').filter(p => p);
-
+    
     const items = [
-      { title: <HomeOutlined />, onClick: () => router.push('/dashboard') }
+      {
+        title: <HomeOutlined />,
+        onClick: () => router.push('/dashboard')
+      }
     ];
-
+    
     parts.forEach(part => {
-      items.push({ title: part.charAt(0).toUpperCase() + part.slice(1) });
+      const title = part.charAt(0).toUpperCase() + part.slice(1);
+      items.push({ title });
     });
-
+    
     return items;
   };
 
@@ -136,63 +193,12 @@ const AdminLayout = ({ children }) => {
     router.push('/login');
   };
 
-  const sidebarContent = (
-    <>
-      <div style={{
-        height: 64,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: collapsed && !isMobile ? 'center' : 'flex-start',
-        padding: collapsed && !isMobile ? '0' : '0 20px',
-        borderBottom: '1px solid #f0f0f0'
-      }}>
-        <div style={{
-          width: 36,
-          height: 36,
-          background: token.colorPrimary,
-          borderRadius: 8,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0
-        }}>
-          <ProjectOutlined style={{ color: '#fff', fontSize: 18 }} />
-        </div>
-        {(!collapsed || isMobile) && (
-          <span style={{
-            fontWeight: 'bold',
-            fontSize: '18px',
-            color: token.colorPrimary,
-            marginLeft: 12
-          }}>
-            Sterkbouw Admin
-          </span>
-        )}
-      </div>
-
-      <Menu
-        mode="inline"
-        selectedKeys={[router.pathname.split('/')[1] || 'dashboard']}
-        defaultOpenKeys={[]}
-        style={{
-          borderRight: 0,
-          background: '#fff',
-          marginTop: '16px'
-        }}
-        items={menuItems}
-        onClick={handleMenuClick}
-        expandIcon={null}
-        inlineIndent={16}
-      />
-    </>
-  );
-
   if (!mounted) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
         height: '100vh',
         background: '#f0f2f5'
       }}>
@@ -211,107 +217,123 @@ const AdminLayout = ({ children }) => {
       }}
     >
       <Layout style={{ minHeight: '100vh' }}>
-
-        {/* Desktop sidebar */}
-        {!isMobile && (
-          <Sider
-            collapsible
-            collapsed={collapsed}
-            width={250}
-            style={{
-              background: '#fff',
-              borderRight: '1px solid #f0f0f0',
-              position: 'fixed',
-              height: '100vh',
-              zIndex: 1000,
-              overflow: 'auto'
-            }}
-          >
-            {sidebarContent}
-          </Sider>
-        )}
-
-        {/* Mobile drawer */}
-        {isMobile && (
-          <Drawer
-            placement="left"
-            open={drawerOpen}
-            onClose={() => setDrawerOpen(false)}
-            width={250}
-            styles={{ body: { padding: 0 }, header: { display: 'none' } }}
-            style={{ padding: 0 }}
-          >
-            {sidebarContent}
-          </Drawer>
-        )}
-
-        <Layout style={{ marginLeft: isMobile ? 0 : (collapsed ? 80 : 250) }}>
-          <Header style={{
-            padding: '0 16px',
+        <Sider
+          collapsible
+          collapsed={collapsed}
+          width={250}
+          style={{
             background: '#fff',
-            borderBottom: '1px solid #f0f0f0',
+            borderRight: '1px solid #f0f0f0',
+            position: 'fixed',
+            height: '100vh',
+            zIndex: 1000,
+            overflow: 'auto'
+          }}
+        >
+          <div style={{
+            height: 64,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            height: 64,
-            position: 'sticky',
-            top: 0,
-            zIndex: 100
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            padding: collapsed ? '0' : '0 20px',
+            borderBottom: '1px solid #f0f0f0'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              {/* Mobile: hamburger */}
-              {isMobile ? (
-                <Button
-                  type="text"
-                  icon={<MenuOutlined />}
-                  onClick={() => setDrawerOpen(true)}
-                  style={{ fontSize: '18px', width: 48, height: 48 }}
-                />
-              ) : (
-                /* Desktop: collapse toggle */
-                <Button
-                  type="text"
-                  icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                  onClick={() => setCollapsed(!collapsed)}
-                  style={{ fontSize: '18px', width: 48, height: 48 }}
-                />
-              )}
+            <div style={{
+              width: 36,
+              height: 36,
+              background: token.colorPrimary,
+              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <ProjectOutlined style={{ color: '#fff', fontSize: 18 }} />
+            </div>
+            {!collapsed && (
+              <span style={{ 
+                fontWeight: 'bold', 
+                fontSize: '18px',
+                color: token.colorPrimary,
+                marginLeft: 12
+              }}>
+                Sterkbouw Admin
+              </span>
+            )}
+          </div>
 
-              {!isMobile && (
-                <Breadcrumb
-                  items={getBreadcrumbItems()}
-                  style={{ marginLeft: '8px' }}
-                />
-              )}
+          <Menu
+            mode="inline"
+            selectedKeys={[router.pathname.split('/')[1] || 'dashboard']}
+            defaultOpenKeys={[]}
+            style={{
+              borderRight: 0,
+              background: '#fff',
+              marginTop: '16px'
+            }}
+            items={menuItems}
+            onClick={handleMenuClick}
+            expandIcon={null}
+            inlineIndent={16}
+          />
+        </Sider>
+
+        <Layout style={{ marginLeft: collapsed ? 80 : 250 }}>
+          <Header style={{
+            padding: '0 24px',
+            background: '#fff',
+            borderBottom: '1px solid #f0f0f0',
+            display: '-flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            height: 64
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Button
+                type="text"
+                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
+                style={{ fontSize: '18px', width: 48, height: 48 }}
+              />
+              
+              <Breadcrumb
+                items={getBreadcrumbItems()}
+                style={{ marginLeft: '16px' }}
+              />
             </div>
 
             <Space>
               <Tooltip title="Zoeken">
-                <Button type="text" icon={<SearchOutlined />} />
+                <Button 
+                  type="text" 
+                  icon={<SearchOutlined />}
+                />
               </Tooltip>
-
+              
               <Tooltip title="Notificaties">
                 <Badge count={3}>
-                  <Button type="text" icon={<BellOutlined />} />
+                  <Button 
+                    type="text" 
+                    icon={<BellOutlined />}
+                  />
                 </Badge>
               </Tooltip>
-
+              
               <Dropdown
                 menu={{
                   items: [
                     { key: 'profile', label: 'Profiel', icon: <UserOutlined /> },
                     { key: 'settings', label: 'Instellingen', icon: <SettingOutlined /> },
                     { type: 'divider' },
-                    {
-                      key: 'logout',
-                      label: 'Uitloggen',
+                    { 
+                      key: 'logout', 
+                      label: 'Uitloggen', 
                       icon: <LogoutOutlined />,
                       onClick: handleLogout
                     }
                   ]
                 }}
               >
-                <Avatar
+                <Avatar 
                   icon={<UserOutlined />}
                   style={{ cursor: 'pointer', background: token.colorPrimary }}
                 />
@@ -319,9 +341,9 @@ const AdminLayout = ({ children }) => {
             </Space>
           </Header>
 
-          <Content style={{
-            margin: isMobile ? '12px 8px' : '24px 16px',
-            padding: isMobile ? 12 : 24,
+          <Content style={{ 
+            margin: '24px 16px', 
+            padding: 24,
             background: '#fff',
             borderRadius: 8,
             minHeight: 'calc(100vh - 112px)',
