@@ -50,8 +50,8 @@ export default function App({ Component, pageProps }) {
   // ===============================
   const AUTH_DISABLED = process.env.NEXT_PUBLIC_AUTH_DISABLED === 'true'
 
-  // Alleen echte public routes zonder sidebar
-  const isPublicRoute = path.startsWith('/login')
+  // Public routes zonder admin-sidebar (root = redirect naar SterkCalc)
+  const isPublicRoute = path === '/' || path.startsWith('/login')
   // SterkCalc Next-Gen: eigen shell binnen de calculatie-sectie
   const isSterkCalc = path.startsWith('/calculaties')
 
