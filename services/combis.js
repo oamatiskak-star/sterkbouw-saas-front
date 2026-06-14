@@ -3,6 +3,11 @@
 import supabase from '@/lib/supabase';
 import { insertRow, replaceRowComponents } from '@/services/werktafel';
 
+export async function loadCombi(id) {
+  const { data } = await supabase.from('combis').select('*').eq('id', id).maybeSingle();
+  return data || null;
+}
+
 export async function loadCombiBibliotheek() {
   const [catRes, combiRes] = await Promise.all([
     supabase.from('combi_categories').select('*').order('volgorde'),

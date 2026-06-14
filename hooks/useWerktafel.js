@@ -3,12 +3,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as svc from '@/services/werktafel';
 import { voegCombiToe } from '@/services/combis';
 import { computeTotalen } from '@/lib/calc/werktafelTotals';
-import { DEFAULT_OPSLAGEN, normalizeOpslagen } from '@/lib/calc/fixedPriceRules';
+import { DEFAULT_INSTELLINGEN, normalizeInstellingen } from '@/lib/calc/calculatieDefaults';
 
 export function useWerktafel(calculatieId) {
   const [chapters, setChapters] = useState([]);
   const [rows, setRows] = useState([]);
-  const [opslagen, setOpslagen] = useState(DEFAULT_OPSLAGEN);
+  const [opslagen, setOpslagen] = useState(DEFAULT_INSTELLINGEN);
   const [calculatie, setCalculatie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -25,7 +25,7 @@ export function useWerktafel(calculatieId) {
       setCalculatie(d.calculatie);
       setChapters(d.chapters);
       setRows(d.rows);
-      setOpslagen(normalizeOpslagen(d.opslagen));
+      setOpslagen(normalizeInstellingen(d.opslagen));
     } catch (e) {
       setError(e.message || String(e));
     } finally {
@@ -157,18 +157,19 @@ export function useWerktafel(calculatieId) {
   // STABU-post toepassen op een regel (prefill).
   const applyStabu = useCallback(
     (rowId, post) => {
+      const rf = Number(opslagen?.regiofactor) || 1; // regiofactor uit calculatie-instellingen
       patchRow(rowId, {
         stabu_code: post.code,
         omschrijving: post.omschrijving,
         eenheid: post.eenheid,
-        materiaalprijs: Number(post.materiaalprijs) || 0,
-        arbeidsprijs: Number(post.arbeidsprijs) || 0,
+        materiaalprijs: Math.round((Number(post.materiaalprijs) || 0) * rf * 100) / 100,
+        arbeidsprijs: Math.round((Number(post.arbeidsprijs) || 0) * rf * 100) / 100,
         norm: post.normuren != null ? Number(post.normuren) : null,
         type: 'materiaal',
         is_combi: false,
       });
     },
-    [patchRow]
+    [patchRow, opslagen]
   );
 
   // ---- OPSLAGEN (user-controlled) ----
