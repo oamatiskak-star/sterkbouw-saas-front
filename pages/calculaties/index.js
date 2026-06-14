@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Upload, FileText, Calculator, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
@@ -38,10 +38,8 @@ export default function CalculatiesPage() {
   });
   const [calculationStatus, setCalculationStatus] = useState(null);
   const [results, setResults] = useState(null);
+
   useEffect(() => {
-    console.log('🔄 Calculatie pagina geladen - resetting state');
-    
-    // Reset alle state
     setActiveProjectId(null);
     setCalculationId(null);
     setUiStep('start');
@@ -76,6 +74,7 @@ export default function CalculatiesPage() {
     });
     setCalculationStatus(null);
     setResults(null);
+ jules/bugfix-calculaties-page-15470886232621878919
   }, []); // Alleen runnen bij mount
 
   // DIRECTE STATUS CHECK - Toegevoegd als extra laag
@@ -151,6 +150,9 @@ useEffect(() => {
     clearInterval(interval);
   };
 }, [activeProjectId, uiStep]);
+=======
+  }, []);
+ main
 
   const CALCULATION_MODELS = {
     nieuwbouw: { ak: 6, abk: 5, risk: 4, profit: 6 },
@@ -189,22 +191,10 @@ useEffect(() => {
             } else if (payload.eventType === 'UPDATE') {
               setCalculationStatus(payload.new.status);
               if (payload.new.status === 'completed') {
-                // load results and then request server-side PDF generation (if not exists)
                 loadResults();
-                // trigger server-side PDF generation
-                (async () => {
-                  try {
-                    await fetch('/api/generate-pdf', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ calculation_id: payload.new.id }),
-                    });
-                    const { data: calc } = await supabase.from('calculation_runs').select('*').eq('id', payload.new.id).maybeSingle();
-                    if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
-                  } catch (e) {
-                    console.error('PDF generation trigger failed', e);
-                  }
-                })();
+                if (payload.new.pdf_url) {
+                  setPdfUrl(payload.new.pdf_url);
+                }
               }
             }
           }
@@ -221,6 +211,7 @@ useEffect(() => {
       loadDocuments(activeProjectId);
     }
   }, [activeProjectId]);
+ jules/bugfix-calculaties-page-15470886232621878919
   useEffect(() => {
   const restoreLastProjectWithPdf = async () => {
     if (activeProjectId) return;
@@ -251,6 +242,9 @@ useEffect(() => {
   restoreLastProjectWithPdf();
 }, []);
   
+=======
+
+ main
   const loadResults = async () => {
     try {
       const { data: versions } = await supabase
@@ -280,6 +274,7 @@ useEffect(() => {
     setError(null);
   };
 
+ jules/bugfix-calculaties-page-15470886232621878919
  const handleSaveNAW = async () => {
   setLoading(true);
   setError(null);
@@ -304,6 +299,32 @@ useEffect(() => {
     setLoading(false);
   }
 };
+=======
+  const handleSaveNAW = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: insertError } = await supabase
+        .from('projects')
+        .insert({
+          ...nawData,
+          status: 'input',
+          pdf_url: null
+        })
+        .select()
+        .maybeSingle();
+      if (insertError) throw insertError;
+      if (!data) throw new Error('Could not create project.');
+      setActiveProjectId(data.id);
+      await loadDocuments(data.id);
+      setUiStep('documents');
+    } catch (err) {
+      setError(err.message || 'Kon project niet opslaan');
+    } finally {
+      setLoading(false);
+    }
+  };
+ main
 
   const handleUploadDocument = async (files, documentType) => {
     if (!files || files.length === 0 || !documentType) return;
@@ -346,23 +367,12 @@ useEffect(() => {
   };
 
   async function handleStartCalculation() {
-  console.log('START CALCULATION CLICKED');
-  setError(null);
-  
-  // Reset pdfUrl voor een nieuwe berekening
-  setPdfUrl(null);
-  setResults(null);
+    setError(null);
+    setPdfUrl(null);
+    setResults(null);
 
     const scenarioName = settings.scenario_name;
     const fixedPrice = settings.fixed_price;
-
-    console.log({
-      activeProjectId,
-      scenarioName,
-      projectType,
-      calculationLevel,
-      fixedPrice,
-    });
 
     if (!activeProjectId) {
       setError('Geen actief project geselecteerd');
@@ -383,25 +393,21 @@ useEffect(() => {
 
     setStartingCalculation(true);
 
-    const { error } = await supabase
-      .from('executor_tasks')
-      .insert({
+    const response = await fetch('/api/executor/start-calculation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         project_id: activeProjectId,
-        action: 'start_calculation',
-        assigned_to: 'executor',
-        status: 'open',
-        payload: {
-          project_id: activeProjectId,
-          scenario_name: scenarioName,
-          calculation_type: projectType,
-          calculation_level: calculationLevel,
-          fixed_price: fixedPrice || null,
-        },
-      });
+        scenario_name: scenarioName,
+        calculation_type: projectType,
+        calculation_level: calculationLevel,
+        fixed_price: fixedPrice || null
+      })
+    });
 
-    if (error) {
-      console.error('EXECUTOR_TASK_INSERT_ERROR', error);
-      setError(error.message);
+    if (!response.ok) {
+      const payload = await response.json();
+      setError(payload.error || 'Start calculation failed');
       setStartingCalculation(false);
       return;
     }
@@ -410,9 +416,6 @@ useEffect(() => {
     setUiStep('running');
     setStartingCalculation(false);
   }
-
-  // Auto-start when requirements are met: at least one drawing uploaded, settings filled and model chosen
-  // No automatic starts: user must click the Start button to enqueue a run.
 
   const groupRowsByFase = (rows) => {
     const phases = ['voorbereiding', 'sloop', 'ruwbouw', 'afbouw', 'installaties', 'oplevering'];
@@ -431,6 +434,7 @@ useEffect(() => {
     return rows.reduce((sum, row) => sum + (parseFloat(row.regel_totaal) || 0), 0);
   };
 
+ jules/bugfix-calculaties-page-15470886232621878919
 const handleDownloadPdf = () => {
   if (!pdfUrl) {
     setError('Geen PDF beschikbaar om te downloaden.');
@@ -439,10 +443,29 @@ const handleDownloadPdf = () => {
   console.log('Opening PDF:', pdfUrl);
   window.open(pdfUrl, '_blank');
 };
+=======
+  const handleDownloadPdf = () => {
+    if (!activeProjectId) {
+      setError('Geen actief project');
+      return;
+    }
+    if (!pdfUrl) {
+      setError('Geen PDF beschikbaar om te downloaden.');
+      return;
+    }
+    const downloadUrl = `/api/files/download?url=${encodeURIComponent(pdfUrl)}`;
+    window.open(downloadUrl, '_blank');
+  };
+
+ main
   useEffect(() => {
     if (calculationStatus === 'completed' && calculationId) {
       (async () => {
-        const { data: calc } = await supabase.from('calculation_runs').select('*').eq('id', calculationId).maybeSingle();
+        const { data: calc } = await supabase
+          .from('calculation_runs')
+          .select('*')
+          .eq('id', calculationId)
+          .maybeSingle();
         if (calc?.pdf_url) setPdfUrl(calc.pdf_url);
       })();
     }
@@ -491,27 +514,27 @@ const handleDownloadPdf = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Naam</label>
-                    <input type="text" value={nawData.client_name} onChange={(e) => setNawData({ ...nawData, client_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="text" value={nawData.client_name} onChange={(e) => setNawData({ ...nawData, client_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Adres</label>
-                    <input type="text" value={nawData.client_address} onChange={(e) => setNawData({ ...nawData, client_address: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="text" value={nawData.client_address} onChange={(e) => setNawData({ ...nawData, client_address: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Postcode</label>
-                    <input type="text" value={nawData.client_postcode} onChange={(e) => setNawData({ ...nawData, client_postcode: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="text" value={nawData.client_postcode} onChange={(e) => setNawData({ ...nawData, client_postcode: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Plaats</label>
-                    <input type="text" value={nawData.client_city} onChange={(e) => setNawData({ ...nawData, client_city: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="text" value={nawData.client_city} onChange={(e) => setNawData({ ...nawData, client_city: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Land</label>
-                    <input type="text" value={nawData.client_country} onChange={(e) => setNawData({ ...nawData, client_country: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="text" value={nawData.client_country} onChange={(e) => setNawData({ ...nawData, client_country: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
                 </div>
               </div>
@@ -521,27 +544,27 @@ const handleDownloadPdf = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Naam</label>
-                    <input type="text" value={nawData.billing_name} onChange={(e) => setNawData({ ...nawData, billing_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="text" value={nawData.billing_name} onChange={(e) => setNawData({ ...nawData, billing_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Adres</label>
-                    <input type="text" value={nawData.billing_address} onChange={(e) => setNawData({ ...nawData, billing_address: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="text" value={nawData.billing_address} onChange={(e) => setNawData({ ...nawData, billing_address: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Postcode</label>
-                    <input type="text" value={nawData.billing_postcode} onChange={(e) => setNawData({ ...nawData, billing_postcode: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="text" value={nawData.billing_postcode} onChange={(e) => setNawData({ ...nawData, billing_postcode: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Plaats</label>
-                    <input type="text" value={nawData.billing_city} onChange={(e) => setNawData({ ...nawData, billing_city: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="text" value={nawData.billing_city} onChange={(e) => setNawData({ ...nawData, billing_city: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
 
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-slate-700 mb-2">Land</label>
-                    <input type="text" value={nawData.billing_country} onChange={(e) => setNawData({ ...nawData, billing_country: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="text" value={nawData.billing_country} onChange={(e) => setNawData({ ...nawData, billing_country: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
                 </div>
               </div>
@@ -603,60 +626,60 @@ const handleDownloadPdf = () => {
         {uiStep === 'settings' && (
           <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
             <h2 className="text-xl font-semibold text-slate-900 mb-6">Instellingen & Type Calculatie</h2>
-                    <div className="space-y-6">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Scenario naam</label>
-                        <input type="text" value={settings.scenario_name} onChange={(e) => setSettings({ ...settings, scenario_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" placeholder="Basis scenario" />
-                      </div>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Scenario naam</label>
+                <input type="text" value={settings.scenario_name} onChange={(e) => setSettings({ ...settings, scenario_name: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" placeholder="Basis scenario" />
+              </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Projecttype</label>
-                        <select value={projectType} onChange={(e) => setProjectType(e.target.value)} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent">
-                          <option value="">-- Kies projecttype --</option>
-                          <option value="nieuwbouw">Nieuwbouw</option>
-                          <option value="transformatie">Transformatie</option>
-                          <option value="renovatie">Renovatie</option>
-                          <option value="uitbreiding">Uitbreiding</option>
-                          <option value="verduurzaming">Verduurzaming</option>
-                        </select>
-                      </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Projecttype</label>
+                <select value={projectType} onChange={(e) => setProjectType(e.target.value)} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent">
+                  <option value="">-- Kies projecttype --</option>
+                  <option value="nieuwbouw">Nieuwbouw</option>
+                  <option value="transformatie">Transformatie</option>
+                  <option value="renovatie">Renovatie</option>
+                  <option value="uitbreiding">Uitbreiding</option>
+                  <option value="verduurzaming">Verduurzaming</option>
+                </select>
+              </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Rekenniveau</label>
-                        <select value={calculationLevel} onChange={(e) => setCalculationLevel(e.target.value)} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent">
-                          <option value="">-- Kies rekenniveau --</option>
-                          <option value="indicatief">Indicatief</option>
-                          <option value="begroting">Begroting</option>
-                          <option value="contract">Contract</option>
-                        </select>
-                      </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Rekenniveau</label>
+                <select value={calculationLevel} onChange={(e) => setCalculationLevel(e.target.value)} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent">
+                  <option value="">-- Kies rekenniveau --</option>
+                  <option value="indicatief">Indicatief</option>
+                  <option value="begroting">Begroting</option>
+                  <option value="contract">Contract</option>
+                </select>
+              </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-2">Vaste prijs (optioneel)</label>
-                        <input type="number" value={settings.fixed_price} onChange={(e) => setSettings({ ...settings, fixed_price: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" placeholder="€ 0.00" />
-                      </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Vaste prijs (optioneel)</label>
+                <input type="number" value={settings.fixed_price} onChange={(e) => setSettings({ ...settings, fixed_price: e.target.value })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" placeholder="€ 0.00" />
+              </div>
 
               <div className="border-t border-slate-200 pt-6">
                 <h3 className="text-lg font-medium text-slate-900 mb-4">Opslagen</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">AK %</label>
-                    <input type="number" value={settings.ak_percentage} onChange={(e) => setSettings({ ...settings, ak_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="number" value={settings.ak_percentage} onChange={(e) => setSettings({ ...settings, ak_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">ABK %</label>
-                    <input type="number" value={settings.abk_percentage} onChange={(e) => setSettings({ ...settings, abk_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="number" value={settings.abk_percentage} onChange={(e) => setSettings({ ...settings, abk_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Risico %</label>
-                    <input type="number" value={settings.risk_percentage} onChange={(e) => setSettings({ ...settings, risk_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="number" value={settings.risk_percentage} onChange={(e) => setSettings({ ...settings, risk_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Winst %</label>
-                    <input type="number" value={settings.profit_percentage} onChange={(e) => setSettings({ ...settings, profit_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus;border-transparent" />
+                    <input type="number" value={settings.profit_percentage} onChange={(e) => setSettings({ ...settings, profit_percentage: parseFloat(e.target.value) })} className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
                   </div>
                 </div>
               </div>
@@ -732,122 +755,119 @@ const handleDownloadPdf = () => {
           </div>
         )}
 
-       {uiStep === 'result' && (
-  <div className="space-y-6">
+        {uiStep === 'result' && (
+          <div className="space-y-6">
 
-    {!results && pdfUrl && (
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
-        <h2 className="text-xl font-semibold text-slate-900 mb-4">
-          Calculatie voltooid
-        </h2>
-        <p className="text-slate-600 mb-6">
-          De calculatie is afgerond. Download hieronder de 2jours-offerte.
-        </p>
-        <button
-          onClick={handleDownloadPdf}
-          className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
-        >
-          Download 2jours PDF
-        </button>
-      </div>
-    )}
-
-    {results && (
-      <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-slate-900">Resultaten</h2>
-
-          <div className="text-right">
-            <p className="text-sm text-slate-600">Totaalbedrag</p>
-            <p className="text-2xl font-bold text-slate-900">
-              € {results.version?.total_amount?.toLocaleString('nl-NL', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </p>
-          </div>
-
-          <button
-            onClick={handleDownloadPdf}
-            className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm"
-          >
-            Download 2jours PDF
-          </button>
-        </div>
-
-        {Object.entries(groupRowsByFase(results.rows)).map(([fase, rows]) => {
-          if (!rows.length) return null;
-          const phaseTotal = calculatePhaseTotal(rows);
-
-          return (
-            <div key={fase} className="mb-8">
-              <div className="bg-slate-100 px-4 py-2 rounded-t-lg border-b-2 border-slate-300 flex justify-between mb-4">
-                <h3 className="text-sm font-semibold uppercase">{fase}</h3>
-                <span className="text-sm font-semibold">
-                  € {phaseTotal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </span>
+            {!results && pdfUrl && (
+              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
+                <h2 className="text-xl font-semibold text-slate-900 mb-4">
+                  Calculatie voltooid
+                </h2>
+                <p className="text-slate-600 mb-6">
+                  De calculatie is afgerond. Download hieronder de 2jours-offerte.
+                </p>
+                <button
+                  onClick={handleDownloadPdf}
+                  className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium"
+                >
+                  Download 2jours PDF
+                </button>
               </div>
+            )}
 
-              {/* Tabel voor deze fase */}
-              <div className="overflow-x-auto mb-4">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200">
-                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-700">STABU</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-700">Omschrijving</th>
-                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Hoeveelheid</th>
-                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Inkoop</th>
-                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">AK</th>
-                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">ABK</th>
-                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Risico</th>
-                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Winst</th>
-                      <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Totaal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows.map((row, idx) => (
-                      <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
-                        <td className="px-4 py-2 text-sm text-slate-600">{row.stabu_code}</td>
-                        <td className="px-4 py-2 text-sm text-slate-900">{row.omschrijving}</td>
-                        <td className="px-4 py-2 text-sm text-slate-600 text-right">{row.hoeveelheid}</td>
-                        <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.inkoop).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                        <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.ak).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                        <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.abk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                        <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.risk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                        <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.profit).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                        <td className="px-4 py-2 text-sm font-medium text-slate-900 text-right"> € {parseFloat(row.regel_totaal).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            {results && (
+              <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-slate-900">Resultaten</h2>
 
-              {/* Fase totaal (optioneel - je hebt het al in de header) */}
-              <div className="flex justify-end mb-6">
-                <div className="text-right">
-                  <span className="text-sm text-slate-600 mr-4">Subtotaal {fase}:</span>
-                  <span className="text-lg font-semibold text-slate-900">
-                    € {phaseTotal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
+                  <div className="text-right">
+                    <p className="text-sm text-slate-600">Totaalbedrag</p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      € {results.version?.total_amount?.toLocaleString('nl-NL', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={handleDownloadPdf}
+                    className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm"
+                  >
+                    Download 2jours PDF
+                  </button>
+                </div>
+
+                {Object.entries(groupRowsByFase(results.rows)).map(([fase, rows]) => {
+                  if (!rows.length) return null;
+                  const phaseTotal = calculatePhaseTotal(rows);
+
+                  return (
+                    <div key={fase} className="mb-8">
+                      <div className="bg-slate-100 px-4 py-2 rounded-t-lg border-b-2 border-slate-300 flex justify-between mb-4">
+                        <h3 className="text-sm font-semibold uppercase">{fase}</h3>
+                        <span className="text-sm font-semibold">
+                          € {phaseTotal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </div>
+
+                      <div className="overflow-x-auto mb-4">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="bg-slate-50 border-b border-slate-200">
+                              <th className="px-4 py-2 text-left text-xs font-medium text-slate-700">STABU</th>
+                              <th className="px-4 py-2 text-left text-xs font-medium text-slate-700">Omschrijving</th>
+                              <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Hoeveelheid</th>
+                              <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Inkoop</th>
+                              <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">AK</th>
+                              <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">ABK</th>
+                              <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Risico</th>
+                              <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Winst</th>
+                              <th className="px-4 py-2 text-right text-xs font-medium text-slate-700">Totaal</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {rows.map((row, idx) => (
+                              <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50">
+                                <td className="px-4 py-2 text-sm text-slate-600">{row.stabu_code}</td>
+                                <td className="px-4 py-2 text-sm text-slate-900">{row.omschrijving}</td>
+                                <td className="px-4 py-2 text-sm text-slate-600 text-right">{row.hoeveelheid}</td>
+                                <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.inkoop).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.ak).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.abk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.risk).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="px-4 py-2 text-sm text-slate-600 text-right"> € {parseFloat(row.profit).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className="px-4 py-2 text-sm font-medium text-slate-900 text-right"> € {parseFloat(row.regel_totaal).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div className="flex justify-end mb-6">
+                        <div className="text-right">
+                          <span className="text-sm text-slate-600 mr-4">Subtotaal {fase}:</span>
+                          <span className="text-lg font-semibold text-slate-900">
+                            € {phaseTotal.toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                <div className="border-t-2 border-slate-300 pt-4 mt-6">
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-bold text-slate-900">Totaal offerte</span>
+                    <span className="text-2xl font-bold text-slate-900">
+                      € {calculateGrandTotal(results.rows).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-
-        {/* Grand total na alle fases */}
-        <div className="border-t-2 border-slate-300 pt-4 mt-6">
-          <div className="flex items-center justify-between">
-            <span className="text-lg font-bold text-slate-900">Totaal offerte</span>
-            <span className="text-2xl font-bold text-slate-900">
-              € {calculateGrandTotal(results.rows).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
+            )}
           </div>
-        </div>
-      </div>
-    )}
-  </div>
-)}
+        )}
 
       </div>
     </div>

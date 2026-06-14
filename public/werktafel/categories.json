@@ -1,0 +1,358 @@
+{
+  "bron": "Stabu werktafel afbeeldingen (rechtenvrij)",
+  "aantal": 44,
+  "categorieen": [
+    {
+      "code": "00",
+      "slug": "00_algemeen",
+      "titel": "Algemeen",
+      "subtitel": "Project & basisgegevens",
+      "kaart": "/werktafel/kaarten/00_algemeen.png",
+      "foto": "/werktafel/fotos/00_algemeen.jpg"
+    },
+    {
+      "code": "01",
+      "slug": "01_voorbereiding",
+      "titel": "Voorbereiding",
+      "subtitel": "Voorbereiden en inrichten",
+      "kaart": "/werktafel/kaarten/01_voorbereiding.png",
+      "foto": "/werktafel/fotos/01_voorbereiding.jpg"
+    },
+    {
+      "code": "02",
+      "slug": "02_sloopwerk",
+      "titel": "Sloopwerk",
+      "subtitel": "Slopen en demonteren",
+      "kaart": "/werktafel/kaarten/02_sloopwerk.png",
+      "foto": "/werktafel/fotos/02_sloopwerk.jpg"
+    },
+    {
+      "code": "03",
+      "slug": "03_grondwerk",
+      "titel": "Grondwerk",
+      "subtitel": "Graven en aanvullen",
+      "kaart": "/werktafel/kaarten/03_grondwerk.png",
+      "foto": "/werktafel/fotos/03_grondwerk.jpg"
+    },
+    {
+      "code": "04",
+      "slug": "04_fundering_en_grondwerk",
+      "titel": "Fundering & grondwerk",
+      "subtitel": "Funderingen en betonpoeren",
+      "kaart": "/werktafel/kaarten/04_fundering_en_grondwerk.png",
+      "foto": "/werktafel/fotos/04_fundering_en_grondwerk.jpg"
+    },
+    {
+      "code": "05",
+      "slug": "05_betonwerk",
+      "titel": "Betonwerk",
+      "subtitel": "Betonvloeren en -constructies",
+      "kaart": "/werktafel/kaarten/05_betonwerk.png",
+      "foto": "/werktafel/fotos/05_betonwerk.jpg"
+    },
+    {
+      "code": "06",
+      "slug": "06_betonwerken",
+      "titel": "Betonwerken",
+      "subtitel": "Wanden, kolommen en balken",
+      "kaart": "/werktafel/kaarten/06_betonwerken.png",
+      "foto": "/werktafel/fotos/06_betonwerken.jpg"
+    },
+    {
+      "code": "07",
+      "slug": "07_staalskelet_en_constructie",
+      "titel": "Staalskelet & constructie",
+      "subtitel": "Staalconstructies en liggers",
+      "kaart": "/werktafel/kaarten/07_staalskelet_en_constructie.png",
+      "foto": "/werktafel/fotos/07_staalskelet_en_constructie.jpg"
+    },
+    {
+      "code": "08",
+      "slug": "08_gevel_en_buitenwand",
+      "titel": "Gevel & buitenwand",
+      "subtitel": "Gevels en buitenwanden",
+      "kaart": "/werktafel/kaarten/08_gevel_en_buitenwand.png",
+      "foto": "/werktafel/fotos/08_gevel_en_buitenwand.jpg"
+    },
+    {
+      "code": "09",
+      "slug": "09_metselwerk",
+      "titel": "Metselwerk",
+      "subtitel": "Metselwerk en voegwerk",
+      "kaart": "/werktafel/kaarten/09_metselwerk.png",
+      "foto": "/werktafel/fotos/09_metselwerk.jpg"
+    },
+    {
+      "code": "10",
+      "slug": "10_gevelbekleding",
+      "titel": "Gevelbekleding",
+      "subtitel": "Bekledingen en afwerkingen",
+      "kaart": "/werktafel/kaarten/10_gevelbekleding.png",
+      "foto": "/werktafel/fotos/10_gevelbekleding.jpg"
+    },
+    {
+      "code": "11",
+      "slug": "11_dakconstructie",
+      "titel": "Dakconstructie",
+      "subtitel": "Kapconstructies en dakopbouw",
+      "kaart": "/werktafel/kaarten/11_dakconstructie.png",
+      "foto": "/werktafel/fotos/11_dakconstructie.jpg"
+    },
+    {
+      "code": "12",
+      "slug": "12_dakbedekking",
+      "titel": "Dakbedekking",
+      "subtitel": "Dakbedekking en waterdichting",
+      "kaart": "/werktafel/kaarten/12_dakbedekking.png",
+      "foto": "/werktafel/fotos/12_dakbedekking.jpg"
+    },
+    {
+      "code": "13",
+      "slug": "13_dakopeningen_en_lichtstraten",
+      "titel": "Dakopeningen & lichtstraten",
+      "subtitel": "Dakkapellen, lichtstraten, koepels",
+      "kaart": "/werktafel/kaarten/13_dakopeningen_en_lichtstraten.png",
+      "foto": "/werktafel/fotos/13_dakopeningen_en_lichtstraten.jpg"
+    },
+    {
+      "code": "14",
+      "slug": "14_ramen_deuren_en_kozijnen",
+      "titel": "Ramen, deuren & kozijnen",
+      "subtitel": "Kozijnen, ramen en deuren",
+      "kaart": "/werktafel/kaarten/14_ramen_deuren_en_kozijnen.png",
+      "foto": "/werktafel/fotos/14_ramen_deuren_en_kozijnen.jpg"
+    },
+    {
+      "code": "15",
+      "slug": "15_glas_en_beglazing",
+      "titel": "Glas & beglazing",
+      "subtitel": "Beglazing en glassystemen",
+      "kaart": "/werktafel/kaarten/15_glas_en_beglazing.png",
+      "foto": "/werktafel/fotos/15_glas_en_beglazing.jpg"
+    },
+    {
+      "code": "16",
+      "slug": "16_trappen_en_bordessen",
+      "titel": "Trappen & bordessen",
+      "subtitel": "Trappen, bordessen en leuningen",
+      "kaart": "/werktafel/kaarten/16_trappen_en_bordessen.png",
+      "foto": "/werktafel/fotos/16_trappen_en_bordessen.jpg"
+    },
+    {
+      "code": "17",
+      "slug": "17_binnenwanden",
+      "titel": "Binnenwanden",
+      "subtitel": "Wanden en scheidingssystemen",
+      "kaart": "/werktafel/kaarten/17_binnenwanden.png",
+      "foto": "/werktafel/fotos/17_binnenwanden.jpg"
+    },
+    {
+      "code": "18",
+      "slug": "18_plafonds",
+      "titel": "Plafonds",
+      "subtitel": "Systeemplafonds en afwerking",
+      "kaart": "/werktafel/kaarten/18_plafonds.png",
+      "foto": "/werktafel/fotos/18_plafonds.jpg"
+    },
+    {
+      "code": "19",
+      "slug": "19_vloeren_en_dekvloeren",
+      "titel": "Vloeren & dekvloeren",
+      "subtitel": "Vloeren, dekvloeren en afwerking",
+      "kaart": "/werktafel/kaarten/19_vloeren_en_dekvloeren.png",
+      "foto": "/werktafel/fotos/19_vloeren_en_dekvloeren.jpg"
+    },
+    {
+      "code": "20",
+      "slug": "20_tegelwerk",
+      "titel": "Tegelwerk",
+      "subtitel": "Wand- en vloertegelwerk",
+      "kaart": "/werktafel/kaarten/20_tegelwerk.png",
+      "foto": "/werktafel/fotos/20_tegelwerk.jpg"
+    },
+    {
+      "code": "21",
+      "slug": "21_stukadoorswerk",
+      "titel": "Stukadoorswerk",
+      "subtitel": "Stucwerk en pleisterwerk",
+      "kaart": "/werktafel/kaarten/21_stukadoorswerk.png",
+      "foto": "/werktafel/fotos/21_stukadoorswerk.jpg"
+    },
+    {
+      "code": "22",
+      "slug": "22_schilderwerk",
+      "titel": "Schilderwerk",
+      "subtitel": "Schilder- en sauswerk",
+      "kaart": "/werktafel/kaarten/22_schilderwerk.png",
+      "foto": "/werktafel/fotos/22_schilderwerk.jpg"
+    },
+    {
+      "code": "23",
+      "slug": "23_isolatie_en_thermiek",
+      "titel": "Isolatie & thermiek",
+      "subtitel": "Isolatie en thermische systemen",
+      "kaart": "/werktafel/kaarten/23_isolatie_en_thermiek.png",
+      "foto": "/werktafel/fotos/23_isolatie_en_thermiek.jpg"
+    },
+    {
+      "code": "24",
+      "slug": "24_installatiewerk",
+      "titel": "Installatiewerk",
+      "subtitel": "Werktuigbouwkundige installaties",
+      "kaart": "/werktafel/kaarten/24_installatiewerk.png",
+      "foto": "/werktafel/fotos/24_installatiewerk.jpg"
+    },
+    {
+      "code": "25",
+      "slug": "25_elektrotechniek",
+      "titel": "Elektrotechniek",
+      "subtitel": "Elektrotechnische installaties",
+      "kaart": "/werktafel/kaarten/25_elektrotechniek.png",
+      "foto": "/werktafel/fotos/25_elektrotechniek.jpg"
+    },
+    {
+      "code": "26",
+      "slug": "26_ventilatie_en_luchtbehandeling",
+      "titel": "Ventilatie & luchtbehandeling",
+      "subtitel": "Ventilatie en luchtbehandeling",
+      "kaart": "/werktafel/kaarten/26_ventilatie_en_luchtbehandeling.png",
+      "foto": "/werktafel/fotos/26_ventilatie_en_luchtbehandeling.jpg"
+    },
+    {
+      "code": "27",
+      "slug": "27_sanitair",
+      "titel": "Sanitair",
+      "subtitel": "Sanitair en leidingwerk",
+      "kaart": "/werktafel/kaarten/27_sanitair.png",
+      "foto": "/werktafel/fotos/27_sanitair.jpg"
+    },
+    {
+      "code": "28",
+      "slug": "28_verwarming",
+      "titel": "Verwarming",
+      "subtitel": "Verwarmingsinstallaties",
+      "kaart": "/werktafel/kaarten/28_verwarming.png",
+      "foto": "/werktafel/fotos/28_verwarming.jpg"
+    },
+    {
+      "code": "29",
+      "slug": "29_sprinkler_en_brandveiligheid",
+      "titel": "Sprinkler & brandveiligheid",
+      "subtitel": "Brandbeveiliging en sprinkler",
+      "kaart": "/werktafel/kaarten/29_sprinkler_en_brandveiligheid.png",
+      "foto": "/werktafel/fotos/29_sprinkler_en_brandveiligheid.jpg"
+    },
+    {
+      "code": "30",
+      "slug": "30_terrein_en_buitenruimte",
+      "titel": "Terrein & buitenruimte",
+      "subtitel": "Terrein inrichting en bestrating",
+      "kaart": "/werktafel/kaarten/30_terrein_en_buitenruimte.png",
+      "foto": "/werktafel/fotos/30_terrein_en_buitenruimte.jpg"
+    },
+    {
+      "code": "31",
+      "slug": "31_hekwerk_en_terreinvoorzieningen",
+      "titel": "Hekwerk & terreinvoorzieningen",
+      "subtitel": "Hekwerken en voorzieningen",
+      "kaart": "/werktafel/kaarten/31_hekwerk_en_terreinvoorzieningen.png",
+      "foto": "/werktafel/fotos/31_hekwerk_en_terreinvoorzieningen.jpg"
+    },
+    {
+      "code": "32",
+      "slug": "32_afwatering_en_riolering",
+      "titel": "Afwatering & riolering",
+      "subtitel": "Hemelwater en rioleringswerk",
+      "kaart": "/werktafel/kaarten/32_afwatering_en_riolering.png",
+      "foto": "/werktafel/fotos/32_afwatering_en_riolering.jpg"
+    },
+    {
+      "code": "33",
+      "slug": "33_tijdelijke_voorzieningen",
+      "titel": "Tijdelijke voorzieningen",
+      "subtitel": "Tijdelijke bouwvoorzieningen",
+      "kaart": "/werktafel/kaarten/33_tijdelijke_voorzieningen.png",
+      "foto": "/werktafel/fotos/33_tijdelijke_voorzieningen.jpg"
+    },
+    {
+      "code": "34",
+      "slug": "34_transport_en_hijswerk",
+      "titel": "Transport & hijswerk",
+      "subtitel": "Transport en hijswerk",
+      "kaart": "/werktafel/kaarten/34_transport_en_hijswerk.png",
+      "foto": "/werktafel/fotos/34_transport_en_hijswerk.jpg"
+    },
+    {
+      "code": "35",
+      "slug": "35_materieel",
+      "titel": "Materieel",
+      "subtitel": "Materieel en hulpmiddelen",
+      "kaart": "/werktafel/kaarten/35_materieel.png",
+      "foto": "/werktafel/fotos/35_materieel.jpg"
+    },
+    {
+      "code": "36",
+      "slug": "36_arbeid_en_uren",
+      "titel": "Arbeid & uren",
+      "subtitel": "Uren en manuren",
+      "kaart": "/werktafel/kaarten/36_arbeid_en_uren.png",
+      "foto": "/werktafel/fotos/36_arbeid_en_uren.jpg"
+    },
+    {
+      "code": "37",
+      "slug": "37_materialen_en_toebehoren",
+      "titel": "Materialen & toebehoren",
+      "subtitel": "Materialen en toebehoren",
+      "kaart": "/werktafel/kaarten/37_materialen_en_toebehoren.png",
+      "foto": "/werktafel/fotos/37_materialen_en_toebehoren.jpg"
+    },
+    {
+      "code": "38",
+      "slug": "38_kosten_en_prijzen",
+      "titel": "Kosten & prijzen",
+      "subtitel": "Kostprijzen en eenheden",
+      "kaart": "/werktafel/kaarten/38_kosten_en_prijzen.png",
+      "foto": "/werktafel/fotos/38_kosten_en_prijzen.jpg"
+    },
+    {
+      "code": "39",
+      "slug": "39_risicos_en_kwaliteit",
+      "titel": "Risico's & kwaliteit",
+      "subtitel": "Risico's en kwaliteitsborging",
+      "kaart": "/werktafel/kaarten/39_risicos_en_kwaliteit.png",
+      "foto": "/werktafel/fotos/39_risicos_en_kwaliteit.jpg"
+    },
+    {
+      "code": "40",
+      "slug": "40_onderaanneming",
+      "titel": "Onderaanneming",
+      "subtitel": "Uitbestede werkzaamheden",
+      "kaart": "/werktafel/kaarten/40_onderaanneming.png",
+      "foto": "/werktafel/fotos/40_onderaanneming.jpg"
+    },
+    {
+      "code": "41",
+      "slug": "41_documenten_en_bijlagen",
+      "titel": "Documenten & bijlagen",
+      "subtitel": "Bestekken en bijlagen",
+      "kaart": "/werktafel/kaarten/41_documenten_en_bijlagen.png",
+      "foto": "/werktafel/fotos/41_documenten_en_bijlagen.jpg"
+    },
+    {
+      "code": "42",
+      "slug": "42_planning_en_fasering",
+      "titel": "Planning & fasering",
+      "subtitel": "Planning en bouwfasering",
+      "kaart": "/werktafel/kaarten/42_planning_en_fasering.png",
+      "foto": "/werktafel/fotos/42_planning_en_fasering.jpg"
+    },
+    {
+      "code": "A0",
+      "slug": "A0_instellingen",
+      "titel": "Instellingen",
+      "subtitel": "Systeeminstellingen",
+      "kaart": "/werktafel/kaarten/A0_instellingen.png",
+      "foto": "/werktafel/fotos/A0_instellingen.jpg"
+    }
+  ]
+}
