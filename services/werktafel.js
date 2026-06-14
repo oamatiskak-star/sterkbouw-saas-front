@@ -120,14 +120,19 @@ export async function replaceRowComponents(rowId, components) {
 }
 
 // ---------- STABU-zoeken (voor prefill) ----------
-export async function zoekStabu(term) {
-  if (!term || term.length < 1) return [];
-  const { data, error } = await supabase
+export async function zoekStabu(term, hoofdstukken = null) {
+  let qb = supabase
     .from('stabu_posten')
-    .select('code, omschrijving, eenheid, materiaalprijs, arbeidsprijs, normuren')
-    .or(`code.ilike.%${term}%,omschrijving.ilike.%${term}%`)
-    .order('code')
-    .limit(20);
+    .select('code, omschrijving, eenheid, materiaalprijs, arbeidsprijs, normuren, hoofdstuk_code');
+  if (Array.isArray(hoofdstukken) && hoofdstukken.length) {
+    qb = qb.in('hoofdstuk_code', hoofdstukken);
+  }
+  if (term && term.length >= 1) {
+    qb = qb.or(`code.ilike.%${term}%,omschrijving.ilike.%${term}%`);
+  } else if (!hoofdstukken) {
+    return [];
+  }
+  const { data, error } = await qb.order('code').limit(40);
   if (error) throw error;
   return data || [];
 }

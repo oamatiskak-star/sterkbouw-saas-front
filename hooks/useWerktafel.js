@@ -53,6 +53,21 @@ export function useWerktafel(calculatieId) {
     },
     [calculatieId, chapters.length, flagSaving]
   );
+  const addChapterFromCat = useCallback(
+    async (cat) => {
+      const created = await flagSaving(
+        svc.insertChapter(calculatieId, {
+          code: cat.code,
+          naam: cat.titel,
+          stabu_hoofdstuk: cat.stabu && cat.stabu.length ? cat.stabu[0] : null,
+          volgorde: chapters.length,
+        })
+      );
+      if (created) setChapters((c) => [...c, created]);
+      return created;
+    },
+    [calculatieId, chapters.length, flagSaving]
+  );
   const patchChapter = useCallback((id, patch) => {
     setChapters((cs) => cs.map((c) => (c.id === id ? { ...c, ...patch } : c)));
     svc.updateChapter(id, patch).catch(() => {});
@@ -203,6 +218,7 @@ export function useWerktafel(calculatieId) {
     totalen,
     reload,
     addChapter,
+    addChapterFromCat,
     patchChapter,
     removeChapter,
     toggleCollapse,

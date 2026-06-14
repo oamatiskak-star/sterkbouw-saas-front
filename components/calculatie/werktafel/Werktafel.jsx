@@ -1,19 +1,31 @@
 // components/calculatie/werktafel/Werktafel.jsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Layers, Save, History, Loader2, Plus } from 'lucide-react';
+import { Layers, Save, History, Loader2, Plus, LayoutGrid } from 'lucide-react';
 import { useWerktafel } from '@/hooks/useWerktafel';
+import { loadCategorieen, indexByCode } from '@/lib/calc/werktafelCategorieMap';
 import HoofdstukBoom from './HoofdstukBoom';
 import RegelTabel from './RegelTabel';
 import EigenschappenPaneel from './EigenschappenPaneel';
 import LiveTotalen from './LiveTotalen';
+import CategorieKiezer from './CategorieKiezer';
 
 export default function Werktafel({ calculatieId }) {
   const wt = useWerktafel(calculatieId);
   const [activeChapterId, setActiveChapterId] = useState(null);
   const [activeRowId, setActiveRowId] = useState(null);
+  const [kiezerOpen, setKiezerOpen] = useState(false);
+  const [catIndex, setCatIndex] = useState({});
+
+  useEffect(() => {
+    loadCategorieen()
+      .then((list) => setCatIndex(indexByCode(list)))
+      .catch(() => {});
+  }, []);
 
   const activeRow = wt.rows.find((r) => r.id === activeRowId) || null;
+  const activeRowChapter = activeRow ? wt.chapters.find((c) => c.id === activeRow.chapter_id) : null;
+  const paneelStabuFilter = activeRowChapter?.stabu_hoofdstuk ? [activeRowChapter.stabu_hoofdstuk] : null;
 
   const onSaveVersion = async () => {
     const label = window.prompt('Naam voor deze versie (optioneel):', '');
@@ -56,6 +68,12 @@ export default function Werktafel({ calculatieId }) {
               'opgeslagen'
             )}
           </span>
+          <button
+            onClick={() => setKiezerOpen(true)}
+            className="inline-flex items-center gap-1 rounded border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <LayoutGrid size={13} /> Hoofdstuk (categorie)
+          </button>
           <Link
             href={`/calculaties/${calculatieId}/combis`}
             className="inline-flex items-center gap-1 rounded border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
@@ -83,9 +101,10 @@ export default function Werktafel({ calculatieId }) {
           <HoofdstukBoom
             chapters={wt.chapters}
             rows={wt.rows}
+            catIndex={catIndex}
             activeChapterId={activeChapterId}
             onSelect={setActiveChapterId}
-            onAdd={() => wt.addChapter()}
+            onAdd={() => setKiezerOpen(true)}
             onRename={wt.patchChapter}
             onRemove={wt.removeChapter}
             onToggleCollapse={wt.toggleCollapse}
@@ -110,11 +129,26 @@ export default function Werktafel({ calculatieId }) {
         </main>
 
         <aside className="w-72 shrink-0 border-l border-gray-200 bg-gray-50/40">
-          <EigenschappenPaneel row={activeRow} onPatchRow={wt.patchRow} onApplyStabu={wt.applyStabu} />
+          <EigenschappenPaneel
+            row={activeRow}
+            stabuFilter={paneelStabuFilter}
+            onPatchRow={wt.patchRow}
+            onApplyStabu={wt.applyStabu}
+          />
         </aside>
       </div>
 
       <LiveTotalen totalen={wt.totalen} opslagen={wt.opslagen} onOpslag={wt.setOpslag} />
+
+      <CategorieKiezer
+        open={kiezerOpen}
+        onClose={() => setKiezerOpen(false)}
+        onPick={async (cat) => {
+          setKiezerOpen(false);
+          const created = await wt.addChapterFromCat(cat);
+          if (created) setActiveChapterId(created.id);
+        }}
+      />
     </div>
   );
 }

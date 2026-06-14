@@ -4,6 +4,7 @@ import { ChevronDown, ChevronRight, Plus, Trash2, FolderTree } from 'lucide-reac
 export default function HoofdstukBoom({
   chapters,
   rows,
+  catIndex = {},
   activeChapterId,
   onSelect,
   onAdd,
@@ -58,9 +59,14 @@ export default function HoofdstukBoom({
               }`}
               title="Dubbelklik om te hernoemen"
             >
-              <span className="truncate">
-                {c.code ? <span className="mr-1 text-xs text-gray-400">{c.code}</span> : null}
-                {c.naam}
+              <span className="flex min-w-0 items-center gap-1.5">
+                {catIndex[c.code]?.foto ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={catIndex[c.code].foto} alt="" className="h-5 w-5 shrink-0 rounded object-cover" />
+                ) : c.code ? (
+                  <span className="text-xs text-gray-400">{c.code}</span>
+                ) : null}
+                <span className="truncate">{c.naam}</span>
               </span>
               <span className="text-xs text-gray-400">{countFor(c.id)}</span>
             </button>

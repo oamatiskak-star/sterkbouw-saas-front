@@ -4,14 +4,15 @@ import { Search } from 'lucide-react';
 import { zoekStabu } from '@/services/werktafel';
 import { computeRow, fmtEUR } from '@/lib/calc/werktafelTotals';
 
-export default function EigenschappenPaneel({ row, onPatchRow, onApplyStabu }) {
+export default function EigenschappenPaneel({ row, stabuFilter = null, onPatchRow, onApplyStabu }) {
   const [term, setTerm] = useState('');
   const [hits, setHits] = useState([]);
   const [busy, setBusy] = useState(false);
   const deb = useRef();
+  const filterKey = stabuFilter ? stabuFilter.join(',') : '';
 
   useEffect(() => {
-    if (!term) {
+    if (!term && !stabuFilter) {
       setHits([]);
       return;
     }
@@ -19,7 +20,7 @@ export default function EigenschappenPaneel({ row, onPatchRow, onApplyStabu }) {
     deb.current = setTimeout(async () => {
       setBusy(true);
       try {
-        setHits(await zoekStabu(term));
+        setHits(await zoekStabu(term, stabuFilter));
       } catch {
         setHits([]);
       } finally {
@@ -27,7 +28,8 @@ export default function EigenschappenPaneel({ row, onPatchRow, onApplyStabu }) {
       }
     }, 250);
     return () => clearTimeout(deb.current);
-  }, [term]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [term, filterKey]);
 
   if (!row) {
     return (
@@ -111,6 +113,9 @@ export default function EigenschappenPaneel({ row, onPatchRow, onApplyStabu }) {
         <div className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
           <Search size={13} /> STABU-post zoeken
         </div>
+        {stabuFilter ? (
+          <div className="mb-1 text-[11px] text-indigo-600">Gefilterd op hoofdstuk {stabuFilter.join(', ')} (van dit hoofdstuk)</div>
+        ) : null}
         <input
           value={term}
           onChange={(e) => setTerm(e.target.value)}
