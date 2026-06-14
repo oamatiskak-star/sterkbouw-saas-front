@@ -5,11 +5,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
   LayoutGrid, PlusCircle, Table2, Boxes, Layers, CalendarDays,
-  ShoppingCart, FileText, BarChart3, Settings, HelpCircle, Bell, Plus, LogOut, Calculator,
+  ShoppingCart, FileText, BarChart3, Settings, HelpCircle, Bell, Plus, LogOut, Calculator, FolderKanban, Search,
 } from 'lucide-react';
 
 const NAV = [
   { label: 'Overzicht', href: '/calculaties', icon: LayoutGrid, match: (p) => p === '/calculaties' },
+  { label: 'Projecten', href: '/calculaties/projecten', icon: FolderKanban, match: (p) => p.includes('/project') },
   { label: 'Nieuwe calculatie', href: '/calculaties/nieuw', icon: PlusCircle },
   { label: 'Werktafel', href: '/calculaties/werktafel', icon: Table2, match: (p) => p.includes('/werktafel') },
   { label: "Combi's", href: '/calculaties/combis', icon: Boxes, match: (p) => p.includes('/combi') || p.includes('/categorie') || p.includes('/bouwdeel') },
@@ -77,6 +78,7 @@ export default function SterkCalcLayout({ children }) {
             <span className="font-medium text-gray-900">Nieuwbouw woning Deventer</span>
           </div>
           <div className="flex items-center gap-3">
+            <Link href="/calculaties/zoeken" className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800"><Search size={16} /> Zoeken</Link>
             <button className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800"><HelpCircle size={16} /> Help</button>
             <span className="relative text-gray-500"><Bell size={18} /><span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-sterkcalc-warning text-[9px] font-bold text-white">3</span></span>
             <Link href="/calculaties/nieuw" className="flex items-center gap-1.5 rounded-lg bg-sterkcalc-navy px-3 py-1.5 text-sm font-medium text-white hover:bg-sterkcalc-navy2">
