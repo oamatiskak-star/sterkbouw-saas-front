@@ -1,0 +1,4632 @@
+{
+  "_meta": {
+    "dataset": "SterkCalc acquisitie-backlog",
+    "version": "1.0.0",
+    "generated": "2026-06-14",
+    "bron": "scripts/build_sterkcalc_visual_library.js — single source of truth",
+    "bucket": "sterkcalc-visual-assets",
+    "aantal": 660
+  },
+  "candidates": [
+    {
+      "category_code": "00",
+      "subcategory_code": "01",
+      "search_query": "Algemeen Projectgegevens icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "02",
+      "search_query": "Algemeen Klantgegevens icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "03",
+      "search_query": "Algemeen Locatiegegevens icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "04",
+      "search_query": "Algemeen Projectomschrijving icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "05",
+      "search_query": "Algemeen Calculatie-instellingen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "06",
+      "search_query": "Algemeen Versiebeheer icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "07",
+      "search_query": "Algemeen Documentbeheer icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "08",
+      "search_query": "Algemeen Notities icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "09",
+      "search_query": "Algemeen Projectfasering icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "10",
+      "search_query": "Algemeen Templates icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "11",
+      "search_query": "Algemeen BTW-instellingen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "12",
+      "search_query": "Algemeen Opslagen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "13",
+      "search_query": "Algemeen Regiofactor icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "14",
+      "search_query": "Algemeen Prijspeildatum icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "00",
+      "subcategory_code": "15",
+      "search_query": "Algemeen Algemene voorwaarden icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "01",
+      "search_query": "Bouwplaatsinrichting bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "02",
+      "search_query": "Bouwkeet bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "03",
+      "search_query": "Bouwstroom bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "04",
+      "search_query": "Bouwwater bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "05",
+      "search_query": "Tijdelijke opslag bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "06",
+      "search_query": "Bouwhekken bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "07",
+      "search_query": "Uitzetten bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "08",
+      "search_query": "Inmeten bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "09",
+      "search_query": "Vergunningen bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "10",
+      "search_query": "Veiligheidsvoorzieningen bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "11",
+      "search_query": "Werkvoorbereiding bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "12",
+      "search_query": "Startwerkzaamheden bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "13",
+      "search_query": "Projectmobilisatie bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "14",
+      "search_query": "Bouwplaatsverlichting bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "01",
+      "subcategory_code": "15",
+      "search_query": "Tijdelijke toegangswegen bouw Nederland Voorbereiding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "01",
+      "search_query": "Complete sloop bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "02",
+      "search_query": "Stripwerk bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "03",
+      "search_query": "Binnenwanden slopen bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "04",
+      "search_query": "Plafonds verwijderen bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "05",
+      "search_query": "Vloeren verwijderen bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "06",
+      "search_query": "Tegelwerk verwijderen bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "07",
+      "search_query": "Badkamer slopen bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "08",
+      "search_query": "Keuken verwijderen bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "09",
+      "search_query": "Kozijnen verwijderen bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "10",
+      "search_query": "Dakbedekking verwijderen bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "11",
+      "search_query": "Gevel slopen bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "12",
+      "search_query": "Installaties demonteren bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "13",
+      "search_query": "Beton zagen bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "14",
+      "search_query": "Puin afvoeren bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "02",
+      "subcategory_code": "15",
+      "search_query": "Asbestsanering bouw Nederland Sloopwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "01",
+      "search_query": "Ontgraven bouwput bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "02",
+      "search_query": "Funderingssleuven graven bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "03",
+      "search_query": "Kruipruimte ontgraven bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "04",
+      "search_query": "Grond afvoeren bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "05",
+      "search_query": "Grond aanvullen bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "06",
+      "search_query": "Zandbed aanbrengen bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "07",
+      "search_query": "Bodemverbetering bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "08",
+      "search_query": "Taluds maken bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "09",
+      "search_query": "Bouwwegen bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "10",
+      "search_query": "Grondkering bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "11",
+      "search_query": "Trillingsverdichting bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "12",
+      "search_query": "Drainagevoorbereiding bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "13",
+      "search_query": "Kabelsleuven bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "14",
+      "search_query": "Rioolsleuven bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "03",
+      "subcategory_code": "15",
+      "search_query": "Terreinegalisatie bouw Nederland Grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "01",
+      "search_query": "Strokenfundering bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "02",
+      "search_query": "Poeren bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "03",
+      "search_query": "Funderingsbalken bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "04",
+      "search_query": "Betonvloer op zand bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "05",
+      "search_query": "Paalfundering bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "06",
+      "search_query": "PS-fundering bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "07",
+      "search_query": "Fundering herstellen bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "08",
+      "search_query": "Onderstempeling bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "09",
+      "search_query": "Bekisting fundering bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "10",
+      "search_query": "Wapening fundering bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "11",
+      "search_query": "Kruipruimte drainage bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "12",
+      "search_query": "Vorstrand fundering bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "13",
+      "search_query": "Kimconstructie bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "14",
+      "search_query": "Betonstorten fundering bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "04",
+      "subcategory_code": "15",
+      "search_query": "Fundering isoleren bouw Nederland Fundering & grondwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "01",
+      "search_query": "Betonvloer bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "02",
+      "search_query": "Betonwand bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "03",
+      "search_query": "Betonkolom bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "04",
+      "search_query": "Betonbalk bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "05",
+      "search_query": "Wapening bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "06",
+      "search_query": "Bekisting bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "07",
+      "search_query": "Beton storten bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "08",
+      "search_query": "Beton afwerken bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "09",
+      "search_query": "Prefab beton bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "10",
+      "search_query": "Breedplaatvloer bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "11",
+      "search_query": "Kanaalplaatvloer bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "12",
+      "search_query": "Druklaag bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "13",
+      "search_query": "Kimnaden bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "14",
+      "search_query": "Betonreparatie bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "05",
+      "subcategory_code": "15",
+      "search_query": "Betonboren bouw Nederland Betonwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "01",
+      "search_query": "Bedrijfsvloeren bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "02",
+      "search_query": "Betonverharding bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "03",
+      "search_query": "Keerwanden bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "04",
+      "search_query": "Betontrappen bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "05",
+      "search_query": "Prefab elementen bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "06",
+      "search_query": "Funderingsblokken bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "07",
+      "search_query": "Kolommen bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "08",
+      "search_query": "Liggers bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "09",
+      "search_query": "Wanden bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "10",
+      "search_query": "Betonlateien bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "11",
+      "search_query": "Betonranden bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "12",
+      "search_query": "Betonputten bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "13",
+      "search_query": "Terrasvloeren bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "14",
+      "search_query": "Betonvloeren op peil bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "06",
+      "subcategory_code": "15",
+      "search_query": "Specials bouw Nederland Betonwerken",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "01",
+      "search_query": "Stalen kolommen bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "02",
+      "search_query": "Stalen liggers bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "03",
+      "search_query": "Vakwerken bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "04",
+      "search_query": "Portalen bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "05",
+      "search_query": "Staalplaatvloeren bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "06",
+      "search_query": "Stalen trappen bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "07",
+      "search_query": "Bordessen bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "08",
+      "search_query": "Leuningen bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "09",
+      "search_query": "Ankers bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "10",
+      "search_query": "Boutverbindingen bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "11",
+      "search_query": "Laswerk bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "12",
+      "search_query": "Conservering bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "13",
+      "search_query": "Montage staal bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "14",
+      "search_query": "Constructieve versterking bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "07",
+      "subcategory_code": "15",
+      "search_query": "Hijsvoorzieningen bouw Nederland Staalskelet & constructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "01",
+      "search_query": "Spouwmuur bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "02",
+      "search_query": "Buitenblad bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "03",
+      "search_query": "Binnenblad bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "04",
+      "search_query": "Kalkzandsteen bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "05",
+      "search_query": "Cellenbeton bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "06",
+      "search_query": "Houtskeletbouw bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "07",
+      "search_query": "Gevelisolatie bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "08",
+      "search_query": "Geveldragers bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "09",
+      "search_query": "Lateien bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "10",
+      "search_query": "Dilataties bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "11",
+      "search_query": "Spouwankers bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "12",
+      "search_query": "Waterkering bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "13",
+      "search_query": "Raamdorpels bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "14",
+      "search_query": "Gevelherstel bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "08",
+      "subcategory_code": "15",
+      "search_query": "Geveldoorvoeren bouw Nederland Gevel & buitenwand",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "01",
+      "search_query": "Buitenmetselwerk bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "02",
+      "search_query": "Binnenmetselwerk bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "03",
+      "search_query": "Dragende wanden bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "04",
+      "search_query": "Voegwerk bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "05",
+      "search_query": "Rollagen bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "06",
+      "search_query": "Gevelbanden bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "07",
+      "search_query": "Schoorstenen bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "08",
+      "search_query": "Metselwerk herstel bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "09",
+      "search_query": "Kalkzandsteen lijmwerk bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "10",
+      "search_query": "Cellenbeton lijmwerk bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "11",
+      "search_query": "Siermetselwerk bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "12",
+      "search_query": "Kimlaag bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "13",
+      "search_query": "Penanten bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "14",
+      "search_query": "Spouwmuur metselen bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "09",
+      "subcategory_code": "15",
+      "search_query": "Steigerwerk metselwerk bouw Nederland Metselwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "01",
+      "search_query": "Houten gevelbekleding bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "02",
+      "search_query": "Kunststof gevelbekleding bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "03",
+      "search_query": "Aluminium gevelbekleding bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "04",
+      "search_query": "Vezelcement platen bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "05",
+      "search_query": "Steenstrips bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "06",
+      "search_query": "Stucgevel bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "07",
+      "search_query": "Gevelpanelen bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "08",
+      "search_query": "Gevelisolatiesysteem bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "09",
+      "search_query": "Achterconstructie bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "10",
+      "search_query": "Ventilerende gevel bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "11",
+      "search_query": "Dakrandbekleding bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "12",
+      "search_query": "Boeidelen bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "13",
+      "search_query": "Waterslagen bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "14",
+      "search_query": "Gevelreiniging bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "10",
+      "subcategory_code": "15",
+      "search_query": "Gevelcoating bouw Nederland Gevelbekleding",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "01",
+      "search_query": "Kapconstructie bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "02",
+      "search_query": "Spanten bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "03",
+      "search_query": "Gordingen bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "04",
+      "search_query": "Dakbeschot bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "05",
+      "search_query": "Houtskelet dak bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "06",
+      "search_query": "Platdakconstructie bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "07",
+      "search_query": "Dakopbouw bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "08",
+      "search_query": "Dakkapelconstructie bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "09",
+      "search_query": "Dakversterking bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "10",
+      "search_query": "Dakisolatie constructief bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "11",
+      "search_query": "Overstekken bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "12",
+      "search_query": "Boeidelen bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "13",
+      "search_query": "Ravelingen bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "14",
+      "search_query": "Dakdoorvoeren bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "11",
+      "subcategory_code": "15",
+      "search_query": "Constructieherstel bouw Nederland Dakconstructie",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "01",
+      "search_query": "Bitumen dakbedekking bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "02",
+      "search_query": "EPDM bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "03",
+      "search_query": "PVC dakbedekking bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "04",
+      "search_query": "Dakpannen bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "05",
+      "search_query": "Leien bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "06",
+      "search_query": "Zinken dak bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "07",
+      "search_query": "Dakisolatie bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "08",
+      "search_query": "Dampremmer bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "09",
+      "search_query": "Dakrandafwerking bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "10",
+      "search_query": "HWA bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "11",
+      "search_query": "Goten bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "12",
+      "search_query": "Nokvorsten bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "13",
+      "search_query": "Loodslabben bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "14",
+      "search_query": "Dakreparatie bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "12",
+      "subcategory_code": "15",
+      "search_query": "Groendak bouw Nederland Dakbedekking",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "01",
+      "search_query": "Dakraam bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "02",
+      "search_query": "Lichtstraat bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "03",
+      "search_query": "Lichtkoepel bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "04",
+      "search_query": "Dakkapel bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "05",
+      "search_query": "Dakdoorvoer bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "06",
+      "search_query": "Rookgasdoorvoer bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "07",
+      "search_query": "Ventilatiedoorvoer bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "08",
+      "search_query": "Sparing maken bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "09",
+      "search_query": "Raveling bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "10",
+      "search_query": "Waterdichte aansluiting bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "11",
+      "search_query": "Zonwering dakraam bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "12",
+      "search_query": "Lichtstraat aluminium bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "13",
+      "search_query": "Lichtstraat kunststof bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "14",
+      "search_query": "Brandluik bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "13",
+      "subcategory_code": "15",
+      "search_query": "Toegangsluik dak bouw Nederland Dakopeningen & lichtstraten",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "01",
+      "search_query": "Kunststof kozijnen bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "02",
+      "search_query": "Aluminium kozijnen bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "03",
+      "search_query": "Houten kozijnen bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "04",
+      "search_query": "Binnendeuren bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "05",
+      "search_query": "Buitendeuren bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "06",
+      "search_query": "Schuifpuien bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "07",
+      "search_query": "Stelkozijnen bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "08",
+      "search_query": "Hang- en sluitwerk bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "09",
+      "search_query": "Vensterbanken bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "10",
+      "search_query": "Raamdorpels bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "11",
+      "search_query": "Kozijnmontage bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "12",
+      "search_query": "Kozijnvervanging bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "13",
+      "search_query": "Brandwerende deuren bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "14",
+      "search_query": "Garage deuren bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "14",
+      "subcategory_code": "15",
+      "search_query": "Puien bouw Nederland Ramen, deuren & kozijnen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "01",
+      "search_query": "HR++ glas bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "02",
+      "search_query": "Triple glas bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "03",
+      "search_query": "Veiligheidsglas bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "04",
+      "search_query": "Brandwerend glas bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "05",
+      "search_query": "Geluidswerend glas bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "06",
+      "search_query": "Glaslatten bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "07",
+      "search_query": "Beglazingskit bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "08",
+      "search_query": "Glasmontage bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "09",
+      "search_query": "Glas vervangen bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "10",
+      "search_query": "Doucheglas bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "11",
+      "search_query": "Balustradeglas bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "12",
+      "search_query": "Dakbeglazing bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "13",
+      "search_query": "Isolatieglas bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "14",
+      "search_query": "Enkel glas verwijderen bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "15",
+      "subcategory_code": "15",
+      "search_query": "Glas in lood bouw Nederland Glas & beglazing",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "01",
+      "search_query": "Houten trap bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "02",
+      "search_query": "Stalen trap bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "03",
+      "search_query": "Betonnen trap bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "04",
+      "search_query": "Bordes bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "05",
+      "search_query": "Trapleuningen bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "06",
+      "search_query": "Balustrades bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "07",
+      "search_query": "Trapgat maken bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "08",
+      "search_query": "Traprenovatie bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "09",
+      "search_query": "Vlizotrap bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "10",
+      "search_query": "Brandtrap bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "11",
+      "search_query": "Buitentrap bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "12",
+      "search_query": "Trapbekleding bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "13",
+      "search_query": "Traptreden bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "14",
+      "search_query": "Hekwerken trap bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "16",
+      "subcategory_code": "15",
+      "search_query": "Leuningdragers bouw Nederland Trappen & bordessen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "01",
+      "search_query": "Gipswanden bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "02",
+      "search_query": "Metalstud wanden bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "03",
+      "search_query": "Kalkzandsteen binnenwand bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "04",
+      "search_query": "Cellenbeton binnenwand bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "05",
+      "search_query": "HSB binnenwand bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "06",
+      "search_query": "Voorzetwanden bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "07",
+      "search_query": "Schachtwanden bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "08",
+      "search_query": "Brandwerende wanden bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "09",
+      "search_query": "Geluidswerende wanden bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "10",
+      "search_query": "Glaswanden bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "11",
+      "search_query": "Scheidingswanden bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "12",
+      "search_query": "Wandisolatie bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "13",
+      "search_query": "Wandopeningen bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "14",
+      "search_query": "Lateien binnenwand bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "17",
+      "subcategory_code": "15",
+      "search_query": "Wandafwerking voorbereiding bouw Nederland Binnenwanden",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "01",
+      "search_query": "Gipsplafond bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "02",
+      "search_query": "Systeemplafond bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "03",
+      "search_query": "Verlaagd plafond bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "04",
+      "search_query": "Akoestisch plafond bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "05",
+      "search_query": "Brandwerend plafond bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "06",
+      "search_query": "Plafondisolatie bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "07",
+      "search_query": "Plafondrachels bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "08",
+      "search_query": "Plafondplaten bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "09",
+      "search_query": "Koofwerk bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "10",
+      "search_query": "Plafondluiken bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "11",
+      "search_query": "Lichtlijnen bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "12",
+      "search_query": "Plafondherstel bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "13",
+      "search_query": "Spuitplafond bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "14",
+      "search_query": "Metalstud plafond bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "18",
+      "subcategory_code": "15",
+      "search_query": "Houten plafond bouw Nederland Plafonds",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "01",
+      "search_query": "Zandcementdekvloer bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "02",
+      "search_query": "Anhydrietvloer bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "03",
+      "search_query": "Betonvloer bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "04",
+      "search_query": "Houten vloer bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "05",
+      "search_query": "Vloerisolatie bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "06",
+      "search_query": "Droogbouwvloer bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "07",
+      "search_query": "Egaline bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "08",
+      "search_query": "Vloerverwarming infrezen bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "09",
+      "search_query": "Cementdekvloer met vloerverwarming bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "10",
+      "search_query": "Ondervloer bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "11",
+      "search_query": "Parket voorbereiding bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "12",
+      "search_query": "Tegelvloer voorbereiding bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "13",
+      "search_query": "Gietvloer bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "14",
+      "search_query": "Vloerluiken bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "19",
+      "subcategory_code": "15",
+      "search_query": "Vloerreparatie bouw Nederland Vloeren & dekvloeren",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "01",
+      "search_query": "Wandtegels bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "02",
+      "search_query": "Vloertegels bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "03",
+      "search_query": "Badkamer tegelwerk bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "04",
+      "search_query": "Toilet tegelwerk bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "05",
+      "search_query": "Keuken tegelwerk bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "06",
+      "search_query": "Buiten tegels bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "07",
+      "search_query": "Natuursteen bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "08",
+      "search_query": "Tegellijm bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "09",
+      "search_query": "Voegwerk tegels bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "10",
+      "search_query": "Kimband bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "11",
+      "search_query": "Afschotvloer bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "12",
+      "search_query": "Douchegoot bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "13",
+      "search_query": "Tegelplinten bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "14",
+      "search_query": "Tegelwerk verwijderen bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "20",
+      "subcategory_code": "15",
+      "search_query": "Tegelreparatie bouw Nederland Tegelwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "01",
+      "search_query": "Wandstucwerk bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "02",
+      "search_query": "Plafondstucwerk bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "03",
+      "search_query": "Raapwerk bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "04",
+      "search_query": "Sierpleister bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "05",
+      "search_query": "Spackspuitwerk bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "06",
+      "search_query": "Pleisterwerk bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "07",
+      "search_query": "Buitenstucwerk bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "08",
+      "search_query": "Hoekprofielen bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "09",
+      "search_query": "Gaaswapening bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "10",
+      "search_query": "Stucstopprofielen bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "11",
+      "search_query": "Stucwerk herstel bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "12",
+      "search_query": "Betonlook stuc bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "13",
+      "search_query": "Leemstuc bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "14",
+      "search_query": "Sausklaar stucen bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "21",
+      "subcategory_code": "15",
+      "search_query": "Behangklaar stucen bouw Nederland Stukadoorswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "01",
+      "search_query": "Binnen schilderwerk bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "02",
+      "search_query": "Buiten schilderwerk bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "03",
+      "search_query": "Houtwerk schilderen bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "04",
+      "search_query": "Kozijnen schilderen bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "05",
+      "search_query": "Deuren schilderen bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "06",
+      "search_query": "Wanden sauzen bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "07",
+      "search_query": "Plafonds sauzen bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "08",
+      "search_query": "Lakwerk bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "09",
+      "search_query": "Beitswerk bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "10",
+      "search_query": "Grondverf bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "11",
+      "search_query": "Plamuren bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "12",
+      "search_query": "Schuren bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "13",
+      "search_query": "Kitwerk bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "14",
+      "search_query": "Coating bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "22",
+      "subcategory_code": "15",
+      "search_query": "Schilderwerk herstel bouw Nederland Schilderwerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "01",
+      "search_query": "Spouwisolatie bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "02",
+      "search_query": "Dakisolatie bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "03",
+      "search_query": "Vloerisolatie bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "04",
+      "search_query": "Gevelisolatie bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "05",
+      "search_query": "Binnenisolatie bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "06",
+      "search_query": "PIR platen bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "07",
+      "search_query": "Minerale wol bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "08",
+      "search_query": "EPS isolatie bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "09",
+      "search_query": "XPS isolatie bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "10",
+      "search_query": "Dampremmende folie bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "11",
+      "search_query": "Luchtdichting bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "12",
+      "search_query": "Rc-verbetering bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "13",
+      "search_query": "Akoestische isolatie bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "14",
+      "search_query": "Brandwerende isolatie bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "23",
+      "subcategory_code": "15",
+      "search_query": "Kierdichting bouw Nederland Isolatie & thermiek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "01",
+      "search_query": "Waterleiding bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "02",
+      "search_query": "Afvoerleiding bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "03",
+      "search_query": "Gasleiding bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "04",
+      "search_query": "CV-leiding bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "05",
+      "search_query": "Leidingwerk algemeen bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "06",
+      "search_query": "Doorvoeren bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "07",
+      "search_query": "Mantelbuizen bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "08",
+      "search_query": "Technische ruimte bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "09",
+      "search_query": "Meterkast voorbereiding bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "10",
+      "search_query": "Installatieschachten bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "11",
+      "search_query": "Montagebeugels bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "12",
+      "search_query": "Isolatie leidingen bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "13",
+      "search_query": "Appendages bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "14",
+      "search_query": "Inregelen bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "24",
+      "subcategory_code": "15",
+      "search_query": "Installatie testen bouw Nederland Installatiewerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "01",
+      "search_query": "Meterkast bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "02",
+      "search_query": "Groepenkast bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "03",
+      "search_query": "Wandcontactdozen bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "04",
+      "search_query": "Schakelaars bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "05",
+      "search_query": "Lichtpunten bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "06",
+      "search_query": "Kabelgoten bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "07",
+      "search_query": "Leidingen elektra bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "08",
+      "search_query": "Aarding bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "09",
+      "search_query": "Data bekabeling bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "10",
+      "search_query": "Domotica bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "11",
+      "search_query": "Zonnepanelen elektra bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "12",
+      "search_query": "Laadpaal voorbereiding bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "13",
+      "search_query": "Noodverlichting bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "14",
+      "search_query": "Brandmeldinstallatie bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "25",
+      "subcategory_code": "15",
+      "search_query": "Keuring elektra bouw Nederland Elektrotechniek",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "01",
+      "search_query": "Mechanische ventilatie bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "02",
+      "search_query": "WTW-installatie bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "03",
+      "search_query": "Ventilatiekanalen bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "04",
+      "search_query": "Roosters bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "05",
+      "search_query": "Dakdoorvoer ventilatie bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "06",
+      "search_query": "Afzuigpunten bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "07",
+      "search_query": "Toevoerpunten bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "08",
+      "search_query": "Luchtbehandeling bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "09",
+      "search_query": "Kanaalisolatie bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "10",
+      "search_query": "Ventilatiebox bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "11",
+      "search_query": "CO2-sturing bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "12",
+      "search_query": "Geluiddempers bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "13",
+      "search_query": "Brandkleppen bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "14",
+      "search_query": "Inregelen ventilatie bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "26",
+      "subcategory_code": "15",
+      "search_query": "Onderhoud ventilatie bouw Nederland Ventilatie & luchtbehandeling",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "01",
+      "search_query": "Toilet bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "02",
+      "search_query": "Badkamer bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "03",
+      "search_query": "Douche bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "04",
+      "search_query": "Wastafel bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "05",
+      "search_query": "Bad bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "06",
+      "search_query": "Kranen bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "07",
+      "search_query": "Afvoeren bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "08",
+      "search_query": "Inbouwreservoir bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "09",
+      "search_query": "Douchegoot bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "10",
+      "search_query": "Sanitair montage bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "11",
+      "search_query": "Kitwerk sanitair bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "12",
+      "search_query": "Waterdichting bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "13",
+      "search_query": "Badkamermeubel bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "14",
+      "search_query": "Leidingen sanitair bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "27",
+      "subcategory_code": "15",
+      "search_query": "Accessoires bouw Nederland Sanitair",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "01",
+      "search_query": "CV-ketel bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "02",
+      "search_query": "Warmtepomp bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "03",
+      "search_query": "Radiatoren bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "04",
+      "search_query": "Vloerverwarming bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "05",
+      "search_query": "Verdelers bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "06",
+      "search_query": "Thermostaat bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "07",
+      "search_query": "Leidingen verwarming bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "08",
+      "search_query": "Buffervat bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "09",
+      "search_query": "Boiler bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "10",
+      "search_query": "Inregelen bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "11",
+      "search_query": "Isolatie leidingen bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "12",
+      "search_query": "Lucht-water systeem bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "13",
+      "search_query": "Hybride systeem bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "14",
+      "search_query": "Warmteafgifte bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "28",
+      "subcategory_code": "15",
+      "search_query": "Onderhoud verwarming bouw Nederland Verwarming",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "01",
+      "search_query": "Sprinklerkoppen bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "02",
+      "search_query": "Sprinklerleidingen bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "03",
+      "search_query": "Brandhaspels bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "04",
+      "search_query": "Brandblussers bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "05",
+      "search_query": "Brandwerende doorvoeren bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "06",
+      "search_query": "Brandwerende bekleding bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "07",
+      "search_query": "Brandmeldinstallatie bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "08",
+      "search_query": "Rookmelders bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "09",
+      "search_query": "Vluchtroute aanduiding bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "10",
+      "search_query": "Noodverlichting bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "11",
+      "search_query": "Brandscheidingen bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "12",
+      "search_query": "Brandkleppen bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "13",
+      "search_query": "Compartimentering bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "14",
+      "search_query": "Brandwerend glas bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "29",
+      "subcategory_code": "15",
+      "search_query": "Brandveiligheidsrapport bouw Nederland Sprinkler & brandveiligheid",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "01",
+      "search_query": "Bestrating bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "02",
+      "search_query": "Terrassen bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "03",
+      "search_query": "Opritten bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "04",
+      "search_query": "Tuinpaden bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "05",
+      "search_query": "Grondwerk terrein bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "06",
+      "search_query": "Borders bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "07",
+      "search_query": "Beplanting bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "08",
+      "search_query": "Schuttingen bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "09",
+      "search_query": "Keerwanden tuin bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "10",
+      "search_query": "Buitenverlichting bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "11",
+      "search_query": "Drainage terrein bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "12",
+      "search_query": "Grind bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "13",
+      "search_query": "Kunstgras bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "14",
+      "search_query": "Terreininrichting bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "30",
+      "subcategory_code": "15",
+      "search_query": "Tuinmuren bouw Nederland Terrein & buitenruimte",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "01",
+      "search_query": "Bouwhek bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "02",
+      "search_query": "Sierhekwerk bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "03",
+      "search_query": "Gaashekwerk bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "04",
+      "search_query": "Poorten bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "05",
+      "search_query": "Leuningen buiten bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "06",
+      "search_query": "Balustrades buiten bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "07",
+      "search_query": "Terreinafscheiding bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "08",
+      "search_query": "Parkeerbeugels bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "09",
+      "search_query": "Fietsenrekken bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "10",
+      "search_query": "Slagbomen bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "11",
+      "search_query": "Buitenmeubilair bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "12",
+      "search_query": "Afvalvoorzieningen bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "13",
+      "search_query": "Bewegwijzering bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "14",
+      "search_query": "Valbeveiliging bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "31",
+      "subcategory_code": "15",
+      "search_query": "Hekwerk montage bouw Nederland Hekwerk & terreinvoorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "01",
+      "search_query": "Hemelwaterafvoer bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "02",
+      "search_query": "Rioolleidingen bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "03",
+      "search_query": "Kolken bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "04",
+      "search_query": "Drainage bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "05",
+      "search_query": "Inspectieputten bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "06",
+      "search_query": "Aansluiting riool bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "07",
+      "search_query": "Infiltratiekratten bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "08",
+      "search_query": "Goten bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "09",
+      "search_query": "Dakafvoer bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "10",
+      "search_query": "Terreinriolering bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "11",
+      "search_query": "Vuilwaterafvoer bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "12",
+      "search_query": "Regenwaterafvoer bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "13",
+      "search_query": "Ontstoppingspunten bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "14",
+      "search_query": "Pompput bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "32",
+      "subcategory_code": "15",
+      "search_query": "Scheidingsput bouw Nederland Afwatering & riolering",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "01",
+      "search_query": "Bouwkeet bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "02",
+      "search_query": "Steigers tijdelijk bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "03",
+      "search_query": "Stempels bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "04",
+      "search_query": "Noodvoorzieningen bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "05",
+      "search_query": "Tijdelijke elektra bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "06",
+      "search_query": "Tijdelijke wateraansluiting bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "07",
+      "search_query": "Tijdelijke verwarming bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "08",
+      "search_query": "Tijdelijke verlichting bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "09",
+      "search_query": "Afzettingen bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "10",
+      "search_query": "Loopbruggen bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "11",
+      "search_query": "Bouwliften bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "12",
+      "search_query": "Containers bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "13",
+      "search_query": "Opslag bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "14",
+      "search_query": "Bescherming bestaand werk bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "33",
+      "subcategory_code": "15",
+      "search_query": "Tijdelijke dakafdichting bouw Nederland Tijdelijke voorzieningen",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "01",
+      "search_query": "Kraanwerk bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "02",
+      "search_query": "Hijswerk bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "03",
+      "search_query": "Bouwlift bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "04",
+      "search_query": "Verreiker bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "05",
+      "search_query": "Transport materialen bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "06",
+      "search_query": "Afvaltransport bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "07",
+      "search_query": "Intern transport bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "08",
+      "search_query": "Lossen bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "09",
+      "search_query": "Laden bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "10",
+      "search_query": "Verticaal transport bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "11",
+      "search_query": "Horizontaal transport bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "12",
+      "search_query": "Containerwissel bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "13",
+      "search_query": "Transportkosten bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "14",
+      "search_query": "Hijsplan bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "34",
+      "subcategory_code": "15",
+      "search_query": "Logistiek bouw Nederland Transport & hijswerk",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "01",
+      "search_query": "Graafmachine bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "02",
+      "search_query": "Minigraver bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "03",
+      "search_query": "Shovel bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "04",
+      "search_query": "Trilplaat bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "05",
+      "search_query": "Betonmolen bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "06",
+      "search_query": "Steiger bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "07",
+      "search_query": "Hoogwerker bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "08",
+      "search_query": "Bouwlift bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "09",
+      "search_query": "Zaagmachine bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "10",
+      "search_query": "Boormachine bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "11",
+      "search_query": "Stofafzuiging bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "12",
+      "search_query": "Pompen bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "13",
+      "search_query": "Aggregaat bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "14",
+      "search_query": "Compressoren bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "35",
+      "subcategory_code": "15",
+      "search_query": "Meetgereedschap bouw Nederland Materieel",
+      "source_type": "stock_or_ai",
+      "status": "queued"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "01",
+      "search_query": "Arbeid & uren Timmerman icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "02",
+      "search_query": "Arbeid & uren Metselaar icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "03",
+      "search_query": "Arbeid & uren Tegelzetter icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "04",
+      "search_query": "Arbeid & uren Stukadoor icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "05",
+      "search_query": "Arbeid & uren Schilder icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "06",
+      "search_query": "Arbeid & uren Elektricien icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "07",
+      "search_query": "Arbeid & uren Installateur icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "08",
+      "search_query": "Arbeid & uren Loodgieter icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "09",
+      "search_query": "Arbeid & uren Grondwerker icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "10",
+      "search_query": "Arbeid & uren Sloper icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "11",
+      "search_query": "Arbeid & uren Voeger icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "12",
+      "search_query": "Arbeid & uren Dakdekker icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "13",
+      "search_query": "Arbeid & uren Monteur icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "14",
+      "search_query": "Arbeid & uren Uitvoerder icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "36",
+      "subcategory_code": "15",
+      "search_query": "Arbeid & uren Calculator icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "01",
+      "search_query": "Materialen & toebehoren Hout icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "02",
+      "search_query": "Materialen & toebehoren Beton icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "03",
+      "search_query": "Materialen & toebehoren Staal icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "04",
+      "search_query": "Materialen & toebehoren Bakstenen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "05",
+      "search_query": "Materialen & toebehoren Kalkzandsteen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "06",
+      "search_query": "Materialen & toebehoren Isolatie icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "07",
+      "search_query": "Materialen & toebehoren Gipsplaten icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "08",
+      "search_query": "Materialen & toebehoren Tegels icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "09",
+      "search_query": "Materialen & toebehoren Verf icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "10",
+      "search_query": "Materialen & toebehoren Leidingen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "11",
+      "search_query": "Materialen & toebehoren Elektra materiaal icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "12",
+      "search_query": "Materialen & toebehoren Bevestigingsmiddelen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "13",
+      "search_query": "Materialen & toebehoren Folies icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "14",
+      "search_query": "Materialen & toebehoren Kitten icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "37",
+      "subcategory_code": "15",
+      "search_query": "Materialen & toebehoren Prefab onderdelen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "01",
+      "search_query": "Kosten & prijzen Kostprijs icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "02",
+      "search_query": "Kosten & prijzen Materiaalprijs icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "03",
+      "search_query": "Kosten & prijzen Arbeidsprijs icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "04",
+      "search_query": "Kosten & prijzen Materieelprijs icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "05",
+      "search_query": "Kosten & prijzen Onderaanneming icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "06",
+      "search_query": "Kosten & prijzen AK icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "07",
+      "search_query": "Kosten & prijzen ABK icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "08",
+      "search_query": "Kosten & prijzen Risico icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "09",
+      "search_query": "Kosten & prijzen Winst icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "10",
+      "search_query": "Kosten & prijzen BTW icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "11",
+      "search_query": "Kosten & prijzen Regiofactor icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "12",
+      "search_query": "Kosten & prijzen Prijspeil icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "13",
+      "search_query": "Kosten & prijzen Indexering icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "14",
+      "search_query": "Kosten & prijzen Marge icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "38",
+      "subcategory_code": "15",
+      "search_query": "Kosten & prijzen Fixed price optimalisatie icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "01",
+      "search_query": "Risico's & kwaliteit Risicoposten icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "02",
+      "search_query": "Risico's & kwaliteit Onvoorzien icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "03",
+      "search_query": "Risico's & kwaliteit Kwaliteitscontrole icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "04",
+      "search_query": "Risico's & kwaliteit Keuringen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "05",
+      "search_query": "Risico's & kwaliteit Veiligheid icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "06",
+      "search_query": "Risico's & kwaliteit Bouwfouten icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "07",
+      "search_query": "Risico's & kwaliteit Herstelkosten icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "08",
+      "search_query": "Risico's & kwaliteit Meerwerk risico icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "09",
+      "search_query": "Risico's & kwaliteit Planning risico icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "10",
+      "search_query": "Risico's & kwaliteit Leveringsrisico icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "11",
+      "search_query": "Risico's & kwaliteit Prijsrisico icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "12",
+      "search_query": "Risico's & kwaliteit Technische risico's icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "13",
+      "search_query": "Risico's & kwaliteit Vergunning risico icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "14",
+      "search_query": "Risico's & kwaliteit Garantie icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "39",
+      "subcategory_code": "15",
+      "search_query": "Risico's & kwaliteit Opleverpunten icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "01",
+      "search_query": "Onderaanneming Metselwerk onderaannemer icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "02",
+      "search_query": "Onderaanneming Installatie onderaannemer icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "03",
+      "search_query": "Onderaanneming Elektra onderaannemer icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "04",
+      "search_query": "Onderaanneming Stukadoor onderaannemer icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "05",
+      "search_query": "Onderaanneming Schilder onderaannemer icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "06",
+      "search_query": "Onderaanneming Dakdekker onderaannemer icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "07",
+      "search_query": "Onderaanneming Tegelzetter onderaannemer icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "08",
+      "search_query": "Onderaanneming Sloop onderaannemer icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "09",
+      "search_query": "Onderaanneming Grondwerk onderaannemer icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "10",
+      "search_query": "Onderaanneming Kozijnenleverancier icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "11",
+      "search_query": "Onderaanneming Betonleverancier icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "12",
+      "search_query": "Onderaanneming Steigerbouwer icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "13",
+      "search_query": "Onderaanneming Transporteur icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "14",
+      "search_query": "Onderaanneming Specialistisch werk icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "40",
+      "subcategory_code": "15",
+      "search_query": "Onderaanneming Offertevergelijking icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "01",
+      "search_query": "Documenten & bijlagen Tekeningen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "02",
+      "search_query": "Documenten & bijlagen Bestek icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "03",
+      "search_query": "Documenten & bijlagen Constructieberekening icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "04",
+      "search_query": "Documenten & bijlagen Vergunning icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "05",
+      "search_query": "Documenten & bijlagen Foto's icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "06",
+      "search_query": "Documenten & bijlagen Offertes leveranciers icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "07",
+      "search_query": "Documenten & bijlagen Werkbonnen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "08",
+      "search_query": "Documenten & bijlagen Rapportages icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "09",
+      "search_query": "Documenten & bijlagen Planningdocumenten icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "10",
+      "search_query": "Documenten & bijlagen Meetstaten icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "11",
+      "search_query": "Documenten & bijlagen Calculatiebijlagen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "12",
+      "search_query": "Documenten & bijlagen Risicodocumenten icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "13",
+      "search_query": "Documenten & bijlagen Opleverdocumenten icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "14",
+      "search_query": "Documenten & bijlagen Garanties icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "41",
+      "subcategory_code": "15",
+      "search_query": "Documenten & bijlagen Revisiedocumenten icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "01",
+      "search_query": "Planning & fasering Hoofdplanning icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "02",
+      "search_query": "Planning & fasering Weekplanning icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "03",
+      "search_query": "Planning & fasering Personeelsplanning icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "04",
+      "search_query": "Planning & fasering Faseplanning icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "05",
+      "search_query": "Planning & fasering Kritieke pad icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "06",
+      "search_query": "Planning & fasering Afhankelijkheden icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "07",
+      "search_query": "Planning & fasering Doorlooptijd icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "08",
+      "search_query": "Planning & fasering Startdatum icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "09",
+      "search_query": "Planning & fasering Opleverdatum icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "10",
+      "search_query": "Planning & fasering Werkdagen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "11",
+      "search_query": "Planning & fasering Capaciteit icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "12",
+      "search_query": "Planning & fasering Vertragingen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "13",
+      "search_query": "Planning & fasering Mijlpalen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "14",
+      "search_query": "Planning & fasering Bouwvolgorde icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "42",
+      "subcategory_code": "15",
+      "search_query": "Planning & fasering Gantt-overzicht icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "01",
+      "search_query": "Instellingen Gebruikersinstellingen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "02",
+      "search_query": "Instellingen Calculatieprofielen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "03",
+      "search_query": "Instellingen Opslagpercentages icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "04",
+      "search_query": "Instellingen Prijsbronnen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "05",
+      "search_query": "Instellingen Regio-instellingen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "06",
+      "search_query": "Instellingen STABU-instellingen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "07",
+      "search_query": "Instellingen Combi-instellingen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "08",
+      "search_query": "Instellingen AI-instellingen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "09",
+      "search_query": "Instellingen Exportinstellingen icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "10",
+      "search_query": "Instellingen PDF-template icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "11",
+      "search_query": "Instellingen Rollen en rechten icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "12",
+      "search_query": "Instellingen Bedrijfsgegevens icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "13",
+      "search_query": "Instellingen Notificaties icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "14",
+      "search_query": "Instellingen Integraties icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    },
+    {
+      "category_code": "A0",
+      "subcategory_code": "15",
+      "search_query": "Instellingen Systeembeheer icoon administratie",
+      "source_type": "icon",
+      "status": "icon_fallback"
+    }
+  ]
+}

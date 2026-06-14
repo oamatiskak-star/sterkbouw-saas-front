@@ -1,0 +1,664 @@
+{
+  "_meta": {
+    "dataset": "SterkCalc visuele hoofdtegels (werktafel-UI)",
+    "version": "1.0.0",
+    "generated": "2026-06-14",
+    "bron": "scripts/build_sterkcalc_visual_library.js — single source of truth",
+    "bucket": "sterkcalc-visual-assets",
+    "aantal": 44
+  },
+  "categories": [
+    {
+      "code": "00",
+      "title": "Algemeen",
+      "subtitle": "Project & basisgegevens",
+      "sort_order": 0,
+      "icon_key": "ClipboardList",
+      "image_key": "cat_00_algemeen",
+      "stabu_mapping": {
+        "hoofdstukken": [],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "01",
+      "title": "Voorbereiding",
+      "subtitle": "Voorbereiden en inrichten",
+      "sort_order": 1,
+      "icon_key": "HardHat",
+      "image_key": "cat_01_voorbereiding",
+      "stabu_mapping": {
+        "hoofdstukken": [],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "02",
+      "title": "Sloopwerk",
+      "subtitle": "Slopen en demonteren",
+      "sort_order": 2,
+      "icon_key": "Hammer",
+      "image_key": "cat_02_sloopwerk",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "10"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "03",
+      "title": "Grondwerk",
+      "subtitle": "Graven en aanvullen",
+      "sort_order": 3,
+      "icon_key": "Shovel",
+      "image_key": "cat_03_grondwerk",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "12"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "04",
+      "title": "Fundering & grondwerk",
+      "subtitle": "Funderingen en betonpoeren",
+      "sort_order": 4,
+      "icon_key": "Layers",
+      "image_key": "cat_04_fundering_en_grondwerk",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "20",
+          "21"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "05",
+      "title": "Betonwerk",
+      "subtitle": "Betonvloeren en -constructies",
+      "sort_order": 5,
+      "icon_key": "Box",
+      "image_key": "cat_05_betonwerk",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "21"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "06",
+      "title": "Betonwerken",
+      "subtitle": "Wanden, kolommen en balken",
+      "sort_order": 6,
+      "icon_key": "Boxes",
+      "image_key": "cat_06_betonwerken",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "21"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "07",
+      "title": "Staalskelet & constructie",
+      "subtitle": "Staalconstructies en liggers",
+      "sort_order": 7,
+      "icon_key": "Frame",
+      "image_key": "cat_07_staalskelet_en_constructie",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "25"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "08",
+      "title": "Gevel & buitenwand",
+      "subtitle": "Gevels en buitenwanden",
+      "sort_order": 8,
+      "icon_key": "Building2",
+      "image_key": "cat_08_gevel_en_buitenwand",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "22",
+          "23"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "09",
+      "title": "Metselwerk",
+      "subtitle": "Metselwerk en voegwerk",
+      "sort_order": 9,
+      "icon_key": "BrickWall",
+      "image_key": "cat_09_metselwerk",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "22",
+          "36"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "10",
+      "title": "Gevelbekleding",
+      "subtitle": "Bekledingen en afwerkingen",
+      "sort_order": 10,
+      "icon_key": "PanelsTopLeft",
+      "image_key": "cat_10_gevelbekleding",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "31"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "11",
+      "title": "Dakconstructie",
+      "subtitle": "Kapconstructies en dakopbouw",
+      "sort_order": 11,
+      "icon_key": "Triangle",
+      "image_key": "cat_11_dakconstructie",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "24"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "12",
+      "title": "Dakbedekking",
+      "subtitle": "Dakbedekking en waterdichting",
+      "sort_order": 12,
+      "icon_key": "Home",
+      "image_key": "cat_12_dakbedekking",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "33",
+          "50"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "13",
+      "title": "Dakopeningen & lichtstraten",
+      "subtitle": "Dakkapellen, lichtstraten, koepels",
+      "sort_order": 13,
+      "icon_key": "Sun",
+      "image_key": "cat_13_dakopeningen_en_lichtstraten",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "34"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "14",
+      "title": "Ramen, deuren & kozijnen",
+      "subtitle": "Kozijnen, ramen en deuren",
+      "sort_order": 14,
+      "icon_key": "DoorOpen",
+      "image_key": "cat_14_ramen_deuren_en_kozijnen",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "30"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "15",
+      "title": "Glas & beglazing",
+      "subtitle": "Beglazing en glassystemen",
+      "sort_order": 15,
+      "icon_key": "Square",
+      "image_key": "cat_15_glas_en_beglazing",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "34"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "16",
+      "title": "Trappen & bordessen",
+      "subtitle": "Trappen, bordessen en leuningen",
+      "sort_order": 16,
+      "icon_key": "MoveVertical",
+      "image_key": "cat_16_trappen_en_bordessen",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "32"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "17",
+      "title": "Binnenwanden",
+      "subtitle": "Wanden en scheidingssystemen",
+      "sort_order": 17,
+      "icon_key": "Columns2",
+      "image_key": "cat_17_binnenwanden",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "44"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "18",
+      "title": "Plafonds",
+      "subtitle": "Systeemplafonds en afwerking",
+      "sort_order": 18,
+      "icon_key": "PanelTop",
+      "image_key": "cat_18_plafonds",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "44"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "19",
+      "title": "Vloeren & dekvloeren",
+      "subtitle": "Vloeren, dekvloeren en afwerking",
+      "sort_order": 19,
+      "icon_key": "Grid2x2",
+      "image_key": "cat_19_vloeren_en_dekvloeren",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "42",
+          "48"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "20",
+      "title": "Tegelwerk",
+      "subtitle": "Wand- en vloertegelwerk",
+      "sort_order": 20,
+      "icon_key": "Grid3x3",
+      "image_key": "cat_20_tegelwerk",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "41"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "21",
+      "title": "Stukadoorswerk",
+      "subtitle": "Stucwerk en pleisterwerk",
+      "sort_order": 21,
+      "icon_key": "Brush",
+      "image_key": "cat_21_stukadoorswerk",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "40"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "22",
+      "title": "Schilderwerk",
+      "subtitle": "Schilder- en sauswerk",
+      "sort_order": 22,
+      "icon_key": "PaintRoller",
+      "image_key": "cat_22_schilderwerk",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "46"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "23",
+      "title": "Isolatie & thermiek",
+      "subtitle": "Isolatie en thermische systemen",
+      "sort_order": 23,
+      "icon_key": "Thermometer",
+      "image_key": "cat_23_isolatie_en_thermiek",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "37"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "24",
+      "title": "Installatiewerk",
+      "subtitle": "Werktuigbouwkundige installaties",
+      "sort_order": 24,
+      "icon_key": "Wrench",
+      "image_key": "cat_24_installatiewerk",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "60",
+          "61",
+          "52"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "25",
+      "title": "Elektrotechniek",
+      "subtitle": "Elektrotechnische installaties",
+      "sort_order": 25,
+      "icon_key": "Zap",
+      "image_key": "cat_25_elektrotechniek",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "70",
+          "75"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "26",
+      "title": "Ventilatie & luchtbehandeling",
+      "subtitle": "Ventilatie en luchtbehandeling",
+      "sort_order": 26,
+      "icon_key": "Wind",
+      "image_key": "cat_26_ventilatie_en_luchtbehandeling",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "61",
+          "62"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "27",
+      "title": "Sanitair",
+      "subtitle": "Sanitair en leidingwerk",
+      "sort_order": 27,
+      "icon_key": "ShowerHead",
+      "image_key": "cat_27_sanitair",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "53",
+          "51",
+          "52"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "28",
+      "title": "Verwarming",
+      "subtitle": "Verwarmingsinstallaties",
+      "sort_order": 28,
+      "icon_key": "Flame",
+      "image_key": "cat_28_verwarming",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "60",
+          "55"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "29",
+      "title": "Sprinkler & brandveiligheid",
+      "subtitle": "Brandbeveiliging en sprinkler",
+      "sort_order": 29,
+      "icon_key": "FireExtinguisher",
+      "image_key": "cat_29_sprinkler_en_brandveiligheid",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "54"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "30",
+      "title": "Terrein & buitenruimte",
+      "subtitle": "Terrein inrichting en bestrating",
+      "sort_order": 30,
+      "icon_key": "Trees",
+      "image_key": "cat_30_terrein_en_buitenruimte",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "15",
+          "16",
+          "17"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "31",
+      "title": "Hekwerk & terreinvoorzieningen",
+      "subtitle": "Hekwerken en voorzieningen",
+      "sort_order": 31,
+      "icon_key": "Fence",
+      "image_key": "cat_31_hekwerk_en_terreinvoorzieningen",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "17"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "32",
+      "title": "Afwatering & riolering",
+      "subtitle": "Hemelwater en rioleringswerk",
+      "sort_order": 32,
+      "icon_key": "Droplets",
+      "image_key": "cat_32_afwatering_en_riolering",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "14",
+          "50"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "33",
+      "title": "Tijdelijke voorzieningen",
+      "subtitle": "Tijdelijke bouwvoorzieningen",
+      "sort_order": 33,
+      "icon_key": "Container",
+      "image_key": "cat_33_tijdelijke_voorzieningen",
+      "stabu_mapping": {
+        "hoofdstukken": [],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "34",
+      "title": "Transport & hijswerk",
+      "subtitle": "Transport en hijswerk",
+      "sort_order": 34,
+      "icon_key": "Truck",
+      "image_key": "cat_34_transport_en_hijswerk",
+      "stabu_mapping": {
+        "hoofdstukken": [
+          "82",
+          "83"
+        ],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "35",
+      "title": "Materieel",
+      "subtitle": "Materieel en hulpmiddelen",
+      "sort_order": 35,
+      "icon_key": "Forklift",
+      "image_key": "cat_35_materieel",
+      "stabu_mapping": {
+        "hoofdstukken": [],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "36",
+      "title": "Arbeid & uren",
+      "subtitle": "Uren en manuren",
+      "sort_order": 36,
+      "icon_key": "Users",
+      "image_key": "cat_36_arbeid_en_uren",
+      "stabu_mapping": {
+        "hoofdstukken": [],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "37",
+      "title": "Materialen & toebehoren",
+      "subtitle": "Materialen en toebehoren",
+      "sort_order": 37,
+      "icon_key": "Package",
+      "image_key": "cat_37_materialen_en_toebehoren",
+      "stabu_mapping": {
+        "hoofdstukken": [],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "38",
+      "title": "Kosten & prijzen",
+      "subtitle": "Kostprijzen en eenheden",
+      "sort_order": 38,
+      "icon_key": "Euro",
+      "image_key": "cat_38_kosten_en_prijzen",
+      "stabu_mapping": {
+        "hoofdstukken": [],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "39",
+      "title": "Risico's & kwaliteit",
+      "subtitle": "Risico's en kwaliteitsborging",
+      "sort_order": 39,
+      "icon_key": "ShieldCheck",
+      "image_key": "cat_39_risicos_en_kwaliteit",
+      "stabu_mapping": {
+        "hoofdstukken": [],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "40",
+      "title": "Onderaanneming",
+      "subtitle": "Uitbestede werkzaamheden",
+      "sort_order": 40,
+      "icon_key": "Handshake",
+      "image_key": "cat_40_onderaanneming",
+      "stabu_mapping": {
+        "hoofdstukken": [],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "41",
+      "title": "Documenten & bijlagen",
+      "subtitle": "Bestekken en bijlagen",
+      "sort_order": 41,
+      "icon_key": "FileText",
+      "image_key": "cat_41_documenten_en_bijlagen",
+      "stabu_mapping": {
+        "hoofdstukken": [],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "42",
+      "title": "Planning & fasering",
+      "subtitle": "Planning en bouwfasering",
+      "sort_order": 42,
+      "icon_key": "CalendarRange",
+      "image_key": "cat_42_planning_en_fasering",
+      "stabu_mapping": {
+        "hoofdstukken": [],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    },
+    {
+      "code": "A0",
+      "title": "Instellingen",
+      "subtitle": "Systeeminstellingen",
+      "sort_order": 43,
+      "icon_key": "Settings",
+      "image_key": "cat_a0_instellingen",
+      "stabu_mapping": {
+        "hoofdstukken": [],
+        "bron": "indicatief — werktafel→STABU-motor"
+      },
+      "active": true
+    }
+  ]
+}
