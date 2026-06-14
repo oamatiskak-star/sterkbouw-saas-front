@@ -19,6 +19,7 @@ Supabase-DB: **pmovazftwoxjopqkuuhp** (sterkbouww). NEXT_PUBLIC_SUPABASE_URL wij
 - ✅ Fase 1 Werktafel: `pages/calculaties/[id]/werktafel.js` + `components/calculatie/werktafel/{Werktafel,HoofdstukBoom,RegelTabel,EigenschappenPaneel,LiveTotalen}.jsx` + `hooks/useWerktafel.js` + `services/werktafel.js`. Hoofdstukken-boom, regels (toevoegen/verwijderen/dupliceren/verplaatsen), STABU-prefill, combi-openklap, live totalen, opslaan/laden, versiehistorie.
 - ✅ Fase 2 Combi: `pages/calculaties/[id]/combis.js` + `components/calculatie/combis/CombiBibliotheek.jsx` + `services/combis.js`. Categorieën, kaarten, detail (componenten), "Invoegen" → combi-regel met componenten.
 - ✅ Niet-brekend: "Open Werktafel" + "Combi-bibliotheek" knoppen op `pages/calculaties/[id].js`.
+- ✅ Categorie-assets (44): `public/werktafel/kaarten/` (volledige kaarten, PNG) + `public/werktafel/fotos/` (losse foto's, JPG) + `public/werktafel/categories.json` (code/slug/titel/subtitel/kaart/foto). Rechtenvrije bron `Stabu werktafel afbeeldingen.png`. Klaar om te koppelen aan de Fase 3 categorie-/bouwdeel-kiezer. Nog niet in UI gewired.
 - ⏳ Fase 3-6 + AI: nog te bouwen.
 
 ## Verificatie (2026-06-14)
