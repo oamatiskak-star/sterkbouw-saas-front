@@ -38,6 +38,17 @@ export async function loadWerktafel(calculatieId) {
   };
 }
 
+// Globale calculatie-defaults (bron = sterkcalc_settings.calculatie_defaults).
+// Nieuwe calculaties erven deze; AI raakt ze NOOIT aan.
+export async function loadGlobalCalcDefaults() {
+  const { data } = await supabase
+    .from('sterkcalc_settings')
+    .select('calculatie_defaults')
+    .eq('id', 1)
+    .maybeSingle();
+  return data?.calculatie_defaults || null;
+}
+
 // ---------- OPSLAGEN (user-controlled) ----------
 export async function saveOpslagen(calculatieId, opslagen) {
   const { error } = await supabase
