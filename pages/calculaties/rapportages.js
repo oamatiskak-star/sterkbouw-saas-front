@@ -1,2 +1,2 @@
-import Binnenkort from '@/components/sterkcalc/Binnenkort';
-export default function Pg() { return <Binnenkort titel="Rapportages" slice="Slice 5" />; }
+import KiesCalculatie from '@/components/sterkcalc/KiesCalculatie';
+export default function Pg() { return <KiesCalculatie titel="Rapportages" basePath="rapportages" subtitel="Kies een calculatie voor kosten-/marge-analyse." />; }
