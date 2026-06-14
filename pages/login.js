@@ -27,7 +27,8 @@ export default function LoginPage() {
       return
     }
 
-    router.replace('/dashboard')
+    // Na inloggen naar de SterkCalc-omgeving (primaire entrypoint), niet de oude admin.
+    router.replace('/calculaties')
   }
 
   return (
