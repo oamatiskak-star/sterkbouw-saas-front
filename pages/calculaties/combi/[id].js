@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ChevronLeft, Loader2, Plus } from 'lucide-react';
+import { ChevronLeft, Loader2, Plus, SlidersHorizontal } from 'lucide-react';
 import { loadCombi, loadCombiComponents, voegCombiToe } from '@/services/combis';
 import { fmtEUR, fmtNum } from '@/lib/calc/werktafelTotals';
 
@@ -98,7 +98,10 @@ export default function CombiDetail() {
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end">
+      <div className="mt-4 flex justify-end gap-2">
+        <Link href={`/calculaties/combi/${id}/config${qs}`} className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <SlidersHorizontal size={15} /> Configureren (maten)
+        </Link>
         <button onClick={toevoegen} disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg bg-sterkcalc-navy px-4 py-2 text-sm font-medium text-white hover:bg-sterkcalc-navy2 disabled:opacity-60">
           {busy ? <Loader2 size={15} className="animate-spin" /> : <Plus size={15} />} Toevoegen aan werktafel
         </button>
