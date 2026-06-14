@@ -1,8 +1,8 @@
-// pages/calculaties/[id]/ai.js — AI-laag: ruimteherkenning → groepering → voorstel → werktafel (generiek)
-import { useEffect, useMemo, useState } from 'react';
+// pages/calculaties/[id]/ai.js — AI-laag: tekening→ruimteherkenning (Visions) → groepering → voorstel → werktafel (generiek)
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Loader2, Plus, Trash2, Wand2, Check, Upload } from 'lucide-react';
+import { Loader2, Plus, Trash2, Wand2, Check, Upload, FileSearch, AlertTriangle, Sparkles } from 'lucide-react';
 import * as ai from '@/services/aiAnalyse';
 import { groepeerRuimtes } from '@/lib/calc/ruimteGroepering';
 import { berekenRuimte, combiHoeveelheid } from '@/lib/calc/combiConfigurator';
@@ -11,6 +11,7 @@ import { fmtNum } from '@/lib/calc/werktafelTotals';
 export default function AiLaag() {
   const router = useRouter();
   const { id } = router.query;
+  const fileRef = useRef(null);
   const [ruimtes, setRuimtes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tol, setTol] = useState(5); // tolerantie %
@@ -18,9 +19,20 @@ export default function AiLaag() {
   const [suggesties, setSuggesties] = useState({}); // klasse -> combis
   const [busy, setBusy] = useState('');
 
+  // Visions-state
+  const [scanning, setScanning] = useState(false);
+  const [visionErr, setVisionErr] = useState('');
+  const [lastMeta, setLastMeta] = useState(null);
+  const [analyses, setAnalyses] = useState([]);
+
+  const herlaadRuimtes = () => ai.loadRuimtes(id).then(setRuimtes).catch(console.error);
+
   useEffect(() => {
     if (!id) return;
-    ai.loadRuimtes(id).then(setRuimtes).catch(console.error).finally(() => setLoading(false));
+    Promise.all([
+      ai.loadRuimtes(id).then(setRuimtes).catch(console.error),
+      ai.loadAnalyses(id).then(setAnalyses).catch(() => {}),
+    ]).finally(() => setLoading(false));
   }, [id]);
 
   const types = useMemo(() => groepeerRuimtes(ruimtes, tol / 100), [ruimtes, tol]);
@@ -33,6 +45,27 @@ export default function AiLaag() {
       ai.suggereerCombis(k).then((c) => setSuggesties((s) => ({ ...s, [k]: c })));
     });
   }, [types]); // eslint-disable-line
+
+  const onPickFile = () => fileRef.current?.click();
+
+  const onFile = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // reset zodat dezelfde file opnieuw kan
+    if (!file || !id) return;
+    setVisionErr('');
+    setLastMeta(null);
+    setScanning(true);
+    try {
+      const { meta } = await ai.analyseTekening(id, file);
+      setLastMeta(meta);
+      await herlaadRuimtes();
+      ai.loadAnalyses(id).then(setAnalyses).catch(() => {});
+    } catch (err) {
+      setVisionErr(err.message || String(err));
+    } finally {
+      setScanning(false);
+    }
+  };
 
   const addRuimte = async () => {
     const r = await ai.insertRuimte(id, { naam: 'Nieuwe ruimte', klasse: 'Ruimte', lengte: 2.5, breedte: 2.5, hoogte: 2.6 });
@@ -66,16 +99,54 @@ export default function AiLaag() {
     <div className="mx-auto max-w-6xl p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="flex items-center gap-2 text-xl font-semibold text-gray-900"><Wand2 size={20} className="text-sterkcalc-accent" /> AI-analyse & ruimteherkenning</h1>
-          <p className="text-sm text-gray-500">Herken ruimtes, groepeer herhalingen, en vul de werktafel met combi × aantal. Generiek voor alle ruimtes/bouwdelen.</p>
+          <h1 className="flex items-center gap-2 text-xl font-semibold text-gray-900"><Wand2 size={20} className="text-sterkcalc-accent" /> AI-analyse &amp; ruimteherkenning</h1>
+          <p className="text-sm text-gray-500">Upload een tekening → AI herkent ruimtes, maten en openingen → groepeer herhalingen → vul de werktafel met combi × aantal. Generiek voor alle ruimtes/bouwdelen.</p>
         </div>
         <Link href={`/calculaties/${id}/werktafel`} className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50">Naar werktafel →</Link>
       </div>
 
-      {/* Upload (assisted) */}
-      <div className="mt-4 flex items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white p-4 text-sm text-gray-500">
-        <Upload size={18} className="text-gray-400" />
-        <span>Upload PDF/DWG/IFC voor AI-extractie (assisted). Voeg hieronder ruimtes toe of corrigeer de herkende ruimtes — AI stelt voor, jij blijft eigenaar.</span>
+      {/* Visions: upload + AI-extractie */}
+      <div className="mt-4 rounded-xl border border-gray-200 bg-white p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="rounded-lg bg-sterkcalc-navy p-2 text-white"><FileSearch size={18} /></div>
+            <div>
+              <div className="text-sm font-semibold text-gray-900">Tekening analyseren met AI (Visions)</div>
+              <div className="text-xs text-gray-500">PDF, PNG, JPG of WEBP. AI <strong>stelt voor en meet</strong> — jij blijft eigenaar en corrigeert. Kosten/marges raakt AI nooit aan.</div>
+            </div>
+          </div>
+          <div>
+            <input ref={fileRef} type="file" accept="application/pdf,image/png,image/jpeg,image/webp" onChange={onFile} className="hidden" />
+            <button onClick={onPickFile} disabled={scanning} className="inline-flex items-center gap-2 rounded-lg bg-sterkcalc-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-60">
+              {scanning ? <><Loader2 size={15} className="animate-spin" /> Analyseren…</> : <><Upload size={15} /> Tekening uploaden</>}
+            </button>
+          </div>
+        </div>
+
+        {scanning && (
+          <div className="mt-3 flex items-center gap-2 rounded-lg bg-sterkcalc-navy/5 px-3 py-2 text-xs text-gray-600">
+            <Sparkles size={14} className="text-sterkcalc-accent" /> AI leest de tekening, herkent ruimtes en meet maten op… dit kan even duren bij grote PDF&apos;s.
+          </div>
+        )}
+        {visionErr && (
+          <div className="mt-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+            <AlertTriangle size={14} className="mt-0.5 shrink-0" /> <span>{visionErr}</span>
+          </div>
+        )}
+        {lastMeta && (
+          <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
+            <span className="font-semibold">{lastMeta.ruimtes_gevonden}</span> ruimtes en <span className="font-semibold">{lastMeta.openingen_gevonden}</span> openingen herkend
+            {lastMeta.gem_confidence != null && <> · gem. zekerheid <span className="font-semibold">{Math.round(lastMeta.gem_confidence)}%</span></>}
+            {lastMeta.plan_schaal && <> · schaal {lastMeta.plan_schaal}</>}
+            {lastMeta.opmerkingen && <div className="mt-1 text-emerald-700/90">{lastMeta.opmerkingen}</div>}
+            <div className="mt-1 text-emerald-700/70">Controleer en corrigeer hieronder — dit is een AI-voorstel.</div>
+          </div>
+        )}
+        {analyses.length > 0 && (
+          <div className="mt-3 border-t border-gray-100 pt-2 text-[11px] text-gray-400">
+            Eerdere analyses: {analyses.slice(0, 4).map((a) => `${a.bestandsnaam || 'tekening'} (${a.status === 'done' ? `${a.ruimtes_gevonden} ruimtes` : a.status})`).join(' · ')}
+          </div>
+        )}
       </div>
 
       {/* Ruimtes */}
@@ -86,7 +157,7 @@ export default function AiLaag() {
         </div>
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs text-gray-500"><tr className="[&>th]:px-3 [&>th]:py-2 [&>th]:text-left"><th>Naam</th><th>Klasse</th><th className="text-right">L (m)</th><th className="text-right">B (m)</th><th className="text-right">H (m)</th><th className="text-right">Vloer</th><th className="text-right">Wand-netto</th><th></th></tr></thead>
+            <thead className="bg-gray-50 text-xs text-gray-500"><tr className="[&>th]:px-3 [&>th]:py-2 [&>th]:text-left"><th>Naam</th><th>Klasse</th><th className="text-right">L (m)</th><th className="text-right">B (m)</th><th className="text-right">H (m)</th><th className="text-right">Vloer</th><th className="text-right">Wand-netto</th><th className="text-right">AI</th><th></th></tr></thead>
             <tbody className="divide-y divide-gray-50">
               {ruimtes.map((r) => {
                 const opp = berekenRuimte({ lengte: r.lengte, breedte: r.breedte, hoogte: r.hoogte });
@@ -99,11 +170,16 @@ export default function AiLaag() {
                     <td><input type="number" step="0.01" value={r.hoogte ?? ''} onChange={(e) => patch(r.id, 'hoogte', e.target.value)} className="w-16 bg-transparent text-right outline-none" /></td>
                     <td className="text-right tabular-nums text-gray-500">{fmtNum(opp.vloer)}</td>
                     <td className="text-right tabular-nums text-gray-500">{fmtNum(opp.wand_netto)}</td>
+                    <td className="text-right tabular-nums">
+                      {r.source === 'ai'
+                        ? <span className="rounded bg-sterkcalc-navy/10 px-1.5 py-0.5 text-[10px] font-medium text-sterkcalc-navy">{r.confidence != null ? `${Math.round(r.confidence)}%` : 'AI'}</span>
+                        : <span className="text-[10px] text-gray-300">—</span>}
+                    </td>
                     <td><button onClick={() => remove(r.id)} className="text-gray-300 hover:text-red-600"><Trash2 size={14} /></button></td>
                   </tr>
                 );
               })}
-              {ruimtes.length === 0 && <tr><td colSpan={8} className="px-3 py-6 text-center text-gray-400">Nog geen ruimtes — voeg toe of laat AI extraheren.</td></tr>}
+              {ruimtes.length === 0 && <tr><td colSpan={9} className="px-3 py-6 text-center text-gray-400">Nog geen ruimtes — upload een tekening of voeg handmatig toe.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -112,7 +188,7 @@ export default function AiLaag() {
       {/* Groepering */}
       <div className="mt-6">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Groepering & herhaling ({types.length} types)</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Groepering &amp; herhaling ({types.length} types)</h2>
           <label className="flex items-center gap-2 text-xs text-gray-500">Tolerantie <input type="range" min="0" max="15" value={tol} onChange={(e) => setTol(Number(e.target.value))} /> {tol}%</label>
         </div>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
