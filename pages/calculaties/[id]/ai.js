@@ -2,9 +2,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Loader2, Plus, Trash2, Wand2, Check, Upload, FileSearch, AlertTriangle, Sparkles } from 'lucide-react';
+import { Loader2, Plus, Trash2, Wand2, Check, Upload, FileSearch, AlertTriangle, Sparkles, Box } from 'lucide-react';
 import * as ai from '@/services/aiAnalyse';
-import { groepeerRuimtes } from '@/lib/calc/ruimteGroepering';
+import { groepeerRuimtes, groepeerObjecten } from '@/lib/calc/ruimteGroepering';
 import { berekenRuimte, combiHoeveelheid } from '@/lib/calc/combiConfigurator';
 import { fmtNum } from '@/lib/calc/werktafelTotals';
 
@@ -13,11 +13,17 @@ export default function AiLaag() {
   const { id } = router.query;
   const fileRef = useRef(null);
   const [ruimtes, setRuimtes] = useState([]);
+  const [objecten, setObjecten] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tol, setTol] = useState(5); // tolerantie %
   const [keuze, setKeuze] = useState({}); // typeKey -> {combi, driver}
   const [suggesties, setSuggesties] = useState({}); // klasse -> combis
   const [busy, setBusy] = useState('');
+  // Bouwdeel-/objectlaag
+  const [objTol, setObjTol] = useState(5);
+  const [objKeuze, setObjKeuze] = useState({}); // typeKey -> {combi}
+  const [objSug, setObjSug] = useState({}); // klasse -> combis
+  const [objBusy, setObjBusy] = useState('');
 
   // Visions-state
   const [scanning, setScanning] = useState(false);
@@ -26,16 +32,19 @@ export default function AiLaag() {
   const [analyses, setAnalyses] = useState([]);
 
   const herlaadRuimtes = () => ai.loadRuimtes(id).then(setRuimtes).catch(console.error);
+  const herlaadObjecten = () => ai.loadObjecten(id).then(setObjecten).catch(console.error);
 
   useEffect(() => {
     if (!id) return;
     Promise.all([
       ai.loadRuimtes(id).then(setRuimtes).catch(console.error),
+      ai.loadObjecten(id).then(setObjecten).catch(console.error),
       ai.loadAnalyses(id).then(setAnalyses).catch(() => {}),
     ]).finally(() => setLoading(false));
   }, [id]);
 
   const types = useMemo(() => groepeerRuimtes(ruimtes, tol / 100), [ruimtes, tol]);
+  const objTypes = useMemo(() => groepeerObjecten(objecten, objTol / 100), [objecten, objTol]);
 
   // suggesties per klasse laden
   useEffect(() => {
@@ -45,6 +54,15 @@ export default function AiLaag() {
       ai.suggereerCombis(k).then((c) => setSuggesties((s) => ({ ...s, [k]: c })));
     });
   }, [types]); // eslint-disable-line
+
+  // combi-suggesties per object-klasse
+  useEffect(() => {
+    const klassen = [...new Set(objTypes.map((t) => t.klasse))];
+    klassen.forEach((k) => {
+      if (objSug[k]) return;
+      ai.suggereerCombis(k).then((c) => setObjSug((s) => ({ ...s, [k]: c })));
+    });
+  }, [objTypes]); // eslint-disable-line
 
   const onPickFile = () => fileRef.current?.click();
 
@@ -58,7 +76,7 @@ export default function AiLaag() {
     try {
       const { meta } = await ai.analyseTekening(id, file);
       setLastMeta(meta);
-      await herlaadRuimtes();
+      await Promise.all([herlaadRuimtes(), herlaadObjecten()]);
       ai.loadAnalyses(id).then(setAnalyses).catch(() => {});
     } catch (err) {
       setVisionErr(err.message || String(err));
@@ -76,6 +94,33 @@ export default function AiLaag() {
     ai.updateRuimte(rid, { [field]: field === 'naam' || field === 'klasse' ? val : Number(val) || 0 }).catch(() => {});
   };
   const remove = (rid) => { setRuimtes((rs) => rs.filter((r) => r.id !== rid)); ai.deleteRuimte(rid).catch(() => {}); };
+
+  // ---- Objecten / bouwdelen ----
+  const addObject = async () => {
+    const o = await ai.insertObject(id, { naam: 'Nieuw object', klasse: 'Object', lengte: null, breedte: 1, hoogte: 1, aantal: 1 });
+    setObjecten((os) => [...os, o]);
+  };
+  const patchObject = (oid, field, val) => {
+    const txt = field === 'naam' || field === 'klasse' || field === 'materiaal';
+    setObjecten((os) => os.map((o) => (o.id === oid ? { ...o, [field]: val } : o)));
+    ai.updateObject(oid, { [field]: txt ? val : Number(val) || (field === 'aantal' ? 1 : 0) }).catch(() => {});
+  };
+  const removeObject = (oid) => { setObjecten((os) => os.filter((o) => o.id !== oid)); ai.deleteObject(oid).catch(() => {}); };
+
+  const toepassenBouwdeel = async (type) => {
+    const k = objKeuze[type.key];
+    if (!k?.combi) { window.alert('Kies eerst een combi voor dit bouwdeel-type.'); return; }
+    setObjBusy(type.key);
+    try {
+      await ai.pasBouwdeelTypeToe({ calculatieId: id, type, combi: k.combi, perStukHoeveelheid: 1 });
+      await ai.bewaarBouwdeelTypes(id, objTypes).catch(() => {});
+      window.alert(`${type.naam}: combi × ${type.aantal} toegevoegd aan werktafel.`);
+    } catch (e) {
+      window.alert('Mislukt: ' + (e.message || e));
+    } finally {
+      setObjBusy('');
+    }
+  };
 
   const toepassen = async (type) => {
     const k = keuze[type.key];
@@ -135,7 +180,7 @@ export default function AiLaag() {
         )}
         {lastMeta && (
           <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
-            <span className="font-semibold">{lastMeta.ruimtes_gevonden}</span> ruimtes en <span className="font-semibold">{lastMeta.openingen_gevonden}</span> openingen herkend
+            <span className="font-semibold">{lastMeta.ruimtes_gevonden}</span> ruimtes, <span className="font-semibold">{lastMeta.openingen_gevonden}</span> openingen{lastMeta.objecten_gevonden != null && <> en <span className="font-semibold">{lastMeta.objecten_gevonden}</span> objecten</>} herkend
             {lastMeta.gem_confidence != null && <> · gem. zekerheid <span className="font-semibold">{Math.round(lastMeta.gem_confidence)}%</span></>}
             {lastMeta.plan_schaal && <> · schaal {lastMeta.plan_schaal}</>}
             {lastMeta.opmerkingen && <div className="mt-1 text-emerald-700/90">{lastMeta.opmerkingen}</div>}
@@ -217,6 +262,71 @@ export default function AiLaag() {
             </div>
           ))}
           {types.length === 0 && <p className="p-6 text-sm text-gray-400">Voeg ruimtes toe om groepering te zien.</p>}
+        </div>
+      </div>
+
+      {/* Objecten / bouwdelen */}
+      <div className="mt-8">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-500"><Box size={14} /> Objecten &amp; bouwdelen ({objecten.length})</h2>
+          <button onClick={addObject} className="inline-flex items-center gap-1 rounded-lg bg-sterkcalc-navy px-3 py-1.5 text-xs font-medium text-white hover:bg-sterkcalc-navy2"><Plus size={13} /> Object toevoegen</button>
+        </div>
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-xs text-gray-500"><tr className="[&>th]:px-3 [&>th]:py-2 [&>th]:text-left"><th>Naam</th><th>Klasse</th><th className="text-right">L (m)</th><th className="text-right">B (m)</th><th className="text-right">H (m)</th><th className="text-right">Aantal</th><th>Materiaal</th><th className="text-right">AI</th><th></th></tr></thead>
+            <tbody className="divide-y divide-gray-50">
+              {objecten.map((o) => (
+                <tr key={o.id} className="[&>td]:px-3 [&>td]:py-1.5">
+                  <td><input value={o.naam || ''} onChange={(e) => patchObject(o.id, 'naam', e.target.value)} className="w-full bg-transparent outline-none" /></td>
+                  <td><input value={o.klasse || ''} onChange={(e) => patchObject(o.id, 'klasse', e.target.value)} placeholder="bv. Kozijn" className="w-full bg-transparent outline-none" /></td>
+                  <td><input type="number" step="0.01" value={o.lengte ?? ''} onChange={(e) => patchObject(o.id, 'lengte', e.target.value)} className="w-16 bg-transparent text-right outline-none" /></td>
+                  <td><input type="number" step="0.01" value={o.breedte ?? ''} onChange={(e) => patchObject(o.id, 'breedte', e.target.value)} className="w-16 bg-transparent text-right outline-none" /></td>
+                  <td><input type="number" step="0.01" value={o.hoogte ?? ''} onChange={(e) => patchObject(o.id, 'hoogte', e.target.value)} className="w-16 bg-transparent text-right outline-none" /></td>
+                  <td><input type="number" step="1" value={o.aantal ?? 1} onChange={(e) => patchObject(o.id, 'aantal', e.target.value)} className="w-14 bg-transparent text-right outline-none" /></td>
+                  <td><input value={o.materiaal || ''} onChange={(e) => patchObject(o.id, 'materiaal', e.target.value)} placeholder="—" className="w-full bg-transparent outline-none" /></td>
+                  <td className="text-right tabular-nums">
+                    {o.source === 'ai'
+                      ? <span className="rounded bg-sterkcalc-navy/10 px-1.5 py-0.5 text-[10px] font-medium text-sterkcalc-navy">{o.confidence != null ? `${Math.round(o.confidence)}%` : 'AI'}</span>
+                      : <span className="text-[10px] text-gray-300">—</span>}
+                  </td>
+                  <td><button onClick={() => removeObject(o.id)} className="text-gray-300 hover:text-red-600"><Trash2 size={14} /></button></td>
+                </tr>
+              ))}
+              {objecten.length === 0 && <tr><td colSpan={9} className="px-3 py-6 text-center text-gray-400">Nog geen objecten — upload een tekening of voeg handmatig toe.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Bouwdeel-types (groepering objecten) */}
+      <div className="mt-6 mb-2">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Bouwdeel-types &amp; herhaling ({objTypes.length} types)</h2>
+          <label className="flex items-center gap-2 text-xs text-gray-500">Tolerantie <input type="range" min="0" max="15" value={objTol} onChange={(e) => setObjTol(Number(e.target.value))} /> {objTol}%</label>
+        </div>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          {objTypes.map((t) => (
+            <div key={t.key} className="rounded-xl border border-gray-200 bg-white p-4">
+              <div className="flex items-center justify-between">
+                <div className="font-semibold text-gray-900">{t.naam}</div>
+                <span className="rounded-full bg-sterkcalc-navy px-2 py-0.5 text-xs font-medium text-white">× {t.aantal}</span>
+              </div>
+              <div className="mt-1 text-xs text-gray-500">
+                Gem. {fmtNum(t.gem.lengte)} × {fmtNum(t.gem.breedte)} × {fmtNum(t.gem.hoogte)} m · afwijking {t.afwijkingPct}% · <span className="text-sterkcalc-accent">{t.gelijkheidPct}% gelijk</span>
+              </div>
+              <div className="mt-3">
+                <select value={objKeuze[t.key]?.combi?.id || ''} onChange={(e) => { const c = (objSug[t.klasse] || []).find((x) => x.id === e.target.value); setObjKeuze((k) => ({ ...k, [t.key]: { combi: c } })); }} className="w-full rounded border border-gray-300 px-2 py-1 text-xs">
+                  <option value="">— kies combi —</option>
+                  {(objSug[t.klasse] || []).map((c) => <option key={c.id} value={c.id}>{c.naam}</option>)}
+                </select>
+              </div>
+              {(objSug[t.klasse] || []).length === 0 ? <p className="mt-1 text-[11px] text-gray-400">Geen combi-suggestie voor &quot;{t.klasse}&quot; — kies via de browser.</p> : null}
+              <button onClick={() => toepassenBouwdeel(t)} disabled={objBusy === t.key} className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-sterkcalc-accent px-3 py-2 text-xs font-medium text-white hover:opacity-90 disabled:opacity-60">
+                {objBusy === t.key ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />} Toepassen op werktafel (× {t.aantal})
+              </button>
+            </div>
+          ))}
+          {objTypes.length === 0 && <p className="p-6 text-sm text-gray-400">Voeg objecten toe om bouwdeel-types te zien.</p>}
         </div>
       </div>
     </div>
