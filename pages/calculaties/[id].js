@@ -96,6 +96,16 @@ export default function CalculatieDetail() {
 
       <div style={styles.card}>
         <h2>Acties</h2>
+        <Link href={`/calculaties/${calculatie.id}/werktafel`}>
+          <button style={{...styles.button, marginRight: '10px', backgroundColor: '#4f46e5'}}>
+            Open Werktafel
+          </button>
+        </Link>
+        <Link href={`/calculaties/${calculatie.id}/combis`}>
+          <button style={{...styles.button, marginRight: '10px', backgroundColor: '#6366f1'}}>
+            Combi-bibliotheek
+          </button>
+        </Link>
         <button style={{...styles.button, marginRight: '10px'}}>
           Bewerken
         </button>
