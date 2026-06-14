@@ -1,7 +1,7 @@
 // components/calculatie/werktafel/Werktafel.jsx
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Layers, Save, History, Loader2, Plus, LayoutGrid, SlidersHorizontal } from 'lucide-react';
+import { Layers, Save, History, Loader2, Plus, LayoutGrid, SlidersHorizontal, Wand2 } from 'lucide-react';
 import { useWerktafel } from '@/hooks/useWerktafel';
 import { loadCategorieen, indexByCode } from '@/lib/calc/werktafelCategorieMap';
 import HoofdstukBoom from './HoofdstukBoom';
@@ -70,6 +70,12 @@ export default function Werktafel({ calculatieId }) {
               'opgeslagen'
             )}
           </span>
+          <Link
+            href={`/calculaties/${calculatieId}/ai`}
+            className="inline-flex items-center gap-1 rounded border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <Wand2 size={13} /> AI-analyse
+          </Link>
           <button
             onClick={() => setKiezerOpen(true)}
             className="inline-flex items-center gap-1 rounded border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
