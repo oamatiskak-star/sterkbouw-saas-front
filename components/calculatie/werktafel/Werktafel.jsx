@@ -1,7 +1,7 @@
 // components/calculatie/werktafel/Werktafel.jsx
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Layers, Save, History, Loader2, Plus, LayoutGrid } from 'lucide-react';
+import { Layers, Save, History, Loader2, Plus, LayoutGrid, SlidersHorizontal } from 'lucide-react';
 import { useWerktafel } from '@/hooks/useWerktafel';
 import { loadCategorieen, indexByCode } from '@/lib/calc/werktafelCategorieMap';
 import HoofdstukBoom from './HoofdstukBoom';
@@ -9,12 +9,14 @@ import RegelTabel from './RegelTabel';
 import EigenschappenPaneel from './EigenschappenPaneel';
 import LiveTotalen from './LiveTotalen';
 import CategorieKiezer from './CategorieKiezer';
+import CalculatieInstellingen from './CalculatieInstellingen';
 
 export default function Werktafel({ calculatieId }) {
   const wt = useWerktafel(calculatieId);
   const [activeChapterId, setActiveChapterId] = useState(null);
   const [activeRowId, setActiveRowId] = useState(null);
   const [kiezerOpen, setKiezerOpen] = useState(false);
+  const [instOpen, setInstOpen] = useState(false);
   const [catIndex, setCatIndex] = useState({});
 
   useEffect(() => {
@@ -81,6 +83,12 @@ export default function Werktafel({ calculatieId }) {
             <Plus size={13} /> Combi invoegen
           </Link>
           <button
+            onClick={() => setInstOpen(true)}
+            className="inline-flex items-center gap-1 rounded border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <SlidersHorizontal size={13} /> Calculatie-instellingen
+          </button>
+          <button
             onClick={onSaveVersion}
             className="inline-flex items-center gap-1 rounded border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
           >
@@ -139,6 +147,13 @@ export default function Werktafel({ calculatieId }) {
       </div>
 
       <LiveTotalen totalen={wt.totalen} opslagen={wt.opslagen} onOpslag={wt.setOpslag} />
+
+      <CalculatieInstellingen
+        open={instOpen}
+        onClose={() => setInstOpen(false)}
+        instellingen={wt.opslagen}
+        onChange={wt.setOpslag}
+      />
 
       <CategorieKiezer
         open={kiezerOpen}
