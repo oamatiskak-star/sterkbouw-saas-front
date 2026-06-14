@@ -28,16 +28,99 @@ export async function analyseTekening(calculatieId, file, { signal } = {}) {
   });
   if (up.error) throw new Error('Upload mislukt: ' + up.error.message);
 
-  // 2) Server-side vision-analyse (haalt bestand op, roept Claude, schrijft ruimtes weg).
+  // 2) Korte signed-URL zodat de server het bestand kan ophalen voor de vision-call.
+  const signed = await supabase.storage.from(VISION_BUCKET).createSignedUrl(path, 600);
+  if (signed.error || !signed.data?.signedUrl) {
+    throw new Error('Kon bestand niet delen met vision: ' + (signed.error?.message || 'onbekend'));
+  }
+
+  // 3) Vision-proxy: Claude herkent ruimtes/maten/openingen (geen DB-write server-side).
   const res = await fetch('/api/calculaties/vision', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     signal,
-    body: JSON.stringify({ calculatieId, storagePath: path, bestandsnaam: file.name, mediaType: file.type }),
+    body: JSON.stringify({ fileUrl: signed.data.signedUrl, mediaType: file.type }),
   });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json.error || `Vision-analyse mislukt (${res.status}).`);
-  return json; // { analysisId, ruimtes, meta }
+  const extract = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(extract.error || `Vision-analyse mislukt (${res.status}).`);
+
+  const herkend = Array.isArray(extract.ruimtes) ? extract.ruimtes : [];
+  const confs = herkend.map((r) => r.confidence).filter((v) => v != null);
+  const gemConf = confs.length ? Math.round((confs.reduce((s, v) => s + v, 0) / confs.length) * 100) / 100 : null;
+
+  // 4) Analyse loggen (anon-client, zelfde pad als rest van de app).
+  let analysisId = null;
+  try {
+    const { data: log } = await supabase
+      .from('calculatie_vision_analyses')
+      .insert({
+        calculatie_id: calculatieId,
+        bestandsnaam: file.name,
+        storage_path: path,
+        media_type: file.type,
+        model: extract.model || null,
+        status: 'done',
+        plan_schaal: extract.plan_schaal || null,
+        opmerkingen: extract.opmerkingen || null,
+        gem_confidence: gemConf,
+        raw_response: extract,
+      })
+      .select('id')
+      .single();
+    analysisId = log?.id || null;
+  } catch { /* log is best-effort */ }
+
+  // 5) Ruimtes + openingen wegschrijven (anon-client). Source=ai, gekoppeld aan analyse.
+  let openingenTotal = 0;
+  const inserted = [];
+  for (const r of herkend) {
+    const { data: row, error: rErr } = await supabase
+      .from('calculatie_ruimtes')
+      .insert({
+        calculatie_id: calculatieId,
+        naam: r.naam,
+        klasse: r.klasse,
+        lengte: r.lengte,
+        breedte: r.breedte,
+        hoogte: r.hoogte,
+        confidence: r.confidence,
+        source: 'ai',
+        vision_analysis_id: analysisId,
+      })
+      .select('*')
+      .single();
+    if (rErr) throw new Error('Opslaan ruimte mislukt: ' + rErr.message);
+    inserted.push(row);
+
+    const ops = Array.isArray(r.openingen) ? r.openingen : [];
+    if (ops.length) {
+      const payload = ops.map((o) => ({ ruimte_id: row.id, type: o.type, breedte: o.breedte, hoogte: o.hoogte, aantal: o.aantal }));
+      const { error: oErr } = await supabase.from('calculatie_openingen').insert(payload);
+      if (!oErr) openingenTotal += payload.reduce((s, p) => s + (p.aantal || 1), 0);
+    }
+  }
+
+  // 6) Tellingen bijwerken op de analyse-log.
+  if (analysisId) {
+    supabase
+      .from('calculatie_vision_analyses')
+      .update({ ruimtes_gevonden: inserted.length, openingen_gevonden: openingenTotal })
+      .eq('id', analysisId)
+      .then(() => {}, () => {});
+  }
+
+  return {
+    analysisId,
+    ruimtes: inserted,
+    meta: {
+      ruimtes_gevonden: inserted.length,
+      openingen_gevonden: openingenTotal,
+      gem_confidence: gemConf,
+      plan_schaal: extract.plan_schaal || null,
+      opmerkingen: extract.opmerkingen || null,
+      model: extract.model || null,
+    },
+  };
 }
 
 export async function loadAnalyses(calculatieId) {
