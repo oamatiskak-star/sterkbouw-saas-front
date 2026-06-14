@@ -62,6 +62,24 @@ const TOOL = {
           required: ['naam', 'klasse'],
         },
       },
+      objecten: {
+        type: 'array',
+        description: 'Losse bouwdelen/objecten op de tekening (kozijn/deur/raam/radiator/sanitair/keuken/trap/dakraam/…). Groepeer identieke objecten met aantal.',
+        items: {
+          type: 'object',
+          properties: {
+            naam: { type: 'string', description: 'Label/aanduiding, bv. "Kozijn K1".' },
+            klasse: { type: 'string', description: 'Generieke objectklasse, bv. Kozijn/Deur/Raam/Radiator/Sanitair/Keuken/Trap/Dakraam/Overig.' },
+            lengte_m: { type: 'number' },
+            breedte_m: { type: 'number' },
+            hoogte_m: { type: 'number' },
+            aantal: { type: 'integer', description: 'Aantal identieke exemplaren.' },
+            materiaal: { type: 'string', description: 'Bv. hout/kunststof/aluminium/staal — alleen indien zichtbaar.' },
+            confidence: { type: 'number', description: '0-100.' },
+          },
+          required: ['klasse'],
+        },
+      },
     },
     required: ['ruimtes'],
   },
@@ -73,8 +91,9 @@ const PROMPT =
   'openingen (deuren, ramen, kozijnen). Gebruik geprinte maatvoering/maatlijnen waar aanwezig; ' +
   'anders schat via schaalbalk/raster en geef een lagere confidence. Hoogte onbekend → 2.6 m. ' +
   'Classificeer ruimtes generiek (Woonkamer/Slaapkamer/Badkamer/Keuken/Toilet/Hal/Berging/Kantoor/Overig). ' +
-  'Verzin niets: laat onzekere velden weg of geef lage confidence. Geef ALLEEN het resultaat via ' +
-  'de tool leg_ruimtes_vast. Bereken GEEN kosten, prijzen of marges.'
+  'Herken ook losse bouwdelen/objecten (kozijnen, deuren, ramen, radiatoren, sanitair, keukens, trappen, dakramen) ' +
+  'en groepeer identieke exemplaren met een aantal. Verzin niets: laat onzekere velden weg of geef lage confidence. ' +
+  'Geef ALLEEN het resultaat via de tool leg_ruimtes_vast. Bereken GEEN kosten, prijzen of marges.'
 
 const num = (v) => (Number.isFinite(parseFloat(v)) ? parseFloat(v) : null)
 const clampConf = (v) => {
@@ -148,9 +167,20 @@ export default async function handler(req, res) {
         aantal: Number.isFinite(parseInt(o.aantal, 10)) ? parseInt(o.aantal, 10) : 1,
       })),
     }))
+    const objecten = (Array.isArray(out.objecten) ? out.objecten : []).map((o) => ({
+      naam: o.naam || o.klasse || 'Object',
+      klasse: o.klasse || 'Overig',
+      lengte: num(o.lengte_m),
+      breedte: num(o.breedte_m),
+      hoogte: num(o.hoogte_m),
+      aantal: Number.isFinite(parseInt(o.aantal, 10)) ? parseInt(o.aantal, 10) : 1,
+      materiaal: o.materiaal || null,
+      confidence: clampConf(o.confidence),
+    }))
 
     return res.status(200).json({
       ruimtes,
+      objecten,
       plan_schaal: out.plan_schaal || null,
       opmerkingen: out.opmerkingen || null,
       model: MODEL,

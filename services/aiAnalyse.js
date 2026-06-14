@@ -100,7 +100,28 @@ export async function analyseTekening(calculatieId, file, { signal } = {}) {
     }
   }
 
-  // 6) Tellingen bijwerken op de analyse-log.
+  // 6) Losse objecten/bouwdelen wegschrijven (anon-client). Source=ai, gekoppeld aan analyse.
+  const objectenHerkend = Array.isArray(extract.objecten) ? extract.objecten : [];
+  let objectenTotal = 0;
+  if (objectenHerkend.length) {
+    const payload = objectenHerkend.map((o) => ({
+      calculatie_id: calculatieId,
+      naam: o.naam,
+      klasse: o.klasse,
+      lengte: o.lengte,
+      breedte: o.breedte,
+      hoogte: o.hoogte,
+      aantal: o.aantal || 1,
+      materiaal: o.materiaal || null,
+      confidence: o.confidence,
+      source: 'ai',
+      vision_analysis_id: analysisId,
+    }));
+    const { error: objErr } = await supabase.from('calculatie_objecten').insert(payload);
+    if (!objErr) objectenTotal = payload.reduce((s, p) => s + (p.aantal || 1), 0);
+  }
+
+  // 7) Tellingen bijwerken op de analyse-log.
   if (analysisId) {
     supabase
       .from('calculatie_vision_analyses')
@@ -115,12 +136,70 @@ export async function analyseTekening(calculatieId, file, { signal } = {}) {
     meta: {
       ruimtes_gevonden: inserted.length,
       openingen_gevonden: openingenTotal,
+      objecten_gevonden: objectenTotal,
       gem_confidence: gemConf,
       plan_schaal: extract.plan_schaal || null,
       opmerkingen: extract.opmerkingen || null,
       model: extract.model || null,
     },
   };
+}
+
+// ---- Objecten / bouwdelen (Visions+) ----
+export async function loadObjecten(calculatieId) {
+  const { data, error } = await supabase
+    .from('calculatie_objecten')
+    .select('*')
+    .eq('calculatie_id', calculatieId)
+    .order('created_at');
+  if (error) throw error;
+  return data || [];
+}
+
+export async function insertObject(calculatieId, object) {
+  const { data, error } = await supabase
+    .from('calculatie_objecten')
+    .insert({ calculatie_id: calculatieId, source: 'manual', aantal: 1, ...object })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateObject(id, patch) {
+  const { error } = await supabase.from('calculatie_objecten').update(patch).eq('id', id);
+  if (error) throw error;
+}
+
+export async function deleteObject(id) {
+  const { error } = await supabase.from('calculatie_objecten').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// Persisteer een bouwdeel-type-groepering (snapshot). Vervangt bestaande AI-groepering.
+export async function bewaarBouwdeelTypes(calculatieId, types) {
+  await supabase.from('calculatie_bouwdeel_types').delete().eq('calculatie_id', calculatieId).eq('source', 'ai');
+  if (!types?.length) return [];
+  const payload = types.map((t) => ({
+    calculatie_id: calculatieId,
+    naam: t.naam,
+    object_klasse: t.klasse,
+    aantal: t.aantal,
+    afmetingen: t.gem || {},
+    afwijking: { pct: t.afwijkingPct, gelijkheid: t.gelijkheidPct, leden: t.leden },
+    confidence: t.gelijkheidPct,
+    source: 'ai',
+  }));
+  const { data, error } = await supabase.from('calculatie_bouwdeel_types').insert(payload).select();
+  if (error) throw error;
+  return data || [];
+}
+
+// Eén akkoord per bouwdeel-type → combi × aantal → werktafel.
+export async function pasBouwdeelTypeToe({ calculatieId, type, combi, perStukHoeveelheid = 1 }) {
+  const aantal = Number(type?.aantal) || 1;
+  const totaal = (Number(perStukHoeveelheid) || 1) * aantal;
+  return voegCombiToe({ calculatieId, combi, hoeveelheid: totaal });
 }
 
 export async function loadAnalyses(calculatieId) {
