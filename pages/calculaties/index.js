@@ -74,85 +74,7 @@ export default function CalculatiesPage() {
     });
     setCalculationStatus(null);
     setResults(null);
- jules/bugfix-calculaties-page-15470886232621878919
-  }, []); // Alleen runnen bij mount
-
-  // DIRECTE STATUS CHECK - Toegevoegd als extra laag
-  useEffect(() => {
-    // ... bestaande code blijft hier
-  }, [activeProjectId, uiStep]);
-  // DIRECTE STATUS CHECK - Toegevoegd als extra laag
-useEffect(() => {
-  if (!activeProjectId || uiStep !== 'running') return;
-
-  console.log('🔄 Directe status polling gestart voor project:', activeProjectId);
-
-  const checkStatusDirectly = async () => {
-    try {
-      // 1. Check calculation_runs
-      const { data: calc } = await supabase
-        .from('calculation_runs')
-        .select('*')
-        .eq('project_id', activeProjectId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      console.log('📊 Directe calculation check:', calc?.status || 'No run found yet');
-
-      if (calc?.status === 'completed') {
-        console.log('✅ Calculation is completed via direct check!');
-        setCalculationStatus('completed');
-        setCalculationId(calc.id);
-        
-        // 2. Load results
-        await loadResults();
-        
-        // 3. Check for PDF
-        if (calc.pdf_url) {
-          setPdfUrl(calc.pdf_url);
-        } else {
-          const { data: project } = await supabase
-            .from('projects')
-            .select('pdf_url')
-            .eq('id', activeProjectId)
-            .maybeSingle();
-          
-          if (project?.pdf_url) {
-            setPdfUrl(project.pdf_url);
-          }
-        }
-        
-        // 4. Go to result step
-        setUiStep('result');
-        return true;
-      }
-    } catch (error) {
-      console.log('⚠️ Direct check error:', error.message);
-    }
-    return false;
-  };
-
-  // Start direct
-  checkStatusDirectly();
-  
-  // Poll elke 2 seconden
-  const interval = setInterval(async () => {
-    const completed = await checkStatusDirectly();
-    if (completed) {
-      clearInterval(interval);
-      console.log('✅ Polling gestopt - calculatie voltooid');
-    }
-  }, 2000);
-
-  return () => {
-    console.log('🧹 Directe polling cleanup');
-    clearInterval(interval);
-  };
-}, [activeProjectId, uiStep]);
-=======
   }, []);
- main
 
   const CALCULATION_MODELS = {
     nieuwbouw: { ak: 6, abk: 5, risk: 4, profit: 6 },
@@ -211,40 +133,7 @@ useEffect(() => {
       loadDocuments(activeProjectId);
     }
   }, [activeProjectId]);
- jules/bugfix-calculaties-page-15470886232621878919
-  useEffect(() => {
-  const restoreLastProjectWithPdf = async () => {
-    if (activeProjectId) return;
 
-    const { data: lastTask } = await supabase
-      .from('executor_tasks')
-      .select('project_id, created_at')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (!lastTask?.project_id) return;
-
-    const { data: project } = await supabase
-      .from('projects')
-      .select('pdf_url, status')
-      .eq('id', lastTask.project_id)
-      .maybeSingle();
-
-    if (project?.pdf_url && project?.status === 'completed') {
-      setActiveProjectId(lastTask.project_id);
-      setPdfUrl(project.pdf_url);
-      setCalculationStatus('completed');
-      setUiStep('result');
-    }
-  };
-
-  restoreLastProjectWithPdf();
-}, []);
-  
-=======
-
- main
   const loadResults = async () => {
     try {
       const { data: versions } = await supabase
@@ -274,32 +163,6 @@ useEffect(() => {
     setError(null);
   };
 
- jules/bugfix-calculaties-page-15470886232621878919
- const handleSaveNAW = async () => {
-  setLoading(true);
-  setError(null);
-  try {
-    const { data, error: insertError } = await supabase
-      .from('projects')
-      .insert({ 
-        ...nawData, 
-        status: 'input',
-        pdf_url: null  // Zorg dat er geen oude pdf_url is voor nieuw project
-      })
-      .select()
-      .maybeSingle();
-    if (insertError) throw insertError;
-    if (!data) throw new Error('Could not create project.');
-    setActiveProjectId(data.id);
-    await loadDocuments(data.id);
-    setUiStep('documents');
-  } catch (err) {
-    setError(err.message || 'Kon project niet opslaan');
-  } finally {
-    setLoading(false);
-  }
-};
-=======
   const handleSaveNAW = async () => {
     setLoading(true);
     setError(null);
@@ -324,7 +187,6 @@ useEffect(() => {
       setLoading(false);
     }
   };
- main
 
   const handleUploadDocument = async (files, documentType) => {
     if (!files || files.length === 0 || !documentType) return;
@@ -434,16 +296,6 @@ useEffect(() => {
     return rows.reduce((sum, row) => sum + (parseFloat(row.regel_totaal) || 0), 0);
   };
 
- jules/bugfix-calculaties-page-15470886232621878919
-const handleDownloadPdf = () => {
-  if (!pdfUrl) {
-    setError('Geen PDF beschikbaar om te downloaden.');
-    return;
-  }
-  console.log('Opening PDF:', pdfUrl);
-  window.open(pdfUrl, '_blank');
-};
-=======
   const handleDownloadPdf = () => {
     if (!activeProjectId) {
       setError('Geen actief project');
@@ -457,7 +309,6 @@ const handleDownloadPdf = () => {
     window.open(downloadUrl, '_blank');
   };
 
- main
   useEffect(() => {
     if (calculationStatus === 'completed' && calculationId) {
       (async () => {
