@@ -8,6 +8,18 @@ export async function loadCombi(id) {
   return data || null;
 }
 
+// Combi's op code laden (voor de Object Engine: keuze → combiCode → combi-object).
+export async function loadCombisByCodes(codes = []) {
+  const uniek = [...new Set((codes || []).filter(Boolean))];
+  if (!uniek.length) return {};
+  const { data } = await supabase
+    .from('combis')
+    .select('id, code, naam, eenheid, category_code, subcategory_code')
+    .in('code', uniek)
+    .eq('actief', true);
+  return Object.fromEntries((data || []).map((c) => [c.code, c]));
+}
+
 // Combi-voorstellen voor een specifiek (categorie, subcategorie) — voor inline keuze in de werktafel.
 export async function loadCombisVoorSubcat(categoryCode, subCode) {
   let q = supabase.from('combis').select('id, code, naam, eenheid, category_code, subcategory_code').eq('actief', true).eq('category_code', categoryCode);
