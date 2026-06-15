@@ -272,6 +272,7 @@ export async function suggereerCombis(klasse) {
   const { data } = await supabase
     .from('combis')
     .select('id, code, naam, eenheid, omschrijving, subcategory_code, category_code')
+    .eq('actief', true) // alleen gecureerde/actieve combi's voorstellen, geen verborgen dumps
     .ilike('naam', `%${term}%`)
     .limit(8);
   return data || [];

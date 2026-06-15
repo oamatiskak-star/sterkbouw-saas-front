@@ -20,8 +20,9 @@ export async function loadBouwdeel(id) {
 export async function loadCombisVoorBouwdeel(bouwdeelId) {
   const { data, error } = await supabase
     .from('bouwdeel_combis')
-    .select('volgorde, combi:combis(*)')
+    .select('volgorde, combi:combis!inner(*)')
     .eq('bouwdeel_id', bouwdeelId)
+    .eq('combi.actief', true) // verborgen base-dumps niet tonen; alleen gecureerde combi's
     .order('volgorde');
   if (error) throw error;
   return (data || []).map((r) => r.combi).filter(Boolean);
