@@ -12,6 +12,17 @@ export async function loadBouwdelen(categoryCode, subCode) {
   return data || [];
 }
 
+// Volledige bouwdelenbibliotheek (alle 660), met aantal actieve combi's per bouwdeel.
+export async function loadAlleBouwdelen() {
+  const [{ data: bd }, { data: links }] = await Promise.all([
+    supabase.from('bouwdelen').select('id, naam, omschrijving, category_code, subcategory_code').order('category_code').order('subcategory_code'),
+    supabase.from('bouwdeel_combis').select('bouwdeel_id, combi:combis!inner(id)').eq('combi.actief', true),
+  ]);
+  const telPerBouwdeel = {};
+  for (const l of links || []) telPerBouwdeel[l.bouwdeel_id] = (telPerBouwdeel[l.bouwdeel_id] || 0) + 1;
+  return (bd || []).map((b) => ({ ...b, combis: telPerBouwdeel[b.id] || 0 }));
+}
+
 export async function loadBouwdeel(id) {
   const { data } = await supabase.from('bouwdelen').select('*').eq('id', id).maybeSingle();
   return data || null;

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ChevronLeft, Loader2 } from 'lucide-react';
-import { loadCategory, loadSubcategories } from '@/services/visualLibrary';
+import { loadCategory, loadSubcategories, loadCategoryImage } from '@/services/visualLibrary';
 import Tegel from '@/components/sterkcalc/Tegel';
 
 export default function CategoriePagina() {
@@ -11,6 +11,7 @@ export default function CategoriePagina() {
   const { code, calc } = router.query;
   const [cat, setCat] = useState(null);
   const [subs, setSubs] = useState([]);
+  const [catImg, setCatImg] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,9 +19,10 @@ export default function CategoriePagina() {
     (async () => {
       setLoading(true);
       try {
-        const [c, s] = await Promise.all([loadCategory(code), loadSubcategories(code)]);
+        const [c, s, img] = await Promise.all([loadCategory(code), loadSubcategories(code), loadCategoryImage(code).catch(() => null)]);
         setCat(c);
         setSubs(s);
+        setCatImg(img);
       } finally {
         setLoading(false);
       }
@@ -44,7 +46,7 @@ export default function CategoriePagina() {
       ) : (
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {subs.map((s) => (
-            <Tegel key={s.code} href={`/calculaties/categorie/${code}/${s.code}${qs}`} code={`${code}.${s.code}`} title={s.title} subtitle={s.subtitle} />
+            <Tegel key={s.code} href={`/calculaties/categorie/${code}/${s.code}${qs}`} code={`${code}.${s.code}`} title={s.title} subtitle={s.subtitle} image={catImg} />
           ))}
         </div>
       )}
