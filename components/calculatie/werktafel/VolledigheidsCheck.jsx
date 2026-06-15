@@ -32,8 +32,19 @@ export default function VolledigheidsCheck({ open, busy, result, onClose, onDoor
           ) : (
             <>
               <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800">
-                Deze calculatie bevat nog {r.openCount} open onderdel{r.openCount === 1 ? '' : 'en'}.
+                Deze calculatie lijkt onvolledig — {r.openCount} open onderdel{r.openCount === 1 ? '' : 'en'}
+                {(r.objectWaarschuwingen?.length > 0) ? ` + ${r.objectWaarschuwingen.length} objectsignaal${r.objectWaarschuwingen.length === 1 ? '' : 'en'}` : ''}.
               </p>
+
+              {r.objectWaarschuwingen?.length > 0 && (
+                <Section title="AI-objectcontrole" tone="red">
+                  {r.objectWaarschuwingen.map((w) => (
+                    <Item key={w.id} tone={w.ernst === 'hoog' ? 'red' : 'amber'} title={w.advies}>
+                      {w.titel}
+                    </Item>
+                  ))}
+                </Section>
+              )}
 
               {r.kritiekOpen.length > 0 && (
                 <Section title="Kritieke onderdelen" tone="red">
@@ -97,11 +108,11 @@ function Section({ title, tone, children }) {
   );
 }
 
-function Item({ tone = 'gray', children }) {
+function Item({ tone = 'gray', children, title }) {
   const cls = {
     red: 'border-red-200 bg-red-50 text-red-700',
     amber: 'border-amber-200 bg-amber-50 text-amber-700',
     gray: 'border-gray-200 bg-white text-gray-500',
   }[tone];
-  return <span className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] ${cls}`}>{children}</span>;
+  return <span title={title} className={`inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] ${cls}`}>{children}</span>;
 }

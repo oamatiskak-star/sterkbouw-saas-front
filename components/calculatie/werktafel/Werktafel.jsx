@@ -43,7 +43,7 @@ export default function Werktafel({ calculatieId }) {
     if (analyse) { setAnalyse(null); return; }
     setAnalyseBusy(true);
     try {
-      setAnalyse(await analyseerDekking(wt.calculatie?.project_type, wt.chapters, wt.rows));
+      setAnalyse(await analyseerDekking(wt.calculatie?.project_type, wt.chapters, wt.rows, calculatieId));
     } catch (e) {
       window.alert('Analyse mislukt: ' + (e.message || e));
     } finally {
@@ -57,7 +57,7 @@ export default function Werktafel({ calculatieId }) {
     setCheckBusy(true);
     setCheckResult(null);
     try {
-      setCheckResult(await analyseerDekking(wt.calculatie?.project_type, wt.chapters, wt.rows));
+      setCheckResult(await analyseerDekking(wt.calculatie?.project_type, wt.chapters, wt.rows, calculatieId));
     } catch (e) {
       window.alert('Controle mislukt: ' + (e.message || e));
       setCheckOpen(false);
