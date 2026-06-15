@@ -4,27 +4,37 @@
 import supabase from '@/lib/supabase';
 import { templateVoor } from '@/lib/calc/projecttypeTemplates';
 
-// P4 — projecttype-template instantiëren: maakt hoofdstukken + subhoofdstukken aan zodat de
-// werktafel nooit leeg start. Namen uit de visuele bibliotheek (echte categorie/subcategorie).
-export async function instantiateerTemplate(calculatieId, projecttype) {
-  const tpl = templateVoor(projecttype);
-  const cats = tpl.map((t) => t.cat);
-  const [{ data: catRows }, { data: subRows }] = await Promise.all([
+// P5-D/E/F — projecttype-template 2.0 instantiëren: maakt een VOLLEDIGE geordende
+// hoofdstukkenstructuur aan. Subhoofdstukken = uitsluitend subcategorieën mét combi-dekking,
+// zodat élk subhoofdstuk direct calculeerbaar is (geen lege schermen, geen losse regels).
+export async function instantiateerTemplate(calculatieId, projecttypeRaw) {
+  const projecttype = (projecttypeRaw || 'nieuwbouw').toString().trim().toLowerCase();
+  const cats = templateVoor(projecttype); // geordende array van categorie-codes
+  const [{ data: catRows }, { data: subRows }, { data: combiRows }] = await Promise.all([
     supabase.from('sterkcalc_visual_categories').select('code, title').in('code', cats),
     supabase.from('sterkcalc_visual_subcategories').select('category_code, code, title').in('category_code', cats),
+    supabase.from('combis').select('category_code, subcategory_code').eq('actief', true).in('category_code', cats),
   ]);
   const catNaam = Object.fromEntries((catRows || []).map((c) => [c.code, c.title]));
   const subNaam = {};
   for (const s of subRows || []) subNaam[`${s.category_code}.${s.code}`] = s.title;
 
+  // Per categorie: de subcodes die combi-dekking hebben (uniek, gesorteerd).
+  const subsMetCombi = {};
+  for (const c of combiRows || []) {
+    if (!c.subcategory_code) continue;
+    (subsMetCombi[c.category_code] = subsMetCombi[c.category_code] || new Set()).add(c.subcategory_code);
+  }
+
   let vol = 0;
-  for (const { cat, subs } of tpl) {
+  for (const cat of cats) {
     const { data: hoofd, error } = await supabase
       .from('werktafel_chapters')
       .insert({ calculatie_id: calculatieId, code: cat, naam: catNaam[cat] || `Hoofdstuk ${cat}`, volgorde: vol++, is_structuur: true })
       .select('id')
       .single();
     if (error || !hoofd) continue;
+    const subs = Array.from(subsMetCombi[cat] || []).sort();
     if (subs.length) {
       const payload = subs.map((sc, i) => ({
         calculatie_id: calculatieId, parent_id: hoofd.id, code: cat, sub_code: sc,
@@ -65,7 +75,7 @@ export async function vindOfMaakSubhoofdstuk(calculatieId, categoryCode, subCode
 // ---------- LADEN ----------
 export async function loadWerktafel(calculatieId) {
   const [calcRes, chRes, rowRes] = await Promise.all([
-    supabase.from('calculaties').select('id, naam, werktafel_opslagen').eq('id', calculatieId).single(),
+    supabase.from('calculaties').select('id, naam, project_type, werktafel_opslagen').eq('id', calculatieId).single(),
     supabase.from('werktafel_chapters').select('*').eq('calculatie_id', calculatieId).order('volgorde'),
     supabase.from('werktafel_rows').select('*').eq('calculatie_id', calculatieId).order('volgorde'),
   ]);
