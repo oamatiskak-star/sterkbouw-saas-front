@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as svc from '@/services/werktafel';
 import { voegCombiToe } from '@/services/combis';
+import { loadBouwdeelCombisMetHoeveelheid } from '@/services/bouwdelen';
 import { computeTotalen } from '@/lib/calc/werktafelTotals';
 import { DEFAULT_INSTELLINGEN, normalizeInstellingen } from '@/lib/calc/calculatieDefaults';
 
@@ -208,6 +209,22 @@ export function useWerktafel(calculatieId) {
     [calculatieId, flagSaving]
   );
 
+  // ---- BOUWDEEL INVOEGEN (P5-H: bouwdeel = primaire invoer) ----
+  // Voegt alle combi's van een bouwdeel in één actie toe; elk routeert naar zijn subhoofdstuk.
+  const insertBouwdeel = useCallback(
+    async (bouwdeelId) => {
+      const items = await loadBouwdeelCombisMetHoeveelheid(bouwdeelId).catch(() => []);
+      const nieuwe = [];
+      for (const { combi, hoeveelheid } of items) {
+        const row = await voegCombiToe({ calculatieId, chapterId: null, combi, hoeveelheid }).catch(() => null);
+        if (row) nieuwe.push(row);
+      }
+      if (nieuwe.length) setRows((r) => [...r, ...nieuwe]);
+      return nieuwe.length;
+    },
+    [calculatieId]
+  );
+
   // ---- VERSIE ----
   const saveVersion = useCallback(
     async (label) => {
@@ -242,6 +259,7 @@ export function useWerktafel(calculatieId) {
     applyStabu,
     setOpslag,
     insertCombi,
+    insertBouwdeel,
     saveVersion,
   };
 }
