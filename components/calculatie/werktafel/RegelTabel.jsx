@@ -38,8 +38,8 @@ export default function RegelTabel({
   return (
     <div className="h-full overflow-auto">
       <table className="w-full min-w-[1180px] border-collapse text-xs">
-        <thead className="sticky top-0 z-10 bg-gray-50 text-gray-500">
-          <tr className="[&>th]:whitespace-nowrap [&>th]:px-2 [&>th]:py-2 [&>th]:text-left [&>th]:font-medium">
+        <thead className="sticky top-0 z-10 bg-sterkcalc-navy text-white shadow-sm">
+          <tr className="[&>th]:whitespace-nowrap [&>th]:px-2 [&>th]:py-2 [&>th]:text-left [&>th]:font-semibold">
             <th className="w-8"></th>
             <th className="w-10">#</th>
             <th className="w-20">STABU</th>
@@ -208,7 +208,11 @@ function RegelRij({ r, i, c, isCombi, expanded, active, toggle, onSelectRow, onP
       <tr
         onClick={() => onSelectRow(r.id)}
         className={`cursor-pointer border-b border-gray-100 [&>td]:px-2 [&>td]:py-1 ${
-          active ? 'bg-indigo-50/60' : 'hover:bg-gray-50'
+          active
+            ? 'bg-sterkcalc-blue/10 ring-1 ring-inset ring-sterkcalc-blue/40'
+            : isCombi
+            ? 'bg-sterkcalc-blue/[0.04] hover:bg-sterkcalc-blue/[0.09]'
+            : 'hover:bg-gray-50'
         }`}
       >
         <td>
