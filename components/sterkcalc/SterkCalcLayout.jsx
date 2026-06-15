@@ -5,12 +5,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
   LayoutGrid, PlusCircle, Table2, Boxes, Layers, CalendarDays,
-  ShoppingCart, FileText, BarChart3, Settings, HelpCircle, Bell, Plus, LogOut, Calculator, FolderKanban, Search,
+  ShoppingCart, FileText, BarChart3, Settings, HelpCircle, Bell, Plus, LogOut, Calculator, FolderKanban, Search, LayoutDashboard,
 } from 'lucide-react';
 
 const NAV = [
   { label: 'Overzicht', href: '/calculaties', icon: LayoutGrid, match: (p) => p === '/calculaties' },
-  { label: 'Projecten', href: '/calculaties/projecten', icon: FolderKanban, match: (p) => p.includes('/project') },
+  { label: 'Management', href: '/calculaties/overzicht', icon: LayoutDashboard, match: (p) => p.includes('/overzicht') || p.includes('/dashboard') },
+  { label: 'Projecten', href: '/calculaties/projecten', icon: FolderKanban, match: (p) => p === '/calculaties/projecten' || p.includes('/project/') },
   { label: 'Nieuwe calculatie', href: '/calculaties/nieuw', icon: PlusCircle },
   { label: 'Werktafel', href: '/calculaties/werktafel', icon: Table2, match: (p) => p.includes('/werktafel') },
   { label: "Combi's", href: '/calculaties/combis', icon: Boxes, match: (p) => p.includes('/combi') || p.includes('/categorie') || p.includes('/bouwdeel') },
