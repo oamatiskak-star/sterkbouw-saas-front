@@ -7,6 +7,7 @@ import * as ai from '@/services/aiAnalyse';
 import { groepeerRuimtes, groepeerObjecten } from '@/lib/calc/ruimteGroepering';
 import { berekenRuimte, combiHoeveelheid } from '@/lib/calc/combiConfigurator';
 import { fmtNum } from '@/lib/calc/werktafelTotals';
+import DocumentControle from '@/components/calculatie/documenten/DocumentControle';
 
 export default function AiLaag() {
   const router = useRouter();
@@ -196,6 +197,9 @@ export default function AiLaag() {
           </div>
         )}
       </div>
+
+      {/* P7.8 — documentcontrole: ontbrekende tekeningtypes */}
+      <div className="mt-4"><DocumentControle calculatieId={id} /></div>
 
       {/* Ruimtes */}
       <div className="mt-5">
