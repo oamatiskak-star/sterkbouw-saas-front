@@ -5,11 +5,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Loader2, Boxes, Plus, Trash2, Table2, Wand2, DoorOpen, Check, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Loader2, Boxes, Plus, Trash2, Table2, Wand2, DoorOpen, Check, AlertTriangle, ArrowRight, Calculator } from 'lucide-react';
 import * as ai from '@/services/aiAnalyse';
 import { pasRuimtesToe, instructiesVoorRuimte } from '@/services/objectEngine';
 import { objectenVoorType, defaultKeuzes, ruimteType, ruimteMaten, RUIMTE_TYPE_LABELS } from '@/lib/calc/objectEngine';
 import { fmtNum } from '@/lib/calc/werktafelTotals';
+import { alleModellen } from '@/lib/calc/rekenmodellen';
+import RekenmodelConfigurator from '@/components/calculatie/rekenmodel/RekenmodelConfigurator';
 
 const TYPE_OPTIES = Object.keys(RUIMTE_TYPE_LABELS);
 
@@ -22,6 +24,7 @@ export default function ObjectenPagina() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
   const [nieuw, setNieuw] = useState({ open: false, type: 'badkamer', naam: '', lengte: 2.5, breedte: 2.2, hoogte: 2.6 });
+  const [modelKey, setModelKey] = useState(null); // open rekenmodel-configurator
 
   const initObjecten = (type) => {
     const o = {};
@@ -127,6 +130,22 @@ export default function ObjectenPagina() {
         </div>
       )}
 
+      {/* Rekenmodellen (bouwdeel-calculators) */}
+      <div className="mt-5">
+        <div className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-gray-900"><Calculator size={16} className="text-sterkcalc-blue" /> Rekenmodellen <span className="text-xs font-normal text-gray-400">— object kiezen, keuzes maken, werktafel vult</span></div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+          {alleModellen().map((m) => (
+            <button key={m.object} onClick={() => setModelKey(m.object)} className="group flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left hover:border-sterkcalc-blue/40 hover:bg-sterkcalc-blue/[0.04]">
+              <span>
+                <span className="block text-sm font-medium text-gray-800">{m.label}</span>
+                <span className="text-[11px] text-gray-400">{(m.output || []).slice(0, 3).join(' · ')}…</span>
+              </span>
+              <Calculator size={15} className="text-gray-300 group-hover:text-sterkcalc-blue" />
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Ruimtes */}
       <div className="mt-5 space-y-4">
         {ruimtes.length === 0 && (
@@ -194,6 +213,14 @@ export default function ObjectenPagina() {
             {busy ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />} Vul werktafel ({totaalCombis})
           </button>
         </div>
+      )}
+
+      {modelKey && (
+        <RekenmodelConfigurator
+          calculatieId={id}
+          objectKey={modelKey}
+          onClose={() => setModelKey(null)}
+        />
       )}
     </div>
   );
