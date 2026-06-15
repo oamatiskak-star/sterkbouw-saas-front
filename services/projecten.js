@@ -5,12 +5,15 @@ import { normalizeInstellingen } from '@/lib/calc/calculatieDefaults';
 
 // Canonieke entry: maak project + calculatie + eerste werktafelrecord + eerste versie en
 // geef de calculatie-id terug zodat de gebruiker direct in de werktafel landt.
-// Vervangt de legacy executor-wizard als primaire ingang.
-export async function maakProjectEnCalculatie({ projectnaam, opdrachtgever, plaats, projecttype = 'nieuwbouw', oppervlakte = null }) {
+// PRODUCTREGEL: een nieuwe calculatie is NOOIT afhankelijk van oppervlakte/inhoud/ruimtes/
+// bouwdelen/bouwsom/hoeveelheden — die ontstaan later in de keten (AI/maatvoering/werktafel).
+export async function maakProjectEnCalculatie({ projectnaam, opdrachtgever, plaats, projecttype = 'nieuwbouw', werkadres = null, omschrijving = null, referentie = null, startdatum = null }) {
   const naam = (projectnaam || 'Nieuw project').trim();
+  // optionele context bundelen in opmerking (geen schemawijziging)
+  const notities = [omschrijving, referentie ? `Referentie: ${referentie}` : null, startdatum ? `Startdatum: ${startdatum}` : null].filter(Boolean).join(' · ') || null;
   const { data: project, error: pErr } = await supabase
     .from('projects')
-    .insert({ projectnaam: naam, naam_opdrachtgever: opdrachtgever || null, plaatsnaam: plaats || null, project_type: projecttype, oppervlakte_m2: oppervlakte ? Number(oppervlakte) : null, status: 'concept' })
+    .insert({ projectnaam: naam, naam_opdrachtgever: opdrachtgever || null, plaatsnaam: plaats || null, project_type: projecttype, straatnaam_en_huisnummer: werkadres || null, opmerking: notities, status: 'concept' })
     .select('id')
     .single();
   if (pErr) throw new Error('Project aanmaken mislukt: ' + pErr.message);
