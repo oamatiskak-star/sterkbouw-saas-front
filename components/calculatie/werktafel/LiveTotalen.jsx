@@ -12,7 +12,7 @@ const OPSLAG_VELDEN = [
 export default function LiveTotalen({ totalen, opslagen, onOpslag }) {
   const t = totalen;
   return (
-    <div className="border-t border-gray-200 bg-white px-4 py-3">
+    <div className="border-t-2 border-sterkcalc-navy bg-gray-50 px-4 py-3 shadow-[0_-2px_8px_rgba(0,0,0,0.05)]">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-6">
         <Cell label="Materiaal" value={fmtEUR(t.materiaal)} />
         <Cell label="Arbeid" value={fmtEUR(t.arbeid)} sub={`${Math.round(t.uren)} uur`} />
@@ -47,7 +47,7 @@ export default function LiveTotalen({ totalen, opslagen, onOpslag }) {
             AK {fmtEUR(t.akBedrag)} · ABK {fmtEUR(t.abkBedrag)} · Risico {fmtEUR(t.risicoBedrag)} · Winst{' '}
             {fmtEUR(t.winstBedrag)}
           </span>
-          <span className="font-semibold text-gray-900">Incl. btw: {fmtEUR(t.verkoopprijs_incl)}</span>
+          <span className="rounded-lg bg-sterkcalc-navy px-3 py-1 text-sm font-bold text-white">Incl. btw: {fmtEUR(t.verkoopprijs_incl)}</span>
         </div>
       </div>
     </div>
