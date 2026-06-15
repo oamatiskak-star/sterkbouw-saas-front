@@ -3,8 +3,10 @@
 // meldt ontbrekende, lege of kritieke onderdelen. AI/check adviseert alleen; voegt nooit zelf in.
 import supabase from '@/lib/supabase';
 import { templateVoor, kritiekeDomeinen, PROJECTTYPE_LABELS, CAT_TITLES } from '@/lib/calc/projecttypeTemplates';
+import { evalueerObjectRegels } from '@/lib/calc/volledigheidsRegels';
+import { ruimteType } from '@/lib/calc/objectEngine';
 
-export async function analyseerDekking(projecttypeRaw, chapters = [], rows = []) {
+export async function analyseerDekking(projecttypeRaw, chapters = [], rows = [], calculatieId = null) {
   const projecttype = (projecttypeRaw || 'nieuwbouw').toString().trim().toLowerCase();
   const cats = templateVoor(projecttype);
   const kritiek = new Set(kritiekeDomeinen(projecttype));
@@ -62,6 +64,24 @@ export async function analyseerDekking(projecttypeRaw, chapters = [], rows = [])
     }
   }
 
+  // P7.3 — object-volledigheidsregels (badkamer zonder ventilatie, keuken zonder apparatuur, …).
+  // Aanwezige objecten uit AI-ruimtes + projecttype; aanwezige categorieën/subs uit gevulde rijen.
+  const objecten = new Set();
+  if (['badkamer', 'keuken', 'toilet'].includes(projecttype)) objecten.add(projecttype);
+  if (calculatieId) {
+    const { data: ruimtes } = await supabase.from('calculatie_ruimtes').select('klasse, naam').eq('calculatie_id', calculatieId);
+    for (const r of ruimtes || []) objecten.add(ruimteType(r.klasse || r.naam));
+  }
+  const catsMetRegels = new Set();
+  const subsMetRegels = new Set();
+  for (const c of chapters) {
+    if ((rowsPerChapter[c.id] || 0) > 0) {
+      if (c.code) catsMetRegels.add(c.code);
+      if (c.code && c.sub_code) subsMetRegels.add(`${c.code}.${c.sub_code}`);
+    }
+  }
+  const objectWaarschuwingen = evalueerObjectRegels({ projecttype, objecten, cats: catsMetRegels, subs: subsMetRegels });
+
   const openCount = ontbrekendeHoofd.length + legeHoofd.length;
   return {
     projecttype: PROJECTTYPE_LABELS[projecttype] || projecttype,
@@ -69,7 +89,8 @@ export async function analyseerDekking(projecttypeRaw, chapters = [], rows = [])
     legeHoofd,
     legeSub,
     kritiekOpen,
+    objectWaarschuwingen,
     openCount,
-    compleet: openCount === 0 && kritiekOpen.length === 0,
+    compleet: openCount === 0 && kritiekOpen.length === 0 && objectWaarschuwingen.length === 0,
   };
 }
