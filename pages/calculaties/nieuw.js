@@ -11,6 +11,7 @@ import {
 import { maakProjectEnCalculatie } from '@/services/projecten';
 import { PROJECTTYPE_LABELS } from '@/lib/calc/projecttypeTemplates';
 import { uploadDocument, loadDossier, deleteDocument, markAnalyseStatus, isAnalyseerbaar, leesbareGrootte, DOC_TYPES, DOC_ACCEPT } from '@/services/documenten';
+import DocumentControle from '@/components/calculatie/documenten/DocumentControle';
 import { analyseDocument, loadRuimtes, loadObjecten } from '@/services/aiAnalyse';
 import { genereerBouwdeelVoorstel, valideerProjecttype, pasVoorstelToe } from '@/services/p6Intake';
 import BouwdeelKiezer from '@/components/calculatie/werktafel/BouwdeelKiezer';
@@ -225,6 +226,8 @@ function DocumentenStap({ created, onBack, onNext }) {
           </div>
         )}
       </div>
+
+      {docs.length > 0 && <div className="mt-4"><DocumentControle docs={docs} /></div>}
 
       <div className="mt-5 flex items-center justify-between">
         <button onClick={onBack} className={ghost}><ArrowLeft size={16} /> Terug</button>
