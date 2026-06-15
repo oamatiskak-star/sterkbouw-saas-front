@@ -41,6 +41,20 @@ export async function loadSubcategories(categoryCode) {
   return data || [];
 }
 
+// Hoofdtegel-foto van een categorie (gebruikt als thumbnail-fallback op subtegelniveau zolang
+// er nog geen subtegel-specifieke beelden zijn — beter een echte categoriefoto dan een icoon).
+export async function loadCategoryImage(code) {
+  const { data } = await supabase
+    .from('sterkcalc_visual_assets')
+    .select('storage_path')
+    .eq('category_code', code)
+    .is('subcategory_code', null)
+    .eq('active', true)
+    .limit(1)
+    .maybeSingle();
+  return publicUrl(data?.storage_path);
+}
+
 export function hoofdstukkenVan(mapping) {
   try {
     const m = typeof mapping === 'string' ? JSON.parse(mapping) : mapping;

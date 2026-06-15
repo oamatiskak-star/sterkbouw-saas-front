@@ -1,5 +1,33 @@
 // services/projecten.js — Project-/documentlaag (Project = basis).
 import supabase from '@/lib/supabase';
+import { loadGlobalCalcDefaults } from '@/services/werktafel';
+import { normalizeInstellingen } from '@/lib/calc/calculatieDefaults';
+
+// Canonieke entry: maak project + calculatie + eerste werktafelrecord + eerste versie en
+// geef de calculatie-id terug zodat de gebruiker direct in de werktafel landt.
+// Vervangt de legacy executor-wizard als primaire ingang.
+export async function maakProjectEnCalculatie({ projectnaam, opdrachtgever, plaats, projecttype = 'nieuwbouw', oppervlakte = null }) {
+  const naam = (projectnaam || 'Nieuw project').trim();
+  const { data: project, error: pErr } = await supabase
+    .from('projects')
+    .insert({ projectnaam: naam, naam_opdrachtgever: opdrachtgever || null, plaatsnaam: plaats || null, project_type: projecttype, oppervlakte_m2: oppervlakte ? Number(oppervlakte) : null, status: 'concept' })
+    .select('id')
+    .single();
+  if (pErr) throw new Error('Project aanmaken mislukt: ' + pErr.message);
+
+  const defaults = normalizeInstellingen((await loadGlobalCalcDefaults().catch(() => null)) || {});
+  const { data: calc, error: cErr } = await supabase
+    .from('calculaties')
+    .insert({ project_id: project.id, naam, project_type: projecttype, status: 'concept', werktafel_opslagen: defaults })
+    .select('id')
+    .single();
+  if (cErr) throw new Error('Calculatie aanmaken mislukt: ' + cErr.message);
+
+  await supabase.from('werktafel_chapters').insert({ calculatie_id: calc.id, code: '00', naam: 'Algemeen', volgorde: 0 }).then(() => {}, () => {});
+  await supabase.from('calculation_versions').insert({ calculatie_id: calc.id, version_no: 1, label: 'Versie 1', snapshot: { opslagen: defaults, chapters: [], rows: [] } }).then(() => {}, () => {});
+
+  return calc.id;
+}
 
 export const projectNaam = (p) =>
   p?.projectnaam || p?.project_name || p?.naam_opdrachtgever || `Project ${String(p?.id || '').slice(0, 8)}`;
