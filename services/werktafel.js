@@ -2,6 +2,65 @@
 // Data-laag voor de Calculatie Werktafel (primaire calculatiebron).
 // Directe Supabase-toegang (anon, RLS-scoped). werktafel_* tabellen.
 import supabase from '@/lib/supabase';
+import { templateVoor } from '@/lib/calc/projecttypeTemplates';
+
+// P4 — projecttype-template instantiëren: maakt hoofdstukken + subhoofdstukken aan zodat de
+// werktafel nooit leeg start. Namen uit de visuele bibliotheek (echte categorie/subcategorie).
+export async function instantiateerTemplate(calculatieId, projecttype) {
+  const tpl = templateVoor(projecttype);
+  const cats = tpl.map((t) => t.cat);
+  const [{ data: catRows }, { data: subRows }] = await Promise.all([
+    supabase.from('sterkcalc_visual_categories').select('code, title').in('code', cats),
+    supabase.from('sterkcalc_visual_subcategories').select('category_code, code, title').in('category_code', cats),
+  ]);
+  const catNaam = Object.fromEntries((catRows || []).map((c) => [c.code, c.title]));
+  const subNaam = {};
+  for (const s of subRows || []) subNaam[`${s.category_code}.${s.code}`] = s.title;
+
+  let vol = 0;
+  for (const { cat, subs } of tpl) {
+    const { data: hoofd, error } = await supabase
+      .from('werktafel_chapters')
+      .insert({ calculatie_id: calculatieId, code: cat, naam: catNaam[cat] || `Hoofdstuk ${cat}`, volgorde: vol++, is_structuur: true })
+      .select('id')
+      .single();
+    if (error || !hoofd) continue;
+    if (subs.length) {
+      const payload = subs.map((sc, i) => ({
+        calculatie_id: calculatieId, parent_id: hoofd.id, code: cat, sub_code: sc,
+        naam: subNaam[`${cat}.${sc}`] || `${cat}.${sc}`, volgorde: i, is_structuur: true,
+      }));
+      await supabase.from('werktafel_chapters').insert(payload);
+    }
+  }
+}
+
+// Zoekt (of maakt) het subhoofdstuk voor een (categorie, subcategorie) zodat een combi onder het
+// juiste subhoofdstuk landt i.p.v. "Losse regels".
+export async function vindOfMaakSubhoofdstuk(calculatieId, categoryCode, subCode) {
+  if (!categoryCode || !subCode) return null;
+  const { data: bestaand } = await supabase
+    .from('werktafel_chapters').select('id')
+    .eq('calculatie_id', calculatieId).eq('code', categoryCode).eq('sub_code', subCode).maybeSingle();
+  if (bestaand) return bestaand.id;
+
+  let { data: hoofd } = await supabase
+    .from('werktafel_chapters').select('id')
+    .eq('calculatie_id', calculatieId).eq('code', categoryCode).is('parent_id', null).maybeSingle();
+  if (!hoofd) {
+    const { data: cat } = await supabase.from('sterkcalc_visual_categories').select('title').eq('code', categoryCode).maybeSingle();
+    const ins = await supabase.from('werktafel_chapters')
+      .insert({ calculatie_id: calculatieId, code: categoryCode, naam: cat?.title || `Hoofdstuk ${categoryCode}`, volgorde: 999, is_structuur: true })
+      .select('id').single();
+    hoofd = ins.data;
+  }
+  if (!hoofd) return null;
+  const { data: sub } = await supabase.from('sterkcalc_visual_subcategories').select('title').eq('category_code', categoryCode).eq('code', subCode).maybeSingle();
+  const ins2 = await supabase.from('werktafel_chapters')
+    .insert({ calculatie_id: calculatieId, parent_id: hoofd.id, code: categoryCode, sub_code: subCode, naam: sub?.title || `${categoryCode}.${subCode}`, volgorde: 999, is_structuur: true })
+    .select('id').single();
+  return ins2.data?.id || null;
+}
 
 // ---------- LADEN ----------
 export async function loadWerktafel(calculatieId) {

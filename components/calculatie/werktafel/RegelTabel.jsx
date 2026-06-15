@@ -20,7 +20,18 @@ export default function RegelTabel({
   const [open, setOpen] = useState({}); // expanded combi rows
   const collapsed = new Set(chapters.filter((c) => c.collapsed).map((c) => c.id));
 
-  const groups = [{ id: null, naam: 'Losse regels', code: '' }, ...chapters];
+  // Hiërarchie: hoofdstuk → subhoofdstukken eronder → (overige) → Losse regels als uitzondering.
+  const hoofd = chapters.filter((c) => !c.parent_id);
+  const subsBy = {};
+  for (const c of chapters.filter((c) => c.parent_id)) (subsBy[c.parent_id] = subsBy[c.parent_id] || []).push(c);
+  const ordered = [];
+  for (const h of hoofd) {
+    ordered.push({ ...h, niveau: 'hoofd' });
+    for (const s of subsBy[h.id] || []) ordered.push({ ...s, niveau: 'sub' });
+  }
+  // subhoofdstukken zonder (zichtbaar) hoofdstuk toch tonen
+  for (const c of chapters.filter((c) => c.parent_id && !hoofd.find((h) => h.id === c.parent_id))) ordered.push({ ...c, niveau: 'sub' });
+  const groups = [...ordered, { id: null, naam: 'Losse regels', code: '', niveau: 'losse' }];
 
   return (
     <div className="h-full overflow-auto">
@@ -91,12 +102,20 @@ function ChapterBlock({
   onMoveRow,
   onAddRow,
 }) {
+  const niveau = group.niveau || (group.id === null ? 'losse' : 'hoofd');
+  const headCls = niveau === 'hoofd'
+    ? 'bg-sterkcalc-navy/10 text-[11px] font-bold uppercase tracking-wide text-sterkcalc-navy'
+    : niveau === 'sub'
+    ? 'bg-gray-50 text-[11px] font-semibold text-gray-600'
+    : 'bg-amber-50/60 text-[11px] font-semibold uppercase tracking-wide text-amber-700';
+  const label = niveau === 'sub'
+    ? `${group.code ? group.code + (group.sub_code ? '.' + group.sub_code : '') + ' — ' : ''}${group.naam}`
+    : `${group.code ? '§ ' + group.code + ' — ' : ''}${group.naam}`;
   return (
     <>
-      <tr className="bg-gray-100/80 text-[11px] font-semibold uppercase tracking-wide text-gray-600">
-        <td colSpan={12} className="px-2 py-1.5">
-          {group.code ? `§ ${group.code} — ` : ''}
-          {group.naam}
+      <tr className={headCls}>
+        <td colSpan={12} className={`py-1.5 ${niveau === 'sub' ? 'pl-7 pr-2' : 'px-2'}`}>
+          {label}
         </td>
         <td className="px-2 py-1.5 text-right tabular-nums">{fmtEUR(subtot)}</td>
         <td colSpan={3}></td>

@@ -142,14 +142,21 @@ export default function Werktafel({ calculatieId }) {
           />
         </main>
 
-        <aside className="w-72 shrink-0 border-l border-gray-200 bg-gray-50/40">
-          <EigenschappenPaneel
-            row={activeRow}
-            stabuFilter={paneelStabuFilter}
-            onPatchRow={wt.patchRow}
-            onApplyStabu={wt.applyStabu}
-          />
-        </aside>
+        {/* Eigenschappenpaneel schuift alleen in bij selectie; anders volledige breedte voor de werktafel. */}
+        {activeRow && (
+          <aside className="w-72 shrink-0 border-l border-gray-200 bg-gray-50/40">
+            <div className="flex items-center justify-between border-b border-gray-200 px-3 py-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Eigenschappen</span>
+              <button onClick={() => setActiveRowId(null)} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" title="Sluiten">✕</button>
+            </div>
+            <EigenschappenPaneel
+              row={activeRow}
+              stabuFilter={paneelStabuFilter}
+              onPatchRow={wt.patchRow}
+              onApplyStabu={wt.applyStabu}
+            />
+          </aside>
+        )}
       </div>
 
       <LiveTotalen totalen={wt.totalen} opslagen={wt.opslagen} onOpslag={wt.setOpslag} />

@@ -1,7 +1,7 @@
 // services/combis.js
 // Combi-bibliotheek: categorieën, combis + componenten, en invoegen in de Werktafel.
 import supabase from '@/lib/supabase';
-import { insertRow, replaceRowComponents } from '@/services/werktafel';
+import { insertRow, replaceRowComponents, vindOfMaakSubhoofdstuk } from '@/services/werktafel';
 
 export async function loadCombi(id) {
   const { data } = await supabase.from('combis').select('*').eq('id', id).maybeSingle();
@@ -32,8 +32,14 @@ export async function loadCombiComponents(combiId) {
 // Totaal van de regel = som componenten × hoeveelheid (zie werktafelTotals).
 export async function voegCombiToe({ calculatieId, chapterId, combi, hoeveelheid = 1 }) {
   const components = await loadCombiComponents(combi.id);
+  // Routeer naar het juiste subhoofdstuk op basis van category/subcategory; alleen "Losse regels"
+  // (chapter_id null) als er echt geen mapping bestaat. (P4-productregel.)
+  let doelChapter = chapterId || null;
+  if (!doelChapter && combi.category_code && combi.subcategory_code) {
+    doelChapter = await vindOfMaakSubhoofdstuk(calculatieId, combi.category_code, combi.subcategory_code).catch(() => null);
+  }
   const row = await insertRow(calculatieId, {
-    chapter_id: chapterId || null,
+    chapter_id: doelChapter || null,
     stabu_code: combi.code || combi.stabu_hoofdstuk || null,
     omschrijving: combi.naam,
     type: 'combi',
