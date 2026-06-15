@@ -121,6 +121,7 @@ export default function Werktafel({ calculatieId }) {
           <button onClick={doAnalyse} className={`${analyse ? 'border-sterkcalc-accent bg-sterkcalc-accent/10 text-sterkcalc-accent' : 'border-gray-200 text-gray-700 hover:bg-gray-50'} inline-flex items-center gap-1 rounded border px-2.5 py-1.5 text-xs font-medium`}>
             {analyseBusy ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} AI-analyse
           </button>
+          <Link href={`/calculaties/${calculatieId}/objecten`} className={tbBtn}><Boxes size={13} /> Objecten</Link>
           <Link href={`/calculaties/${calculatieId}/ai`} className={tbBtn}><Wand2 size={13} /> AI-tekening</Link>
           <button onClick={() => setInstOpen(true)} className={tbBtn}><SlidersHorizontal size={13} /> Instellingen</button>
           <button onClick={onSaveVersion} className={tbBtn}><History size={13} /> Versie</button>

@@ -147,7 +147,10 @@ export default function AiLaag() {
           <h1 className="flex items-center gap-2 text-xl font-semibold text-gray-900"><Wand2 size={20} className="text-sterkcalc-accent" /> AI-analyse &amp; ruimteherkenning</h1>
           <p className="text-sm text-gray-500">Upload een tekening → AI herkent ruimtes, maten en openingen → groepeer herhalingen → vul de werktafel met combi × aantal. Generiek voor alle ruimtes/bouwdelen.</p>
         </div>
-        <Link href={`/calculaties/${id}/werktafel`} className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50">Naar werktafel →</Link>
+        <div className="flex items-center gap-2">
+          <Link href={`/calculaties/${id}/objecten`} className="inline-flex items-center gap-1.5 rounded-lg bg-sterkcalc-blue px-3 py-1.5 text-sm font-medium text-white hover:bg-sterkcalc-blue/90"><Box size={14} /> Ruimtes &amp; objecten →</Link>
+          <Link href={`/calculaties/${id}/werktafel`} className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50">Werktafel →</Link>
+        </div>
       </div>
 
       {/* Visions: upload + AI-extractie */}
