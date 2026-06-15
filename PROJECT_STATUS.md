@@ -5,6 +5,8 @@ Supabase-DB: **pmovazftwoxjopqkuuhp** (sterkbouww). `NEXT_PUBLIC_SUPABASE_URL`/a
 Laatst bijgewerkt: **2026-06-15**.
 
 ## 🔴 HERSTEL HIER NA CRASH
+- **P7.1 t/m P7.6 GEMERGED in main** (#31-#36). Branches opgeruimd.
+- **P7.7 (Bestellen: besteleenheid & verpakking) lokaal klaar, build groen, branch `p7.7-planning-bouwfase`:** planning-bouwfase (sloop→fundering→ruwbouw→…→oplevering) + leverancier/levertijd bleken AL geïmplementeerd in `planningEngine`/`bestelEngine` — geen herbouw. Nieuw gat = besteleenheid/verpakking: `lib/calc/besteleenheden.js` (verbruik → inkoop-verpakkingen afgerond omhoog: tegellijm→zak 25kg, voeg→zak 5kg, tegels→doos, isolatie→pak, etc.). Geïntegreerd in `/calculaties/[id]/bestellen` (per regel "→ N verpakking (inhoud)"). Geen DB-wijziging.
 - **P7.6 (offerte-afronding) lokaal klaar, build groen, branch `p7.6-offerte-afronding`:** `components/calculatie/offerte/VerzendModule.jsx` — e-mail samenstellen (onderwerp/bericht met klant/nummer/bedrag + bijlagen) → 3 verzendkanalen (e-mail via mailto / PDF-download / klantportaal-link) → "markeer als verzonden" (status verzonden + portaal-token aanmaken + audittrail-event) → bevestiging + audittrail. Vervangt de simpele Versturen-tab in `pages/calculaties/[id]/offerte.js` (handler `markeerVerzonden`). Hergebruikt bestaande `offerteExcellence` (saveOfferteVelden/logEvent/loadEvents) + `genereerOffertePdf`. Geen DB-wijziging (sterkcalc_offerte_events bestond al).
 - **P7.5 (Scenario + AI-optimalisatie) gepusht, PR #35 (wacht op Vercel/merge).**
 - **P7.1 t/m P7.4 GEMERGED in main** (#31 flow-spine, #32 rekenmodel-laag, #33 objectregel-volledigheid, #34 Projectmap). Branches opgeruimd.
