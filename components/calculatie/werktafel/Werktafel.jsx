@@ -123,6 +123,7 @@ export default function Werktafel({ calculatieId }) {
           </button>
           <Link href={`/calculaties/${calculatieId}/objecten`} className={tbBtn}><Boxes size={13} /> Objecten</Link>
           <Link href={`/calculaties/${calculatieId}/ai`} className={tbBtn}><Wand2 size={13} /> AI-tekening</Link>
+          <Link href={`/calculaties/${calculatieId}/optimalisatie`} className={tbBtn}><Sparkles size={13} /> Optimaliseren</Link>
           <button onClick={() => setInstOpen(true)} className={tbBtn}><SlidersHorizontal size={13} /> Instellingen</button>
           <button onClick={onSaveVersion} className={tbBtn}><History size={13} /> Versie</button>
           <button
