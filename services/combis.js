@@ -8,6 +8,14 @@ export async function loadCombi(id) {
   return data || null;
 }
 
+// Combi-voorstellen voor een specifiek (categorie, subcategorie) — voor inline keuze in de werktafel.
+export async function loadCombisVoorSubcat(categoryCode, subCode) {
+  let q = supabase.from('combis').select('id, code, naam, eenheid, category_code, subcategory_code').eq('actief', true).eq('category_code', categoryCode);
+  if (subCode) q = q.eq('subcategory_code', subCode);
+  const { data } = await q.order('naam').limit(12);
+  return data || [];
+}
+
 export async function loadCombiBibliotheek() {
   const [catRes, combiRes] = await Promise.all([
     supabase.from('combi_categories').select('*').order('volgorde'),
