@@ -1,6 +1,6 @@
 // services/projecten.js — Project-/documentlaag (Project = basis).
 import supabase from '@/lib/supabase';
-import { loadGlobalCalcDefaults } from '@/services/werktafel';
+import { loadGlobalCalcDefaults, instantiateerTemplate } from '@/services/werktafel';
 import { normalizeInstellingen } from '@/lib/calc/calculatieDefaults';
 
 // Canonieke entry: maak project + calculatie + eerste werktafelrecord + eerste versie en
@@ -26,7 +26,8 @@ export async function maakProjectEnCalculatie({ projectnaam, opdrachtgever, plaa
     .single();
   if (cErr) throw new Error('Calculatie aanmaken mislukt: ' + cErr.message);
 
-  await supabase.from('werktafel_chapters').insert({ calculatie_id: calc.id, code: '00', naam: 'Algemeen', volgorde: 0 }).then(() => {}, () => {});
+  // Projecttype-template: hoofdstukken + subhoofdstukken klaarzetten (werktafel start niet leeg).
+  await instantiateerTemplate(calc.id, projecttype).catch(() => {});
   await supabase.from('calculation_versions').insert({ calculatie_id: calc.id, version_no: 1, label: 'Versie 1', snapshot: { opslagen: defaults, chapters: [], rows: [] } }).then(() => {}, () => {});
 
   return calc.id;

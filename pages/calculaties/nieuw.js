@@ -6,8 +6,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Loader2, FolderPlus, ArrowRight, FileText, Wand2, DoorOpen, Layers, Boxes, Table2, FileSignature, CalendarDays, ShoppingCart, BarChart3, LayoutDashboard } from 'lucide-react';
 import { maakProjectEnCalculatie } from '@/services/projecten';
+import { PROJECTTYPE_LABELS } from '@/lib/calc/projecttypeTemplates';
 
-const TYPES = ['nieuwbouw', 'renovatie', 'transformatie', 'verduurzaming', 'uitbreiding'];
+const TYPES = ['nieuwbouw', 'renovatie', 'transformatie', 'uitbreiding', 'verduurzaming', 'badkamer', 'woning', 'appartementencomplex'];
 const KETEN = [
   { i: FolderPlus, l: 'Project' }, { i: FileText, l: 'Documenten' }, { i: Wand2, l: 'AI-analyse' }, { i: DoorOpen, l: 'Ruimtes' },
   { i: Layers, l: 'Bouwdelen' }, { i: Boxes, l: "Combi's" }, { i: Table2, l: 'Werktafel' }, { i: FileSignature, l: 'Offerte' },
@@ -60,7 +61,7 @@ export default function NieuweCalculatie() {
           <label className="block sm:col-span-2"><span className="mb-1 block text-xs font-medium text-gray-500">Projectnaam *</span><input autoFocus value={f.projectnaam} onChange={(e) => set('projectnaam', e.target.value)} placeholder="bv. Badkamerrenovatie Jansen" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></label>
           <label className="block"><span className="mb-1 block text-xs font-medium text-gray-500">Opdrachtgever</span><input value={f.opdrachtgever} onChange={(e) => set('opdrachtgever', e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></label>
           <label className="block"><span className="mb-1 block text-xs font-medium text-gray-500">Plaats</span><input value={f.plaats} onChange={(e) => set('plaats', e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></label>
-          <label className="block sm:col-span-2"><span className="mb-1 block text-xs font-medium text-gray-500">Projecttype *</span><select value={f.projecttype} onChange={(e) => set('projecttype', e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm capitalize">{TYPES.map((t) => <option key={t} value={t}>{t}</option>)}</select></label>
+          <label className="block sm:col-span-2"><span className="mb-1 block text-xs font-medium text-gray-500">Projecttype *</span><select value={f.projecttype} onChange={(e) => set('projecttype', e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">{TYPES.map((t) => <option key={t} value={t}>{PROJECTTYPE_LABELS[t] || t}</option>)}</select></label>
         </div>
 
         <button type="button" onClick={() => setMeer((m) => !m)} className="mt-3 text-xs font-medium text-sterkcalc-blue hover:underline">{meer ? '− Minder velden' : '+ Optionele velden'}</button>
