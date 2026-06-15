@@ -25,7 +25,18 @@ export function useWerktafel(calculatieId) {
       setCalculatie(d.calculatie);
       setChapters(d.chapters);
       setRows(d.rows);
-      setOpslagen(normalizeInstellingen(d.opslagen));
+      // Nieuwe calculatie zonder eigen instellingen → erf de globale defaults
+      // (sterkcalc_settings.calculatie_defaults) en persisteer ze één keer voor
+      // reproduceerbaarheid per calculatie/versie. AI raakt deze waarden nooit aan.
+      let opsl = d.opslagen;
+      if (!opsl || Object.keys(opsl).length === 0) {
+        const globals = await svc.loadGlobalCalcDefaults().catch(() => null);
+        if (globals) {
+          opsl = normalizeInstellingen(globals);
+          svc.saveOpslagen(calculatieId, opsl).catch(() => {});
+        }
+      }
+      setOpslagen(normalizeInstellingen(opsl));
     } catch (e) {
       setError(e.message || String(e));
     } finally {
