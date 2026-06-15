@@ -7,6 +7,7 @@ import { Loader2, LayoutDashboard, Table2, Wand2, FileText, CalendarDays, Shoppi
 import { buildCommand, zetCalculatieStatus } from '@/services/projectCommand';
 import { FASES, FASE_LABEL } from '@/lib/calc/projectStatus';
 import { fmtEUR } from '@/lib/calc/werktafelTotals';
+import Projectmap from '@/components/calculatie/projectmap/Projectmap';
 
 const MODULES = [
   { key: 'werktafel', label: 'Werktafel', icon: Table2 },
@@ -42,6 +43,13 @@ export default function CommandCenter() {
 
   return (
     <div className="mx-auto max-w-6xl p-6">
+      {/* P7.4 — Projectmap (project-hub) bovenaan de Project-fase. */}
+      <Projectmap calculatieId={id} />
+
+      <div className="mt-6 mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+        <LayoutDashboard size={13} /> Projectstatus &amp; modules
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="flex items-center gap-2 text-xl font-semibold text-gray-900"><LayoutDashboard size={20} className="text-sterkcalc-blue" /> {c.calculatie?.naam || 'Project'} <span className="rounded-full bg-sterkcalc-navy px-2.5 py-0.5 text-xs font-medium text-white">{c.fase.label}</span></h1>
         <div className="flex items-center gap-3">
