@@ -7,6 +7,7 @@ import { maakOfferte, loadSettings } from '@/services/calcModules';
 import * as oe from '@/services/offerteExcellence';
 import { genereerOffertePdf } from '@/lib/offerte/genereerOffertePdf';
 import { fmtEUR } from '@/lib/calc/werktafelTotals';
+import VerzendModule from '@/components/calculatie/offerte/VerzendModule';
 
 const TABS = ['Cover', 'Samenvatting', 'Werkzaamheden', 'Opties', 'Planning', 'Termijnen', 'Versturen'];
 const STATUS_LABEL = { concept: 'Concept', verzonden: 'Verzonden', bekeken: 'Bekeken', vraag: 'Vraag gesteld', akkoord: 'Akkoord', getekend: 'Getekend', afgewezen: 'Afgewezen' };
@@ -57,6 +58,18 @@ export default function OfferteBuilder() {
   const downloadPdf = async () => { setBusy(true); try { await genereerOffertePdf({ ...ctx, settings }); } catch (e) { window.alert('PDF mislukt: ' + (e.message || e)); } finally { setBusy(false); } };
   const versturen = async () => { setBusy(true); try { await oe.logEvent(offerte.id, 'verzonden'); await oe.saveOfferteVelden(offerte.id, { status: 'verzonden', verzonden_at: new Date().toISOString() }); await herlaad(); } finally { setBusy(false); } };
 
+  // P7.6 — afronding: status verzonden + portaal-token aanmaken + audittrail (kanaal/onderwerp).
+  const markeerVerzonden = async ({ kanaal, onderwerp, bijlagen } = {}) => {
+    setBusy(true);
+    try {
+      const patch = { status: 'verzonden', verzonden_at: new Date().toISOString() };
+      if (!offerte.portal_token) patch.portal_token = (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `tok_${Date.now()}_${Math.round(Math.random() * 1e6)}`);
+      await oe.saveOfferteVelden(offerte.id, patch);
+      await oe.logEvent(offerte.id, 'verzonden', { bericht: kanaal ? `via ${kanaal}` : null, meta: { onderwerp, bijlagen } });
+      await herlaad();
+    } finally { setBusy(false); }
+  };
+
   const portalUrl = offerte?.portal_token ? `${typeof window !== 'undefined' ? window.location.origin : ''}/portaal/${offerte.portal_token}` : '';
 
   if (loading) return <div className="flex items-center gap-2 p-8 text-gray-400"><Loader2 className="animate-spin" size={16} /> Laden…</div>;
@@ -102,7 +115,7 @@ export default function OfferteBuilder() {
             {tab === 'Opties' && <OptiesTab offerte={offerte} setVeld={setVeld} />}
             {tab === 'Planning' && <PlanningTab offerte={offerte} setVeld={setVeld} />}
             {tab === 'Termijnen' && <TermijnenTab offerte={offerte} termijnen={termijnen} setVeld={setVeld} />}
-            {tab === 'Versturen' && <VersturenTab portalUrl={portalUrl} events={events} />}
+            {tab === 'Versturen' && <VerzendModule offerte={offerte} portalUrl={portalUrl} events={events} totaalIncl={ctx?.totalen?.verkoopprijs_incl} busy={busy} onPdf={downloadPdf} onVerzonden={markeerVerzonden} />}
           </div>
         </>
       )}
@@ -249,23 +262,3 @@ function TermijnenTab({ offerte, termijnen, setVeld }) {
   );
 }
 
-function VersturenTab({ portalUrl, events }) {
-  return (
-    <Card>
-      <div className="mb-3">
-        <div className="text-xs font-medium text-gray-500">Klantportaal-link</div>
-        <div className="mt-1 flex items-center gap-2"><input readOnly value={portalUrl} className="flex-1 rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-600" /><button onClick={() => { navigator.clipboard?.writeText(portalUrl); window.alert('Gekopieerd'); }} className="rounded border border-gray-300 px-2 py-1 text-xs">Kopieer</button></div>
-      </div>
-      <div className="text-xs font-medium uppercase tracking-wide text-gray-400">Status & audittrail</div>
-      <ol className="mt-2 space-y-1.5">
-        {events.length === 0 && <li className="text-sm text-gray-400">Nog geen activiteit. Verstuur de offerte en deel de portaal-link.</li>}
-        {events.map((e) => (
-          <li key={e.id} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-1.5 text-sm">
-            <span className="font-medium capitalize text-gray-700">{e.type}{e.bericht ? `: ${e.bericht}` : ''}</span>
-            <span className="text-xs text-gray-400">{new Date(e.created_at).toLocaleString('nl-NL')}{e.ip ? ` · ${e.ip}` : ''}</span>
-          </li>
-        ))}
-      </ol>
-    </Card>
-  );
-}
