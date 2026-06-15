@@ -10,7 +10,7 @@ import * as ai from '@/services/aiAnalyse';
 import { pasRuimtesToe, instructiesVoorRuimte } from '@/services/objectEngine';
 import { objectenVoorType, defaultKeuzes, ruimteType, ruimteMaten, RUIMTE_TYPE_LABELS } from '@/lib/calc/objectEngine';
 import { fmtNum } from '@/lib/calc/werktafelTotals';
-import { alleModellen } from '@/lib/calc/rekenmodellen';
+import { alleModellen, getModel } from '@/lib/calc/rekenmodellen';
 import RekenmodelConfigurator from '@/components/calculatie/rekenmodel/RekenmodelConfigurator';
 
 const TYPE_OPTIES = Object.keys(RUIMTE_TYPE_LABELS);
@@ -24,7 +24,7 @@ export default function ObjectenPagina() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState(null);
   const [nieuw, setNieuw] = useState({ open: false, type: 'badkamer', naam: '', lengte: 2.5, breedte: 2.2, hoogte: 2.6 });
-  const [modelKey, setModelKey] = useState(null); // open rekenmodel-configurator
+  const [modelOpen, setModelOpen] = useState(null); // { objectKey, initial?, label? } voor de rekenmodel-configurator
 
   const initObjecten = (type) => {
     const o = {};
@@ -135,7 +135,7 @@ export default function ObjectenPagina() {
         <div className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-gray-900"><Calculator size={16} className="text-sterkcalc-blue" /> Rekenmodellen <span className="text-xs font-normal text-gray-400">— object kiezen, keuzes maken, werktafel vult</span></div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
           {alleModellen().map((m) => (
-            <button key={m.object} onClick={() => setModelKey(m.object)} className="group flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left hover:border-sterkcalc-blue/40 hover:bg-sterkcalc-blue/[0.04]">
+            <button key={m.object} onClick={() => setModelOpen({ objectKey: m.object })} className="group flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left hover:border-sterkcalc-blue/40 hover:bg-sterkcalc-blue/[0.04]">
               <span>
                 <span className="block text-sm font-medium text-gray-800">{m.label}</span>
                 <span className="text-[11px] text-gray-400">{(m.output || []).slice(0, 3).join(' · ')}…</span>
@@ -171,6 +171,15 @@ export default function ObjectenPagina() {
                   <span className="text-xs text-gray-400">{fmtNum(maten.lengte)}×{fmtNum(maten.breedte)}×{fmtNum(maten.hoogte)} m · vloer {fmtNum(maten.vloer)} m² · wand {fmtNum(maten.wand)} m²</span>
                 </div>
                 <div className="flex items-center gap-2">
+                  {getModel(rc.type) && (
+                    <button
+                      onClick={() => setModelOpen({ objectKey: rc.type, label: r.naam || RUIMTE_TYPE_LABELS[rc.type], initial: { lengte: maten.lengte, breedte: maten.breedte, hoogte: maten.hoogte } })}
+                      className="inline-flex items-center gap-1 rounded-lg bg-sterkcalc-accent/10 px-2.5 py-1 text-xs font-medium text-sterkcalc-accent ring-1 ring-sterkcalc-accent/20 hover:bg-sterkcalc-accent/20"
+                      title="Open het diepe rekenmodel met de maatvoering van deze ruimte"
+                    >
+                      <Calculator size={12} /> Rekenmodel
+                    </button>
+                  )}
                   <span className="rounded-full bg-sterkcalc-navy px-2 py-0.5 text-xs font-medium text-white">{combiCount} combi&apos;s</span>
                   <button onClick={() => verwijderRuimte(r.id)} className="text-gray-300 hover:text-red-600"><Trash2 size={14} /></button>
                 </div>
@@ -215,11 +224,13 @@ export default function ObjectenPagina() {
         </div>
       )}
 
-      {modelKey && (
+      {modelOpen && (
         <RekenmodelConfigurator
           calculatieId={id}
-          objectKey={modelKey}
-          onClose={() => setModelKey(null)}
+          objectKey={modelOpen.objectKey}
+          initialValues={modelOpen.initial}
+          label={modelOpen.label}
+          onClose={() => setModelOpen(null)}
         />
       )}
     </div>

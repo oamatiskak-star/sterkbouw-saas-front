@@ -6,12 +6,14 @@ import { useMemo, useState } from 'react';
 import { Loader2, SlidersHorizontal, Check, X, Calculator } from 'lucide-react';
 import { berekenVoorbeeld, pasModelToe } from '@/services/rekenmodellen';
 
-export default function RekenmodelConfigurator({ calculatieId, objectKey, onClose, onKlaar }) {
+export default function RekenmodelConfigurator({ calculatieId, objectKey, onClose, onKlaar, initialValues, label }) {
   const voorbeeld0 = useMemo(() => berekenVoorbeeld(objectKey, {}), [objectKey]);
   const model = voorbeeld0?.model;
   const [values, setValues] = useState(() => {
     const v = {};
     for (const i of [...(model?.inputs || []), ...(model?.advancedInputs || [])]) v[i.key] = i.default;
+    // Vooringevulde maatvoering (bv. uit de herkende ruimte) overschrijft de defaults.
+    if (initialValues) for (const k of Object.keys(initialValues)) if (initialValues[k] != null && initialValues[k] !== '') v[k] = initialValues[k];
     return v;
   });
   const [advanced, setAdvanced] = useState(false);
@@ -29,7 +31,7 @@ export default function RekenmodelConfigurator({ calculatieId, objectKey, onClos
   const vul = async () => {
     setBusy(true);
     try {
-      const res = await pasModelToe(calculatieId, objectKey, values, model.label);
+      const res = await pasModelToe(calculatieId, objectKey, values, label || model.label);
       setResultaat(res);
       onKlaar && onKlaar(res);
     } catch (e) {
