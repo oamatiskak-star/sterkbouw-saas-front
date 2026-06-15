@@ -1,7 +1,8 @@
 // components/calculatie/werktafel/RegelTabel.jsx
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Copy, Trash2, ArrowUp, ArrowDown, Plus } from 'lucide-react';
+import { ChevronDown, ChevronRight, Copy, Trash2, ArrowUp, ArrowDown, Plus, Boxes, Loader2 } from 'lucide-react';
 import { computeRow, fmtEUR, fmtNum } from '@/lib/calc/werktafelTotals';
+import { loadCombisVoorSubcat } from '@/services/combis';
 
 const TYPES = ['arbeid', 'materiaal', 'materieel', 'combi', 'stelpost'];
 const STATUSSEN = ['concept', 'definitief', 'optie', 'vervallen'];
@@ -16,6 +17,7 @@ export default function RegelTabel({
   onDuplicateRow,
   onMoveRow,
   onAddRow,
+  onAddCombi,
 }) {
   const [open, setOpen] = useState({}); // expanded combi rows
   const collapsed = new Set(chapters.filter((c) => c.collapsed).map((c) => c.id));
@@ -78,6 +80,7 @@ export default function RegelTabel({
                 onDuplicateRow={onDuplicateRow}
                 onMoveRow={onMoveRow}
                 onAddRow={onAddRow}
+                onAddCombi={onAddCombi}
               />
             );
           })}
@@ -101,7 +104,15 @@ function ChapterBlock({
   onDuplicateRow,
   onMoveRow,
   onAddRow,
+  onAddCombi,
 }) {
+  const [voorstel, setVoorstel] = useState({ open: false, loading: false, list: null });
+  const toggleVoorstel = async () => {
+    if (voorstel.open) { setVoorstel({ open: false, loading: false, list: null }); return; }
+    setVoorstel({ open: true, loading: true, list: null });
+    const list = await loadCombisVoorSubcat(group.code, group.sub_code).catch(() => []);
+    setVoorstel({ open: true, loading: false, list });
+  };
   const niveau = group.niveau || (group.id === null ? 'losse' : 'hoofd');
   const headCls = niveau === 'hoofd'
     ? 'bg-sterkcalc-navy/10 text-[11px] font-bold uppercase tracking-wide text-sterkcalc-navy'
@@ -120,14 +131,49 @@ function ChapterBlock({
         <td className="px-2 py-1.5 text-right tabular-nums">{fmtEUR(subtot)}</td>
         <td colSpan={3}></td>
         <td className="px-2 py-1.5 text-right">
-          <button
-            onClick={() => onAddRow(group.id)}
-            className="inline-flex items-center gap-1 rounded bg-white px-2 py-0.5 text-[11px] font-medium text-indigo-600 ring-1 ring-gray-200 hover:bg-indigo-50"
-          >
-            <Plus size={11} /> regel
-          </button>
+          <span className="inline-flex items-center gap-1">
+            {niveau === 'sub' && onAddCombi && (
+              <button
+                onClick={toggleVoorstel}
+                className="inline-flex items-center gap-1 rounded bg-sterkcalc-accent/10 px-2 py-0.5 text-[11px] font-medium text-sterkcalc-accent ring-1 ring-sterkcalc-accent/20 hover:bg-sterkcalc-accent/20"
+              >
+                <Boxes size={11} /> combi voorstel
+              </button>
+            )}
+            <button
+              onClick={() => onAddRow(group.id)}
+              className="inline-flex items-center gap-1 rounded bg-white px-2 py-0.5 text-[11px] font-medium text-indigo-600 ring-1 ring-gray-200 hover:bg-indigo-50"
+            >
+              <Plus size={11} /> regel
+            </button>
+          </span>
         </td>
       </tr>
+      {voorstel.open && !collapsed && (
+        <tr className="bg-sterkcalc-accent/5">
+          <td colSpan={17} className="px-2 py-2 pl-7">
+            {voorstel.loading ? (
+              <span className="inline-flex items-center gap-1 text-[11px] text-gray-400"><Loader2 size={12} className="animate-spin" /> combi-voorstellen laden…</span>
+            ) : (voorstel.list || []).length === 0 ? (
+              <span className="text-[11px] text-gray-400">Geen combi-voorstellen voor dit subhoofdstuk.</span>
+            ) : (
+              <span className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] font-medium text-gray-500">Voeg toe:</span>
+                {(voorstel.list || []).map((cb) => (
+                  <button
+                    key={cb.id}
+                    onClick={async () => { await onAddCombi(cb, group.id); setVoorstel({ open: false, loading: false, list: null }); }}
+                    className="inline-flex items-center gap-1 rounded-full border border-sterkcalc-accent/30 bg-white px-2.5 py-1 text-[11px] text-gray-700 hover:bg-sterkcalc-accent/10"
+                    title={`${cb.naam} (per ${cb.eenheid})`}
+                  >
+                    <Plus size={10} className="text-sterkcalc-accent" /> {cb.naam}
+                  </button>
+                ))}
+              </span>
+            )}
+          </td>
+        </tr>
+      )}
       {!collapsed &&
         rows.map((r, i) => {
           const c = computeRow(r);

@@ -139,6 +139,7 @@ export default function Werktafel({ calculatieId }) {
             onDuplicateRow={wt.duplicateRow}
             onMoveRow={wt.moveRow}
             onAddRow={(cid) => wt.addRow(cid)}
+            onAddCombi={(combi, chapterId) => wt.insertCombi(combi, chapterId)}
           />
         </main>
 
