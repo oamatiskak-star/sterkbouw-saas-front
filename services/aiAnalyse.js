@@ -44,20 +44,26 @@ export async function analyseTekening(calculatieId, file, { signal } = {}) {
   const extract = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(extract.error || `Vision-analyse mislukt (${res.status}).`);
 
+  // 4-7) Extract verwerken: loggen + ruimtes/openingen/objecten wegschrijven.
+  return verwerkVisionExtract(calculatieId, extract, { bestandsnaam: file.name, storage_path: path, media_type: file.type });
+}
+
+// Schrijft een vision-extract weg (analyse-log + ruimtes/openingen/objecten). Gedeeld door
+// analyseTekening (eigen upload) en analyseDocument (bestaand dossierdocument). Anon-client.
+async function verwerkVisionExtract(calculatieId, extract, { bestandsnaam, storage_path, media_type } = {}) {
   const herkend = Array.isArray(extract.ruimtes) ? extract.ruimtes : [];
   const confs = herkend.map((r) => r.confidence).filter((v) => v != null);
   const gemConf = confs.length ? Math.round((confs.reduce((s, v) => s + v, 0) / confs.length) * 100) / 100 : null;
 
-  // 4) Analyse loggen (anon-client, zelfde pad als rest van de app).
   let analysisId = null;
   try {
     const { data: log } = await supabase
       .from('calculatie_vision_analyses')
       .insert({
         calculatie_id: calculatieId,
-        bestandsnaam: file.name,
-        storage_path: path,
-        media_type: file.type,
+        bestandsnaam: bestandsnaam || null,
+        storage_path: storage_path || null,
+        media_type: media_type || null,
         model: extract.model || null,
         status: 'done',
         plan_schaal: extract.plan_schaal || null,
@@ -70,28 +76,16 @@ export async function analyseTekening(calculatieId, file, { signal } = {}) {
     analysisId = log?.id || null;
   } catch { /* log is best-effort */ }
 
-  // 5) Ruimtes + openingen wegschrijven (anon-client). Source=ai, gekoppeld aan analyse.
   let openingenTotal = 0;
   const inserted = [];
   for (const r of herkend) {
     const { data: row, error: rErr } = await supabase
       .from('calculatie_ruimtes')
-      .insert({
-        calculatie_id: calculatieId,
-        naam: r.naam,
-        klasse: r.klasse,
-        lengte: r.lengte,
-        breedte: r.breedte,
-        hoogte: r.hoogte,
-        confidence: r.confidence,
-        source: 'ai',
-        vision_analysis_id: analysisId,
-      })
+      .insert({ calculatie_id: calculatieId, naam: r.naam, klasse: r.klasse, lengte: r.lengte, breedte: r.breedte, hoogte: r.hoogte, confidence: r.confidence, source: 'ai', vision_analysis_id: analysisId })
       .select('*')
       .single();
     if (rErr) throw new Error('Opslaan ruimte mislukt: ' + rErr.message);
     inserted.push(row);
-
     const ops = Array.isArray(r.openingen) ? r.openingen : [];
     if (ops.length) {
       const payload = ops.map((o) => ({ ruimte_id: row.id, type: o.type, breedte: o.breedte, hoogte: o.hoogte, aantal: o.aantal }));
@@ -100,34 +94,16 @@ export async function analyseTekening(calculatieId, file, { signal } = {}) {
     }
   }
 
-  // 6) Losse objecten/bouwdelen wegschrijven (anon-client). Source=ai, gekoppeld aan analyse.
   const objectenHerkend = Array.isArray(extract.objecten) ? extract.objecten : [];
   let objectenTotal = 0;
   if (objectenHerkend.length) {
-    const payload = objectenHerkend.map((o) => ({
-      calculatie_id: calculatieId,
-      naam: o.naam,
-      klasse: o.klasse,
-      lengte: o.lengte,
-      breedte: o.breedte,
-      hoogte: o.hoogte,
-      aantal: o.aantal || 1,
-      materiaal: o.materiaal || null,
-      confidence: o.confidence,
-      source: 'ai',
-      vision_analysis_id: analysisId,
-    }));
+    const payload = objectenHerkend.map((o) => ({ calculatie_id: calculatieId, naam: o.naam, klasse: o.klasse, lengte: o.lengte, breedte: o.breedte, hoogte: o.hoogte, aantal: o.aantal || 1, materiaal: o.materiaal || null, confidence: o.confidence, source: 'ai', vision_analysis_id: analysisId }));
     const { error: objErr } = await supabase.from('calculatie_objecten').insert(payload);
     if (!objErr) objectenTotal = payload.reduce((s, p) => s + (p.aantal || 1), 0);
   }
 
-  // 7) Tellingen bijwerken op de analyse-log.
   if (analysisId) {
-    supabase
-      .from('calculatie_vision_analyses')
-      .update({ ruimtes_gevonden: inserted.length, openingen_gevonden: openingenTotal })
-      .eq('id', analysisId)
-      .then(() => {}, () => {});
+    supabase.from('calculatie_vision_analyses').update({ ruimtes_gevonden: inserted.length, openingen_gevonden: openingenTotal }).eq('id', analysisId).then(() => {}, () => {});
   }
 
   return {
@@ -143,6 +119,28 @@ export async function analyseTekening(calculatieId, file, { signal } = {}) {
       model: extract.model || null,
     },
   };
+}
+
+// P6-E: AI-analyse op een bestaand dossierdocument (signed-URL → vision → wegschrijven).
+// `doc` = rij uit document_sources (met storage_path + mime_type). Alleen PDF/afbeeldingen.
+export async function analyseDocument(calculatieId, doc, { signal } = {}) {
+  const mime = (doc?.mime_type || '').toLowerCase();
+  const visionMime = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+  if (!visionMime.includes(mime)) throw new Error('Dit documenttype kan AI nog niet lezen (alleen PDF/afbeeldingen).');
+
+  const signed = await supabase.storage.from('sterkcalc-vision-uploads').createSignedUrl(doc.storage_path, 600);
+  if (signed.error || !signed.data?.signedUrl) throw new Error('Kon document niet delen met vision.');
+
+  const res = await fetch('/api/calculaties/vision', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    signal,
+    body: JSON.stringify({ fileUrl: signed.data.signedUrl, mediaType: mime }),
+  });
+  const extract = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(extract.error || `Vision-analyse mislukt (${res.status}).`);
+
+  return verwerkVisionExtract(calculatieId, extract, { bestandsnaam: doc.file_name, storage_path: doc.storage_path, media_type: mime });
 }
 
 // ---- Objecten / bouwdelen (Visions+) ----

@@ -7,10 +7,18 @@ import { normalizeInstellingen } from '@/lib/calc/calculatieDefaults';
 // geef de calculatie-id terug zodat de gebruiker direct in de werktafel landt.
 // PRODUCTREGEL: een nieuwe calculatie is NOOIT afhankelijk van oppervlakte/inhoud/ruimtes/
 // bouwdelen/bouwsom/hoeveelheden — die ontstaan later in de keten (AI/maatvoering/werktafel).
-export async function maakProjectEnCalculatie({ projectnaam, opdrachtgever, plaats, projecttype = 'nieuwbouw', werkadres = null, omschrijving = null, referentie = null, startdatum = null }) {
+export async function maakProjectEnCalculatie({ projectnaam, opdrachtgever, plaats, projecttype = 'nieuwbouw', werkadres = null, omschrijving = null, referentie = null, startdatum = null, einddatum = null, contactpersoon = null, telefoon = null, email = null }) {
   const naam = (projectnaam || 'Nieuw project').trim();
   // optionele context bundelen in opmerking (geen schemawijziging)
-  const notities = [omschrijving, referentie ? `Referentie: ${referentie}` : null, startdatum ? `Startdatum: ${startdatum}` : null].filter(Boolean).join(' · ') || null;
+  const notities = [
+    omschrijving,
+    referentie ? `Referentie: ${referentie}` : null,
+    startdatum ? `Startdatum: ${startdatum}` : null,
+    einddatum ? `Einddatum: ${einddatum}` : null,
+    contactpersoon ? `Contact: ${contactpersoon}` : null,
+    telefoon ? `Tel: ${telefoon}` : null,
+    email ? `E-mail: ${email}` : null,
+  ].filter(Boolean).join(' · ') || null;
   const { data: project, error: pErr } = await supabase
     .from('projects')
     .insert({ projectnaam: naam, naam_opdrachtgever: opdrachtgever || null, plaatsnaam: plaats || null, project_type: projecttype, straatnaam_en_huisnummer: werkadres || null, opmerking: notities, status: 'concept' })
@@ -30,7 +38,7 @@ export async function maakProjectEnCalculatie({ projectnaam, opdrachtgever, plaa
   await instantiateerTemplate(calc.id, projecttype).catch(() => {});
   await supabase.from('calculation_versions').insert({ calculatie_id: calc.id, version_no: 1, label: 'Versie 1', snapshot: { opslagen: defaults, chapters: [], rows: [] } }).then(() => {}, () => {});
 
-  return calc.id;
+  return { calculatieId: calc.id, projectId: project.id };
 }
 
 export const projectNaam = (p) =>
