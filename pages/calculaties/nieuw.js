@@ -16,7 +16,8 @@ const KETEN = [
 
 export default function NieuweCalculatie() {
   const router = useRouter();
-  const [f, setF] = useState({ projectnaam: '', opdrachtgever: '', plaats: '', projecttype: 'nieuwbouw', oppervlakte: '' });
+  const [f, setF] = useState({ projectnaam: '', opdrachtgever: '', plaats: '', projecttype: 'nieuwbouw', werkadres: '', omschrijving: '', referentie: '', startdatum: '' });
+  const [meer, setMeer] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const set = (k, v) => setF((s) => ({ ...s, [k]: v }));
@@ -59,14 +60,24 @@ export default function NieuweCalculatie() {
           <label className="block sm:col-span-2"><span className="mb-1 block text-xs font-medium text-gray-500">Projectnaam *</span><input autoFocus value={f.projectnaam} onChange={(e) => set('projectnaam', e.target.value)} placeholder="bv. Badkamerrenovatie Jansen" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></label>
           <label className="block"><span className="mb-1 block text-xs font-medium text-gray-500">Opdrachtgever</span><input value={f.opdrachtgever} onChange={(e) => set('opdrachtgever', e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></label>
           <label className="block"><span className="mb-1 block text-xs font-medium text-gray-500">Plaats</span><input value={f.plaats} onChange={(e) => set('plaats', e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></label>
-          <label className="block"><span className="mb-1 block text-xs font-medium text-gray-500">Projecttype</span><select value={f.projecttype} onChange={(e) => set('projecttype', e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm capitalize">{TYPES.map((t) => <option key={t} value={t}>{t}</option>)}</select></label>
-          <label className="block"><span className="mb-1 block text-xs font-medium text-gray-500">Oppervlakte (m²)</span><input type="number" value={f.oppervlakte} onChange={(e) => set('oppervlakte', e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></label>
+          <label className="block sm:col-span-2"><span className="mb-1 block text-xs font-medium text-gray-500">Projecttype *</span><select value={f.projecttype} onChange={(e) => set('projecttype', e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm capitalize">{TYPES.map((t) => <option key={t} value={t}>{t}</option>)}</select></label>
         </div>
+
+        <button type="button" onClick={() => setMeer((m) => !m)} className="mt-3 text-xs font-medium text-sterkcalc-blue hover:underline">{meer ? '− Minder velden' : '+ Optionele velden'}</button>
+        {meer && (
+          <div className="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="block"><span className="mb-1 block text-xs font-medium text-gray-500">Werkadres</span><input value={f.werkadres} onChange={(e) => set('werkadres', e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></label>
+            <label className="block"><span className="mb-1 block text-xs font-medium text-gray-500">Referentie</span><input value={f.referentie} onChange={(e) => set('referentie', e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></label>
+            <label className="block"><span className="mb-1 block text-xs font-medium text-gray-500">Startdatum</span><input type="date" value={f.startdatum} onChange={(e) => set('startdatum', e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></label>
+            <label className="block sm:col-span-2"><span className="mb-1 block text-xs font-medium text-gray-500">Omschrijving</span><textarea value={f.omschrijving} onChange={(e) => set('omschrijving', e.target.value)} rows={2} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></label>
+          </div>
+        )}
+
         {err && <div className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{err}</div>}
         <button onClick={start} disabled={busy} className="mt-4 inline-flex items-center gap-2 rounded-lg bg-sterkcalc-accent px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60">
           {busy ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />} Calculatie starten → werktafel
         </button>
-        <p className="mt-2 text-xs text-gray-400">Maakt project + calculatie + eerste versie aan en opent de werktafel. Documenten/AI-analyse kun je daarna per calculatie toevoegen.</p>
+        <p className="mt-2 text-xs text-gray-400">Maakt project + calculatie + eerste versie aan en opent de werktafel. Oppervlaktes/hoeveelheden ontstaan later via AI-analyse, maatvoering en de werktafel — niet hier.</p>
       </div>
 
       <div className="mt-4 text-xs text-gray-400">

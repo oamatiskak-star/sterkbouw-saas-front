@@ -37,6 +37,7 @@ import { AuthProvider } from '@/lib/auth'
 import AdminLayout from '@/components/AdminLayout'
 import TablerLayout from '@/components/TablerLayout'
 import SterkCalcLayout from '@/components/sterkcalc/SterkCalcLayout'
+import RequireAuth from '@/components/sterkcalc/RequireAuth'
 
 // ===============================
 // APP
@@ -68,8 +69,10 @@ export default function App({ Component, pageProps }) {
           {isPublicRoute ? (
             page
           ) : isSterkCalc ? (
-            // ⬇️ EIGEN STERKCALC-SHELL VOOR /calculaties
-            <SterkCalcLayout>{page}</SterkCalcLayout>
+            // ⬇️ EIGEN STERKCALC-SHELL VOOR /calculaties (login afgedwongen — P0)
+            <RequireAuth>
+              <SterkCalcLayout>{page}</SterkCalcLayout>
+            </RequireAuth>
           ) : (
             // ⬇️ ADMIN SIDEBAR VOOR DE REST
             <AdminLayout>{page}</AdminLayout>

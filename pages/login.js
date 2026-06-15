@@ -27,8 +27,9 @@ export default function LoginPage() {
       return
     }
 
-    // Na inloggen naar de SterkCalc-omgeving (primaire entrypoint), niet de oude admin.
-    router.replace('/calculaties')
+    // Na inloggen terug naar de bedoelde pagina (?next), anders de SterkCalc-omgeving.
+    const next = typeof router.query.next === 'string' ? router.query.next : '/calculaties'
+    router.replace(next.startsWith('/') ? next : '/calculaties')
   }
 
   return (
