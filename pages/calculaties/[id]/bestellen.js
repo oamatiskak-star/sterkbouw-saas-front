@@ -7,6 +7,7 @@ import { ChevronLeft, Loader2, ShoppingCart, FileDown, Sheet, AlertTriangle, Tru
 import * as svc from '@/services/bestellen';
 import { leverancierspakketPdf, bestellenCsv } from '@/lib/inkoop/exportBestellen';
 import { fmtEUR } from '@/lib/calc/werktafelTotals';
+import { verrijkBestelregel } from '@/lib/calc/besteleenheden';
 
 const num = (v) => new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 2 }).format(Number(v) || 0);
 const STATUS = { concept: 'Concept', geplaatst: 'Geplaatst', geleverd: 'Geleverd' };
@@ -84,7 +85,15 @@ export default function BestellenPagina() {
                   </div>
                 </div>
                 <div className="mt-2 max-h-32 overflow-auto text-xs text-gray-600">
-                  {v.regels.slice(0, 10).map((r, i) => <div key={i} className="flex justify-between border-b border-gray-50 py-0.5"><span>{r.omschrijving} <span className="text-gray-400">· {r.fase_label}</span></span><span className="tabular-nums">{num(r.hoeveelheid)} {r.eenheid}</span></div>)}
+                  {v.regels.slice(0, 10).map((r, i) => { const rb = verrijkBestelregel(r); return (
+                    <div key={i} className="flex justify-between border-b border-gray-50 py-0.5">
+                      <span>{r.omschrijving} <span className="text-gray-400">· {r.fase_label}</span></span>
+                      <span className="tabular-nums text-right">
+                        {num(r.hoeveelheid)} {r.eenheid}
+                        {rb.bestel && <span className="ml-1 rounded bg-sterkcalc-blue/10 px-1.5 py-0.5 text-[10px] font-medium text-sterkcalc-blue">→ {rb.bestel.aantal} {rb.bestel.verpakking} ({rb.bestel.inhoud} {rb.bestel.eenheid})</span>}
+                      </span>
+                    </div>
+                  ); })}
                   {v.regels.length > 10 && <div className="pt-1 text-gray-400">+{v.regels.length - 10} meer…</div>}
                 </div>
               </div>
