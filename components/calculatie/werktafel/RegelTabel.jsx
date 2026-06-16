@@ -4,10 +4,11 @@
 // daarna technisch: Materiaal · Arbeid · Materieel · Norm · Uren · STABU.
 // Hoofdstuk = grid-rij (P5-B); subhoofdstuk zichtbaar + tellingen (P5-C); auto combi-voorstel
 // voor het actieve subhoofdstuk (P5-G); 2Jours-visual (P5-K).
-import { useEffect, useState } from 'react';
-import { ChevronDown, ChevronRight, Copy, Trash2, ArrowUp, ArrowDown, Plus, Boxes, Loader2 } from 'lucide-react';
+import { Fragment, useEffect, useState } from 'react';
+import { ChevronDown, ChevronRight, Copy, Trash2, ArrowUp, ArrowDown, Plus, Boxes, Loader2, Tag, Check } from 'lucide-react';
 import { computeRow, fmtEUR, fmtNum } from '@/lib/calc/werktafelTotals';
 import { loadCombisVoorSubcat } from '@/services/combis';
+import BouwmaatZoeker from './BouwmaatZoeker';
 
 const TYPES = ['arbeid', 'materiaal', 'materieel', 'combi', 'stelpost'];
 const STATUSSEN = ['concept', 'definitief', 'optie', 'vervallen'];
@@ -236,6 +237,23 @@ function ChapterBlock({
 function RegelRij({ r, i, c, isCombi, expanded, active, toggle, onSelectRow, onPatchRow, onRemoveRow, onDuplicateRow, onMoveRow, onPatchComponent }) {
   const num = (field, val) => onPatchRow(r.id, { [field]: val === '' ? 0 : Number(val) });
   const marge = c.verkoopprijs - c.kostprijs;
+  const [bronOpen, setBronOpen] = useState(null); // component-id waarvan de prijskoppelaar open is
+  const componentBronnen = r.meta?.componentBronnen || {};
+  // Koppelt een Bouwmaat-artikel aan één combi-component: zet de materiaalprijs +
+  // legt de herkomst vast in de parent-row meta (componenten hebben geen eigen meta).
+  const koppelComponent = (cp, a) => {
+    onPatchComponent && onPatchComponent(r.id, cp.id, { materiaalprijs: Number(a.netto) || 0 });
+    onPatchRow(r.id, {
+      meta: {
+        ...(r.meta || {}),
+        componentBronnen: {
+          ...componentBronnen,
+          [cp.id]: { leverancier: 'Bouwmaat', catalogus: '202543', peildatum: '2025-11', code: a.code, omschrijving: a.omschrijving, netto: Number(a.netto) || 0, eenheid: a.eenheid || 'PCE' },
+        },
+      },
+    });
+    setBronOpen(null);
+  };
   return (
     <>
       <tr
@@ -327,13 +345,15 @@ function RegelRij({ r, i, c, isCombi, expanded, active, toggle, onSelectRow, onP
                 Opbouw (per {r.eenheid || 'eenheid'}) — {(r._components || []).length} componenten
               </div>
               <table className="w-full text-[11px]">
-                <thead><tr className="border-b border-gray-100 text-[10px] uppercase tracking-wide text-gray-400 [&>th]:px-2 [&>th]:py-0.5 [&>th]:text-left"><th>Type</th><th>STABU</th><th>Omschrijving</th><th className="text-right">Hoev.</th><th className="text-right">Mat. €</th><th className="text-right">Arb. €</th><th className="text-right">Matl. €</th></tr></thead>
+                <thead><tr className="border-b border-gray-100 text-[10px] uppercase tracking-wide text-gray-400 [&>th]:px-2 [&>th]:py-0.5 [&>th]:text-left"><th>Type</th><th>STABU</th><th>Omschrijving</th><th className="text-right">Hoev.</th><th className="text-right">Mat. €</th><th className="text-right">Arb. €</th><th className="text-right">Matl. €</th><th>Mat.bron</th></tr></thead>
                 <tbody>
                   {(r._components || []).map((cp) => {
                     const cnum = (field, val) => onPatchComponent && onPatchComponent(r.id, cp.id, { [field]: val === '' ? 0 : Number(val) });
                     const edit = !!onPatchComponent;
+                    const bron = componentBronnen[cp.id];
                     return (
-                      <tr key={cp.id} className="border-b border-gray-50 [&>td]:px-2 [&>td]:py-0.5">
+                      <Fragment key={cp.id}>
+                      <tr className="border-b border-gray-50 [&>td]:px-2 [&>td]:py-0.5">
                         <td className="w-20 capitalize text-gray-500">{cp.type}</td>
                         <td className="w-16 font-mono text-gray-400">{cp.stabu_code || ''}</td>
                         <td>{cp.omschrijving}</td>
@@ -343,15 +363,37 @@ function RegelRij({ r, i, c, isCombi, expanded, active, toggle, onSelectRow, onP
                         <td className="w-16 text-right tabular-nums text-gray-500">{edit ? <CompNum value={cp.materiaalprijs} onChange={(v) => cnum('materiaalprijs', v)} /> : fmtNum(cp.materiaalprijs)}</td>
                         <td className="w-16 text-right tabular-nums text-gray-500">{edit ? <CompNum value={cp.arbeidsprijs} onChange={(v) => cnum('arbeidsprijs', v)} /> : fmtNum(cp.arbeidsprijs)}</td>
                         <td className="w-16 text-right tabular-nums text-gray-500">{edit ? <CompNum value={cp.materieelprijs} onChange={(v) => cnum('materieelprijs', v)} /> : fmtNum(cp.materieelprijs)}</td>
+                        <td className="w-28">
+                          {edit && (cp.type === 'materiaal' || cp.type === 'materieel') ? (
+                            bron ? (
+                              <button onClick={(e) => { e.stopPropagation(); setBronOpen(bronOpen === cp.id ? null : cp.id); }} title={`${bron.leverancier} ${bron.code} — €${Number(bron.netto).toFixed(2)} (${bron.omschrijving})`} className="inline-flex items-center gap-1 text-[10px] text-emerald-700 hover:text-emerald-900">
+                                <Check size={11} /> {bron.code}
+                              </button>
+                            ) : (
+                              <button onClick={(e) => { e.stopPropagation(); setBronOpen(bronOpen === cp.id ? null : cp.id); }} className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 hover:text-emerald-900">
+                                <Tag size={11} /> koppel
+                              </button>
+                            )
+                          ) : null}
+                        </td>
                       </tr>
+                      {bronOpen === cp.id && (
+                        <tr className="bg-emerald-50/40">
+                          <td colSpan={8} className="px-2 py-1.5" onClick={(e) => e.stopPropagation()}>
+                            <div className="text-[10px] text-emerald-800 mb-1">Bouwmaat-prijs koppelen aan <strong>{cp.omschrijving}</strong> — vervangt de materiaalprijs van dit component.</div>
+                            <BouwmaatZoeker onKies={(a) => koppelComponent(cp, a)} />
+                          </td>
+                        </tr>
+                      )}
+                      </Fragment>
                     );
                   })}
                   {(r._components || []).length === 0 && (
-                    <tr><td className="px-2 py-1 text-gray-400" colSpan={7}>geen componenten</td></tr>
+                    <tr><td className="px-2 py-1 text-gray-400" colSpan={8}>geen componenten</td></tr>
                   )}
                 </tbody>
               </table>
-              {onPatchComponent && (r._components || []).length > 0 && <div className="px-2 py-1 text-[10px] text-gray-400">Componenten zijn bewerkbaar — wijzigingen werken direct door in de combi-prijs.</div>}
+              {onPatchComponent && (r._components || []).length > 0 && <div className="px-2 py-1 text-[10px] text-gray-400">Componenten zijn bewerkbaar — wijzigingen werken direct door in de combi-prijs. Materiaal-componenten kun je koppelen aan een echte Bouwmaat-prijs.</div>}
             </div>
           </td>
         </tr>
