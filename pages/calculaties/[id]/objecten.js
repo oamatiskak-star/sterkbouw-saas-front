@@ -5,12 +5,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Loader2, Boxes, Plus, Trash2, Table2, Wand2, DoorOpen, Check, AlertTriangle, ArrowRight, Calculator } from 'lucide-react';
+import { Loader2, Boxes, Plus, Trash2, Table2, Wand2, DoorOpen, Check, AlertTriangle, ArrowRight, Calculator, ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
 import * as ai from '@/services/aiAnalyse';
 import { pasRuimtesToe, instructiesVoorRuimte } from '@/services/objectEngine';
 import { objectenVoorType, defaultKeuzes, ruimteType, ruimteMaten, RUIMTE_TYPE_LABELS } from '@/lib/calc/objectEngine';
 import { fmtNum } from '@/lib/calc/werktafelTotals';
-import { alleModellen, getModel } from '@/lib/calc/rekenmodellen';
+import { getModel } from '@/lib/calc/rekenmodellen';
+import { rekenmodellenVoorProjecttype } from '@/lib/calc/projecttypeRekenmodellen';
+import { PROJECTTYPE_LABELS } from '@/lib/calc/projecttypeTemplates';
 import RekenmodelConfigurator from '@/components/calculatie/rekenmodel/RekenmodelConfigurator';
 
 const TYPE_OPTIES = Object.keys(RUIMTE_TYPE_LABELS);
@@ -25,6 +27,8 @@ export default function ObjectenPagina() {
   const [result, setResult] = useState(null);
   const [nieuw, setNieuw] = useState({ open: false, type: 'badkamer', naam: '', lengte: 2.5, breedte: 2.2, hoogte: 2.6 });
   const [modelOpen, setModelOpen] = useState(null); // { objectKey, initial?, label? } voor de rekenmodel-configurator
+  const [projecttype, setProjecttype] = useState(null);
+  const [toonOverig, setToonOverig] = useState(false); // overige (niet-aanbevolen) modellen tonen
 
   const initObjecten = (type) => {
     const o = {};
@@ -40,7 +44,14 @@ export default function ObjectenPagina() {
   useEffect(() => {
     if (!id) return;
     ai.loadRuimtes(id).then((rs) => { setRuimtes(rs); setCfg(initCfg(rs)); }).catch(console.error).finally(() => setLoading(false));
+    ai.loadCalculatieMeta(id).then((m) => setProjecttype(m?.project_type || null)).catch(() => {});
   }, [id]);
+
+  // Aanbevolen vs. overige rekenmodellen op basis van het projecttype (increment 2).
+  const { aanbevolen: aanbevolenModellen, overig: overigeModellen } = useMemo(
+    () => rekenmodellenVoorProjecttype(projecttype),
+    [projecttype]
+  );
 
   const setType = (rid, type) => setCfg((c) => ({ ...c, [rid]: { type, objecten: initObjecten(type) } }));
   const toggleObj = (rid, key) => setCfg((c) => ({ ...c, [rid]: { ...c[rid], objecten: { ...c[rid].objecten, [key]: { ...c[rid].objecten[key], aan: !c[rid].objecten[key].aan } } } }));
@@ -130,20 +141,44 @@ export default function ObjectenPagina() {
         </div>
       )}
 
-      {/* Rekenmodellen (bouwdeel-calculators) */}
+      {/* Rekenmodellen (bouwdeel-calculators) — aanbevolen per projecttype (increment 2) */}
       <div className="mt-5">
         <div className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-gray-900"><Calculator size={16} className="text-sterkcalc-blue" /> Rekenmodellen <span className="text-xs font-normal text-gray-400">— object kiezen, keuzes maken, werktafel vult</span></div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-          {alleModellen().map((m) => (
-            <button key={m.object} onClick={() => setModelOpen({ objectKey: m.object })} className="group flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left hover:border-sterkcalc-blue/40 hover:bg-sterkcalc-blue/[0.04]">
-              <span>
-                <span className="block text-sm font-medium text-gray-800">{m.label}</span>
-                <span className="text-[11px] text-gray-400">{(m.output || []).slice(0, 3).join(' · ')}…</span>
-              </span>
-              <Calculator size={15} className="text-gray-300 group-hover:text-sterkcalc-blue" />
-            </button>
-          ))}
-        </div>
+
+        {aanbevolenModellen.length > 0 && (
+          <>
+            <div className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-sterkcalc-accent">
+              <Sparkles size={13} /> Aanbevolen voor {PROJECTTYPE_LABELS[projecttype] || projecttype}
+              <span className="font-normal text-gray-400">— relevant voor dit projecttype</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+              {aanbevolenModellen.map((m) => <ModelKaart key={m.object} m={m} aanbevolen onClick={() => setModelOpen({ objectKey: m.object })} />)}
+            </div>
+          </>
+        )}
+
+        {overigeModellen.length > 0 && (
+          <div className={aanbevolenModellen.length > 0 ? 'mt-3' : ''}>
+            {aanbevolenModellen.length > 0 ? (
+              <>
+                <button onClick={() => setToonOverig((v) => !v)} className="flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-700">
+                  {toonOverig ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                  Overige modellen ({overigeModellen.length})
+                </button>
+                {toonOverig && (
+                  <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                    {overigeModellen.map((m) => <ModelKaart key={m.object} m={m} onClick={() => setModelOpen({ objectKey: m.object })} />)}
+                  </div>
+                )}
+              </>
+            ) : (
+              // Geen (geldig) projecttype → toon alles plat, zonder valse aanbeveling.
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                {overigeModellen.map((m) => <ModelKaart key={m.object} m={m} onClick={() => setModelOpen({ objectKey: m.object })} />)}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Ruimtes */}
@@ -234,5 +269,24 @@ export default function ObjectenPagina() {
         />
       )}
     </div>
+  );
+}
+
+function ModelKaart({ m, aanbevolen, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`group flex items-center justify-between rounded-lg border px-3 py-2.5 text-left ${
+        aanbevolen
+          ? 'border-sterkcalc-accent/30 bg-sterkcalc-accent/[0.04] hover:border-sterkcalc-accent/60 hover:bg-sterkcalc-accent/[0.08]'
+          : 'border-gray-200 bg-white hover:border-sterkcalc-blue/40 hover:bg-sterkcalc-blue/[0.04]'
+      }`}
+    >
+      <span>
+        <span className="block text-sm font-medium text-gray-800">{m.label}</span>
+        <span className="text-[11px] text-gray-400">{(m.output || []).slice(0, 3).join(' · ')}…</span>
+      </span>
+      <Calculator size={15} className={aanbevolen ? 'text-sterkcalc-accent/50 group-hover:text-sterkcalc-accent' : 'text-gray-300 group-hover:text-sterkcalc-blue'} />
+    </button>
   );
 }
