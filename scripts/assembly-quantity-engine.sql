@@ -25,3 +25,13 @@ select reden, details->>'ifc_guid' as ifc_guid, details->>'functie' as functie,
 from harvest.review_queue
 where reden like 'assembly-%' and status='open'
 order by reden;
+
+-- ── Fase 2: generated_item engine (UNIQUE(ifc_object_id,functie) + rule_id-provenance) ──
+-- Eén object → volledige staged opbouw:
+--   select assembly.generate_items_from_ifc('<harvest.ifc_object.id>');
+-- Batch + rapport (objecten/generated/duplicates/missing/unmatched/rekenmodel_route):
+select jsonb_pretty(assembly.generate_items_all()) as fase2_resultaat;
+-- Provenance per staged generated_item:
+select ifc_guid, variant_code, functie, combi_code, quantity, eenheid, factor,
+       quantity_source, rule_id, confidence, status
+from assembly.generated_item order by ifc_guid, functie;
