@@ -13,6 +13,7 @@ import { fmtNum } from '@/lib/calc/werktafelTotals';
 import { getModel } from '@/lib/calc/rekenmodellen';
 import { rekenmodellenVoorProjecttype } from '@/lib/calc/projecttypeRekenmodellen';
 import { PROJECTTYPE_LABELS } from '@/lib/calc/projecttypeTemplates';
+import { cascoModellen } from '@/lib/calc/cascoUitTekening';
 import RekenmodelConfigurator from '@/components/calculatie/rekenmodel/RekenmodelConfigurator';
 
 const TYPE_OPTIES = Object.keys(RUIMTE_TYPE_LABELS);
@@ -29,6 +30,7 @@ export default function ObjectenPagina() {
   const [modelOpen, setModelOpen] = useState(null); // { objectKey, initial?, label? } voor de rekenmodel-configurator
   const [projecttype, setProjecttype] = useState(null);
   const [toonOverig, setToonOverig] = useState(false); // overige (niet-aanbevolen) modellen tonen
+  const [casco, setCasco] = useState(null); // casco-hoeveelheden uit de laatste vision-analyse (increment 3)
 
   const initObjecten = (type) => {
     const o = {};
@@ -45,6 +47,7 @@ export default function ObjectenPagina() {
     if (!id) return;
     ai.loadRuimtes(id).then((rs) => { setRuimtes(rs); setCfg(initCfg(rs)); }).catch(console.error).finally(() => setLoading(false));
     ai.loadCalculatieMeta(id).then((m) => setProjecttype(m?.project_type || null)).catch(() => {});
+    ai.loadLaatsteCasco(id).then(setCasco).catch(() => {});
   }, [id]);
 
   // Aanbevolen vs. overige rekenmodellen op basis van het projecttype (increment 2).
@@ -52,6 +55,9 @@ export default function ObjectenPagina() {
     () => rekenmodellenVoorProjecttype(projecttype),
     [projecttype]
   );
+
+  // Casco-rekenmodellen met vooringevulde hoeveelheden uit de tekening (increment 3).
+  const cascoItems = useMemo(() => cascoModellen(casco), [casco]);
 
   const setType = (rid, type) => setCfg((c) => ({ ...c, [rid]: { type, objecten: initObjecten(type) } }));
   const toggleObj = (rid, key) => setCfg((c) => ({ ...c, [rid]: { ...c[rid], objecten: { ...c[rid].objecten, [key]: { ...c[rid].objecten[key], aan: !c[rid].objecten[key].aan } } } }));
@@ -138,6 +144,37 @@ export default function ObjectenPagina() {
             {result.ontbrekend.length > 0 && <span className="text-amber-700"> {result.ontbrekend.length} combi-code(s) niet gevonden: {result.ontbrekend.join(', ')}.</span>}
             <Link href={`/calculaties/${id}/werktafel`} className="ml-2 inline-flex items-center gap-1 font-semibold text-sterkcalc-navy hover:underline">Naar werktafel <ArrowRight size={13} /></Link>
           </div>
+        </div>
+      )}
+
+      {/* Casco uit tekening — vooringevulde casco-rekenmodellen (increment 3) */}
+      {cascoItems.length > 0 && (
+        <div className="mt-5 rounded-xl border border-sterkcalc-accent/30 bg-sterkcalc-accent/[0.04] p-4">
+          <div className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-sterkcalc-navy">
+            <Wand2 size={16} className="text-sterkcalc-accent" /> Casco uit tekening
+            <span className="text-xs font-normal text-gray-500">— hoeveelheden afgeleid uit de bouwtekening; open het rekenmodel vooringevuld</span>
+            {casco?.confidence != null && <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-[11px] font-medium text-gray-500 ring-1 ring-gray-200">zekerheid {Math.round(casco.confidence)}%</span>}
+          </div>
+          {casco?.opmerking && <p className="mb-2 text-[11px] text-gray-500">{casco.opmerking}</p>}
+          <p className="mb-3 text-[11px] text-amber-700">Controleer de afgeleide hoeveelheden vóór toepassen — pas ze zo nodig aan in het rekenmodel.</p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {cascoItems.map((it) => (
+              <button
+                key={it.objectKey}
+                onClick={() => setModelOpen({ objectKey: it.objectKey, initial: it.initial, label: it.label })}
+                className="group flex flex-col gap-1 rounded-lg border border-sterkcalc-accent/30 bg-white px-3 py-2.5 text-left hover:border-sterkcalc-accent/60 hover:bg-sterkcalc-accent/[0.06]"
+              >
+                <span className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-gray-800">{it.label}</span>
+                  <Calculator size={15} className="text-sterkcalc-accent/50 group-hover:text-sterkcalc-accent" />
+                </span>
+                <span className="text-[11px] text-gray-500">
+                  {it.hoeveelheden.map((h) => `${h.label}: ${fmtNum(h.waarde)} ${h.eenheid}`).join(' · ')}
+                </span>
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-[10px] text-gray-400">Staal/constructie wordt niet automatisch afgeleid (komt van de constructietekening) — voer dat handmatig in via het Staalconstructie-rekenmodel.</p>
         </div>
       )}
 

@@ -113,6 +113,7 @@ async function verwerkVisionExtract(calculatieId, extract, { bestandsnaam, stora
       ruimtes_gevonden: inserted.length,
       openingen_gevonden: openingenTotal,
       objecten_gevonden: objectenTotal,
+      casco_gevonden: !!extract.casco,
       gem_confidence: gemConf,
       plan_schaal: extract.plan_schaal || null,
       opmerkingen: extract.opmerkingen || null,
@@ -212,6 +213,22 @@ export async function loadAnalyses(calculatieId) {
 }
 
 // ---- Ruimtes ----
+// Casco-hoeveelheden uit de meest recente vision-analyse (increment 3).
+// Leest casco uit raw_response van de laatste analyses; geeft de eerste niet-lege terug.
+export async function loadLaatsteCasco(calculatieId) {
+  const { data } = await supabase
+    .from('calculatie_vision_analyses')
+    .select('raw_response, created_at')
+    .eq('calculatie_id', calculatieId)
+    .order('created_at', { ascending: false })
+    .limit(5);
+  for (const a of data || []) {
+    const c = a?.raw_response?.casco;
+    if (c && Object.values(c).some((v) => v != null && v !== '')) return c;
+  }
+  return null;
+}
+
 // Lichte calculatie-meta (o.a. project_type) voor projecttype-gestuurde voorstellen.
 export async function loadCalculatieMeta(calculatieId) {
   const { data } = await supabase
