@@ -50,7 +50,7 @@ export async function loadCombiComponents(combiId) {
 
 // Voegt een combi toe als één openklapbare combi-regel met onderliggende componenten.
 // Totaal van de regel = som componenten × hoeveelheid (zie werktafelTotals).
-export async function voegCombiToe({ calculatieId, chapterId, combi, hoeveelheid = 1 }) {
+export async function voegCombiToe({ calculatieId, chapterId, combi, hoeveelheid = 1, meta = null }) {
   const components = await loadCombiComponents(combi.id);
   // Routeer naar het juiste subhoofdstuk op basis van category/subcategory; alleen "Losse regels"
   // (chapter_id null) als er echt geen mapping bestaat. (P4-productregel.)
@@ -69,6 +69,8 @@ export async function voegCombiToe({ calculatieId, chapterId, combi, hoeveelheid
     eenheid: combi.eenheid || 'st',
     status: 'concept',
     volgorde: Date.now() % 100000,
+    // Increment 4 — herkomst/aannames van de regel (alleen meeschrijven als aanwezig).
+    ...(meta ? { meta } : {}),
   });
   const saved = await replaceRowComponents(
     row.id,

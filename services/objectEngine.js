@@ -24,7 +24,7 @@ export function instructiesVoorRuimte(type, ruimte, keuzesPerObject = {}, actiev
 // Past een lijst combi-instructies toe op de werktafel. Combineert dubbele combi-codes niet
 // (elke instructie = eigen regel met eigen omschrijving), maar routeert ze wél naar hun
 // subhoofdstuk. Geeft {toegevoegd, ontbrekend} terug.
-export async function pasInstructiesToe(calculatieId, instructies, ruimteLabel = '') {
+export async function pasInstructiesToe(calculatieId, instructies, ruimteLabel = '', meta = null) {
   const codes = instructies.map((i) => i.combiCode);
   const map = await loadCombisByCodes(codes);
   let toegevoegd = 0;
@@ -38,7 +38,7 @@ export async function pasInstructiesToe(calculatieId, instructies, ruimteLabel =
     if (stukEenheid) hv = Math.max(1, Math.round(hv));
     else hv = Math.round(hv * 100) / 100;
     const combi = { ...basis, naam: ruimteLabel ? `${ruimteLabel} — ${instr.omschrijving || basis.naam}` : (instr.omschrijving || basis.naam) };
-    const row = await voegCombiToe({ calculatieId, chapterId: null, combi, hoeveelheid: hv }).catch(() => null);
+    const row = await voegCombiToe({ calculatieId, chapterId: null, combi, hoeveelheid: hv, meta }).catch(() => null);
     if (row) toegevoegd += 1;
   }
   return { toegevoegd, ontbrekend };
