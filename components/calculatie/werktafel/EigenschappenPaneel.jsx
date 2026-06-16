@@ -1,16 +1,25 @@
 // components/calculatie/werktafel/EigenschappenPaneel.jsx
 import { useEffect, useRef, useState } from 'react';
-import { Search, Tag, Check } from 'lucide-react';
+import { Search, Tag, Check, Layers } from 'lucide-react';
 import { zoekStabu } from '@/services/werktafel';
 import { computeRow, fmtEUR } from '@/lib/calc/werktafelTotals';
+import { loadCombiNlsfb } from '@/services/classificatie';
 import BouwmaatZoeker from './BouwmaatZoeker';
 
 export default function EigenschappenPaneel({ row, priceFactor = 1, stabuFilter = null, onPatchRow, onApplyStabu }) {
   const [term, setTerm] = useState('');
   const [hits, setHits] = useState([]);
   const [busy, setBusy] = useState(false);
+  const [nlsfb, setNlsfb] = useState([]); // read-only classificatie-overlay (open-data harvest)
   const deb = useRef();
   const filterKey = stabuFilter ? stabuFilter.join(',') : '';
+
+  // NL-SfB-classificatie (read-only) voor combi-regels, via de publieke view.
+  useEffect(() => {
+    const code = row && (row.type === 'combi' || row.is_combi) ? row.stabu_code : null;
+    if (!code) { setNlsfb([]); return; }
+    loadCombiNlsfb(code).then(setNlsfb).catch(() => setNlsfb([]));
+  }, [row?.id, row?.stabu_code]);
 
   useEffect(() => {
     if (!term && !stabuFilter) {
@@ -48,6 +57,18 @@ export default function EigenschappenPaneel({ row, priceFactor = 1, stabuFilter 
   return (
     <div className="flex h-full flex-col overflow-y-auto p-3">
       <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Regel-eigenschappen</div>
+
+      {nlsfb.length > 0 && (
+        <div className="mt-1 flex flex-wrap items-center gap-1 rounded border border-sterkcalc-blue/20 bg-sterkcalc-blue/[0.04] px-2 py-1 text-[11px]">
+          <Layers size={12} className="text-sterkcalc-blue" />
+          <span className="text-gray-500">NL-SfB:</span>
+          {nlsfb.map((n) => (
+            <span key={n.nlsfb_code} className="rounded bg-white px-1.5 py-0.5 font-medium text-gray-700 ring-1 ring-gray-200" title="Read-only classificatie uit de open-data harvest-laag">
+              {n.nlsfb_code} {n.nlsfb_naam}
+            </span>
+          ))}
+        </div>
+      )}
 
       <Field label="Omschrijving">
         <input value={row.omschrijving || ''} onChange={set('omschrijving')} className={inputCls} />
