@@ -25,6 +25,7 @@ export default function RegelTabel({
   onMoveRow,
   onAddRow,
   onAddCombi,
+  onPatchComponent,
 }) {
   const [open, setOpen] = useState({}); // uitgeklapte combi-regels
   const collapsed = new Set(chapters.filter((c) => c.collapsed).map((c) => c.id));
@@ -93,6 +94,7 @@ export default function RegelTabel({
                 onMoveRow={onMoveRow}
                 onAddRow={onAddRow}
                 onAddCombi={onAddCombi}
+                onPatchComponent={onPatchComponent}
               />
             );
           })}
@@ -107,7 +109,7 @@ export default function RegelTabel({
 
 function ChapterBlock({
   group, rows, rowCount, subtot, isActive, open, setOpen, activeRowId,
-  onSelectRow, onPatchRow, onRemoveRow, onDuplicateRow, onMoveRow, onAddRow, onAddCombi,
+  onSelectRow, onPatchRow, onRemoveRow, onDuplicateRow, onMoveRow, onAddRow, onAddCombi, onPatchComponent,
 }) {
   const [voorstel, setVoorstel] = useState({ open: false, loading: false, list: null });
   const niveau = group.niveau || (group.id === null ? 'losse' : 'hoofd');
@@ -221,6 +223,7 @@ function ChapterBlock({
             onRemoveRow={onRemoveRow}
             onDuplicateRow={onDuplicateRow}
             onMoveRow={onMoveRow}
+            onPatchComponent={onPatchComponent}
           />
         );
       })}
@@ -228,7 +231,7 @@ function ChapterBlock({
   );
 }
 
-function RegelRij({ r, i, c, isCombi, expanded, active, toggle, onSelectRow, onPatchRow, onRemoveRow, onDuplicateRow, onMoveRow }) {
+function RegelRij({ r, i, c, isCombi, expanded, active, toggle, onSelectRow, onPatchRow, onRemoveRow, onDuplicateRow, onMoveRow, onPatchComponent }) {
   const num = (field, val) => onPatchRow(r.id, { [field]: val === '' ? 0 : Number(val) });
   const marge = c.verkoopprijs - c.kostprijs;
   return (
@@ -322,29 +325,48 @@ function RegelRij({ r, i, c, isCombi, expanded, active, toggle, onSelectRow, onP
                 Opbouw (per {r.eenheid || 'eenheid'}) — {(r._components || []).length} componenten
               </div>
               <table className="w-full text-[11px]">
+                <thead><tr className="border-b border-gray-100 text-[10px] uppercase tracking-wide text-gray-400 [&>th]:px-2 [&>th]:py-0.5 [&>th]:text-left"><th>Type</th><th>STABU</th><th>Omschrijving</th><th className="text-right">Hoev.</th><th className="text-right">Mat. €</th><th className="text-right">Arb. €</th><th className="text-right">Matl. €</th></tr></thead>
                 <tbody>
-                  {(r._components || []).map((cp) => (
-                    <tr key={cp.id} className="border-b border-gray-50 [&>td]:px-2 [&>td]:py-0.5">
-                      <td className="w-20 capitalize text-gray-500">{cp.type}</td>
-                      <td className="font-mono text-gray-400">{cp.stabu_code || ''}</td>
-                      <td>{cp.omschrijving}</td>
-                      <td className="w-24 text-right tabular-nums">{fmtNum(cp.hoeveelheid, 3)} {cp.eenheid}</td>
-                      <td className="w-44 text-right tabular-nums text-gray-500">
-                        mat {fmtNum(cp.materiaalprijs)} · arb {fmtNum(cp.arbeidsprijs)}
-                        {Number(cp.materieelprijs) ? ` · matl ${fmtNum(cp.materieelprijs)}` : ''}
-                      </td>
-                    </tr>
-                  ))}
+                  {(r._components || []).map((cp) => {
+                    const cnum = (field, val) => onPatchComponent && onPatchComponent(r.id, cp.id, { [field]: val === '' ? 0 : Number(val) });
+                    const edit = !!onPatchComponent;
+                    return (
+                      <tr key={cp.id} className="border-b border-gray-50 [&>td]:px-2 [&>td]:py-0.5">
+                        <td className="w-20 capitalize text-gray-500">{cp.type}</td>
+                        <td className="w-16 font-mono text-gray-400">{cp.stabu_code || ''}</td>
+                        <td>{cp.omschrijving}</td>
+                        <td className="w-24 text-right tabular-nums">
+                          {edit ? <CompNum value={cp.hoeveelheid} onChange={(v) => cnum('hoeveelheid', v)} /> : fmtNum(cp.hoeveelheid, 3)} <span className="text-gray-400">{cp.eenheid}</span>
+                        </td>
+                        <td className="w-16 text-right tabular-nums text-gray-500">{edit ? <CompNum value={cp.materiaalprijs} onChange={(v) => cnum('materiaalprijs', v)} /> : fmtNum(cp.materiaalprijs)}</td>
+                        <td className="w-16 text-right tabular-nums text-gray-500">{edit ? <CompNum value={cp.arbeidsprijs} onChange={(v) => cnum('arbeidsprijs', v)} /> : fmtNum(cp.arbeidsprijs)}</td>
+                        <td className="w-16 text-right tabular-nums text-gray-500">{edit ? <CompNum value={cp.materieelprijs} onChange={(v) => cnum('materieelprijs', v)} /> : fmtNum(cp.materieelprijs)}</td>
+                      </tr>
+                    );
+                  })}
                   {(r._components || []).length === 0 && (
-                    <tr><td className="px-2 py-1 text-gray-400" colSpan={5}>geen componenten</td></tr>
+                    <tr><td className="px-2 py-1 text-gray-400" colSpan={7}>geen componenten</td></tr>
                   )}
                 </tbody>
               </table>
+              {onPatchComponent && (r._components || []).length > 0 && <div className="px-2 py-1 text-[10px] text-gray-400">Componenten zijn bewerkbaar — wijzigingen werken direct door in de combi-prijs.</div>}
             </div>
           </td>
         </tr>
       )}
     </>
+  );
+}
+
+function CompNum({ value, onChange }) {
+  return (
+    <input
+      type="number"
+      value={value ?? 0}
+      onChange={(e) => onChange(e.target.value)}
+      onClick={(e) => e.stopPropagation()}
+      className="w-16 rounded bg-transparent px-1 text-right tabular-nums outline-none hover:bg-gray-50 focus:bg-white focus:ring-1 focus:ring-indigo-300"
+    />
   );
 }
 

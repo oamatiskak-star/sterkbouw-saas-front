@@ -176,6 +176,16 @@ export async function reorderRows(rows) {
   );
 }
 
+// P5.3 — één component van een regel bijwerken (inline bewerken in de werktafel).
+export async function updateRowComponent(id, patch) {
+  const clean = {};
+  for (const k of ['hoeveelheid', 'materiaalprijs', 'arbeidsprijs', 'materieelprijs', 'norm', 'omschrijving', 'eenheid', 'stabu_code']) {
+    if (patch[k] !== undefined) clean[k] = patch[k];
+  }
+  const { error } = await supabase.from('werktafel_row_components').update(clean).eq('id', id);
+  if (error) throw error;
+}
+
 // Vervang alle componenten van een regel (gebruikt bij combi-invoegen/bewerken).
 export async function replaceRowComponents(rowId, components) {
   const del = await supabase.from('werktafel_row_components').delete().eq('row_id', rowId);

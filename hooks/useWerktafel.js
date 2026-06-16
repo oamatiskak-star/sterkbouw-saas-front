@@ -126,6 +126,15 @@ export function useWerktafel(calculatieId) {
     }, 600);
   }, []);
 
+  // P5.3 — één combi-component inline bijwerken; combi-totalen volgen uit de componenten.
+  const patchComponent = useCallback((rowId, compId, patch) => {
+    setRows((rs) => rs.map((r) => (r.id === rowId ? { ...r, _components: (r._components || []).map((c) => (c.id === compId ? { ...c, ...patch } : c)) } : r)));
+    clearTimeout(debounces.current['c' + compId]);
+    debounces.current['c' + compId] = setTimeout(() => {
+      svc.updateRowComponent(compId, patch).catch(() => {});
+    }, 600);
+  }, []);
+
   const removeRow = useCallback((id) => {
     setRows((rs) => rs.filter((r) => r.id !== id));
     svc.deleteRow(id).catch(() => {});
@@ -253,6 +262,7 @@ export function useWerktafel(calculatieId) {
     toggleCollapse,
     addRow,
     patchRow,
+    patchComponent,
     removeRow,
     duplicateRow,
     moveRow,

@@ -5,6 +5,7 @@ Supabase-DB: **pmovazftwoxjopqkuuhp** (sterkbouww). `NEXT_PUBLIC_SUPABASE_URL`/a
 Laatst bijgewerkt: **2026-06-15**.
 
 ## 🔴 HERSTEL HIER NA CRASH
+- **P5.3 (Werktafel inline component-edit + prijspeil/regio) lokaal klaar, build groen, branch `p5.3-werktafel-component-edit`:** GEEN migratie. `services/werktafel.js` +`updateRowComponent`; `useWerktafel` +`patchComponent` (optimistic+debounced); `RegelTabel` combi-opbouwtabel nu **bewerkbaar** (hoev./mat/arb/matl per component → combi-prijs volgt direct); `LiveTotalen` toont **regiofactor + prijspeildatum**. **P5 compleet — hele audit-backlog P1–P5 afgerond. Bibliotheek 32 rekenmodellen.**
 - **P4 COMPLEET en gemerged (#53 afbouw, #54 dakopening/verdiepingsvloer, #55 stelposten).**
 - **P5 gestart (audit-prioriteit 5, laagste).**
 - **P5.2 (EnergieModel) lokaal klaar, build groen, branch `p5.2-energie-model`:** GEEN migratie. `energie.js` (zonnepanelen CUR-2511 × panelen, warmtepomp lucht/hybride CUR-2802/C3-2813, buffervat C3-2808, laadpaal C3-2512). **Bibliotheek 32 modellen.**
