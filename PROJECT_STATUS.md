@@ -2,18 +2,33 @@
 
 Next.js 14 (Pages Router) + Supabase. Live SterkCalc-frontend (Vercel `sterkbouw-saas-front`, domein **app.sterkbouw.nl**).
 Supabase-DB: **pmovazftwoxjopqkuuhp** (sterkbouww). `NEXT_PUBLIC_SUPABASE_URL`/anon wijst hierheen.
-Laatst bijgewerkt: **2026-06-16** (reboot-punt).
+Laatst bijgewerkt: **2026-06-16** (na IFC/assembly-pijplijn + Normuren-import + IFC Review Workbench).
 
 ## 🔴 HERSTEL HIER NA CRASH
-### ✅ ACTUELE WAARHEID (2026-06-16) — dit overschrijft alle oudere per-increment-regels hieronder
-- **Alles staat op `main`, working tree schoon.** (Laatste merges: #60–#64 = resterende-5%-laag; 1c als laatste PR open.)
+### ✅ ACTUELE WAARHEID (2026-06-16 — LAATSTE SESSIE) — dit overschrijft alles hieronder
+- **Alles staat op `main`, working tree schoon, `main`=`origin/main`.** Laatste merges deze sessie: **#69–#90**.
+- **Migraties t/m `20260616_33` op pmovaz-prod** (allemaal additief, ge-mirrord in `supabase/migrations/`). Vier nieuwe **geïsoleerde schema's** (FK→core, nooit core muteren): `harvest` (open-data + `ifc_object`), `attr` (component-attribuutmodel), `assembly` (assembly-engine), `normuren` (normuren-import).
+- **IFC → werktafel-keten is END-TO-END live (allemaal staged + review-gated, geen auto-promote):**
+  1. **IFC-importer** (`scripts/ifc-import-pilot.py`) → `harvest.ifc_object` (+ ranking).
+  2. **Assembly-engine** (`assembly.template`/`variant`/`template_item`/`rule`, 3 templates: WALL_SPOUW/ROOF_OPBOUW/WINDOW_KOZIJN) → **`assembly.generate_items_from_ifc/_all`** → **`assembly.generated_item` (CANONIEK)**. Oude `assembly.staged_regel` = DEPRECATED (COMMENT, niets verwijderd). Canonieke read-view `assembly.v_assembly_staged`.
+  3. **Review/Promote** (`assembly.promote_generated_item` / `rollback_promotion` + `assembly.promotion_log` auditlog + `werktafel_dup` duplicate-check). Promote = combi-rij in `werktafel_rows`, **prices 0** (geen prijslogica), IFC/assembly-provenance → `meta.aannames`.
+  4. **IFC Review Workbench** (`/calculaties/ifc-review`, in nav onder Calculatie): per IFC-object review → approve/reject → Promote object / Rollback object. Server-side API (`pages/api/assembly/*`) via **service-role-only** public RPC's `ifc_review_state/_item_status/_promote_object/_rollback_object` (assembly is NIET anon-exposed → `lib/supabaseAdmin.js`). KPI's: staged/in_review/approved/promoted/te_genereren/duplicate/rejected.
+  5. **IFcWindow rekenmodel-route** promootbaar: draait het BESTAANDE `lib/calc/rekenmodellen/kozijn` (`pages/api/assembly/generate-window.js` → `ifc_stage_rekenmodel_items`) → canonieke generated_items; variant via ThermalTransmittance (U=1.1→hr++). Getest: 3 regels (kozijn/hang-sluit/vensterbank), promote→rollback net-zero, provenance incl. TT + rekenmodel_object.
+- **Normuren-import** (`normuren`-schema, `scripts/normuren-import.py`): 2 Breskens-2Jours-calculaties geïmporteerd (v11 #84 + v10 Fase 3) → **357 staging-regels, 0 approved (review-gated)**, uurloon €45-aanname. Fase-2 matcher (#85, pg_trgm + STABU-crosswalk + werksoort-blokkade) koppelt combi/component als **suggestie** (<0.85 review). 168 consensus-kandidaten (identieke upe) tussen v10/v11. Approved normurenlaag (`normuren.normuur`) nog leeg (bewust).
+- **Vorige laag (resterende 5%) blijft live:** prijsbron (regio×CBS per component), projecttype-modellen, casco-uit-tekening, aannames-provenance — zie blok hieronder.
 - **Alle sprints gemerged:** P5/P6/Object Engine + **P7** (canonieke flow) + **P8/P9/P10** (rekenmodellen) + **P11** (object↔model-koppeling) + **Reality-Audit-backlog P1–P5** (#44–#58).
 - **32 rekenmodellen** in `lib/calc/rekenmodellen/` (registry `index.js`), zichtbaar in de Rekenmodellen-sectie op `/calculaties/[id]/objecten` + `RekenmodelConfigurator`.
 - **8 migraties vandaag op pmovaz-prod:** `20260616_01_abk_uitbreiding` t/m `20260616_08_lift_balkon_galerij` (allemaal additief, ge-mirrord in `supabase/migrations/`).
 - **Verificatie-audit conclusie:** ~95% objectgedreven dekbaar. Alle eerdere €5M-risicoposten (ABK/staart, fundering-diepte, staal, sloop/asbest, brand/geluid, terrein/riolering, vloerverwarming/leidingwerk, keuken-toestellen, steiger, afbouw, lift/balkon, stelposten) zijn afgedekt. **Resterende ~5% = prijs- en hoeveelheid-BETROUWBAARHEID (provenance), géén ontbrekende posten meer.**
 - **2026-06-16 (na reboot) — resterende 5% AFGEROND:** increments **1a (#60)**, **2 (#61)**, **4 (#62)**, **3 (#63)** en **1b (#64)** GEMERGED naar main; **1c** klaar (PR open). De prijsbron-laag (regiofactor + CBS-prijspeil per component) + projecttype-modellen + casco-uit-tekening + aannames-provenance zijn daarmee live. Volgende geplande diepgang (los van de 5%): klantportaal + online ondertekening, IFC-parsing, PDF-detailregels per hoofdstuk.
 
-### 🔜 HIER VERDER NA REBOOT — de resterende 5% (in volgorde, elk eigen branch + PR)
+### 🔜 HIER VERDER (volgende stappen, elk eigen branch + PR)
+- **Normuren Fase 4:** operator-review-UI om normuren-suggesties te approven → `normuren.build_normuren()` vult de approved-laag; en/of een 3e (niet-Breskens) 2Jours-begroting importeren voor bredere consensus.
+- **Assembly:** echte IFC-bestanden importeren (nu pilot-data van 5 objecten); meer assembly-templates (vloer/trap/installaties); evt. de 2 deprecated `staged_regel`-functies droppen na bewaarperiode.
+- **Eerder gepland (los hiervan):** klantportaal + online ondertekening, PDF-detailregels per hoofdstuk.
+
+---
+### 🔜 (AFGEROND) — de resterende 5%-laag (historie, in volgorde)
 1. **Prijsbron-laag** (opgesplitst in 1a/1b/1c):
    - **1a ✅ GEMERGED (PR #60):** regiofactor wordt nu **daadwerkelijk toegepast** als centrale compute-tijd-multiplier op ELKE werktafelregel (STABU + combi + rekenmodel), via `werktafelTotals.priceFactor`. Bronprijzen blijven ruw (provenance behouden; factor op elk moment aanpasbaar). `applyStabu` bakt regiofactor niet langer in de bronprijs (anders dubbel). Per-regel weergave (RegelTabel/EigenschappenPaneel) + totalen + rapportage (per-fase/hoofdstuk/cashflow) zijn consistent — runtime-bewezen: regels tellen exact op tot totalen, DK schaalt lineair, uren factor-invariant. LiveTotalen-copy eerlijk: regiofactor "toegepast", prijspeil "indexering volgt". Offerte-PDF was al factor-invariant (proportioneel naar bouwsom). Geen migratie.
    - **1b ✅ GEMERGED (PR #64):** `prijspeildatum` wordt nu daadwerkelijk verrekend. Nieuw `lib/calc/prijsindex.js` met de **ECHTE CBS-reeks** (tabel 85728NED, inputprijsindex bouwkosten nieuwbouwwoningen, component "Bouwkosten totaal" T001363, 2021=100, 100 maanden 2018-01…2026-04, via CBS OpenData op 2026-06-16 — no-mock). `prijspeilFactor(datum) = index(datum) ÷ index(BASIS_PRIJSPEIL='2026-04')`, met clamping buiten bereik en 1 bij geen/ongeldige datum. Ingehaakt in `werktafelTotals.priceFactor` → **factor = regiofactor × prijspeilfactor** (zelfde chokepoint, dus werkt overal: STABU/combi/rekenmodel/totalen/rapportage). LiveTotalen toont nu "CBS-index ×… toegepast". Runtime-getest (2023-01→0,886; 2018-01→0,700; toekomst→1). Geen migratie. Verversen = reeks heronttrekken uit dezelfde tabel.
