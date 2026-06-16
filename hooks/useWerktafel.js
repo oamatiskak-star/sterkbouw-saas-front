@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as svc from '@/services/werktafel';
 import { voegCombiToe } from '@/services/combis';
 import { loadBouwdeelCombisMetHoeveelheid } from '@/services/bouwdelen';
-import { computeTotalen, priceFactor } from '@/lib/calc/werktafelTotals';
+import { computeTotalen, priceFactors } from '@/lib/calc/werktafelTotals';
 import { DEFAULT_INSTELLINGEN, normalizeInstellingen } from '@/lib/calc/calculatieDefaults';
 
 export function useWerktafel(calculatieId) {
@@ -246,9 +246,9 @@ export function useWerktafel(calculatieId) {
   );
 
   const totalen = useMemo(() => computeTotalen(rows, opslagen), [rows, opslagen]);
-  // Regio-/prijsfactor voor per-regel weergave (RegelTabel/EigenschappenPaneel),
-  // zodat regels exact optellen tot de totalen.
-  const factor = useMemo(() => priceFactor(opslagen), [opslagen]);
+  // Per-component regio-/prijsfactoren voor per-regel weergave (RegelTabel/
+  // EigenschappenPaneel), zodat regels exact optellen tot de totalen (increment 1c).
+  const factor = useMemo(() => priceFactors(opslagen), [opslagen]);
 
   return {
     loading,
