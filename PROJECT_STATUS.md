@@ -7,6 +7,7 @@ Laatst bijgewerkt: **2026-06-15**.
 ## 🔴 HERSTEL HIER NA CRASH
 - **P3 COMPLEET en gemerged (#50 badkamer, #51 keuken, #52 steiger).**
 - **P4 gestart (audit-prioriteit 4 — afbouw-volledigheid).**
+- **P4.3 (Meerwerk/Stelposten) lokaal klaar, build groen, branch `p4.3-meerwerk-stelposten`:** migratie `20260616_07_stelposten.sql` (generieke €-combi P5-STEL = €1 per eenheid, cat 00/36) op prod. `stelposten.js` (onvoorzien %×bouwsom + meerwerk-reservering % + 4 vrije stelposten → 1-op-1 €-regels). **Bibliotheek 28 modellen. P4 compleet.**
 - **P4.2 (Dakopening + Verdiepingsvloer) lokaal klaar, build groen, branch `p4.2-dakopening-verdiepingsvloer`:** GEEN migratie. `dakopening.js` (dakkapellen compleet/constructie + dakramen + lichtstraten + lichtkoepels) en `verdiepingsvloer.js` (kanaalplaat/breedplaat × verdiepingen + druklaag/wapening). **Bibliotheek 27 modellen.**
 - **P4.1 (Afbouw-modellen) GEMERGED (#53):** GEEN migratie. `plafond.js` (gips/systeem/verlaagd/spuit/houten + isolatie + akoestisch), `stucwerk.js` (wandafwerking sausklaar/behangklaar/sierpleister/raapwerk + plafond + spack), `isolatie.js` (na-isolatie spouw/dak/vloer/gevel + lucht-/kierdichting). **Bibliotheek 25 modellen.**
 - **P3.3 (Steiger automatisch in Gevel/Dak) lokaal klaar, build groen, branch `p3.3-steiger-gevel-dak`:** GEEN migratie. `gevel.js` + steiger-keuze (default ja) → P5-A022 × geveloppervlak; `dak.js` + steiger-keuze (default ja) + gevelhoogte → P5-A022 × (randlengte × gevelhoogte). Steiger landt onder ABK 00/22; niet meer vergeten bij gevel-/dakwerk. **P3 compleet.**
