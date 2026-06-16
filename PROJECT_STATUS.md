@@ -2,10 +2,27 @@
 
 Next.js 14 (Pages Router) + Supabase. Live SterkCalc-frontend (Vercel `sterkbouw-saas-front`, domein **app.sterkbouw.nl**).
 Supabase-DB: **pmovazftwoxjopqkuuhp** (sterkbouww). `NEXT_PUBLIC_SUPABASE_URL`/anon wijst hierheen.
-Laatst bijgewerkt: **2026-06-15**.
+Laatst bijgewerkt: **2026-06-16** (reboot-punt).
 
 ## 🔴 HERSTEL HIER NA CRASH
-- **P5.3 (Werktafel inline component-edit + prijspeil/regio) lokaal klaar, build groen, branch `p5.3-werktafel-component-edit`:** GEEN migratie. `services/werktafel.js` +`updateRowComponent`; `useWerktafel` +`patchComponent` (optimistic+debounced); `RegelTabel` combi-opbouwtabel nu **bewerkbaar** (hoev./mat/arb/matl per component → combi-prijs volgt direct); `LiveTotalen` toont **regiofactor + prijspeildatum**. **P5 compleet — hele audit-backlog P1–P5 afgerond. Bibliotheek 32 rekenmodellen.**
+### ✅ ACTUELE WAARHEID (2026-06-16) — dit overschrijft alle oudere per-increment-regels hieronder
+- **Alles staat op `main`, working tree schoon, 0 open PR's.** (Laatste merge: #58 P5.3.)
+- **Alle sprints gemerged:** P5/P6/Object Engine + **P7** (canonieke flow) + **P8/P9/P10** (rekenmodellen) + **P11** (object↔model-koppeling) + **Reality-Audit-backlog P1–P5** (#44–#58).
+- **32 rekenmodellen** in `lib/calc/rekenmodellen/` (registry `index.js`), zichtbaar in de Rekenmodellen-sectie op `/calculaties/[id]/objecten` + `RekenmodelConfigurator`.
+- **8 migraties vandaag op pmovaz-prod:** `20260616_01_abk_uitbreiding` t/m `20260616_08_lift_balkon_galerij` (allemaal additief, ge-mirrord in `supabase/migrations/`).
+- **Verificatie-audit conclusie:** ~95% objectgedreven dekbaar. Alle eerdere €5M-risicoposten (ABK/staart, fundering-diepte, staal, sloop/asbest, brand/geluid, terrein/riolering, vloerverwarming/leidingwerk, keuken-toestellen, steiger, afbouw, lift/balkon, stelposten) zijn afgedekt. **Resterende ~5% = prijs- en hoeveelheid-BETROUWBAARHEID (provenance), géén ontbrekende posten meer.**
+
+### 🔜 HIER VERDER NA REBOOT — de resterende 5% (in volgorde, elk eigen branch + PR)
+1. **Prijsbron-laag** — combi-prijzen zijn nu curated kengetallen. Koppel leverancier-/marktprijs + pas **regiofactor + prijspeildatum daadwerkelijk toe per werktafelregel** (nu alleen getoond in LiveTotalen, niet toegepast op rekenmodel-output). Centraal prijs-drift-beheer.
+2. **Model ↔ projecttype-template koppeling** — bij nieuwe calculatie de relevante rekenmodellen **automatisch per projecttype voorstellen** (nu alleen badkamer/keuken/toilet via ruimte, rest handmatig uit de sectie).
+3. **Hoeveelheid-uit-tekening voor casco** — vision/IFC uitbreiden zodat fundering/staal/dak/gevel-hoeveelheden uit de tekening komen i.p.v. handmatige invoer.
+4. **Aannames vastleggen** — model-inputs (grondconditie, looptijd, etc.) meeschrijven op de werktafelregels voor reproduceerbaarheid van de calculatie.
+
+**Werkwijze (ongewijzigd):** per increment eigen branch + PR + `npm run build` (exit 0) + Vercel-check groen + merge na "go"; geen mock; additieve migraties (mirror in `supabase/migrations/`); output op bestaande/nieuwe combi-codes; AK/ABK/winst blijven user-controlled; STABU/combi/component blijven interne engine. Vercel-poll-patroon: `gh pr checks <nr>` op de "Vercel"-regel (niet "Vercel Preview Comments"). DB-project: `pmovazftwoxjopqkuuhp`.
+
+---
+<!-- Onderstaande regels = historische per-increment-log (accuraat, maar zie ACTUELE WAARHEID hierboven voor de stand). -->
+- **P5.3 (Werktafel inline component-edit + prijspeil/regio) GEMERGED (#58):** `services/werktafel.js` +`updateRowComponent`; `useWerktafel` +`patchComponent` (optimistic+debounced); `RegelTabel` combi-opbouwtabel nu **bewerkbaar** (hoev./mat/arb/matl per component → combi-prijs volgt direct); `LiveTotalen` toont **regiofactor + prijspeildatum**.
 - **P4 COMPLEET en gemerged (#53 afbouw, #54 dakopening/verdiepingsvloer, #55 stelposten).**
 - **P5 gestart (audit-prioriteit 5, laagste).**
 - **P5.2 (EnergieModel) lokaal klaar, build groen, branch `p5.2-energie-model`:** GEEN migratie. `energie.js` (zonnepanelen CUR-2511 × panelen, warmtepomp lucht/hybride CUR-2802/C3-2813, buffervat C3-2808, laadpaal C3-2512). **Bibliotheek 32 modellen.**
