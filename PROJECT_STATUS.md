@@ -5,6 +5,9 @@ Supabase-DB: **pmovazftwoxjopqkuuhp** (sterkbouww). `NEXT_PUBLIC_SUPABASE_URL`/a
 Laatst bijgewerkt: **2026-06-15**.
 
 ## 🔴 HERSTEL HIER NA CRASH
+- **P4 COMPLEET en gemerged (#53 afbouw, #54 dakopening/verdiepingsvloer, #55 stelposten).**
+- **P5 gestart (audit-prioriteit 5, laagste).**
+- **P5.1 (Lift/Balkon/Galerij) lokaal klaar, build groen, branch `p5.1-lift-balkon-galerij`:** migratie `20260616_08_lift_balkon_galerij.sql` (P5-LIFT cat24/16, P5-BALK cat06/16, P5-GAL cat06/17) op prod. `lift.js` (aantal/stops + meerprijs per stop), `balkon.js` (aantal + balustrade), `galerij.js` (lengte×breedte×verdiepingen + balustrade). **Bibliotheek 31 modellen.**
 - **P3 COMPLEET en gemerged (#50 badkamer, #51 keuken, #52 steiger).**
 - **P4 gestart (audit-prioriteit 4 — afbouw-volledigheid).**
 - **P4.3 (Meerwerk/Stelposten) lokaal klaar, build groen, branch `p4.3-meerwerk-stelposten`:** migratie `20260616_07_stelposten.sql` (generieke €-combi P5-STEL = €1 per eenheid, cat 00/36) op prod. `stelposten.js` (onvoorzien %×bouwsom + meerwerk-reservering % + 4 vrije stelposten → 1-op-1 €-regels). **Bibliotheek 28 modellen. P4 compleet.**
