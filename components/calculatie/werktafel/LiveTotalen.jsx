@@ -17,9 +17,18 @@ export default function LiveTotalen({ totalen, opslagen, onOpslag }) {
     <div className="border-t-2 border-sterkcalc-navy bg-gray-50 px-4 py-3 shadow-[0_-2px_8px_rgba(0,0,0,0.05)]">
       {(regio != null || prijspeil) && (
         <div className="mb-2 flex items-center gap-3 text-[11px] text-gray-400">
-          {regio != null && <span>Regiofactor <span className="font-medium text-gray-600">×{Number(regio).toFixed(2)}</span></span>}
-          {prijspeil && <span>Prijspeil <span className="font-medium text-gray-600">{prijspeil}</span></span>}
-          <span className="text-gray-300">— van toepassing op alle regels</span>
+          {regio != null && (
+            <span>
+              Regiofactor <span className="font-medium text-gray-600">×{Number(regio).toFixed(2)}</span>
+              <span className="text-gray-300"> — toegepast op alle regelprijzen</span>
+            </span>
+          )}
+          {prijspeil && (
+            <span>
+              Prijspeil <span className="font-medium text-gray-600">{prijspeil}</span>
+              <span className="text-gray-300"> — indexering volgt</span>
+            </span>
+          )}
         </div>
       )}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-6">

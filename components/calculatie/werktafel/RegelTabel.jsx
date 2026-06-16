@@ -16,6 +16,7 @@ const COLS = 16; // totaal aantal kolommen (voor colSpan)
 export default function RegelTabel({
   chapters,
   rows,
+  priceFactor = 1,
   activeRowId,
   activeChapterId,
   onSelectRow,
@@ -45,7 +46,7 @@ export default function RegelTabel({
   if (losseCount > 0) groups.push({ id: null, naam: 'Losse regels', code: '', niveau: 'losse' });
 
   // Verkoop-subtotaal per hoofdstuk = eigen regels + regels van zijn subhoofdstukken.
-  const verkoopVan = (cid) => rows.filter((r) => r.chapter_id === cid).reduce((s, r) => s + computeRow(r).verkoopprijs, 0);
+  const verkoopVan = (cid) => rows.filter((r) => r.chapter_id === cid).reduce((s, r) => s + computeRow(r, priceFactor).verkoopprijs, 0);
   const hoofdSubtot = (h) => verkoopVan(h.id) + (subsBy[h.id] || []).reduce((s, sub) => s + verkoopVan(sub.id), 0);
 
   return (
@@ -74,7 +75,7 @@ export default function RegelTabel({
         <tbody>
           {groups.map((g) => {
             const grp = rows.filter((r) => (g.id === null ? !r.chapter_id : r.chapter_id === g.id));
-            const subtot = g.niveau === 'hoofd' ? hoofdSubtot(g) : grp.reduce((s, r) => s + computeRow(r).verkoopprijs, 0);
+            const subtot = g.niveau === 'hoofd' ? hoofdSubtot(g) : grp.reduce((s, r) => s + computeRow(r, priceFactor).verkoopprijs, 0);
             const groupCollapsed = g.niveau === 'hoofd' && collapsed.has(g.id);
             return (
               <ChapterBlock
@@ -95,6 +96,7 @@ export default function RegelTabel({
                 onAddRow={onAddRow}
                 onAddCombi={onAddCombi}
                 onPatchComponent={onPatchComponent}
+                priceFactor={priceFactor}
               />
             );
           })}
@@ -109,7 +111,7 @@ export default function RegelTabel({
 
 function ChapterBlock({
   group, rows, rowCount, subtot, isActive, open, setOpen, activeRowId,
-  onSelectRow, onPatchRow, onRemoveRow, onDuplicateRow, onMoveRow, onAddRow, onAddCombi, onPatchComponent,
+  onSelectRow, onPatchRow, onRemoveRow, onDuplicateRow, onMoveRow, onAddRow, onAddCombi, onPatchComponent, priceFactor = 1,
 }) {
   const [voorstel, setVoorstel] = useState({ open: false, loading: false, list: null });
   const niveau = group.niveau || (group.id === null ? 'losse' : 'hoofd');
@@ -206,7 +208,7 @@ function ChapterBlock({
       )}
 
       {rows.map((r, i) => {
-        const c = computeRow(r);
+        const c = computeRow(r, priceFactor);
         const isCombi = r.type === 'combi' || r.is_combi;
         return (
           <RegelRij

@@ -4,7 +4,7 @@ import { Search } from 'lucide-react';
 import { zoekStabu } from '@/services/werktafel';
 import { computeRow, fmtEUR } from '@/lib/calc/werktafelTotals';
 
-export default function EigenschappenPaneel({ row, stabuFilter = null, onPatchRow, onApplyStabu }) {
+export default function EigenschappenPaneel({ row, priceFactor = 1, stabuFilter = null, onPatchRow, onApplyStabu }) {
   const [term, setTerm] = useState('');
   const [hits, setHits] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -39,7 +39,7 @@ export default function EigenschappenPaneel({ row, stabuFilter = null, onPatchRo
     );
   }
 
-  const c = computeRow(row);
+  const c = computeRow(row, priceFactor);
   const isCombi = row.type === 'combi' || row.is_combi;
   const set = (field) => (e) => onPatchRow(row.id, { [field]: e.target.value });
   const setNum = (field) => (e) => onPatchRow(row.id, { [field]: e.target.value === '' ? 0 : Number(e.target.value) });
