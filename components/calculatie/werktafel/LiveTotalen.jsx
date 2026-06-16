@@ -11,8 +11,17 @@ const OPSLAG_VELDEN = [
 
 export default function LiveTotalen({ totalen, opslagen, onOpslag }) {
   const t = totalen;
+  const regio = opslagen?.regiofactor;
+  const prijspeil = opslagen?.prijspeildatum;
   return (
     <div className="border-t-2 border-sterkcalc-navy bg-gray-50 px-4 py-3 shadow-[0_-2px_8px_rgba(0,0,0,0.05)]">
+      {(regio != null || prijspeil) && (
+        <div className="mb-2 flex items-center gap-3 text-[11px] text-gray-400">
+          {regio != null && <span>Regiofactor <span className="font-medium text-gray-600">×{Number(regio).toFixed(2)}</span></span>}
+          {prijspeil && <span>Prijspeil <span className="font-medium text-gray-600">{prijspeil}</span></span>}
+          <span className="text-gray-300">— van toepassing op alle regels</span>
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-6">
         <Cell label="Materiaal" value={fmtEUR(t.materiaal)} />
         <Cell label="Arbeid" value={fmtEUR(t.arbeid)} sub={`${Math.round(t.uren)} uur`} />

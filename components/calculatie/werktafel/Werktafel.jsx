@@ -191,6 +191,7 @@ export default function Werktafel({ calculatieId }) {
             onMoveRow={wt.moveRow}
             onAddRow={(cid) => wt.addRow(cid)}
             onAddCombi={(combi, chapterId) => wt.insertCombi(combi, chapterId)}
+            onPatchComponent={wt.patchComponent}
           />
         </main>
 
