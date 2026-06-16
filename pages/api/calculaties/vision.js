@@ -95,6 +95,7 @@ const TOOL = {
           dak_oppervlak_m2: { type: 'number', description: 'Dakoppervlak (m²).' },
           nokhoogte_m: { type: 'number', description: 'Nok-/bouwhoogte (m).' },
           fundering_type: { type: 'string', description: 'strook/plaat/poeren/palen — alleen indien afleidbaar.' },
+          grondconditie: { type: 'string', description: 'normaal/slap/nat — alleen indien uit grondrapport/sondering/notitie afleidbaar (bepaalt heipalen).' },
           confidence: { type: 'number', description: '0-100, zekerheid over de casco-hoeveelheden.' },
           opmerking: { type: 'string', description: 'Korte toelichting/onzekerheid over de casco-afleiding (NL).' },
         },
@@ -214,6 +215,7 @@ export default async function handler(req, res) {
         dak_oppervlak_m2: num(out.casco.dak_oppervlak_m2),
         nokhoogte_m: num(out.casco.nokhoogte_m),
         fundering_type: out.casco.fundering_type || null,
+        grondconditie: out.casco.grondconditie || null,
         confidence: clampConf(out.casco.confidence),
         opmerking: out.casco.opmerking || null,
       }
