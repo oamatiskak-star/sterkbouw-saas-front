@@ -212,6 +212,16 @@ export async function loadAnalyses(calculatieId) {
 }
 
 // ---- Ruimtes ----
+// Lichte calculatie-meta (o.a. project_type) voor projecttype-gestuurde voorstellen.
+export async function loadCalculatieMeta(calculatieId) {
+  const { data } = await supabase
+    .from('calculaties')
+    .select('id, naam, project_type')
+    .eq('id', calculatieId)
+    .maybeSingle();
+  return data || null;
+}
+
 export async function loadRuimtes(calculatieId) {
   const { data, error } = await supabase
     .from('calculatie_ruimtes')
