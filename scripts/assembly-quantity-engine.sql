@@ -1,7 +1,11 @@
--- scripts/assembly-quantity-engine.sql — Assembly Quantity Engine Fase 2 (operator-script)
+-- scripts/assembly-quantity-engine.sql — Assembly-engine operator-script
 -- Draait de geïsoleerde `assembly`-engine tegen de staged IFC-objecten (harvest.ifc_object).
 -- Vereist privileges (service-role / MCP / psql met owner) — het assembly-schema is bewust
 -- NIET via de anon-API ontsloten. GEEN werktafel-mutatie, GEEN core-mutatie, GEEN prijzen.
+--
+-- CANONIEK: assembly.generated_item (+ assembly.generate_items_from_ifc/_all, view assembly.v_assembly_staged).
+-- DEPRECATED: assembly.staged_regel + generate_staged_from_ifc/_all (sectie 1-4 hieronder; behouden voor
+--   historie, NIET gebruiken voor nieuwe generatie). Zie migratie 20260616_29.
 --
 -- Gebruik (privileged):
 --   psql "$DATABASE_URL" -f scripts/assembly-quantity-engine.sql
