@@ -1,5 +1,6 @@
 // components/calculatie/werktafel/LiveTotalen.jsx
 import { fmtEUR } from '@/lib/calc/werktafelTotals';
+import { prijspeilFactor } from '@/lib/calc/prijsindex';
 
 const OPSLAG_VELDEN = [
   { key: 'ak', label: 'AK' },
@@ -13,6 +14,7 @@ export default function LiveTotalen({ totalen, opslagen, onOpslag }) {
   const t = totalen;
   const regio = opslagen?.regiofactor;
   const prijspeil = opslagen?.prijspeildatum;
+  const peilFactor = prijspeil ? prijspeilFactor(prijspeil) : 1;
   return (
     <div className="border-t-2 border-sterkcalc-navy bg-gray-50 px-4 py-3 shadow-[0_-2px_8px_rgba(0,0,0,0.05)]">
       {(regio != null || prijspeil) && (
@@ -26,7 +28,7 @@ export default function LiveTotalen({ totalen, opslagen, onOpslag }) {
           {prijspeil && (
             <span>
               Prijspeil <span className="font-medium text-gray-600">{prijspeil}</span>
-              <span className="text-gray-300"> — indexering volgt</span>
+              <span className="text-gray-300"> — CBS-index ×{peilFactor.toFixed(3)} toegepast</span>
             </span>
           )}
         </div>
