@@ -25,8 +25,21 @@ select
   count(distinct stabu_code)                                                                                  as stabu_dekking
 from normuren.staging_regel where batch_id='<batch_id>';
 
+-- Matching Fase 2 (betrouwbaar, pg_trgm + STABU-crosswalk + werksoort-blokkade):
+--   select * from normuren.run_matching_v2('<batch_id>');   -- vult suggested_combi_code/_component_id,
+--                                                            -- match_score, match_reason, suggest_high_confidence
+-- Output per regel: suggested_combi_code · suggested_component_id · match_score · match_reason.
+-- Drempels: score < 0.85 → review; score >= 0.85 → suggest_high_confidence=true (NOOIT auto-approved).
+-- Top review-items (suggesties, hoogste score eerst):
+--   select left(omschrijving,40), eenheid_norm, uren_per_eenheid, suggested_combi_code,
+--          suggested_component_id, match_score, match_reason
+--   from normuren.staging_regel
+--   where batch_id='<batch_id>' and suggested_combi_code is not null
+--   order by match_score desc limit 20;
+
 -- Review-flow (handmatig, dedup-regel #3 = afwijkende normuur per component → conflict/review):
---   accepteren:  update normuren.staging_regel set status='approved' where id = '<regel_id>';
+--   accepteren:  update normuren.staging_regel set status='approved', combi_code=suggested_combi_code,
+--                    component_id=suggested_component_id where id = '<regel_id>';
 --   afwijzen:    update normuren.staging_regel set status='rejected', review_note='<reden>' where id = '<regel_id>';
 -- Bouw daarna de approved normurenlaag (consensus per stabu/regelcode/combi/eenheid; couple=gelijke upe):
 --   select normuren.build_normuren();
