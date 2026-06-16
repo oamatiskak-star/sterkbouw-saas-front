@@ -109,6 +109,25 @@ export default function EigenschappenPaneel({ row, priceFactor = 1, stabuFilter 
         <strong className="tabular-nums">{fmtEUR(c.verkoopprijs)}</strong>
       </div>
 
+      {/* Increment 4 — aannames: herkomst + gebruikte rekenmodel-inputs (reproduceerbaarheid). */}
+      {Array.isArray(row.meta?.aannames) && row.meta.aannames.length > 0 && (
+        <div className="mt-3 rounded border border-sterkcalc-blue/20 bg-sterkcalc-blue/[0.03] px-2 py-2">
+          <div className="mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-sterkcalc-navy">
+            Aannames
+            {row.meta?.bron?.label && <span className="font-normal normal-case text-gray-400">— uit rekenmodel “{row.meta.bron.label}”</span>}
+          </div>
+          <dl className="space-y-0.5">
+            {row.meta.aannames.map((a) => (
+              <div key={a.key} className="flex items-baseline justify-between gap-2 text-[11px]">
+                <dt className="text-gray-500">{a.label}</dt>
+                <dd className="tabular-nums font-medium text-gray-700">{a.waarde}{a.eenheid ? ` ${a.eenheid}` : ''}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-1 text-[10px] text-gray-400">Vastgelegd bij het genereren — pas de regel handmatig aan als de aanname wijzigt.</p>
+        </div>
+      )}
+
       <div className="mt-3 border-t border-gray-100 pt-2">
         <div className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
           <Search size={13} /> STABU-post zoeken
