@@ -6,6 +6,7 @@ Laatst bijgewerkt: **2026-06-15**.
 
 ## 🔴 HERSTEL HIER NA CRASH
 - **P3 gestart (audit-prioriteit 3 — verdieping bestaande modellen).**
+- **P3.3 (Steiger automatisch in Gevel/Dak) lokaal klaar, build groen, branch `p3.3-steiger-gevel-dak`:** GEEN migratie. `gevel.js` + steiger-keuze (default ja) → P5-A022 × geveloppervlak; `dak.js` + steiger-keuze (default ja) + gevelhoogte → P5-A022 × (randlengte × gevelhoogte). Steiger landt onder ABK 00/22; niet meer vergeten bij gevel-/dakwerk. **P3 compleet.**
 - **P3.2 (Keuken apparatuur per toestel) lokaal klaar, build groen, branch `p3.2-keuken-apparatuur-per-toestel`:** migratie `20260616_06_keuken_apparatuur_per_toestel.sql` (combis oven/kookplaat/afzuigkap/koelkast/vaatwasser/magnetron/quooker + kookeiland onder K0) op prod. `keuken.js` herzien: apparatuur niet meer 1 "set" maar **per toestel** (ja/nee, defaults = standaardpakket) + kookeiland + quooker-i.p.v.-kraan. **Bibliotheek 22 modellen (keuken verdiept).**
 - **P3.1 (Badkamer: vloerverwarming + leidingwerk) GEMERGED (#50):** GEEN migratie. `badkamer.js`: `radiator` (ja/nee) vervangen door `verwarming` keuze (geen/radiator/vloerverwarming/beide → CUR-2803/CUR-2804×vloer); `leidingwerk` keuze (nieuw/verplaatsen/geen → C3-2714×omtrek); **douchegoot** (CUR-2012) automatisch bij inloopdouche. Output compatibel.
 - **P2 COMPLEET en gemerged (#47 Sloop/Asbest, #48 Brandcompartiment, #49 Terrein/Riolering).** Bibliotheek 22 modellen.
