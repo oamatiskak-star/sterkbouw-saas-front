@@ -80,6 +80,25 @@ const TOOL = {
           required: ['klasse'],
         },
       },
+      casco: {
+        type: 'object',
+        description:
+          'Casco-/cascohoeveelheden van het GEBOUW als geheel (niet per ruimte), afgeleid uit plattegrond/gevelaanzichten/doorsneden: ' +
+          'voor fundering, gevel en dak. Laat velden weg die niet betrouwbaar af te leiden zijn — verzin niets.',
+        properties: {
+          bebouwd_oppervlak_m2: { type: 'number', description: 'Footprint/bebouwd grondoppervlak per bouwlaag (m²).' },
+          aantal_bouwlagen: { type: 'integer', description: 'Aantal bouwlagen/verdiepingen.' },
+          omtrek_m: { type: 'number', description: 'Buitenomtrek van het gebouw (m) — basis voor strokenfundering en gevellengte.' },
+          gevelhoogte_m: { type: 'number', description: 'Totale gevelhoogte van maaiveld tot dakrand (m).' },
+          geveloppervlak_m2: { type: 'number', description: 'Totaal geveloppervlak (m²), bruto (incl. openingen) indien afleidbaar.' },
+          dak_type: { type: 'string', description: 'plat of hellend/schuin.' },
+          dak_oppervlak_m2: { type: 'number', description: 'Dakoppervlak (m²).' },
+          nokhoogte_m: { type: 'number', description: 'Nok-/bouwhoogte (m).' },
+          fundering_type: { type: 'string', description: 'strook/plaat/poeren/palen — alleen indien afleidbaar.' },
+          confidence: { type: 'number', description: '0-100, zekerheid over de casco-hoeveelheden.' },
+          opmerking: { type: 'string', description: 'Korte toelichting/onzekerheid over de casco-afleiding (NL).' },
+        },
+      },
     },
     required: ['ruimtes'],
   },
@@ -92,7 +111,11 @@ const PROMPT =
   'anders schat via schaalbalk/raster en geef een lagere confidence. Hoogte onbekend → 2.6 m. ' +
   'Classificeer ruimtes generiek (Woonkamer/Slaapkamer/Badkamer/Keuken/Toilet/Hal/Berging/Kantoor/Overig). ' +
   'Herken ook losse bouwdelen/objecten (kozijnen, deuren, ramen, radiatoren, sanitair, keukens, trappen, dakramen) ' +
-  'en groepeer identieke exemplaren met een aantal. Verzin niets: laat onzekere velden weg of geef lage confidence. ' +
+  'en groepeer identieke exemplaren met een aantal. ' +
+  'Leid daarnaast — indien de tekening dat toelaat (plattegrond + gevelaanzichten/doorsnede) — de CASCO-hoeveelheden van het ' +
+  'gebouw als geheel af: bebouwd oppervlak, aantal bouwlagen, buitenomtrek, gevelhoogte/-oppervlak, dak (type + oppervlak) en ' +
+  'indien zichtbaar het funderingstype. Vul casco alleen met wat betrouwbaar af te leiden is; laat de rest weg. ' +
+  'Verzin niets: laat onzekere velden weg of geef lage confidence. ' +
   'Geef ALLEEN het resultaat via de tool leg_ruimtes_vast. Bereken GEEN kosten, prijzen of marges.'
 
 const num = (v) => (Number.isFinite(parseFloat(v)) ? parseFloat(v) : null)
@@ -178,9 +201,29 @@ export default async function handler(req, res) {
       confidence: clampConf(o.confidence),
     }))
 
+    // Casco-hoeveelheden (gebouw als geheel) — normaliseren; null laten als niets afleidbaar.
+    let casco = null
+    if (out.casco && typeof out.casco === 'object') {
+      const c = {
+        bebouwd_oppervlak_m2: num(out.casco.bebouwd_oppervlak_m2),
+        aantal_bouwlagen: Number.isFinite(parseInt(out.casco.aantal_bouwlagen, 10)) ? parseInt(out.casco.aantal_bouwlagen, 10) : null,
+        omtrek_m: num(out.casco.omtrek_m),
+        gevelhoogte_m: num(out.casco.gevelhoogte_m),
+        geveloppervlak_m2: num(out.casco.geveloppervlak_m2),
+        dak_type: out.casco.dak_type || null,
+        dak_oppervlak_m2: num(out.casco.dak_oppervlak_m2),
+        nokhoogte_m: num(out.casco.nokhoogte_m),
+        fundering_type: out.casco.fundering_type || null,
+        confidence: clampConf(out.casco.confidence),
+        opmerking: out.casco.opmerking || null,
+      }
+      if (Object.entries(c).some(([k, v]) => k !== 'confidence' && k !== 'opmerking' && v != null)) casco = c
+    }
+
     return res.status(200).json({
       ruimtes,
       objecten,
+      casco,
       plan_schaal: out.plan_schaal || null,
       opmerkingen: out.opmerkingen || null,
       model: MODEL,
