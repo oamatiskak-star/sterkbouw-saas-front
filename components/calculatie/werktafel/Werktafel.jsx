@@ -182,6 +182,7 @@ export default function Werktafel({ calculatieId }) {
           <RegelTabel
             chapters={wt.chapters}
             rows={wt.rows}
+            priceFactor={wt.priceFactor}
             activeRowId={activeRowId}
             activeChapterId={activeChapterId}
             onSelectRow={setActiveRowId}
@@ -203,6 +204,7 @@ export default function Werktafel({ calculatieId }) {
             </div>
             <EigenschappenPaneel
               row={activeRow}
+              priceFactor={wt.priceFactor}
               stabuFilter={paneelStabuFilter}
               onPatchRow={wt.patchRow}
               onApplyStabu={wt.applyStabu}

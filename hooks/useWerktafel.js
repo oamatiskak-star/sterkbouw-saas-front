@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as svc from '@/services/werktafel';
 import { voegCombiToe } from '@/services/combis';
 import { loadBouwdeelCombisMetHoeveelheid } from '@/services/bouwdelen';
-import { computeTotalen } from '@/lib/calc/werktafelTotals';
+import { computeTotalen, priceFactor } from '@/lib/calc/werktafelTotals';
 import { DEFAULT_INSTELLINGEN, normalizeInstellingen } from '@/lib/calc/calculatieDefaults';
 
 export function useWerktafel(calculatieId) {
@@ -175,22 +175,24 @@ export function useWerktafel(calculatieId) {
     []
   );
 
-  // STABU-post toepassen op een regel (prefill).
+  // STABU-post toepassen op een regel (prefill). Bronprijzen worden RUW
+  // opgeslagen; de regiofactor wordt centraal bij het rekenen toegepast
+  // (zie werktafelTotals.priceFactor), zodat hij niet in de bronprijs vastgebakken
+  // raakt en op elk moment aanpasbaar blijft. Niet hier nog eens vermenigvuldigen.
   const applyStabu = useCallback(
     (rowId, post) => {
-      const rf = Number(opslagen?.regiofactor) || 1; // regiofactor uit calculatie-instellingen
       patchRow(rowId, {
         stabu_code: post.code,
         omschrijving: post.omschrijving,
         eenheid: post.eenheid,
-        materiaalprijs: Math.round((Number(post.materiaalprijs) || 0) * rf * 100) / 100,
-        arbeidsprijs: Math.round((Number(post.arbeidsprijs) || 0) * rf * 100) / 100,
+        materiaalprijs: Math.round((Number(post.materiaalprijs) || 0) * 100) / 100,
+        arbeidsprijs: Math.round((Number(post.arbeidsprijs) || 0) * 100) / 100,
         norm: post.normuren != null ? Number(post.normuren) : null,
         type: 'materiaal',
         is_combi: false,
       });
     },
-    [patchRow, opslagen]
+    [patchRow]
   );
 
   // ---- OPSLAGEN (user-controlled) ----
@@ -244,6 +246,9 @@ export function useWerktafel(calculatieId) {
   );
 
   const totalen = useMemo(() => computeTotalen(rows, opslagen), [rows, opslagen]);
+  // Regio-/prijsfactor voor per-regel weergave (RegelTabel/EigenschappenPaneel),
+  // zodat regels exact optellen tot de totalen.
+  const factor = useMemo(() => priceFactor(opslagen), [opslagen]);
 
   return {
     loading,
@@ -254,6 +259,7 @@ export function useWerktafel(calculatieId) {
     rows,
     opslagen,
     totalen,
+    priceFactor: factor,
     reload,
     addChapter,
     addChapterFromCat,
