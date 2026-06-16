@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
   LayoutGrid, PlusCircle, Table2, Boxes, Layers, CalendarDays,
-  ShoppingCart, FileText, BarChart3, Settings, HelpCircle, Bell, Plus, LogOut, Calculator, FolderKanban, Search,
+  ShoppingCart, FileText, BarChart3, Settings, HelpCircle, Bell, Plus, LogOut, Calculator, FolderKanban, Search, Box,
 } from 'lucide-react';
 import FaseStepper, { FASE_KEYS } from './FaseStepper';
 
@@ -24,6 +24,7 @@ const NAV_GROEPEN = [
     titel: 'Calculatie',
     items: [
       { label: 'Werktafel', href: '/calculaties/werktafel', icon: Table2, match: (p) => p.includes('/werktafel') },
+      { label: 'IFC Review', href: '/calculaties/ifc-review', icon: Box, match: (p) => p.includes('/ifc-review') },
       { label: 'Planning', href: '/calculaties/planning', icon: CalendarDays, match: (p) => p.endsWith('/planning') },
       { label: 'Bestellen', href: '/calculaties/bestellen', icon: ShoppingCart, match: (p) => p.endsWith('/bestellen') },
       { label: 'Offerte', href: '/calculaties/offerte', icon: FileText, match: (p) => p.endsWith('/offerte') },

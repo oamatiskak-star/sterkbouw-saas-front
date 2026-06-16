@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from 'react';
 import supabase from '@/lib/supabase';
 import {
   Loader2, Box, CheckCircle2, XCircle, AlertTriangle, ArrowUpRight,
-  Undo2, RefreshCw, Layers, Hash, Ruler, Gauge,
+  Undo2, RefreshCw, Layers, Hash, Ruler, Gauge, Wand2,
 } from 'lucide-react';
 
 const STATE_BADGE = {
@@ -14,6 +14,7 @@ const STATE_BADGE = {
   approved: 'bg-emerald-100 text-emerald-700',
   promoted: 'bg-blue-100 text-blue-700',
   rejected: 'bg-rose-100 text-rose-700',
+  te_genereren: 'bg-violet-100 text-violet-700',
 };
 const ITEM_BADGE = {
   staged: 'bg-gray-100 text-gray-500',
@@ -86,6 +87,10 @@ export default function IfcReviewWorkbench() {
     const d = await post('/api/assembly/rollback-object', { ifc_object_id: o.ifc_object_id }, o.ifc_object_id);
     if (d) setMelding({ type: 'ok', text: `${o.ifc_entity}: ${d.teruggedraaid} promotie(s) teruggedraaid.` });
   };
+  const genereer = async (o) => {
+    const d = await post('/api/assembly/generate-window', { ifc_object_id: o.ifc_object_id }, o.ifc_object_id);
+    if (d) setMelding({ type: 'ok', text: `${o.ifc_entity}: ${d.staged} rekenmodel-regel(s) gegenereerd (variant ${d.variant}).` });
+  };
 
   const k = state.kpis || {};
   const objecten = state.objecten || [];
@@ -108,6 +113,7 @@ export default function IfcReviewWorkbench() {
         <Kpi label="In review" value={k.objecten_in_review} tone="text-amber-600" />
         <Kpi label="Approved" value={k.objecten_approved} tone="text-emerald-600" />
         <Kpi label="Promoted" value={k.objecten_promoted} tone="text-blue-600" />
+        <Kpi label="Te genereren" value={k.objecten_te_genereren} tone="text-violet-600" />
         <Kpi label="Duplicate-warnings" value={k.duplicate_warnings} tone="text-rose-600" />
         <Kpi label="Rejected items" value={k.rejected_items} tone="text-rose-600" />
       </div>
@@ -151,6 +157,13 @@ export default function IfcReviewWorkbench() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  {o.needs_generation && (
+                    <button onClick={() => genereer(o)} disabled={busy === o.ifc_object_id}
+                      className="flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-sm font-medium text-white enabled:hover:bg-violet-700 disabled:bg-gray-200">
+                      {busy === o.ifc_object_id ? <Loader2 className="animate-spin" size={14} /> : <Wand2 size={14} />} Genereer kozijn-opbouw
+                    </button>
+                  )}
+                  {!o.needs_generation && (
                   <button
                     onClick={() => promote(o)}
                     disabled={!o.promotable || !calcId || busy === o.ifc_object_id}
@@ -158,6 +171,7 @@ export default function IfcReviewWorkbench() {
                     title={!o.promotable ? 'Alle items moeten approved/rejected zijn (geen open review)' : !calcId ? 'Kies eerst een calculatie' : ''}>
                     {busy === o.ifc_object_id ? <Loader2 className="animate-spin" size={14} /> : <ArrowUpRight size={14} />} Promote object
                   </button>
+                  )}
                   {o.n_promoted > 0 && (
                     <button onClick={() => rollback(o)} disabled={busy === o.ifc_object_id}
                       className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50">
@@ -169,6 +183,9 @@ export default function IfcReviewWorkbench() {
 
               {/* items */}
               <div className="divide-y divide-gray-50">
+                {o.needs_generation && (
+                  <p className="px-4 py-3 text-sm text-violet-700">Rekenmodel-route ({o.quantity_source}) · variant <b>{o.variant_code}</b> — genereer eerst de opbouw om te beoordelen.</p>
+                )}
                 {(o.items || []).map((it) => (
                   <div key={it.id} className="flex flex-wrap items-center gap-3 px-4 py-2.5">
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${ITEM_BADGE[it.status] || 'bg-gray-100 text-gray-500'}`}>{it.status}</span>
