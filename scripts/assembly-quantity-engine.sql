@@ -39,3 +39,13 @@ select jsonb_pretty(assembly.generate_items_all()) as fase2_resultaat;
 select ifc_guid, variant_code, functie, combi_code, quantity, eenheid, factor,
        quantity_source, rule_id, confidence, status
 from assembly.generated_item order by ifc_guid, functie;
+
+-- ── Review/Promote → werktafel (EXPLICIET, geen auto/bulk; werktafel = SSOT) ──
+-- Promote één gekozen item naar een werktafelregel (combi-rij; geen prijzen; provenance→meta.aannames):
+--   select assembly.promote_generated_item('<generated_item.id>','<calculatie.id>');
+-- Duplicate-block: bestaande werktafelregel met zelfde ifc_guid+functie+combi_code → geblokkeerd.
+-- Rollback (verwijdert UITSLUITEND de eigen promotie-rij, zet status terug op staged):
+--   select assembly.rollback_promotion('<generated_item.id>');
+-- Auditlog (promote | blocked | rollback):
+select actie, reden, werktafel_row_id, created_by, created_at
+from assembly.promotion_log order by created_at desc;
