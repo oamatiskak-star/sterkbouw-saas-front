@@ -5,24 +5,46 @@
 // Zoekt op omschrijving/code/groep en geeft de top-N terug. Geen DB-write, geen mock:
 // zonder bron-JSON → lege resultaten met duidelijke melding.
 const BUCKET = 'sterkcalc-prijslijsten';
-const BESTAND = process.env.PRIJSLIJST_BESTAND || 'bouwmaat_2025-11.json';
-const CATALOGUS = { leverancier: 'Bouwmaat', catalogusnummer: '202543', peildatum: '2025-11-02' };
+// Vaste fallback als de bucket-listing niet lukt; normaal pakken we automatisch
+// het nieuwste *.json in de bucket (zo werkt een refresh zonder code-wijziging).
+const FALLBACK_BESTAND = process.env.PRIJSLIJST_BESTAND || 'bouwmaat_2025-11.json';
+const CATALOGUS = { leverancier: 'Bouwmaat', catalogusnummer: '202543' };
 const TTL_MS = 60 * 60 * 1000; // 1 uur cache
 
 let CACHE = null;
 let CACHE_TS = 0;
+let CACHE_BESTAND = null;
+
+// Nieuwste prijslijst-bestand in de bucket (dated naming → lexicografisch desc = nieuwste).
+async function nieuwsteBestand(base, key) {
+  try {
+    const res = await fetch(`${base}/storage/v1/object/list/${BUCKET}`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}`, apikey: key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prefix: '', limit: 100, sortBy: { column: 'name', order: 'desc' } }),
+    });
+    if (!res.ok) return null;
+    const objs = await res.json();
+    const jsons = (objs || []).filter((o) => o?.name && o.name.endsWith('.json')).map((o) => o.name).sort().reverse();
+    return jsons[0] || null;
+  } catch {
+    return null;
+  }
+}
 
 async function laadPrijslijst() {
   if (CACHE && Date.now() - CACHE_TS < TTL_MS) return CACHE;
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!base || !key) throw new Error('Supabase-config ontbreekt op de server.');
-  const url = `${base}/storage/v1/object/authenticated/${BUCKET}/${BESTAND}`;
+  const bestand = (await nieuwsteBestand(base, key)) || FALLBACK_BESTAND;
+  const url = `${base}/storage/v1/object/authenticated/${BUCKET}/${bestand}`;
   const res = await fetch(url, { headers: { Authorization: `Bearer ${key}`, apikey: key } });
   if (!res.ok) throw new Error(`Prijslijst niet gevonden in storage (${res.status}).`);
   const data = await res.json();
   CACHE = Array.isArray(data) ? data : [];
   CACHE_TS = Date.now();
+  CACHE_BESTAND = bestand;
   return CACHE;
 }
 
@@ -36,7 +58,7 @@ export default async function handler(req, res) {
   } catch (e) {
     return res.status(502).json({ error: e.message || 'Kon prijslijst niet laden.', catalogus: CATALOGUS });
   }
-  if (!q) return res.status(200).json({ catalogus: CATALOGUS, totaal: lijst.length, resultaten: [] });
+  if (!q) return res.status(200).json({ catalogus: { ...CATALOGUS, bestand: CACHE_BESTAND }, totaal: lijst.length, resultaten: [] });
 
   // Alle zoektermen moeten voorkomen (in omschrijving/code/groep).
   const termen = q.split(/\s+/).filter(Boolean);
@@ -58,7 +80,7 @@ export default async function handler(req, res) {
     return am.length - bm.length;
   });
   return res.status(200).json({
-    catalogus: CATALOGUS,
+    catalogus: { ...CATALOGUS, bestand: CACHE_BESTAND },
     totaal: lijst.length,
     resultaten: hits.slice(0, limit).map((a) => ({
       code: a.code, omschrijving: a.omschrijving, groep: a.groep,
