@@ -5,6 +5,9 @@ Supabase-DB: **pmovazftwoxjopqkuuhp** (sterkbouww). `NEXT_PUBLIC_SUPABASE_URL`/a
 Laatst bijgewerkt: **2026-06-15**.
 
 ## 🔴 HERSTEL HIER NA CRASH
+- **P3 gestart (audit-prioriteit 3 — verdieping bestaande modellen).**
+- **P3.1 (Badkamer: vloerverwarming + leidingwerk) lokaal klaar, build groen, branch `p3.1-badkamer-vloerverwarming-leidingwerk`:** GEEN migratie. `badkamer.js`: `radiator` (ja/nee) vervangen door `verwarming` keuze (geen/radiator/vloerverwarming/beide → CUR-2803/CUR-2804×vloer); `leidingwerk` keuze (nieuw/verplaatsen/geen → C3-2714×omtrek); **douchegoot** (CUR-2012) automatisch bij inloopdouche. Output compatibel.
+- **P2 COMPLEET en gemerged (#47 Sloop/Asbest, #48 Brandcompartiment, #49 Terrein/Riolering).** Bibliotheek 22 modellen.
 - **P1 COMPLEET en gemerged (#44 ABK, #45 Fundering-verdieping, #46 Staal).** Audit-prioriteit 1 afgerond.
 - **P2 gestart (audit-prioriteit 2), 3 increments: P2.1 Sloop/Asbest → P2.2 Brandcompartiment → P2.3 Terrein/Riolering.**
 - **P2.3 (Terrein + Riolering) lokaal klaar, build groen, branch `p2.3-terrein-riolering-model`:** GEEN migratie (alle combi's cat 30/31/32 bestonden al). `terrein.js` (verharding/grondwerk/groen/hekwerk/poorten/buitenverlichting/keerwand/drainage) + `riolering.js` (vuilwater/HWA/kolken/putten/infiltratie/aansluiting/pompput). `volledigheidsRegels.js` + regel "Geen terrein/riolering" voor nieuwbouw/uitbreiding/appartementen. **Bibliotheek 22 modellen. P2 (audit-prioriteit 2) compleet.**
