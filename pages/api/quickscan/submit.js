@@ -5,6 +5,7 @@
 import fs from 'fs';
 import formidable from 'formidable';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { notifyLead } from '@/lib/notifyLead';
 
 export const config = { api: { bodyParser: false } };
 
@@ -80,6 +81,10 @@ export default async function handler(req, res) {
   await admin.from('quickscan_events').insert({
     lead_id: leadId, event_type: 'lead', meta: { bron, projecttype, files: uploaded.length },
   });
+
+  try {
+    await notifyLead({ naam, email, telefoon, projectadres, funda_url, bericht, projecttype, bron, utm, files: uploaded.length });
+  } catch { /* notificatie mag de lead-afhandeling niet blokkeren */ }
 
   return res.status(200).json({ ok: true, lead_id: leadId, files: uploaded.length });
 }

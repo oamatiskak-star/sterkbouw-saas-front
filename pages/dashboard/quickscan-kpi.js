@@ -15,6 +15,7 @@ const STATUS_LABEL = {
 export default function QuickscanKpi() {
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
+  const [bronFilter, setBronFilter] = useState('');
 
   useEffect(() => {
     fetch('/api/quickscan/kpi')
@@ -32,6 +33,10 @@ export default function QuickscanKpi() {
     { label: 'Offertes', value: num(k.offertes) },
     { label: 'Opdrachten', value: num(k.opdrachten) },
   ];
+  const perBron = data?.perBron || [];
+  const perProjecttype = data?.perProjecttype || [];
+  const bronOpties = [...new Set(perBron.map((b) => b.bron))];
+  const leads = (data?.leads || []).filter((l) => !bronFilter || l.bron === bronFilter);
   const money = [
     { label: 'Omzet', value: euro(k.omzet_eur) },
     { label: 'Ad-spend', value: euro(k.spend_eur), sub: `${euro(k.spend_30d_eur)} laatste 30d` },
@@ -79,13 +84,65 @@ export default function QuickscanKpi() {
             ))}
           </div>
 
-          <h2 className="sub">Recente leads</h2>
+          <h2 className="sub">Per bron</h2>
+          <div className="tbl-wrap">
+            <table className="tbl">
+              <thead><tr><th>Bron</th><th>Leads</th><th>Leads 30d</th><th>Quickscans</th><th>Gesprekken</th><th>Offertes</th><th>Opdrachten</th><th>Omzet</th></tr></thead>
+              <tbody>
+                {perBron.length === 0 && <tr><td colSpan={8} className="empty">Nog geen leads per bron.</td></tr>}
+                {perBron.map((b) => (
+                  <tr key={b.bron} className={b.bron === 'calculatie_aanvraag' ? 'row-accent' : ''}>
+                    <td>{b.bron}</td>
+                    <td>{num(b.leads)}</td>
+                    <td>{num(b.leads_30d)}</td>
+                    <td>{num(b.quickscans)}</td>
+                    <td>{num(b.gesprekken)}</td>
+                    <td>{num(b.offertes)}</td>
+                    <td>{num(b.opdrachten)}</td>
+                    <td>{euro(b.omzet_eur)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <h2 className="sub">Calculatie-aanvraag — per projecttype</h2>
+          {perProjecttype.length === 0 ? (
+            <p className="note">Nog geen calculatie-aanvragen.</p>
+          ) : (
+            <div className="tbl-wrap">
+              <table className="tbl">
+                <thead><tr><th>Projecttype</th><th>Leads</th><th>Opdrachten</th><th>Omzet</th></tr></thead>
+                <tbody>
+                  {perProjecttype.map((p) => (
+                    <tr key={p.projecttype}>
+                      <td>{p.projecttype}</td>
+                      <td>{num(p.leads)}</td>
+                      <td>{num(p.opdrachten)}</td>
+                      <td>{euro(p.omzet_eur)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <div className="leads-head">
+            <h2 className="sub">Recente leads</h2>
+            <label className="filter">
+              Bron:{' '}
+              <select value={bronFilter} onChange={(e) => setBronFilter(e.target.value)}>
+                <option value="">Alle bronnen</option>
+                {bronOpties.map((b) => <option key={b} value={b}>{b}</option>)}
+              </select>
+            </label>
+          </div>
           <div className="tbl-wrap">
             <table className="tbl">
               <thead><tr><th>Datum</th><th>Naam</th><th>E-mail</th><th>Project</th><th>Status</th><th>Waarde</th><th>Bron</th></tr></thead>
               <tbody>
-                {data.leads.length === 0 && <tr><td colSpan={7} className="empty">Nog geen leads — zodra het formulier binnenkomt verschijnt hier de eerste.</td></tr>}
-                {data.leads.map((l) => (
+                {leads.length === 0 && <tr><td colSpan={7} className="empty">Nog geen leads — zodra het formulier binnenkomt verschijnt hier de eerste.</td></tr>}
+                {leads.map((l) => (
                   <tr key={l.id}>
                     <td>{new Date(l.created_at).toLocaleDateString('nl-NL')}</td>
                     <td>{l.naam}</td>
@@ -125,6 +182,12 @@ export default function QuickscanKpi() {
         .tbl th { text-align:left; padding:12px 14px; background:#f6f8fa; color:#5a6b7a; font-weight:650; border-bottom:1px solid #e5e9ee; white-space:nowrap; }
         .tbl td { padding:12px 14px; border-bottom:1px solid #eef1f4; }
         .empty { text-align:center; color:#90a0ad; padding:26px; }
+        .row-accent td { background:#fbf2dd; }
+        .row-accent td:first-child { font-weight:700; color:#b08c39; }
+        .note { color:#90a0ad; font-size:13.5px; margin:0; }
+        .leads-head { display:flex; justify-content:space-between; align-items:baseline; gap:16px; }
+        .filter { font-size:13px; color:#5a6b7a; font-weight:600; white-space:nowrap; }
+        .filter select { font:inherit; color:#16222f; border:1px solid #e5e9ee; border-radius:8px; padding:5px 8px; background:#fff; }
         .pill { font-size:12px; font-weight:650; padding:3px 9px; border-radius:20px; background:#eef1f4; color:#41525f; }
         .pill-won { background:#e3f5ec; color:#1f9d6b; }
         .pill-lost { background:#fdecea; color:#cf4b3a; }
