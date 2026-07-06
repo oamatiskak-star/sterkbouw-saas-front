@@ -2,10 +2,17 @@
 
 Next.js 14 (Pages Router) + Supabase. Live SterkCalc-frontend (Vercel `sterkbouw-saas-front`, domein **app.sterkbouw.nl**).
 Supabase-DB: **pmovazftwoxjopqkuuhp** (sterkbouww). `NEXT_PUBLIC_SUPABASE_URL`/anon wijst hierheen.
-Laatst bijgewerkt: **2026-06-16** (na IFC/assembly-pijplijn + Normuren-import + IFC Review Workbench).
+Laatst bijgewerkt: **2026-07-06** (projecttypes Verbouw/Herstel/Aanbouw calculeerbaar).
 
 ## 🔴 HERSTEL HIER NA CRASH
-### ✅ ACTUELE WAARHEID (2026-06-16 — LAATSTE SESSIE) — dit overschrijft alles hieronder
+### ✅ ACTUELE WAARHEID (2026-07-06 — LAATSTE SESSIE) — dit overschrijft alles hieronder
+- **Projecttypes uitgebreid → alle 6 gevraagde bouwtypes calculeerbaar:** Verbouw, Herstel, Nieuwbouw, Renovatie, Transformatie, Aanbouw. Branch **`feat/projecttypes-verbouw-herstel-aanbouw`** → **PR #94** (NIET gemerged, wacht op Vercel-groen + Orlando's go). Puur additief, GEEN migratie.
+  - `lib/calc/projecttypeTemplates.js`: 3 nieuwe sleutels in `PROJECTTYPE_LABELS`/`TEMPLATES`/`KRITIEKE_DOMEINEN` — `verbouw` (00,02,07,14,15,16,17,18,19,20,21,22,23,25,26,27,28,K0,32 · kritiek 00,02,25,28), `herstel` (00,02,08,09,11,12,14,22,23 · kritiek 00), `aanbouw` (=uitbreiding-set · kritiek 00,04,11,14,25,28).
+  - `pages/calculaties/nieuw.js`: `TYPES`-dropdown afgeleid uit `PROJECTTYPE_LABELS` (1 bron van waarheid). Subhoofdstukken blijven DB-afgeleid; `projecttypeRekenmodellen.js` werkt automatisch mee via `templateVoor()`. `npm run build` exit 0.
+  - Implementatie door **Fable 5**; diff + rekenkundige samenhang door hoofdsessie geverifieerd. Spec: `docs/superpowers/specs/2026-07-06-projecttypes-verbouw-herstel-aanbouw-design.md`.
+- **Calculator-referentie (demonstratie, geen productcode):** `docs/calculatie-voorbeelden/2026-07-06-10-methodes-vrijstaande-woning.md` — één vrijstaande nieuwbouwwoning (200 m² BVO) via 10 professionele methodes doorgerekend en getrianguleerd (P50 aanneemsom €446.000, bandbreedte €437k–€454k, ±2%). Door Fable 5, rekenkunde geverifieerd. Ook uitgeleverd als deelbaar rapport.
+
+### ✅ ACTUELE WAARHEID (2026-06-16) — historie
 - **Alles staat op `main`, working tree schoon, `main`=`origin/main`.** Laatste merges deze sessie: **#69–#90**.
 - **Migraties t/m `20260616_33` op pmovaz-prod** (allemaal additief, ge-mirrord in `supabase/migrations/`). Vier nieuwe **geïsoleerde schema's** (FK→core, nooit core muteren): `harvest` (open-data + `ifc_object`), `attr` (component-attribuutmodel), `assembly` (assembly-engine), `normuren` (normuren-import).
 - **IFC → werktafel-keten is END-TO-END live (allemaal staged + review-gated, geen auto-promote):**

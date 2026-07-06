@@ -1,0 +1,486 @@
+<title>Calculatierapport — 10 methodes · vrijstaande woning</title>
+<style>
+  :root {
+    --paper: #F7F6F3;
+    --surface: #FFFFFF;
+    --surface-2: #F0EEE9;
+    --ink: #1B2027;
+    --ink-soft: #4A525E;
+    --ink-faint: #7A828E;
+    --line: #DAD6CE;
+    --line-strong: #C3BEB3;
+    --accent: #2E5A78;
+    --accent-soft: #E4ECF1;
+    --advies: #9A6A12;
+    --advies-soft: #F3E9D2;
+    --good: #3E6B4A;
+    --radius: 3px;
+    --maxw: 1080px;
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #111418;
+      --surface: #171B21;
+      --surface-2: #1E242C;
+      --ink: #E7E9EC;
+      --ink-soft: #AEB6C0;
+      --ink-faint: #79828E;
+      --line: #2A313A;
+      --line-strong: #3A434E;
+      --accent: #6FA6C9;
+      --accent-soft: #1C2C38;
+      --advies: #D8A845;
+      --advies-soft: #2C2413;
+      --good: #7FB58E;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F7F6F3; --surface: #FFFFFF; --surface-2: #F0EEE9;
+    --ink: #1B2027; --ink-soft: #4A525E; --ink-faint: #7A828E;
+    --line: #DAD6CE; --line-strong: #C3BEB3;
+    --accent: #2E5A78; --accent-soft: #E4ECF1;
+    --advies: #9A6A12; --advies-soft: #F3E9D2; --good: #3E6B4A;
+  }
+  :root[data-theme="dark"] {
+    --paper: #111418; --surface: #171B21; --surface-2: #1E242C;
+    --ink: #E7E9EC; --ink-soft: #AEB6C0; --ink-faint: #79828E;
+    --line: #2A313A; --line-strong: #3A434E;
+    --accent: #6FA6C9; --accent-soft: #1C2C38;
+    --advies: #D8A845; --advies-soft: #2C2413; --good: #7FB58E;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+
+  /* ---- Titleblock header ---- */
+  .titleblock {
+    border-bottom: 2px solid var(--ink);
+    background: var(--surface);
+  }
+  .tb-inner { max-width: var(--maxw); margin: 0 auto; padding: 28px 20px 0; }
+  .tb-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .tb-eyebrow::after { content: ""; height: 1px; flex: 1; background: var(--line-strong); }
+  h1 {
+    font-size: clamp(1.7rem, 1.1rem + 2.6vw, 2.9rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  .tb-sub { color: var(--ink-soft); font-size: 1.02rem; max-width: 62ch; margin: 0 0 22px; }
+
+  .specstrip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+  .spec {
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 10px 14px;
+    background: var(--surface);
+  }
+  .spec .k {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    display: block;
+    margin-bottom: 3px;
+  }
+  .spec .v { font-size: 0.95rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  main { padding: 40px 0 72px; }
+  section { margin-top: 52px; }
+  .sec-head {
+    display: flex; align-items: baseline; gap: 14px;
+    border-bottom: 1px solid var(--line-strong);
+    padding-bottom: 10px; margin-bottom: 26px;
+  }
+  .sec-no {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em;
+    color: var(--accent); font-weight: 600;
+  }
+  h2 { font-size: 1.34rem; letter-spacing: -0.01em; margin: 0; font-weight: 700; text-wrap: balance; }
+  .sec-head .sub { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: 0.08em; text-transform: uppercase; }
+  p { margin: 0 0 14px; max-width: 68ch; color: var(--ink-soft); }
+  p strong { color: var(--ink); font-weight: 650; }
+
+  /* ---- Executive summary ---- */
+  .exec {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .exec > div { background: var(--surface); padding: 26px 28px; }
+  .exec-advies { background: var(--advies-soft) !important; }
+  .exec .lbl {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px;
+  }
+  .bignum {
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-size: clamp(2rem, 1.3rem + 3vw, 3.1rem);
+    font-weight: 600; letter-spacing: -0.02em; line-height: 1;
+    color: var(--ink);
+  }
+  .exec-advies .bignum { color: var(--advies); }
+  .bignum small { font-size: 0.9rem; font-weight: 500; color: var(--ink-faint); letter-spacing: 0; }
+  .exec .cap { font-size: 0.85rem; color: var(--ink-soft); margin: 10px 0 0; }
+  .band-row { display: flex; gap: 22px; margin-top: 4px; }
+  .band-row .b .bl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+  .band-row .b .bv { font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 600; font-size: 1.1rem; }
+
+  /* ---- Method cards ---- */
+  .methods { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 18px 16px;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .card-no {
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    color: var(--surface); background: var(--accent);
+    width: 26px; height: 26px; border-radius: 50%;
+    display: grid; place-items: center; flex: none;
+  }
+  .card h3 { font-size: 1rem; margin: 0; font-weight: 650; line-height: 1.25; letter-spacing: -0.01em; }
+  .fase {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--accent); border: 1px solid var(--line-strong);
+    padding: 2px 6px; border-radius: 20px; margin-top: 4px; display: inline-block;
+  }
+  .card p { font-size: 0.85rem; line-height: 1.5; margin: 0 0 14px; color: var(--ink-soft); }
+  .card .result {
+    margin-top: auto; border-top: 1px dashed var(--line-strong); padding-top: 12px;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  }
+  .result .rk { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-faint); }
+  .result .rv { font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 600; font-size: 1.15rem; color: var(--accent); }
+  .result .rsub { font-family: var(--mono); font-size: 0.72rem; color: var(--ink-faint); }
+
+  /* ---- Tables ---- */
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line-strong); border-radius: var(--radius); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; min-width: 560px; }
+  thead th {
+    background: var(--surface-2); text-align: left; font-family: var(--mono);
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft);
+    padding: 11px 14px; border-bottom: 1px solid var(--line-strong); white-space: nowrap;
+  }
+  tbody td { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--surface-2) 45%, transparent); }
+  tr.total td { font-weight: 700; background: var(--accent-soft) !important; border-top: 2px solid var(--accent); }
+  tr.total td.num { color: var(--accent); }
+  .méthode-tag { font-family: var(--mono); font-size: 0.82rem; color: var(--ink-soft); }
+
+  /* ---- Band table emphasis ---- */
+  tr.p50 td { background: var(--advies-soft) !important; font-weight: 700; }
+  tr.p50 td.num { color: var(--advies); }
+
+  /* ---- Advies ---- */
+  .advies-box {
+    border: 1px solid var(--advies);
+    border-left: 4px solid var(--advies);
+    background: color-mix(in srgb, var(--advies-soft) 60%, var(--surface));
+    border-radius: var(--radius);
+    padding: 26px 28px;
+  }
+  .advies-box h2 { margin-bottom: 14px; }
+  .advies-figs { display: flex; flex-wrap: wrap; gap: 26px; margin: 18px 0 20px; }
+  .advies-figs .af .afl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); }
+  .advies-figs .af .afv { font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 600; font-size: 1.5rem; color: var(--advies); }
+
+  ul.notes { margin: 0; padding-left: 0; list-style: none; }
+  ul.notes li { position: relative; padding-left: 20px; margin-bottom: 10px; color: var(--ink-soft); max-width: 74ch; font-size: 0.92rem; }
+  ul.notes li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 7px; height: 7px; background: var(--accent); border-radius: 1px; }
+
+  footer {
+    border-top: 1px solid var(--line-strong); margin-top: 64px; padding: 24px 0 48px;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: 0.04em;
+    display: flex; flex-wrap: wrap; gap: 6px 20px; justify-content: space-between;
+  }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (max-width: 720px) {
+    .exec { grid-template-columns: 1fr; }
+  }
+</style>
+
+<header class="titleblock">
+  <div class="tb-inner">
+    <div class="tb-eyebrow">SterkCalc · Calculatiedossier · STABU</div>
+    <h1>Bouwsom in tienvoud — één woning, tien methodes</h1>
+    <p class="tb-sub">Een ervaren calculator benadert dezelfde bouwsom vanuit tien erkende invalshoeken en trianguleert tot één betrouwbaar cijfer met bandbreedte. Dit dossier toont de volledige onderbouwing.</p>
+    <div class="specstrip">
+      <div class="spec"><span class="k">Object</span><span class="v">Vrijstaande woning</span></div>
+      <div class="spec"><span class="k">Segment</span><span class="v">Midden · nieuwbouw</span></div>
+      <div class="spec"><span class="k">BVO</span><span class="v">200 m²</span></div>
+      <div class="spec"><span class="k">GO</span><span class="v">160 m²</span></div>
+      <div class="spec"><span class="k">Inhoud</span><span class="v">600 m³</span></div>
+      <div class="spec"><span class="k">Regiofactor</span><span class="v">1,00</span></div>
+      <div class="spec"><span class="k">Prijspeil</span><span class="v">2026-Q2</span></div>
+      <div class="spec"><span class="k">Uurloon</span><span class="v">€45 all-in</span></div>
+      <div class="spec"><span class="k">Grondslag</span><span class="v">Excl. grond &amp; btw</span></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="samenvatting" style="margin-top: 40px;">
+    <div class="sec-head">
+      <span class="sec-no">00</span>
+      <h2>Samenvatting &amp; advies</h2>
+      <span class="sub">VO-fase</span>
+    </div>
+    <div class="exec">
+      <div>
+        <div class="lbl">Aanbevolen aanneemsom · P50 · excl. btw</div>
+        <div class="bignum">€446.000</div>
+        <p class="cap">Mediaan van tien methodes. Gedragen door de elementenraming, de STABU-uittrek én de geïndexeerde referentie — die alle binnen €10.000 van dit cijfer liggen.</p>
+        <div class="band-row">
+          <div class="b"><div class="bl">P10 ondergrens</div><div class="bv">€437.000</div></div>
+          <div class="b"><div class="bl">P90 bovengrens</div><div class="bv">€454.500</div></div>
+          <div class="b"><div class="bl">Spreiding</div><div class="bv">±2%</div></div>
+        </div>
+      </div>
+      <div class="exec-advies">
+        <div class="lbl">Kale bouwkosten · P50</div>
+        <div class="bignum">€380.000</div>
+        <p class="cap">€1.900/m² BVO · €633/m³ bruto inhoud. Het triangulatiegemiddelde over tien methodes bedraagt €380.800 — vrijwel gelijk aan de mediaan.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="methodes">
+    <div class="sec-head">
+      <span class="sec-no">01</span>
+      <h2>De tien methodes</h2>
+      <span class="sub">Kale bouwkosten per methode</span>
+    </div>
+    <div class="methods">
+
+      <article class="card">
+        <div class="card-top"><span class="card-no">1</span><div><h3>Kengetal per m² BVO</h3><span class="fase">Initiatief · ±15–20%</span></div></div>
+        <p>Parametrische toets als er enkel oppervlakte en programma zijn. €1.900/m² × 200 m². De snelste financiële haalbaarheidscheck.</p>
+        <div class="result"><span class="rk">Kaal</span><span class="rv">€380.000</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="card-no">2</span><div><h3>Kengetal per m³ inhoud</h3><span class="fase">Initiatief · ±15–20%</span></div></div>
+        <p>Kruispeiling op m², sterk bij kapvolume. €630/m³ × 600 m³. Controle: €378.000 ÷ 200 = €1.890/m² — consistent met methode 1.</p>
+        <div class="result"><span class="rk">Kaal</span><span class="rv">€378.000</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="card-no">3</span><div><h3>Elementenraming NL-SfB</h3><span class="fase">VO · ±10%</span></div></div>
+        <p>Per bouwdeel — fundering, gevels, dak, vloeren, kozijnen, afbouw, installaties — hoeveelheid × element-eenheidsprijs. Dé ontwerpdoorrekening. €1.875/m².</p>
+        <div class="result"><span class="rk">Kaal</span><span class="rv">€375.000</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="card-no">4</span><div><h3>STABU-hoofdstukraming</h3><span class="fase">DO/bestek · ±5%</span></div></div>
+        <p>Directe calculatie per hoofdstuk, hoeveelheid × eenheidsprijs — de inschrijvingsbegroting. Eigen strakke staart (AK 8% + W&amp;R 6%) → aanneemsom €436.200.</p>
+        <div class="result"><span class="rk">Kaal</span><span class="rv">€381.000</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="card-no">5</span><div><h3>Normuren-methode</h3><span class="fase">DO/bestek · ±5–8%</span></div></div>
+        <p>3.000 normuren × €45 = €135.000 arbeid; +€218.000 materiaal +€25.000 materieel. Verdeling 36 / 58 / 7% — de maakbaarheidstoets in uren.</p>
+        <div class="result"><span class="rk">Kaal</span><span class="rv">€378.000</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="card-no">6</span><div><h3>Installatie-quotemethode</h3><span class="fase">VO · ±10%</span></div></div>
+        <p>Bouwkundig €285.000 + W-installaties 20% + E-installaties 12%. Installatie-aandeel 24,3% — passend bij all-electric nieuwbouw 2026.</p>
+        <div class="result"><span class="rk">Kaal</span><span class="rv">€376.200</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="card-no">7</span><div><h3>Opslagcalculatie</h3><span class="fase">Bestek · staart exact</span></div></div>
+        <p>Directe kosten €368.000 → ABK 6% → AK 7% → W&amp;R 5%. De commerciële opbouw van kostprijs naar inschrijfcijfer. Kaal incl. ABK = €390.100.</p>
+        <div class="result"><span class="rk">Aanneemsom</span><span class="rv">€438.300</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="card-no">8</span><div><h3>Referentie + CBS-index</h3><span class="fase">Alle fasen · ±8–10%</span></div></div>
+        <p>Vergelijkbaar project 2023-Q2 à €1.700/m², geïndexeerd ×1,1141 (CBS-bouwkosten) → €1.894/m². De sterkste sanity-check bij goede referentie.</p>
+        <div class="result"><span class="rk">Kaal</span><span class="rv">€378.800</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="card-no">9</span><div><h3>Databank-benchmark</h3><span class="fase">Initiatief/VO · bandbreedte</span></div></div>
+        <p>Kostenkengetallen (type Bouwkostenkompas): laag €1.720 · gemiddeld €1.930 · hoog €2.180 per m². Objectieve marktbenchmark richting financiers.</p>
+        <div class="result"><span class="rk">Kaal · gem.</span><span class="rv">€386.000</span></div>
+      </article>
+
+      <article class="card">
+        <div class="card-top"><span class="card-no">10</span><div><h3>PERT-driepuntsraming</h3><span class="fase">Fase-overgang · risico</span></div></div>
+        <p>(O €352k + 4×M €380k + P €436k) ÷ 6 = €384.700; σ = €14.000. Maakt onzekerheid expliciet — het verschil met M ís de risicowaarde.</p>
+        <div class="result"><span class="rk">Kaal</span><span class="rv">€384.700</span><span class="rsub">±€14.000</span></div>
+      </article>
+
+    </div>
+  </section>
+
+  <section id="detail">
+    <div class="sec-head">
+      <span class="sec-no">02</span>
+      <h2>Twee methodes uitgewerkt</h2>
+      <span class="sub">Elementen &amp; STABU</span>
+    </div>
+    <p><strong>Methode 3 — Elementenraming (NL-SfB).</strong> Per hoofdbouwdeel de hoeveelheid maal de element-eenheidsprijs; de doorrekening die ontwerpkeuzes zichtbaar maakt.</p>
+    <div class="tablewrap" style="margin-bottom:34px;">
+      <table>
+        <thead><tr><th>NL-SfB</th><th>Element</th><th class="num">Hoev.</th><th>Eenh.</th><th class="num">EP</th><th class="num">Bedrag</th></tr></thead>
+        <tbody>
+          <tr><td>16</td><td>Fundering (heipalen + balken)</td><td class="num">100</td><td>m²</td><td class="num">€285</td><td class="num">€28.500</td></tr>
+          <tr><td>13/23</td><td>Begane-grond- + verdiepingsvloer</td><td class="num">200</td><td>m²</td><td class="num">€118</td><td class="num">€23.500</td></tr>
+          <tr><td>21</td><td>Buitenwanden spouw, schoon metselwerk</td><td class="num">180</td><td>m²</td><td class="num">€360</td><td class="num">€64.800</td></tr>
+          <tr><td>22</td><td>Binnenwanden (dragend + licht)</td><td class="num">150</td><td>m²</td><td class="num">€95</td><td class="num">€14.250</td></tr>
+          <tr><td>27</td><td>Dak — houten kap, isolatie, keramische pannen</td><td class="num">130</td><td>m²</td><td class="num">€290</td><td class="num">€37.700</td></tr>
+          <tr><td>31</td><td>Buitenkozijnen, ramen, deuren (HR++)</td><td class="num">35</td><td>m²</td><td class="num">€750</td><td class="num">€26.250</td></tr>
+          <tr><td>4-</td><td>Afwerkingen (stuc, dekvloer, tegel, schilder)</td><td class="num">200</td><td>m²</td><td class="num">€200</td><td class="num">€40.000</td></tr>
+          <tr><td>5-</td><td>W-installaties (WP, vloerverw., WTW, water)</td><td class="num">200</td><td>m²</td><td class="num">€290</td><td class="num">€58.000</td></tr>
+          <tr><td>6-</td><td>E-installaties incl. PV</td><td class="num">200</td><td>m²</td><td class="num">€170</td><td class="num">€34.000</td></tr>
+          <tr><td>—</td><td>Trappen, sanitair, keuken, HWA, diversen</td><td class="num">—</td><td>post</td><td class="num">—</td><td class="num">€48.000</td></tr>
+          <tr class="total"><td colspan="5">Totaal elementen — €1.875/m² BVO</td><td class="num">€375.000</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>Methode 4 — STABU-hoofdstukraming.</strong> Directe calculatie zoals een aannemer inschrijft; hoofdstukken tellen op tot de directe kosten, daarna de eigen staart.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Hfst</th><th>Omschrijving</th><th class="num">Bedrag</th></tr></thead>
+        <tbody>
+          <tr><td>05</td><td>Bouwplaatsvoorzieningen (keet, steiger, kraan)</td><td class="num">€14.000</td></tr>
+          <tr><td>12–17</td><td>Grond-, riolerings- en heiwerk</td><td class="num">€28.000</td></tr>
+          <tr><td>21</td><td>Betonwerk (balken, vloeren)</td><td class="num">€38.500</td></tr>
+          <tr><td>22</td><td>Metselwerk (schoonwerk + kalkzandsteen)</td><td class="num">€58.000</td></tr>
+          <tr><td>24/33</td><td>Ruwbouwtimmerwerk kap + dakbedekking</td><td class="num">€48.500</td></tr>
+          <tr><td>30/32</td><td>Kozijnen, ramen, deuren, trappen</td><td class="num">€40.800</td></tr>
+          <tr><td>40–46</td><td>Stukadoor-, tegel-, dekvloer-, afbouw-, schilderwerk</td><td class="num">€48.500</td></tr>
+          <tr><td>47</td><td>Binneninrichting (keuken, stelpost)</td><td class="num">€10.000</td></tr>
+          <tr><td>50–53</td><td>HWA, binnenriolering, water, sanitair</td><td class="num">€25.200</td></tr>
+          <tr><td>60/61</td><td>Verwarming (WP + vloerverw.) + ventilatie WTW</td><td class="num">€35.500</td></tr>
+          <tr><td>70</td><td>Elektrotechnisch incl. PV</td><td class="num">€34.000</td></tr>
+          <tr class="total"><td colspan="2">Directe kosten incl. bouwplaats</td><td class="num">€381.000</td></tr>
+          <tr><td>—</td><td>Algemene kosten (AK) · 8%</td><td class="num">€30.500</td></tr>
+          <tr><td>—</td><td>Winst &amp; risico (W&amp;R) · 6%</td><td class="num">€24.700</td></tr>
+          <tr class="total"><td colspan="2">Aanneemsom</td><td class="num">€436.200</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="triangulatie">
+    <div class="sec-head">
+      <span class="sec-no">03</span>
+      <h2>Triangulatie</h2>
+      <span class="sub">Tien uitkomsten naast elkaar</span>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th class="num">#</th><th>Methode</th><th>Fase</th><th class="num">Kale bouwkosten</th><th class="num">Aanneemsom</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td>Kengetal €/m² BVO</td><td>Initiatief</td><td class="num">€380.000</td><td class="num">€448.400</td></tr>
+          <tr><td class="num">2</td><td>Kengetal €/m³ inhoud</td><td>Initiatief</td><td class="num">€378.000</td><td class="num">€446.000</td></tr>
+          <tr><td class="num">3</td><td>Elementenraming NL-SfB</td><td>VO</td><td class="num">€375.000</td><td class="num">€442.500</td></tr>
+          <tr><td class="num">4</td><td>STABU-hoofdstukraming</td><td>DO/bestek</td><td class="num">€381.000</td><td class="num">€436.200</td></tr>
+          <tr><td class="num">5</td><td>Normuren-methode</td><td>DO/bestek</td><td class="num">€378.000</td><td class="num">€446.000</td></tr>
+          <tr><td class="num">6</td><td>Installatie-quote</td><td>VO</td><td class="num">€376.200</td><td class="num">€443.900</td></tr>
+          <tr><td class="num">7</td><td>Opslagcalculatie</td><td>Bestek</td><td class="num">€390.100 *</td><td class="num">€438.300</td></tr>
+          <tr><td class="num">8</td><td>Referentie + CBS-index</td><td>Alle fasen</td><td class="num">€378.800</td><td class="num">€447.000</td></tr>
+          <tr><td class="num">9</td><td>Databank-benchmark</td><td>Initiatief/VO</td><td class="num">€386.000</td><td class="num">€455.500</td></tr>
+          <tr><td class="num">10</td><td>PERT-driepuntsraming</td><td>Fase-overgang</td><td class="num">€384.700</td><td class="num">€453.900</td></tr>
+          <tr class="total"><td class="num"></td><td colspan="2">Gemiddelde over tien methodes</td><td class="num">€380.800</td><td class="num">€445.800</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-family:var(--mono);font-size:0.78rem;color:var(--ink-faint);margin-top:10px;">* incl. ABK; direct vergelijkbaar niveau €368.000.</p>
+
+    <div class="tablewrap" style="margin-top:26px;max-width:560px;">
+      <table style="min-width:auto;">
+        <thead><tr><th>Percentiel</th><th class="num">Kale bouwkosten</th><th class="num">€/m² BVO</th><th class="num">Aanneemsom</th></tr></thead>
+        <tbody>
+          <tr><td>P10 ondergrens</td><td class="num">€376.000</td><td class="num">€1.880</td><td class="num">€437.000</td></tr>
+          <tr class="p50"><td>P50 mediaan</td><td class="num">€379.400</td><td class="num">€1.897</td><td class="num">€446.000</td></tr>
+          <tr><td>P90 bovengrens</td><td class="num">€387.000</td><td class="num">€1.935</td><td class="num">€454.500</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="spreiding">
+    <div class="sec-head">
+      <span class="sec-no">04</span>
+      <h2>Spreidingsanalyse</h2>
+      <span class="sub">Waarom de uitschieters uitschieten</span>
+    </div>
+    <p>De spreiding op de aanneemsom is slechts <strong>±2% rond de mediaan</strong> — de tien invalshoeken bevestigen elkaar sterk, wat het cijfer betrouwbaar maakt. De uitschieters zijn stuk voor stuk verklaarbaar en dus informatief:</p>
+    <ul class="notes">
+      <li><strong>Laag — methode 4 (€436.200):</strong> de scherpst uitgetrokken begroting met een eigen strakke staart; detailkennis drukt lucht uit de prijs. Dit is het niveau waarop een aannemer daadwerkelijk inschrijft in een normale markt.</li>
+      <li><strong>Laag — methode 7 (€438.300):</strong> een expliciete staartopbouw is zuiniger dan de forfaitaire 18%-opslag die de overige methodes hanteren.</li>
+      <li><strong>Hoog — methode 9 (€455.500):</strong> databankgemiddelden middelen luxere uitvoeringen en duurdere regio's mee — een structurele overschatter voor een strak gedefinieerd middensegment-project.</li>
+      <li><strong>Hoog — methode 10 (€453.900):</strong> PERT prijst het asymmetrische neerwaartse risico (heiwerk, installatiemarkt) expliciet in en hoort dus boven de mediaan te liggen. Het verschil P50 → PERT van ~€8.000 ís de risicowaarde.</li>
+    </ul>
+  </section>
+
+  <section id="advies">
+    <div class="sec-head">
+      <span class="sec-no">05</span>
+      <h2>Calculator-advies</h2>
+      <span class="sub">Af te geven cijfer</span>
+    </div>
+    <div class="advies-box">
+      <h2>Voor een offerte in de VO-fase</h2>
+      <div class="advies-figs">
+        <div class="af"><div class="afl">Kale bouwkosten</div><div class="afv">€380.000</div></div>
+        <div class="af"><div class="afl">Aanneemsom · P50 · excl. btw</div><div class="afv">€446.000</div></div>
+        <div class="af"><div class="afl">Richtprijs-band P10–P90</div><div class="afv">€437k–€454k</div></div>
+      </div>
+      <p><strong>Onderbouwing.</strong> De twee meest gedetailleerde methodes (STABU-uittrek en normuren) en de geïndexeerde referentie liggen alle binnen €10.000 van dit cijfer — de sterkste validatie die triangulatie kan geven.</p>
+      <p>Ik zet de offerte <strong>niet</strong> op het laagste punt (€436.200): het PERT-resultaat laat zien dat het resterende risico asymmetrisch opwaarts is (heiwerkcondities, installatie-inkoop 2026), en dat risico hoort in deze fase in de prijs, niet in de hoop. Zakt het risico weg zodra sondering, definitief installatieontwerp en vaste onderaannemersprijzen binnen zijn, dan is bij bestekscalculatie een aanscherping richting <strong>€438.000–€440.000</strong> verdedigbaar.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <span>SterkCalc · Calculatiedossier</span>
+  <span>Prijspeil 2026-Q2 · regiofactor 1,00 · excl. grond &amp; btw</span>
+  <span>Opgesteld 2026-07-06 · rekenkundig geverifieerd</span>
+</footer>

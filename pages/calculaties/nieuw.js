@@ -16,7 +16,7 @@ import { analyseDocument, loadRuimtes, loadObjecten } from '@/services/aiAnalyse
 import { genereerBouwdeelVoorstel, valideerProjecttype, pasVoorstelToe } from '@/services/p6Intake';
 import BouwdeelKiezer from '@/components/calculatie/werktafel/BouwdeelKiezer';
 
-const TYPES = ['nieuwbouw', 'renovatie', 'transformatie', 'uitbreiding', 'verduurzaming', 'badkamer', 'woning', 'appartementencomplex'];
+const TYPES = Object.keys(PROJECTTYPE_LABELS);
 const STAPPEN = [
   { n: 1, l: 'Project', i: FolderPlus },
   { n: 2, l: 'Documenten', i: FileText },
