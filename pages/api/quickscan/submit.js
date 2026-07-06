@@ -5,6 +5,7 @@
 import fs from 'fs';
 import formidable from 'formidable';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { notifyLead } from '@/lib/notifyLead';
 
 export const config = { api: { bodyParser: false } };
 
@@ -38,6 +39,7 @@ export default async function handler(req, res) {
   const funda_url = String(first(fields.funda_url) || '').trim() || null;
   const bericht = String(first(fields.bericht) || '').trim() || null;
   const bron = String(first(fields.bron) || 'landing').trim().slice(0, 60);
+  const projecttype = String(first(fields.projecttype) || '').trim().slice(0, 40) || null;
   let utm = {};
   try { utm = JSON.parse(first(fields.utm) || '{}'); } catch { utm = {}; }
 
@@ -71,14 +73,18 @@ export default async function handler(req, res) {
   const user_agent = (req.headers['user-agent'] || '').toString().slice(0, 400) || null;
 
   const { error: insErr } = await admin.from('quickscan_leads').insert({
-    id: leadId, naam, email, telefoon, projectadres, funda_url, bericht,
+    id: leadId, naam, email, telefoon, projectadres, funda_url, bericht, projecttype,
     bestanden: uploaded, bron, utm, ip, user_agent,
   });
   if (insErr) return res.status(500).json({ error: 'LEAD_INSERT_FAILED', detail: insErr.message });
 
   await admin.from('quickscan_events').insert({
-    lead_id: leadId, event_type: 'lead', meta: { bron, files: uploaded.length },
+    lead_id: leadId, event_type: 'lead', meta: { bron, projecttype, files: uploaded.length },
   });
+
+  try {
+    await notifyLead({ naam, email, telefoon, projectadres, funda_url, bericht, projecttype, bron, utm, files: uploaded.length });
+  } catch { /* notificatie mag de lead-afhandeling niet blokkeren */ }
 
   return res.status(200).json({ ok: true, lead_id: leadId, files: uploaded.length });
 }

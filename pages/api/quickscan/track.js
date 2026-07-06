@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     try { utm = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {}); } catch { utm = {}; }
     await supabaseAdmin().from('quickscan_events').insert({
       event_type: 'visit',
-      meta: { path: '/bouwkosten-quickscan', utm: utm?.utm || {}, ref: utm?.ref || null },
+      meta: { path: (utm?.path || '/bouwkosten-quickscan'), utm: utm?.utm || {}, ref: utm?.ref || null },
     });
     return res.status(200).json({ ok: true });
   } catch (e) {
