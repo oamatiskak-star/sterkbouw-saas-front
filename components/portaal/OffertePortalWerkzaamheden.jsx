@@ -35,14 +35,14 @@ export default function OffertePortalWerkzaamheden({ chapters, rows, kpi, offert
         <div className="mt-5 divide-y divide-gray-100">
           {hoofdstukken.map((h) => (
             <div key={h.id}>
-              <button onClick={() => setOpen(open === h.id ? null : h.id)} className="flex w-full items-center gap-3 bg-white py-3 text-left [color-scheme:light]">
+              <button onClick={() => setOpen(open === h.id ? null : h.id)} className="flex w-full items-start gap-3 bg-white py-3 text-left [color-scheme:light]">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sterkcalc-navy/5 text-sterkcalc-navy"><Layers size={18} /></span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold text-gray-900">{h.naam}</span>
+                  <span className="block text-sm font-semibold leading-snug text-gray-900">{h.naam}</span>
                   <span className="block text-xs text-gray-400">{h.rows.length} werkregel{h.rows.length === 1 ? '' : 's'}</span>
                 </span>
-                <span className="font-semibold text-gray-900">{fmtEUR(h.bedrag)}</span>
-                <ChevronDown size={16} className={`shrink-0 text-gray-400 transition-transform ${open === h.id ? 'rotate-180' : ''}`} />
+                <span className="mt-2.5 shrink-0 whitespace-nowrap text-sm font-semibold text-gray-900">{fmtEUR(h.bedrag)}</span>
+                <ChevronDown size={16} className={`mt-3 shrink-0 text-gray-400 transition-transform ${open === h.id ? 'rotate-180' : ''}`} />
               </button>
               {open === h.id && (
                 <div className="mb-3 ml-14 space-y-1 rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
