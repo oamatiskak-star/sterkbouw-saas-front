@@ -33,6 +33,8 @@ module.exports = {
           blue: '#1565C0',
           accent: '#00B67A',
           warning: '#FF9F1C',
+          gold: '#C9A227',
+          gold2: '#B08D1F',
         },
       },
       fontFamily: {

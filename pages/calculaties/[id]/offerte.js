@@ -9,7 +9,7 @@ import { genereerOffertePdf } from '@/lib/offerte/genereerOffertePdf';
 import { fmtEUR } from '@/lib/calc/werktafelTotals';
 import VerzendModule from '@/components/calculatie/offerte/VerzendModule';
 
-const TABS = ['Cover', 'Ontwerp', 'Samenvatting', 'Werkzaamheden', 'Opties', 'Planning', 'Termijnen', 'Versturen'];
+const TABS = ['Cover', 'Ontwerp', 'Projectomschrijving', 'Samenvatting', 'Werkzaamheden', 'Opties', 'Planning', 'Termijnen', 'Versturen'];
 const STATUS_LABEL = { concept: 'Concept', verzonden: 'Verzonden', bekeken: 'Bekeken', vraag: 'Vraag gesteld', akkoord: 'Akkoord', getekend: 'Getekend', afgewezen: 'Afgewezen' };
 
 export default function OfferteBuilder() {
@@ -21,6 +21,7 @@ export default function OfferteBuilder() {
   const [tab, setTab] = useState('Cover');
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [melding, setMelding] = useState(null);
 
   const offerte = ctx?.offerte;
 
@@ -43,6 +44,7 @@ export default function OfferteBuilder() {
     const patch = {};
     if (!offerte.termijnen?.length) patch.termijnen = oe.DEFAULT_TERMIJNEN;
     if (!offerte.planning?.length) patch.planning = oe.DEFAULT_PLANNING;
+    if (!offerte.content?.zekerheden?.length) patch.content = { ...(offerte.content || {}), zekerheden: oe.DEFAULT_ZEKERHEDEN };
     if (Object.keys(patch).length) oe.saveOfferteVelden(offerte.id, patch).then(herlaad).catch(() => {});
   }, [offerte?.id]); // eslint-disable-line
 
@@ -70,6 +72,32 @@ export default function OfferteBuilder() {
     } finally { setBusy(false); }
   };
 
+  // Echte verzending: premium e-mail via Mailtrap/Resend (server-side, env-gated) + status/token.
+  const verstuurMail = async () => {
+    setBusy(true);
+    try {
+      const r = await fetch('/api/offerte/verstuur', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ offerte_id: offerte.id }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || 'Versturen mislukt');
+      await herlaad();
+      if (j.mailSent) {
+        setMelding({ soort: 'succes', tekst: `E-mail verstuurd via ${j.mailProvider}.` });
+      } else {
+        setMelding({
+          soort: 'waarschuwing',
+          tekst: `Offerte gemarkeerd als verzonden en portaallink aangemaakt, maar de e-mail is NIET automatisch verstuurd (${j.mailReason === 'no_provider_configured' ? 'geen mail-provider ingesteld — zet MAILTRAP_API_TOKEN of RESEND_API_KEY in Vercel env' : j.mailReason}). Gebruik hieronder "Open in e-mail" om 'm handmatig te sturen.`,
+        });
+      }
+      return j;
+    } catch (e) {
+      setMelding({ soort: 'fout', tekst: 'Versturen mislukt: ' + (e.message || e) });
+    } finally { setBusy(false); }
+  };
+
   const portalUrl = offerte?.portal_token ? `${typeof window !== 'undefined' ? window.location.origin : ''}/portaal/${offerte.portal_token}` : '';
 
   if (loading) return <div className="flex items-center gap-2 p-8 text-gray-400"><Loader2 className="animate-spin" size={16} /> Laden…</div>;
@@ -81,6 +109,13 @@ export default function OfferteBuilder() {
         <h1 className="flex items-center gap-2 text-xl font-semibold text-gray-900"><FileText size={20} className="text-sterkcalc-blue" /> Offerte Excellence</h1>
         {offerte && <span className={`rounded-full px-3 py-1 text-xs font-medium ${offerte.status === 'getekend' ? 'bg-sterkcalc-accent/15 text-sterkcalc-accent' : offerte.status === 'akkoord' ? 'bg-emerald-100 text-emerald-700' : ['verzonden', 'bekeken', 'vraag'].includes(offerte.status) ? 'bg-sterkcalc-blue/15 text-sterkcalc-blue' : 'bg-gray-100 text-gray-500'}`}>{STATUS_LABEL[offerte.status] || offerte.status}</span>}
       </div>
+
+      {melding && (
+        <div className={`mt-4 flex items-start justify-between gap-3 rounded-xl border p-3 text-sm ${melding.soort === 'succes' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : melding.soort === 'fout' ? 'border-red-200 bg-red-50 text-red-700' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
+          <span>{melding.tekst}</span>
+          <button onClick={() => setMelding(null)} className="shrink-0 text-current opacity-60 hover:opacity-100">✕</button>
+        </div>
+      )}
 
       {!offerte ? (
         <div className="mt-6 rounded-xl border border-dashed border-gray-200 p-10 text-center">
@@ -111,12 +146,13 @@ export default function OfferteBuilder() {
           <div className="mt-4">
             {tab === 'Cover' && <CoverTab offerte={offerte} setVeld={setVeld} />}
             {tab === 'Ontwerp' && <OntwerpTab offerte={offerte} setVeld={setVeld} />}
+            {tab === 'Projectomschrijving' && <ProjectomschrijvingTab offerte={offerte} setVeld={setVeld} />}
             {tab === 'Samenvatting' && <SamenvattingTab kpi={kpi} offerte={offerte} setVeld={setVeld} />}
             {tab === 'Werkzaamheden' && <WerkzaamhedenTab ctx={ctx} kpi={kpi} />}
             {tab === 'Opties' && <OptiesTab offerte={offerte} setVeld={setVeld} />}
             {tab === 'Planning' && <PlanningTab offerte={offerte} setVeld={setVeld} />}
             {tab === 'Termijnen' && <TermijnenTab offerte={offerte} termijnen={termijnen} setVeld={setVeld} />}
-            {tab === 'Versturen' && <VerzendModule offerte={offerte} portalUrl={portalUrl} events={events} totaalIncl={ctx?.totalen?.verkoopprijs_incl} busy={busy} onPdf={downloadPdf} onVerzonden={markeerVerzonden} />}
+            {tab === 'Versturen' && <VerzendModule offerte={offerte} portalUrl={portalUrl} events={events} totaalIncl={ctx?.totalen?.verkoopprijs_incl} busy={busy} onPdf={downloadPdf} onVerzonden={markeerVerzonden} onVerstuurMail={verstuurMail} />}
           </div>
         </>
       )}
@@ -174,6 +210,58 @@ function OntwerpTab({ offerte, setVeld }) {
         {items.length === 0 && <p className="py-6 text-center text-sm text-gray-400">Nog geen ontwerpafbeeldingen. Voorbeeld: plattegrondvoorstel of 3D-visualisatie.</p>}
       </div>
     </Card>
+  );
+}
+
+function ProjectomschrijvingTab({ offerte, setVeld }) {
+  const content = offerte.content || {};
+  const setContent = (patch) => setVeld({ content: { ...content, ...patch } });
+  const kernvoordelen = content.kernvoordelen?.length ? content.kernvoordelen : oe.DEFAULT_KERNVOORDELEN;
+  const zekerheden = content.zekerheden?.length ? content.zekerheden : oe.DEFAULT_ZEKERHEDEN;
+  const updList = (key, next) => setContent({ [key]: next });
+  const patchListItem = (key, list, i, v) => updList(key, list.map((x, j) => (j === i ? v : x)));
+  const addListItem = (key, list) => updList(key, [...list, '']);
+  const delListItem = (key, list, i) => updList(key, list.filter((_, j) => j !== i));
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Veld label="Headline"><input className={inputCls} placeholder="Een woning die past bij jullie toekomst." defaultValue={content.headline || ''} onBlur={(e) => setContent({ headline: e.target.value })} /></Veld>
+          <Veld label="Video-URL (optioneel, cover-knop 'Bekijk de video')"><input className={inputCls} placeholder="https://…" defaultValue={content.video || ''} onBlur={(e) => setContent({ video: e.target.value })} /></Veld>
+        </div>
+        <div className="mt-3"><Veld label="Introductietekst"><textarea className={inputCls} rows={3} placeholder="Jullie wensen hebben we vertaald naar een concreet en haalbaar plan…" defaultValue={content.intro || ''} onBlur={(e) => setContent({ intro: e.target.value })} /></Veld></div>
+        <div className="mt-3"><Veld label="Sfeer-quote (cover, onderaan)"><input className={inputCls} placeholder="Een sterk huis begint met goed luisteren." defaultValue={content.quote || ''} onBlur={(e) => setContent({ quote: e.target.value })} /></Veld></div>
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Veld label="Hoofdfoto projectomschrijving (URL)"><input className={inputCls} placeholder="https://…" defaultValue={content.fotoHoofd || ''} onBlur={(e) => setContent({ fotoHoofd: e.target.value })} /></Veld>
+          <Veld label="Foto bestaande situatie (URL, optioneel)"><input className={inputCls} placeholder="https://…" defaultValue={content.fotoBestaand || ''} onBlur={(e) => setContent({ fotoBestaand: e.target.value })} /></Veld>
+        </div>
+      </Card>
+
+      <Card>
+        <div className="mb-2 flex items-center justify-between"><span className="text-sm font-semibold text-gray-900">Kernvoordelen</span><button onClick={() => addListItem('kernvoordelen', kernvoordelen)} className="inline-flex items-center gap-1 rounded-lg bg-sterkcalc-navy px-3 py-1.5 text-xs font-medium text-white"><Plus size={13} /> Punt</button></div>
+        <div className="space-y-2">
+          {kernvoordelen.map((v, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input className={inputCls} value={v} onChange={(e) => patchListItem('kernvoordelen', kernvoordelen, i, e.target.value)} />
+              <button onClick={() => delListItem('kernvoordelen', kernvoordelen, i)} className="text-gray-300 hover:text-red-600"><Trash2 size={15} /></button>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card>
+        <div className="mb-2 flex items-center justify-between"><span className="text-sm font-semibold text-gray-900">Zekerheden (getoond naast de ondertekening)</span><button onClick={() => addListItem('zekerheden', zekerheden)} className="inline-flex items-center gap-1 rounded-lg bg-sterkcalc-navy px-3 py-1.5 text-xs font-medium text-white"><Plus size={13} /> Punt</button></div>
+        <div className="space-y-2">
+          {zekerheden.map((v, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <input className={inputCls} value={v} onChange={(e) => patchListItem('zekerheden', zekerheden, i, e.target.value)} />
+              <button onClick={() => delListItem('zekerheden', zekerheden, i)} className="text-gray-300 hover:text-red-600"><Trash2 size={15} /></button>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
   );
 }
 

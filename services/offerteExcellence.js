@@ -18,6 +18,19 @@ export const DEFAULT_PLANNING = [
   { fase: 'Afbouw', weken: 4 },
   { fase: 'Oplevering', weken: 1 },
 ];
+export const DEFAULT_ZEKERHEDEN = [
+  'Inclusief garantie',
+  'Heldere voorwaarden',
+  'Veilige digitale ondertekening',
+  'Automatische bevestiging',
+  'Directe PDF na akkoord',
+];
+export const DEFAULT_KERNVOORDELEN = [
+  'Meer ruimte en licht',
+  'Duurzame oplossingen',
+  'Hoogwaardige afwerking',
+  'Eén vast aanspreekpunt',
+];
 
 const n = (v) => (Number.isFinite(parseFloat(v)) ? parseFloat(v) : 0);
 
@@ -85,10 +98,17 @@ export async function loadEvents(offerteId) {
   return data || [];
 }
 
-// Klant kiest opties in het portaal → opslaan op de offerte (geen status-wijziging).
-export async function bewaarOptieKeuze(offerteId, opties) {
-  const { error } = await supabase.from('sterkcalc_offertes').update({ opties, updated_at: new Date().toISOString() }).eq('id', offerteId);
-  if (error) throw error;
+// Definitieve PDF na ondertekening: alleen de upload naar Storage (dat mag via de publieke
+// blanket storage-policy, ook anoniem). Het wegschrijven van de resulterende URL naar
+// sterkcalc_offertes.pdf_url loopt NIET via deze functie: die kolom-update vereist auth.uid()
+// (RLS) en moet daarom server-side via /api/offerte/portal-actie (type: 'pdf_url') vanaf het
+// anonieme klantportaal, of via saveOfferteVelden vanuit het geauthenticeerde dashboard.
+export async function uploadOffertePdfBestand(offerteId, blob, bestandsnaam) {
+  const path = `${offerteId}/${bestandsnaam}`;
+  const { error: upErr } = await supabase.storage.from('sterkcalc-visual-assets').upload(path, blob, { contentType: 'application/pdf', upsert: true });
+  if (upErr) throw upErr;
+  const { data: pub } = supabase.storage.from('sterkcalc-visual-assets').getPublicUrl(path);
+  return pub?.publicUrl;
 }
 
 // Beste-effort IP voor audittrail (client-side).

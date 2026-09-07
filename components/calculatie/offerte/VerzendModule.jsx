@@ -4,6 +4,7 @@
 import { useMemo, useState } from 'react';
 import { Mail, Download, Link2, Send, Check, Loader2, Paperclip } from 'lucide-react';
 import { fmtEUR } from '@/lib/calc/werktafelTotals';
+import OfferteStatusStepper from './OfferteStatusStepper';
 
 const BIJLAGEN = [
   { key: 'offerte', label: 'Offerte (PDF)', default: true },
@@ -12,7 +13,7 @@ const BIJLAGEN = [
   { key: 'techspec', label: 'Technische specificatie', default: false },
 ];
 
-export default function VerzendModule({ offerte, portalUrl, events = [], totaalIncl, busy, onPdf, onVerzonden }) {
+export default function VerzendModule({ offerte, portalUrl, events = [], totaalIncl, busy, onPdf, onVerstuurMail }) {
   const klant = offerte?.klant_naam || 'klant';
   const nummer = offerte?.nummer || 'OFF';
   const bedrag = totaalIncl != null ? fmtEUR(totaalIncl) : (offerte?.totaal_incl != null ? fmtEUR(offerte.totaal_incl) : '—');
@@ -33,6 +34,8 @@ export default function VerzendModule({ offerte, portalUrl, events = [], totaalI
 
   return (
     <div className="space-y-4">
+      <OfferteStatusStepper offerte={offerte} events={events} />
+
       {/* E-mail samenstellen */}
       <div className="rounded-xl border border-gray-200 bg-white p-4">
         <div className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-gray-900"><Mail size={15} className="text-sterkcalc-blue" /> E-mail samenstellen</div>
@@ -60,7 +63,7 @@ export default function VerzendModule({ offerte, portalUrl, events = [], totaalI
 
       {/* Verzendkanalen */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <Kanaal icon={Mail} titel="E-mail" sub={offerte?.klant_email || 'geen adres'} actie={mailto ? <a href={mailto} className="kanaal-btn inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-sterkcalc-blue px-3 py-2 text-xs font-medium text-white hover:opacity-90">Open in e-mail</a> : <span className="text-[11px] text-amber-600">Vul e-mailadres in</span>} />
+        <Kanaal icon={Mail} titel="E-mail (eigen programma)" sub={offerte?.klant_email || 'geen adres'} actie={mailto ? <a href={mailto} className="kanaal-btn inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50">Open in e-mail</a> : <span className="text-[11px] text-amber-600">Vul e-mailadres in</span>} />
         <Kanaal icon={Download} titel="PDF" sub="download offerte" actie={<button onClick={onPdf} disabled={busy} className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50">Download PDF</button>} />
         <Kanaal icon={Link2} titel="Klantportaal" sub={portalUrl ? 'link delen' : 'na verzenden'} actie={portalUrl ? <button onClick={() => kopieer(portalUrl)} className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50">Kopieer link</button> : <span className="text-[11px] text-gray-400">link verschijnt na verzenden</span>} />
       </div>
@@ -70,14 +73,14 @@ export default function VerzendModule({ offerte, portalUrl, events = [], totaalI
         <div className="text-sm text-gray-600">
           {verzonden
             ? <span className="inline-flex items-center gap-1.5 font-medium text-emerald-700"><Check size={15} /> Offerte verzonden{offerte?.verzonden_at ? ` op ${new Date(offerte.verzonden_at).toLocaleDateString('nl-NL')}` : ''}.</span>
-            : 'Markeer als verzonden zodra de offerte de deur uit is — dit maakt de portaal-link aan en legt het vast in de audittrail.'}
+            : 'Verstuur de premium offerte-mail met portaallink — dit maakt de link aan en legt het vast in de audittrail. Zonder mail-provider (MAILTRAP_API_TOKEN/RESEND_API_KEY) wordt de link wel aangemaakt maar moet je de mail zelf openen via "Open in e-mail".'}
         </div>
         <button
-          onClick={() => onVerzonden({ kanaal: 'e-mail', onderwerp, bijlagen: Object.keys(bijlagen).filter((k) => bijlagen[k]) })}
+          onClick={onVerstuurMail}
           disabled={busy}
-          className="inline-flex items-center gap-2 rounded-lg bg-sterkcalc-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-lg bg-sterkcalc-gold px-4 py-2 text-sm font-semibold text-white hover:bg-sterkcalc-gold2 disabled:opacity-60"
         >
-          {busy ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />} {verzonden ? 'Opnieuw vastleggen' : 'Markeer als verzonden'}
+          {busy ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />} {verzonden ? 'Opnieuw versturen' : 'Verstuur e-mail nu'}
         </button>
       </div>
 
