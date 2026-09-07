@@ -113,7 +113,7 @@ export default function OfferteBuilder() {
       {melding && (
         <div className={`mt-4 flex items-start justify-between gap-3 rounded-xl border p-3 text-sm ${melding.soort === 'succes' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : melding.soort === 'fout' ? 'border-red-200 bg-red-50 text-red-700' : 'border-amber-200 bg-amber-50 text-amber-800'}`}>
           <span>{melding.tekst}</span>
-          <button onClick={() => setMelding(null)} className="shrink-0 text-current opacity-60 hover:opacity-100">✕</button>
+          <button onClick={() => setMelding(null)} className="shrink-0 bg-transparent text-current opacity-60 hover:opacity-100">✕</button>
         </div>
       )}
 
@@ -162,7 +162,7 @@ export default function OfferteBuilder() {
 
 function Card({ children }) { return <div className="rounded-xl border border-gray-200 bg-white p-4">{children}</div>; }
 function Veld({ label, children }) { return <label className="block"><span className="mb-1 block text-xs font-medium text-gray-500">{label}</span>{children}</label>; }
-const inputCls = 'w-full rounded-lg border border-gray-300 px-3 py-1.5 text-sm';
+const inputCls = 'w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 [color-scheme:light]';
 
 function CoverTab({ offerte, setVeld }) {
   const cover = offerte.cover || {};
@@ -204,7 +204,7 @@ function OntwerpTab({ offerte, setVeld }) {
             </div>
             <div className="mt-2"><Veld label="Toelichting (optioneel)"><textarea className={inputCls} rows={2} value={it.beschrijving || ''} onChange={(e) => patch(i, { beschrijving: e.target.value })} /></Veld></div>
             {it.url && <img src={it.url} alt={it.titel || 'ontwerp'} className="mt-2 h-40 w-full rounded-lg border border-gray-100 object-contain bg-gray-50" />}
-            <button onClick={() => del(i)} className="mt-2 inline-flex items-center gap-1 text-xs text-gray-400 hover:text-red-600"><Trash2 size={13} /> Verwijderen</button>
+            <button onClick={() => del(i)} className="mt-2 inline-flex items-center gap-1 bg-white text-xs text-gray-400 [color-scheme:light] hover:text-red-600"><Trash2 size={13} /> Verwijderen</button>
           </div>
         ))}
         {items.length === 0 && <p className="py-6 text-center text-sm text-gray-400">Nog geen ontwerpafbeeldingen. Voorbeeld: plattegrondvoorstel of 3D-visualisatie.</p>}
@@ -244,7 +244,7 @@ function ProjectomschrijvingTab({ offerte, setVeld }) {
           {kernvoordelen.map((v, i) => (
             <div key={i} className="flex items-center gap-2">
               <input className={inputCls} value={v} onChange={(e) => patchListItem('kernvoordelen', kernvoordelen, i, e.target.value)} />
-              <button onClick={() => delListItem('kernvoordelen', kernvoordelen, i)} className="text-gray-300 hover:text-red-600"><Trash2 size={15} /></button>
+              <button onClick={() => delListItem('kernvoordelen', kernvoordelen, i)} className="bg-white text-gray-300 [color-scheme:light] hover:text-red-600"><Trash2 size={15} /></button>
             </div>
           ))}
         </div>
@@ -256,7 +256,7 @@ function ProjectomschrijvingTab({ offerte, setVeld }) {
           {zekerheden.map((v, i) => (
             <div key={i} className="flex items-center gap-2">
               <input className={inputCls} value={v} onChange={(e) => patchListItem('zekerheden', zekerheden, i, e.target.value)} />
-              <button onClick={() => delListItem('zekerheden', zekerheden, i)} className="text-gray-300 hover:text-red-600"><Trash2 size={15} /></button>
+              <button onClick={() => delListItem('zekerheden', zekerheden, i)} className="bg-white text-gray-300 [color-scheme:light] hover:text-red-600"><Trash2 size={15} /></button>
             </div>
           ))}
         </div>
@@ -321,7 +321,7 @@ function OptiesTab({ offerte, setVeld }) {
             <select className="col-span-2 rounded border border-gray-300 px-2 py-1 text-sm" value={o.soort} onChange={(e) => patch(i, { soort: e.target.value })}><option value="meer">Meerprijs</option><option value="min">Minderprijs</option></select>
             <input type="number" className="col-span-2 rounded border border-gray-300 px-2 py-1 text-right text-sm" value={o.bedrag} onChange={(e) => patch(i, { bedrag: Number(e.target.value) || 0 })} />
             <input className="col-span-3 rounded border border-gray-300 px-2 py-1 text-sm" placeholder="impact" value={o.impact || ''} onChange={(e) => patch(i, { impact: e.target.value })} />
-            <button onClick={() => del(i)} className="col-span-1 text-gray-300 hover:text-red-600"><Trash2 size={15} /></button>
+            <button onClick={() => del(i)} className="col-span-1 bg-white text-gray-300 [color-scheme:light] hover:text-red-600"><Trash2 size={15} /></button>
           </div>
         ))}
         {opties.length === 0 && <p className="py-4 text-center text-sm text-gray-400">Nog geen opties. Voorbeeld: Badkamer luxe (+€3.500), Aluminium kozijnen (+€4.200).</p>}
@@ -347,7 +347,7 @@ function PlanningTab({ offerte, setVeld }) {
             <input type="number" className="w-20 rounded border border-gray-300 px-2 py-1 text-right text-sm" value={f.weken} onChange={(e) => patch(i, { weken: Number(e.target.value) || 0 })} />
             <span className="text-xs text-gray-400">wk</span>
             <div className="h-3 flex-1 rounded bg-gray-100"><div className="h-3 rounded bg-sterkcalc-accent" style={{ width: `${((Number(f.weken) || 0) / maxW) * 100}%` }} /></div>
-            <button onClick={() => del(i)} className="text-gray-300 hover:text-red-600"><Trash2 size={15} /></button>
+            <button onClick={() => del(i)} className="bg-white text-gray-300 [color-scheme:light] hover:text-red-600"><Trash2 size={15} /></button>
           </div>
         ))}
       </div>
@@ -373,7 +373,7 @@ function TermijnenTab({ offerte, termijnen, setVeld }) {
             <input type="number" className="w-20 rounded border border-gray-300 px-2 py-1 text-right text-sm" value={lijst[i]?.pct || 0} onChange={(e) => patch(i, { pct: Number(e.target.value) || 0 })} />
             <span className="text-xs text-gray-400">%</span>
             <span className="w-28 text-right text-sm tabular-nums text-gray-700">{fmtEUR(t.bedrag)}</span>
-            <button onClick={() => del(i)} className="text-gray-300 hover:text-red-600"><Trash2 size={15} /></button>
+            <button onClick={() => del(i)} className="bg-white text-gray-300 [color-scheme:light] hover:text-red-600"><Trash2 size={15} /></button>
           </div>
         ))}
       </div>

@@ -33,31 +33,31 @@ export default function OffertePortalOndertekening({ zekerheden, voorwaardenTeks
           <h2 className="text-lg font-bold text-gray-900">Akkoord</h2>
           <p className="mt-1 text-sm text-gray-500">Tevreden? Onderteken direct digitaal.</p>
 
-          <button onClick={() => setVoorwaardenOpen((v) => !v)} className="mt-4 flex w-full items-center justify-between rounded-lg border border-gray-200 px-3 py-2 text-left text-sm text-gray-700">
+          <button onClick={() => setVoorwaardenOpen((v) => !v)} className="mt-4 flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-sm text-gray-700 [color-scheme:light]">
             Algemene voorwaarden STRKBOUW <ChevronDown size={15} className={`transition-transform ${voorwaardenOpen ? 'rotate-180' : ''}`} />
           </button>
           {voorwaardenOpen && (
             <div className="mt-2 max-h-40 overflow-y-auto rounded-lg bg-gray-50 p-3 text-xs leading-relaxed text-gray-600">{voorwaardenTekst}</div>
           )}
           <label className="mt-3 flex items-start gap-2 text-xs text-gray-600">
-            <input type="checkbox" className="mt-0.5" checked={akkoordVoorwaarden} onChange={(e) => setAkkoordVoorwaarden(e.target.checked)} />
+            <input type="checkbox" className="mt-0.5 bg-white [color-scheme:light]" checked={akkoordVoorwaarden} onChange={(e) => setAkkoordVoorwaarden(e.target.checked)} />
             Ik heb de algemene voorwaarden gelezen en ga hiermee akkoord.
           </label>
 
           <div className="mt-4">
             <label className="block text-xs font-medium text-gray-500">Volledige naam</label>
-            <input value={naam} onChange={(e) => setNaam(e.target.value)} placeholder="Uw naam" className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+            <input value={naam} onChange={(e) => setNaam(e.target.value)} placeholder="Uw naam" className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 [color-scheme:light]" />
           </div>
 
           <div className="mt-4">
             <label className="block text-xs font-medium text-gray-500">Handtekening</label>
             {handtekening ? (
-              <div className="mt-1 flex items-center gap-3 rounded-lg border border-gray-200 p-2">
+              <div className="mt-1 flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-2">
                 <img src={handtekening.dataUrl} alt="handtekening" className="h-14 w-32 object-contain" />
-                <button onClick={() => setPadOpen(true)} className="text-xs text-sterkcalc-navy underline">Opnieuw tekenen</button>
+                <button onClick={() => setPadOpen(true)} className="bg-white text-xs text-sterkcalc-navy underline [color-scheme:light]">Opnieuw tekenen</button>
               </div>
             ) : (
-              <button onClick={() => setPadOpen(true)} className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 px-3 py-3 text-sm text-gray-500 hover:border-sterkcalc-navy hover:text-sterkcalc-navy">
+              <button onClick={() => setPadOpen(true)} className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 bg-white px-3 py-3 text-sm text-gray-500 [color-scheme:light] hover:border-sterkcalc-navy hover:text-sterkcalc-navy">
                 <PenLine size={15} /> Zet uw handtekening
               </button>
             )}

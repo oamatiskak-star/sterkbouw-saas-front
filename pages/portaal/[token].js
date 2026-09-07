@@ -137,7 +137,7 @@ export default function Klantportaal() {
 
       {['vraag', 'alternatief', 'meerwerk', 'afspraak'].includes(modal) && (
         <Modal title={{ vraag: 'Vraag stellen', alternatief: 'Alternatief aanvragen', meerwerk: 'Meerwerk aanvragen', afspraak: 'Afspraak plannen' }[modal]} onClose={() => setModal(null)}>
-          <textarea autoFocus value={tekst} onChange={(e) => setTekst(e.target.value)} rows={4} placeholder="Uw bericht…" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+          <textarea autoFocus value={tekst} onChange={(e) => setTekst(e.target.value)} rows={4} placeholder="Uw bericht…" className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 [color-scheme:light]" />
           <button onClick={() => conversie(modal)} disabled={busy} className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-sterkcalc-navy px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{busy ? <Loader2 size={15} className="animate-spin" /> : 'Versturen'}</button>
         </Modal>
       )}
@@ -152,7 +152,7 @@ function Modal({ title, onClose, children }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center" onClick={onClose}>
       <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <div className="mb-1 flex items-center justify-between"><h3 className="text-base font-semibold text-gray-900">{title}</h3><button onClick={onClose} className="text-gray-400">✕</button></div>
+        <div className="mb-1 flex items-center justify-between"><h3 className="text-base font-semibold text-gray-900">{title}</h3><button onClick={onClose} className="bg-white text-gray-400 [color-scheme:light]">✕</button></div>
         {children}
       </div>
     </div>

@@ -35,7 +35,7 @@ export default function OffertePortalWerkzaamheden({ chapters, rows, kpi, offert
         <div className="mt-5 divide-y divide-gray-100">
           {hoofdstukken.map((h) => (
             <div key={h.id}>
-              <button onClick={() => setOpen(open === h.id ? null : h.id)} className="flex w-full items-center gap-3 py-3 text-left">
+              <button onClick={() => setOpen(open === h.id ? null : h.id)} className="flex w-full items-center gap-3 bg-white py-3 text-left [color-scheme:light]">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sterkcalc-navy/5 text-sterkcalc-navy"><Layers size={18} /></span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold text-gray-900">{h.naam}</span>
