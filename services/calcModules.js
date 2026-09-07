@@ -27,13 +27,15 @@ export async function loadOfferte(id) {
 }
 export async function maakOfferte(calculatieId) {
   const { calculatie, totalen } = await calcData(calculatieId);
-  const nummer = 'OFF-' + String(calculatieId).slice(0, 8).toUpperCase();
+  // `nummer` wordt niet meer hier verzonnen (was 'OFF-' + eerste 8 tekens van calculatieId,
+  // dus identiek bij een tweede offerte voor dezelfde calculatie) — de DB-kolom heeft nu een
+  // default (generate_offertenummer(), sequence-based) die altijd een uniek nummer geeft,
+  // zelfde patroon als calculaties.projectnummer.
   const { data, error } = await supabase
     .from('sterkcalc_offertes')
     .insert({
       calculatie_id: calculatieId,
       project_id: calculatie?.project_id || null,
-      nummer,
       status: 'concept',
       totaal_excl: Math.round(totalen.verkoopprijs_excl),
       totaal_incl: Math.round(totalen.verkoopprijs_incl),

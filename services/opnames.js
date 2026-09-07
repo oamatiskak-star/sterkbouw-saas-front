@@ -65,17 +65,24 @@ export async function createOpname(payload) {
 
 // Maakt bij het afronden van een opname op locatie het gekoppelde project + calculatie aan
 // en zet calculatie_id op de opname. `opname` moet de actuele (net opgeslagen) rij zijn.
+//
+// LET OP: het project gaat naar `projects` (Engels) — dat is de tabel die de rest van de
+// app (services/projecten.js:maakProjectEnCalculatie, pagina /calculaties/projecten) echt
+// gebruikt voor het Projecten-overzicht. Er bestaat OOK een tabel `projecten` (Nederlands,
+// andere kolommen) die nergens anders in de app gelezen wordt — daar per ongeluk naar
+// schrijven laat de calculatie wél bestaan maar onvindbaar in het Projecten-overzicht.
 export async function voltooiOpname(opname) {
   const { data: project, error: projectError } = await supabase
-    .from('projecten')
+    .from('projects')
     .insert({
-      naam: `Opname ${opname.klant_naam}`,
-      locatie: opname.plaats || null,
-      adres: opname.adres || null,
+      projectnaam: `Opname ${opname.klant_naam}`,
+      naam_opdrachtgever: opname.klant_naam,
+      straatnaam_en_huisnummer: opname.adres || null,
       postcode: opname.postcode || null,
+      plaats: opname.plaats || null,
       plaatsnaam: opname.plaats || null,
       project_type: opname.type_aanvraag || null,
-      omschrijving: opname.omschrijving || null,
+      opmerking: opname.omschrijving || null,
       telefoon: opname.telefoon || null,
       status: 'concept',
     })
