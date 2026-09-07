@@ -9,7 +9,7 @@ import { genereerOffertePdf } from '@/lib/offerte/genereerOffertePdf';
 import { fmtEUR } from '@/lib/calc/werktafelTotals';
 import VerzendModule from '@/components/calculatie/offerte/VerzendModule';
 
-const TABS = ['Cover', 'Samenvatting', 'Werkzaamheden', 'Opties', 'Planning', 'Termijnen', 'Versturen'];
+const TABS = ['Cover', 'Ontwerp', 'Samenvatting', 'Werkzaamheden', 'Opties', 'Planning', 'Termijnen', 'Versturen'];
 const STATUS_LABEL = { concept: 'Concept', verzonden: 'Verzonden', bekeken: 'Bekeken', vraag: 'Vraag gesteld', akkoord: 'Akkoord', getekend: 'Getekend', afgewezen: 'Afgewezen' };
 
 export default function OfferteBuilder() {
@@ -110,6 +110,7 @@ export default function OfferteBuilder() {
 
           <div className="mt-4">
             {tab === 'Cover' && <CoverTab offerte={offerte} setVeld={setVeld} />}
+            {tab === 'Ontwerp' && <OntwerpTab offerte={offerte} setVeld={setVeld} />}
             {tab === 'Samenvatting' && <SamenvattingTab kpi={kpi} offerte={offerte} setVeld={setVeld} />}
             {tab === 'Werkzaamheden' && <WerkzaamhedenTab ctx={ctx} kpi={kpi} />}
             {tab === 'Opties' && <OptiesTab offerte={offerte} setVeld={setVeld} />}
@@ -141,6 +142,37 @@ function CoverTab({ offerte, setVeld }) {
       </div>
       {cover.projectfoto && <img src={cover.projectfoto} alt="cover" className="mt-3 h-40 w-full rounded-lg object-cover" />}
       <p className="mt-2 text-xs text-gray-400">De cover toont de projectfoto met STRKBOUW-branding (premium uitstraling).</p>
+    </Card>
+  );
+}
+
+function OntwerpTab({ offerte, setVeld }) {
+  const cover = offerte.cover || {};
+  const items = Array.isArray(cover.ontwerpAfbeeldingen) ? cover.ontwerpAfbeeldingen : [];
+  const upd = (next) => setVeld({ cover: { ...cover, ontwerpAfbeeldingen: next } });
+  const add = () => upd([...items, { url: '', titel: 'Ontwerpvoorstel', beschrijving: '' }]);
+  const patch = (i, p) => upd(items.map((it, j) => (j === i ? { ...it, ...p } : it)));
+  const del = (i) => upd(items.filter((_, j) => j !== i));
+  return (
+    <Card>
+      <div className="mb-3 flex items-center justify-between">
+        <span className="text-sm text-gray-500">Plattegrondvoorstellen, 3D-visualisaties of andere ontwerpafbeeldingen — worden als volle pagina in de offerte-PDF getoond, na de werkzaamheden. Maakt de offerte een beleving in plaats van alleen een prijsopgave.</span>
+        <button onClick={add} className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-sterkcalc-navy px-3 py-1.5 text-xs font-medium text-white"><Plus size={13} /> Afbeelding</button>
+      </div>
+      <div className="space-y-4">
+        {items.map((it, i) => (
+          <div key={i} className="rounded-lg border border-gray-100 p-3">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <Veld label="Titel"><input className={inputCls} value={it.titel || ''} onChange={(e) => patch(i, { titel: e.target.value })} /></Veld>
+              <Veld label="Afbeelding-URL"><div className="flex items-center gap-2"><ImageIcon size={16} className="text-gray-400" /><input className={inputCls} placeholder="https://…" value={it.url || ''} onChange={(e) => patch(i, { url: e.target.value })} /></div></Veld>
+            </div>
+            <div className="mt-2"><Veld label="Toelichting (optioneel)"><textarea className={inputCls} rows={2} value={it.beschrijving || ''} onChange={(e) => patch(i, { beschrijving: e.target.value })} /></Veld></div>
+            {it.url && <img src={it.url} alt={it.titel || 'ontwerp'} className="mt-2 h-40 w-full rounded-lg border border-gray-100 object-contain bg-gray-50" />}
+            <button onClick={() => del(i)} className="mt-2 inline-flex items-center gap-1 text-xs text-gray-400 hover:text-red-600"><Trash2 size={13} /> Verwijderen</button>
+          </div>
+        ))}
+        {items.length === 0 && <p className="py-6 text-center text-sm text-gray-400">Nog geen ontwerpafbeeldingen. Voorbeeld: plattegrondvoorstel of 3D-visualisatie.</p>}
+      </div>
     </Card>
   );
 }
