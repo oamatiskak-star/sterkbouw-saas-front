@@ -58,10 +58,12 @@ export default function OpnameForm({ initial = null, onSubmit, submitLabel = 'Op
   const inputCls = 'w-full rounded border-[1.5px] border-gray-200 px-3 py-2.5 text-sm text-gray-900 focus:border-sterkcalc-blue focus:outline-none';
   const labelCls = 'mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500';
 
+  const sectionTitleCls = 'mb-5 border-b-2 border-[#e8c84b] pb-2 text-xs font-bold uppercase tracking-wide text-gray-900';
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      <fieldset>
-        <legend className="mb-5 w-full border-b-2 border-[#e8c84b] pb-2 text-xs font-bold uppercase tracking-wide text-gray-900">Klantgegevens</legend>
+    <form onSubmit={handleSubmit} className="space-y-10">
+      <div>
+        <h2 className={sectionTitleCls}>Klantgegevens</h2>
         <div className="mb-4">
           <label className={labelCls} htmlFor="f-naam">Naam klant</label>
           <input id="f-naam" className={inputCls} placeholder="Voor- en achternaam" required {...veld('klant_naam')} />
@@ -70,17 +72,17 @@ export default function OpnameForm({ initial = null, onSubmit, submitLabel = 'Op
           <label className={labelCls} htmlFor="f-adres">Adres</label>
           <input id="f-adres" className={inputCls} placeholder="Straat en huisnummer" {...veld('adres')} />
         </div>
-        <div className="mb-4 grid grid-cols-3 gap-4">
+        <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
             <label className={labelCls} htmlFor="f-postcode">Postcode</label>
             <input id="f-postcode" className={inputCls} placeholder="1234 AB" {...veld('postcode')} />
           </div>
-          <div className="col-span-2">
+          <div className="sm:col-span-2">
             <label className={labelCls} htmlFor="f-plaats">Plaats</label>
             <input id="f-plaats" className={inputCls} placeholder="Plaats" {...veld('plaats')} />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className={labelCls} htmlFor="f-telefoon">Telefoon</label>
             <input id="f-telefoon" type="tel" className={inputCls} placeholder="06 12345678" {...veld('telefoon')} />
@@ -90,11 +92,11 @@ export default function OpnameForm({ initial = null, onSubmit, submitLabel = 'Op
             <input id="f-email" type="email" className={inputCls} placeholder="klant@voorbeeld.nl" {...veld('email')} />
           </div>
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset>
-        <legend className="mb-5 w-full border-b-2 border-[#e8c84b] pb-2 text-xs font-bold uppercase tracking-wide text-gray-900">Aanvraag</legend>
-        <div className="mb-4 grid grid-cols-2 gap-4">
+      <div>
+        <h2 className={sectionTitleCls}>Aanvraag</h2>
+        <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className={labelCls} htmlFor="f-type">Type aanvraag</label>
             <select id="f-type" className={inputCls} {...veld('type_aanvraag')}>
@@ -110,10 +112,10 @@ export default function OpnameForm({ initial = null, onSubmit, submitLabel = 'Op
           <label className={labelCls} htmlFor="f-opnemer">Opgenomen door</label>
           <input id="f-opnemer" className={inputCls} placeholder="Naam van de opnemer" {...veld('opgenomen_door')} />
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset>
-        <legend className="mb-5 w-full border-b-2 border-[#e8c84b] pb-2 text-xs font-bold uppercase tracking-wide text-gray-900">Omschrijving</legend>
+      <div>
+        <h2 className={sectionTitleCls}>Omschrijving</h2>
         <div className="mb-4">
           <label className={labelCls} htmlFor="f-omschrijving">Omschrijving werkzaamheden</label>
           <textarea id="f-omschrijving" rows={4} className={inputCls} placeholder="Wat moet er gebeuren?" {...veld('omschrijving')} />
@@ -130,15 +132,15 @@ export default function OpnameForm({ initial = null, onSubmit, submitLabel = 'Op
           <label className={labelCls} htmlFor="f-opmerkingen">Opmerkingen</label>
           <textarea id="f-opmerkingen" rows={3} className={inputCls} placeholder="Overige opmerkingen" {...veld('opmerkingen')} />
         </div>
-      </fieldset>
+      </div>
 
-      <fieldset>
-        <legend className="mb-5 w-full border-b-2 border-[#e8c84b] pb-2 text-xs font-bold uppercase tracking-wide text-gray-900">Schets / situatietekening</legend>
+      <div>
+        <h2 className={sectionTitleCls}>Schets / situatietekening</h2>
         <SketchBlocks ref={sketchRef} initialImages={initial?.schetsen || []} />
-      </fieldset>
+      </div>
 
-      <div className="flex items-center gap-4">
-        <button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded bg-[#e8c84b] px-6 py-3 text-sm font-bold uppercase tracking-wide text-black disabled:opacity-50">
+      <div className="flex flex-wrap items-center gap-4 border-t border-gray-100 pt-6">
+        <button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded bg-[#e8c84b] px-6 py-3 text-sm font-bold uppercase tracking-wide text-black hover:opacity-90 disabled:opacity-50">
           {busy ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />} {submitLabel}
         </button>
         {status && <span className={status.type === 'error' ? 'text-sm text-red-600' : 'text-sm text-emerald-700'}>{status.tekst}</span>}

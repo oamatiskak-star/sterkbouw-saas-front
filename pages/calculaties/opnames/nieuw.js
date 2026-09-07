@@ -1,4 +1,7 @@
 // pages/calculaties/opnames/nieuw.js — nieuwe opname vastleggen.
+// apple-mobile-web-app-* meta's: zodat "Zet op beginscherm" op iPad deze pagina
+// direct als losse, chromeloze snelkoppeling opent (geen Safari-adresbalk).
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { ChevronLeft, ClipboardList } from 'lucide-react';
@@ -15,6 +18,13 @@ export default function NieuweOpname() {
 
   return (
     <div className="mx-auto max-w-3xl p-6">
+      <Head>
+        <title>Opname — STRKBOUW</title>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="Opname" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <meta name="theme-color" content="#0a0a0a" />
+      </Head>
       <Link href="/calculaties/opnames" className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
         <ChevronLeft size={15} /> Terug naar opnames
       </Link>
