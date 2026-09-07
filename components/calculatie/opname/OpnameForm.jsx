@@ -55,8 +55,11 @@ export default function OpnameForm({ initial = null, onSubmit, submitLabel = 'Op
     }
   }
 
-  const inputCls = 'w-full rounded border-[1.5px] border-gray-200 px-3 py-2.5 text-sm text-gray-900 focus:border-sterkcalc-blue focus:outline-none';
-  const labelCls = 'mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500';
+  // [color-scheme:light] + expliciete bg-white/text-gray-900: de site dwingt bij een donker
+  // systeemthema global `color-scheme: dark` af (styles/globals.css), waardoor native
+  // formuliervelden anders een donkere achtergrond met donkere tekst kregen — onleesbaar.
+  const inputCls = 'w-full rounded border-[1.5px] border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 [color-scheme:light] focus:border-sterkcalc-blue focus:outline-none focus:ring-2 focus:ring-sterkcalc-blue/20';
+  const labelCls = 'mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-700';
 
   const sectionTitleCls = 'mb-5 border-b-2 border-[#e8c84b] pb-2 text-xs font-bold uppercase tracking-wide text-gray-900';
 
