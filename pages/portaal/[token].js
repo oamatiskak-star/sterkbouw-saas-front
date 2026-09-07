@@ -13,6 +13,7 @@ import OffertePortalIntro from '@/components/portaal/OffertePortalIntro';
 import OffertePortalWerkzaamheden from '@/components/portaal/OffertePortalWerkzaamheden';
 import OffertePortalPrijsoverzicht from '@/components/portaal/OffertePortalPrijsoverzicht';
 import OffertePortalPlanning from '@/components/portaal/OffertePortalPlanning';
+import OffertePortalDocumenten from '@/components/portaal/OffertePortalDocumenten';
 import OffertePortalOndertekening from '@/components/portaal/OffertePortalOndertekening';
 import OffertePortalBedankt from '@/components/portaal/OffertePortalBedankt';
 
@@ -71,6 +72,7 @@ export default function Klantportaal() {
   const getekend = offerte.status === 'getekend';
   const zekerheden = content.zekerheden?.length ? content.zekerheden : oe.DEFAULT_ZEKERHEDEN;
   const voorwaardenTekst = settings?.bedrijf?.voorwaarden || DEFAULT_VOORWAARDEN;
+  const bedrijfNaam = settings?.bedrijf?.naam || 'STRKBOUW';
 
   const scrollNaarOfferte = () => document.getElementById('werkzaamheden')?.scrollIntoView({ behavior: 'smooth' });
 
@@ -111,15 +113,16 @@ export default function Klantportaal() {
     } catch (e) { window.alert('Mislukt: ' + (e.message || e)); } finally { setBusy(false); }
   };
 
-  if (getekend) return <OffertePortalBedankt cover={cover} content={content} pdfUrl={offerte.pdf_url} />;
+  if (getekend) return <OffertePortalBedankt cover={cover} content={content} pdfUrl={offerte.pdf_url} bedrijfNaam={bedrijfNaam} />;
 
   return (
     <div className="min-h-screen bg-white">
-      <OffertePortalHero offerte={offerte} cover={cover} content={content} onNaarOfferte={scrollNaarOfferte} />
-      <OffertePortalIntro offerte={offerte} content={content} />
+      <OffertePortalHero offerte={offerte} cover={cover} content={content} bedrijfNaam={bedrijfNaam} onNaarOfferte={scrollNaarOfferte} />
+      <OffertePortalIntro offerte={offerte} content={content} bedrijfNaam={bedrijfNaam} />
       <OffertePortalWerkzaamheden chapters={chapters} rows={rows} kpi={kpi} offerte={offerte} getekend={getekend} onToggleOptie={toggleOptie} />
       <OffertePortalPrijsoverzicht totalen={totalen} kpi={kpi} offerte={offerte} />
       <OffertePortalPlanning planning={offerte.planning} termijnen={termijnen} kpi={kpi} />
+      <OffertePortalDocumenten documenten={content.documenten} />
 
       <section className="mx-auto max-w-5xl px-6 py-4 sm:px-8">
         <div className="flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-200 p-4 text-sm text-gray-500">
@@ -133,7 +136,7 @@ export default function Klantportaal() {
 
       <OffertePortalOndertekening zekerheden={zekerheden} voorwaardenTekst={voorwaardenTekst} busy={busy} onOndertekenen={ondertekenen} />
 
-      <footer className="py-8 text-center text-xs text-gray-400">STRKBOUW · Offerte {offerte.nummer} · versie {offerte.versie || 1}</footer>
+      <footer className="py-8 text-center text-xs text-gray-400">{bedrijfNaam} · Offerte {offerte.nummer} · versie {offerte.versie || 1}</footer>
 
       {['vraag', 'alternatief', 'meerwerk', 'afspraak'].includes(modal) && (
         <Modal title={{ vraag: 'Vraag stellen', alternatief: 'Alternatief aanvragen', meerwerk: 'Meerwerk aanvragen', afspraak: 'Afspraak plannen' }[modal]} onClose={() => setModal(null)}>

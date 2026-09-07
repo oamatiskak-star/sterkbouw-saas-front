@@ -218,10 +218,14 @@ function ProjectomschrijvingTab({ offerte, setVeld }) {
   const setContent = (patch) => setVeld({ content: { ...content, ...patch } });
   const kernvoordelen = content.kernvoordelen?.length ? content.kernvoordelen : oe.DEFAULT_KERNVOORDELEN;
   const zekerheden = content.zekerheden?.length ? content.zekerheden : oe.DEFAULT_ZEKERHEDEN;
+  const documenten = Array.isArray(content.documenten) ? content.documenten : [];
   const updList = (key, next) => setContent({ [key]: next });
   const patchListItem = (key, list, i, v) => updList(key, list.map((x, j) => (j === i ? v : x)));
   const addListItem = (key, list) => updList(key, [...list, '']);
   const delListItem = (key, list, i) => updList(key, list.filter((_, j) => j !== i));
+  const addDocument = () => updList('documenten', [...documenten, { titel: '', url: '', beschrijving: '' }]);
+  const patchDocument = (i, p) => updList('documenten', documenten.map((d, j) => (j === i ? { ...d, ...p } : d)));
+  const delDocument = (i) => updList('documenten', documenten.filter((_, j) => j !== i));
 
   return (
     <div className="space-y-4">
@@ -259,6 +263,26 @@ function ProjectomschrijvingTab({ offerte, setVeld }) {
               <button onClick={() => delListItem('zekerheden', zekerheden, i)} className="bg-white text-gray-300 [color-scheme:light] hover:text-red-600"><Trash2 size={15} /></button>
             </div>
           ))}
+        </div>
+      </Card>
+
+      <Card>
+        <div className="mb-3 flex items-center justify-between">
+          <span className="text-sm text-gray-500">Documenten die de klant zelf kan bekijken/downloaden op het portaal — bijv. besteklijst of plattegrondvoorstel.</span>
+          <button onClick={addDocument} className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-sterkcalc-navy px-3 py-1.5 text-xs font-medium text-white"><Plus size={13} /> Document</button>
+        </div>
+        <div className="space-y-3">
+          {documenten.map((d, i) => (
+            <div key={i} className="rounded-lg border border-gray-100 p-3">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <Veld label="Titel"><input className={inputCls} placeholder="Besteklijst WMO" value={d.titel || ''} onChange={(e) => patchDocument(i, { titel: e.target.value })} /></Veld>
+                <Veld label="Bestand-URL"><input className={inputCls} placeholder="https://…" value={d.url || ''} onChange={(e) => patchDocument(i, { url: e.target.value })} /></Veld>
+              </div>
+              <div className="mt-2"><Veld label="Toelichting (optioneel)"><input className={inputCls} value={d.beschrijving || ''} onChange={(e) => patchDocument(i, { beschrijving: e.target.value })} /></Veld></div>
+              <button onClick={() => delDocument(i)} className="mt-2 inline-flex items-center gap-1 bg-white text-xs text-gray-400 [color-scheme:light] hover:text-red-600"><Trash2 size={13} /> Verwijderen</button>
+            </div>
+          ))}
+          {documenten.length === 0 && <p className="py-6 text-center text-sm text-gray-400">Nog geen documenten toegevoegd.</p>}
         </div>
       </Card>
     </div>

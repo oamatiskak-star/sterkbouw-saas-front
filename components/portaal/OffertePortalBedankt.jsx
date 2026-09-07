@@ -1,13 +1,14 @@
 // components/portaal/OffertePortalBedankt.jsx — referentie scherm "6. Bedankpagina (na akkoord)".
 import { Home, Check, Mail, FileText, CalendarClock } from 'lucide-react';
 
-export default function OffertePortalBedankt({ cover, content, pdfUrl }) {
+export default function OffertePortalBedankt({ cover, content, pdfUrl, bedrijfNaam }) {
+  const naam = bedrijfNaam || 'STRKBOUW';
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-sterkcalc-navy px-6 text-center text-white">
       {cover.projectfoto && <img src={cover.projectfoto} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />}
       <div className="absolute inset-0 bg-gradient-to-b from-sterkcalc-navy/80 via-sterkcalc-navy/90 to-sterkcalc-navy" />
 
-      <div className="relative flex items-center gap-2 py-8 text-sm font-bold tracking-wide"><Home size={18} /> STRKBOUW</div>
+      <div className="relative flex items-center gap-2 py-8 text-sm font-bold tracking-wide"><Home size={18} /> {naam}</div>
 
       <div className="relative flex flex-1 flex-col items-center justify-center pb-10">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white text-sterkcalc-navy shadow-xl">
@@ -23,7 +24,7 @@ export default function OffertePortalBedankt({ cover, content, pdfUrl }) {
         </div>
       </div>
 
-      {content.quote && <div className="relative pb-8 text-sm italic text-white/60">&ldquo;{content.quote}&rdquo; — STRKBOUW</div>}
+      {content.quote && <div className="relative pb-8 text-sm italic text-white/60">&ldquo;{content.quote}&rdquo; — {naam}</div>}
     </div>
   );
 }

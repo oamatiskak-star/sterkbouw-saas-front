@@ -2,7 +2,8 @@
 // Full-bleed projectfoto, donkere overlay, STRKBOUW-merk, headline, CTA's, sfeer-quote.
 import { Home, PlayCircle, ArrowRight } from 'lucide-react';
 
-export default function OffertePortalHero({ offerte, cover, content, onNaarOfferte }) {
+export default function OffertePortalHero({ offerte, cover, content, bedrijfNaam, onNaarOfferte }) {
+  const naam = bedrijfNaam || 'STRKBOUW';
   const headline = content.headline || cover.projectnaam || 'Bouwen aan jullie volgende hoofdstuk.';
   const sub = [
     cover.projectnaam || null,
@@ -23,7 +24,7 @@ export default function OffertePortalHero({ offerte, cover, content, onNaarOffer
       <div className="relative flex items-center justify-between p-6 sm:p-8">
         <div className="flex items-center gap-2 font-bold tracking-wide">
           <Home size={20} />
-          <span>STRKBOUW</span>
+          <span>{naam}</span>
         </div>
         <div className="text-sm text-white/70">Offerte {offerte.nummer}</div>
       </div>
@@ -47,7 +48,7 @@ export default function OffertePortalHero({ offerte, cover, content, onNaarOffer
 
       {content.quote && (
         <div className="relative border-t border-white/10 bg-sterkcalc-navy2/60 px-6 py-4 text-center text-sm italic text-white/80 sm:px-8">
-          &ldquo;{content.quote}&rdquo; — STRKBOUW
+          &ldquo;{content.quote}&rdquo; — {naam}
         </div>
       )}
     </div>

@@ -1,7 +1,7 @@
 // components/portaal/OffertePortalIntro.jsx — referentie scherm "3. Projectomschrijving".
 import { Check, Home } from 'lucide-react';
 
-export default function OffertePortalIntro({ offerte, content }) {
+export default function OffertePortalIntro({ offerte, content, bedrijfNaam }) {
   const headline = content.headline || 'Een woning die past bij jullie toekomst.';
   const kernvoordelen = Array.isArray(content.kernvoordelen) && content.kernvoordelen.length ? content.kernvoordelen : [];
 
@@ -10,7 +10,7 @@ export default function OffertePortalIntro({ offerte, content }) {
   return (
     <section className="mx-auto max-w-5xl px-6 py-14 sm:px-8">
       <div className="flex items-center gap-2 pb-8 text-sm font-semibold text-sterkcalc-navy">
-        <Home size={16} /> STRKBOUW <span className="ml-auto text-xs font-normal text-gray-400">Offerte {offerte.nummer}</span>
+        <Home size={16} /> {bedrijfNaam || 'STRKBOUW'} <span className="ml-auto text-xs font-normal text-gray-400">Offerte {offerte.nummer}</span>
       </div>
       <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
         <div>
