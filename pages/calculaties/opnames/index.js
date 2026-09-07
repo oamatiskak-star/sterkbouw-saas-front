@@ -44,7 +44,7 @@ export default function OpnamesOverzicht() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-xs text-gray-500">
               <tr className="[&>th]:px-4 [&>th]:py-2 [&>th]:text-left">
-                <th>Klant</th><th>Plaats</th><th>Type</th><th>Datum opname</th><th>Opgenomen door</th><th>Status</th>
+                <th>Klant</th><th>Calc-nr.</th><th>Plaats</th><th>Type</th><th>Datum opname</th><th>Opgenomen door</th><th>Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -52,6 +52,11 @@ export default function OpnamesOverzicht() {
                 <tr key={o.id} className="hover:bg-gray-50">
                   <td className="px-4 py-2">
                     <Link href={`/calculaties/opnames/${o.id}`} className="font-medium text-gray-900 hover:text-sterkcalc-blue">{o.klant_naam}</Link>
+                  </td>
+                  <td className="px-4 py-2 font-mono text-xs text-gray-600">
+                    {o.calculatie_id
+                      ? <Link href={`/calculaties/${o.calculatie_id}/werktafel`} className="hover:text-sterkcalc-blue">{o.calculaties?.projectnummer || o.calculatie_id.slice(0, 8)}</Link>
+                      : '—'}
                   </td>
                   <td className="px-4 py-2 text-gray-600">{o.plaats || '—'}</td>
                   <td className="px-4 py-2 text-gray-600">{o.type_aanvraag || '—'}</td>
@@ -61,7 +66,7 @@ export default function OpnamesOverzicht() {
                 </tr>
               ))}
               {items.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-6 text-center text-gray-400">Nog geen opnames.</td></tr>
+                <tr><td colSpan={7} className="px-4 py-6 text-center text-gray-400">Nog geen opnames.</td></tr>
               )}
             </tbody>
           </table>

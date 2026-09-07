@@ -1,25 +1,30 @@
 // services/opnames.js — CRUD voor opnames (opnameformulier), nu binnen de SterkCalc-dashboard
-// i.p.v. het losse Opnameformulier.html-bestand. Create blijft via de bestaande edge function
-// (submit-opname) lopen zodat de Telegram/e-mail-notificaties intact blijven; list/get/update
-// gaan direct via Supabase (RLS-policies toegevoegd in migratie 20260907_01).
+// i.p.v. het losse Opnameformulier.html-bestand. Create loopt via de submit-opname edge
+// function (service-role): maakt meteen een gekoppelde project+calculatie aan en geeft het
+// calc-nummer terug. List/get/update gaan direct via Supabase (RLS-policies + calculatie_id
+// FK toegevoegd in migratie opnames_tabel_met_calculatie_koppeling, pmovazftwoxjopqkuuhp).
 import supabase from '@/lib/supabase';
 
-const SUBMIT_URL = 'https://shaunumewswpxhmgbtvv.supabase.co/functions/v1/submit-opname';
-const SUBMIT_KEY = 'sb_publishable_hU81pMxo04uxessWETnS7w_dOAlJNOf';
+const SUBMIT_URL = 'https://pmovazftwoxjopqkuuhp.supabase.co/functions/v1/submit-opname';
+const SUBMIT_KEY = 'sb_publishable_78EeIVVPKyGgpQH_bNbwaw_QKfSuGaZ';
 
 export const STATUS_OPTIES = ['nieuw', 'in_behandeling', 'omgezet_naar_calculatie', 'afgerond'];
 
 export async function listOpnames() {
   const { data, error } = await supabase
     .from('opnames')
-    .select('id, klant_naam, plaats, type_aanvraag, datum_opname, status, opgenomen_door, created_at, updated_at')
+    .select('id, klant_naam, plaats, type_aanvraag, datum_opname, status, opgenomen_door, created_at, updated_at, calculatie_id, calculaties(projectnummer)')
     .order('created_at', { ascending: false });
   if (error) throw error;
   return data || [];
 }
 
 export async function getOpname(id) {
-  const { data, error } = await supabase.from('opnames').select('*').eq('id', id).maybeSingle();
+  const { data, error } = await supabase
+    .from('opnames')
+    .select('*, calculaties(id, projectnummer, naam)')
+    .eq('id', id)
+    .maybeSingle();
   if (error) throw error;
   return data;
 }

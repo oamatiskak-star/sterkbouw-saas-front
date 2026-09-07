@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/keepalive-pmovaz",
+      "schedule": "0 6 * * 1,4"
+    }
+  ]
+}
