@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
   LayoutGrid, PlusCircle, Table2, Boxes, Layers, CalendarDays,
-  ShoppingCart, FileText, BarChart3, Settings, HelpCircle, Bell, Plus, LogOut, Calculator, FolderKanban, Search, Box, Ruler,
+  ShoppingCart, FileText, BarChart3, Settings, HelpCircle, Bell, Plus, LogOut, Calculator, FolderKanban, Search, Box, Ruler, ClipboardList,
 } from 'lucide-react';
 import FaseStepper, { FASE_KEYS } from './FaseStepper';
 
@@ -17,6 +17,7 @@ const NAV_GROEPEN = [
     items: [
       { label: 'Overzicht', href: '/calculaties', icon: LayoutGrid, match: (p) => p === '/calculaties' },
       { label: 'Projecten', href: '/calculaties/projecten', icon: FolderKanban, match: (p) => p === '/calculaties/projecten' || p.includes('/project/') },
+      { label: 'Opnames', href: '/calculaties/opnames', icon: ClipboardList, match: (p) => p.includes('/opnames') },
       { label: 'Nieuwe calculatie', href: '/calculaties/nieuw', icon: PlusCircle },
     ],
   },
