@@ -19,8 +19,20 @@ export const STATUS_OPTIES = ['nieuw', 'in_behandeling', 'omgezet_naar_calculati
 export async function listOpnames() {
   const { data, error } = await supabase
     .from('opnames')
-    .select('id, klant_naam, plaats, type_aanvraag, datum_opname, status, opgenomen_door, created_at, updated_at, calculatie_id, calculaties(projectnummer)')
+    .select('id, klant_naam, plaats, type_aanvraag, datum_opname, status, opgenomen_door, created_at, updated_at, calculatie_id, is_meerwerk, meerwerk_calculatie_id, calculatie:calculaties!opnames_calculatie_id_fkey(projectnummer), meerwerk_calculatie:calculaties!opnames_meerwerk_calculatie_id_fkey(projectnummer)')
     .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+// Voor de meerwerk-koppeling: bestaande calculaties om aan te tikken (native select,
+// geen typen nodig — past bij het iPad-zonder-toetsenbord-werkritme).
+export async function listCalculatiesVoorKoppeling() {
+  const { data, error } = await supabase
+    .from('calculaties')
+    .select('id, projectnummer, naam, opdrachtgever_naam, created_at')
+    .order('created_at', { ascending: false })
+    .limit(200);
   if (error) throw error;
   return data || [];
 }
@@ -28,7 +40,7 @@ export async function listOpnames() {
 export async function getOpname(id) {
   const { data, error } = await supabase
     .from('opnames')
-    .select('*, calculaties(id, projectnummer, naam)')
+    .select('*, calculaties:calculaties!opnames_calculatie_id_fkey(id, projectnummer, naam), meerwerk_calculatie:calculaties!opnames_meerwerk_calculatie_id_fkey(id, projectnummer, naam)')
     .eq('id', id)
     .maybeSingle();
   if (error) throw error;

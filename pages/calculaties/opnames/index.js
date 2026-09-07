@@ -52,11 +52,16 @@ export default function OpnamesOverzicht() {
                 <tr key={o.id} className="hover:bg-gray-50">
                   <td className="px-4 py-2">
                     <Link href={`/calculaties/opnames/${o.id}`} className="font-medium text-gray-900 hover:text-sterkcalc-blue">{o.klant_naam}</Link>
+                    {o.is_meerwerk && (
+                      <span className="ml-2 rounded bg-[#fdf6e0] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#8a6d1a]">Meerwerk</span>
+                    )}
                   </td>
                   <td className="px-4 py-2 font-mono text-xs text-gray-600">
-                    {o.calculatie_id
-                      ? <Link href={`/calculaties/${o.calculatie_id}/werktafel`} className="hover:text-sterkcalc-blue">{o.calculaties?.projectnummer || o.calculatie_id.slice(0, 8)}</Link>
-                      : '—'}
+                    {o.is_meerwerk && o.meerwerk_calculatie_id
+                      ? <Link href={`/calculaties/${o.meerwerk_calculatie_id}/werktafel`} className="hover:text-sterkcalc-blue">{o.meerwerk_calculatie?.projectnummer || o.meerwerk_calculatie_id.slice(0, 8)}</Link>
+                      : o.calculatie_id
+                        ? <Link href={`/calculaties/${o.calculatie_id}/werktafel`} className="hover:text-sterkcalc-blue">{o.calculatie?.projectnummer || o.calculatie_id.slice(0, 8)}</Link>
+                        : '—'}
                   </td>
                   <td className="px-4 py-2 text-gray-600">{o.plaats || '—'}</td>
                   <td className="px-4 py-2 text-gray-600">{o.type_aanvraag || '—'}</td>

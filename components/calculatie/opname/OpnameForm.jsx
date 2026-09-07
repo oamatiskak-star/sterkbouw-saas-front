@@ -6,6 +6,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Loader2, Save, CheckCircle2 } from 'lucide-react';
 import SketchBlocks from './SketchBlocks';
 import FotoUploads from './FotoUploads';
+import MeerwerkBlok, { initieleMeerwerkWaarde } from './MeerwerkBlok';
 
 const TYPE_OPTIES = ['Nieuwbouw', 'Verbouw', 'Aanbouw', 'Onderhoud & Herstel', 'Meerwerk', 'Anders'];
 
@@ -29,6 +30,7 @@ export default function OpnameForm({ initial = null, onSubmit, submitLabel = 'Op
     materialen: initial?.materialen || '',
     opmerkingen: initial?.opmerkingen || '',
   }));
+  const [meerwerk, setMeerwerk] = useState(() => initieleMeerwerkWaarde(initial));
   const [busy, setBusy] = useState(null); // null | 'opslaan' | 'afronden'
   const [status, setStatus] = useState(null);
   const sketchRef = useRef(null);
@@ -52,7 +54,14 @@ export default function OpnameForm({ initial = null, onSubmit, submitLabel = 'Op
     try {
       const schetsen = sketchRef.current?.getAllDataUrls() || [];
       const fotos = fotoRef.current?.getFotos() || [];
-      await onSubmit({ ...velden, schetsen, fotos });
+      const meerwerkVelden = {
+        is_meerwerk: meerwerk.actief,
+        meerwerk_calculatie_id: meerwerk.actief ? meerwerk.calculatie_id : null,
+        meerwerk_reden: meerwerk.actief ? meerwerk.reden : null,
+        meerwerk_items: meerwerk.actief ? meerwerk.items : null,
+        meerwerk_toelichting: meerwerk.actief ? meerwerk.toelichting : null,
+      };
+      await onSubmit({ ...velden, schetsen, fotos, ...meerwerkVelden });
       if (soort === 'afronden' && onVoltooien) {
         const resultaat = await onVoltooien({ ...velden, id: initial?.id });
         setStatus({ type: 'ok', tekst: `Opname afgerond — calculatie ${resultaat?.calc_nummer || ''} aangemaakt.` });
@@ -72,7 +81,9 @@ export default function OpnameForm({ initial = null, onSubmit, submitLabel = 'Op
 
   const sectionTitleCls = 'mb-5 border-b-2 border-[#e8c84b] pb-2 text-xs font-bold uppercase tracking-wide text-gray-900';
 
-  const toonAfrondenKnop = !!onVoltooien && !initial?.calculatie_id;
+  // Bij meerwerk is er al een koppeling aan een bestaande calculatie (meerwerk_calculatie_id) —
+  // dan is er geen nieuwe calculatie nodig, dus geen "afronden"-knop.
+  const toonAfrondenKnop = !!onVoltooien && !initial?.calculatie_id && !meerwerk.actief;
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); actie('opslaan'); }} className="space-y-10">
@@ -122,10 +133,11 @@ export default function OpnameForm({ initial = null, onSubmit, submitLabel = 'Op
             <input id="f-datum" type="date" className={inputCls} {...veld('datum_opname')} />
           </div>
         </div>
-        <div>
+        <div className="mb-4">
           <label className={labelCls} htmlFor="f-opnemer">Opgenomen door</label>
           <input id="f-opnemer" className={inputCls} placeholder="Naam van de opnemer" autoComplete="off" {...veld('opgenomen_door')} />
         </div>
+        <MeerwerkBlok waarde={meerwerk} onChange={setMeerwerk} />
       </div>
 
       <div>

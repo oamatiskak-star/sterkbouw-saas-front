@@ -74,6 +74,14 @@ export default function OpnameBewerken() {
         Vastgelegd op {new Date(opname.created_at).toLocaleDateString('nl-NL')}
         {opname.updated_at && opname.updated_at !== opname.created_at ? ` · laatst bewerkt ${new Date(opname.updated_at).toLocaleString('nl-NL')}` : ''}
       </p>
+      {opname.is_meerwerk && opname.meerwerk_calculatie_id && (
+        <p className="mb-1 text-sm">
+          <span className="mr-2 rounded bg-[#fdf6e0] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#8a6d1a]">Meerwerk</span>
+          <Link href={`/calculaties/${opname.meerwerk_calculatie_id}/werktafel`} className="font-mono text-sterkcalc-blue hover:underline">
+            Calculatie {opname.meerwerk_calculatie?.projectnummer || opname.meerwerk_calculatie_id} openen →
+          </Link>
+        </p>
+      )}
       {opname.calculatie_id && (
         <p className="mb-6 text-sm">
           <Link href={`/calculaties/${opname.calculatie_id}/werktafel`} className="font-mono text-sterkcalc-blue hover:underline">
@@ -81,7 +89,7 @@ export default function OpnameBewerken() {
           </Link>
         </p>
       )}
-      {!opname.calculatie_id && <div className="mb-6" />}
+      {!opname.calculatie_id && !opname.meerwerk_calculatie_id && <div className="mb-6" />}
       {savedAt && <p className="mb-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Opgeslagen om {savedAt.toLocaleTimeString('nl-NL')}.</p>}
       <div className="rounded-xl border border-gray-200 bg-white p-6">
         <OpnameForm initial={opname} onSubmit={handleSubmit} onVoltooien={handleVoltooien} submitLabel="Wijzigingen opslaan" />
