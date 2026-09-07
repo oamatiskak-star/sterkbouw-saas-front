@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { ChevronLeft, ClipboardList, Loader2 } from 'lucide-react';
 import OpnameForm from '@/components/calculatie/opname/OpnameForm';
-import { getOpname, updateOpname, STATUS_OPTIES } from '@/services/opnames';
+import { getOpname, updateOpname, voltooiOpname, STATUS_OPTIES } from '@/services/opnames';
 
 const STATUS_LABEL = { nieuw: 'Nieuw', in_behandeling: 'In behandeling', omgezet_naar_calculatie: 'Omgezet naar calculatie', afgerond: 'Afgerond' };
 
@@ -33,6 +33,17 @@ export default function OpnameBewerken() {
     await updateOpname(id, payload);
     setOpname((o) => ({ ...o, ...payload }));
     setSavedAt(new Date());
+  }
+
+  async function handleVoltooien(payload) {
+    const resultaat = await voltooiOpname({ ...payload, id });
+    setOpname((o) => ({
+      ...o,
+      calculatie_id: resultaat.calculatie_id,
+      calculaties: { ...o?.calculaties, projectnummer: resultaat.calc_nummer },
+      status: 'omgezet_naar_calculatie',
+    }));
+    return resultaat;
   }
 
   async function handleStatusChange(e) {
@@ -73,7 +84,7 @@ export default function OpnameBewerken() {
       {!opname.calculatie_id && <div className="mb-6" />}
       {savedAt && <p className="mb-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Opgeslagen om {savedAt.toLocaleTimeString('nl-NL')}.</p>}
       <div className="rounded-xl border border-gray-200 bg-white p-6">
-        <OpnameForm initial={opname} onSubmit={handleSubmit} submitLabel="Wijzigingen opslaan" />
+        <OpnameForm initial={opname} onSubmit={handleSubmit} onVoltooien={handleVoltooien} submitLabel="Wijzigingen opslaan" />
       </div>
     </div>
   );

@@ -12,8 +12,10 @@ export default function NieuweOpname() {
   const router = useRouter();
 
   async function handleSubmit(payload) {
-    await createOpname(payload);
-    router.push('/calculaties/opnames');
+    // Naar de bewerkpagina (niet de lijst) — als dit een volledige opname op locatie was
+    // (niet alleen een NAW-afspraak vooraf) staat de "Opname afronden"-knop daar meteen klaar.
+    const result = await createOpname(payload);
+    router.push(`/calculaties/opnames/${result.opname_id}`);
   }
 
   return (
@@ -28,8 +30,8 @@ export default function NieuweOpname() {
       <Link href="/calculaties/opnames" className="mb-4 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
         <ChevronLeft size={15} /> Terug naar opnames
       </Link>
-      <h1 className="mb-1 flex items-center gap-2 text-xl font-semibold text-gray-900"><ClipboardList size={20} className="text-sterkcalc-blue" /> Opname particuliere klant</h1>
-      <p className="mb-6 text-sm text-gray-500">Vul dit formulier tijdens of direct na de opname in. Na opslaan kun je de opname altijd hier terugvinden en aanpassen.</p>
+      <h1 className="mb-1 flex items-center gap-2 text-xl font-semibold text-gray-900"><ClipboardList size={20} className="text-sterkcalc-blue" /> Opname / afspraak particuliere klant</h1>
+      <p className="mb-6 text-sm text-gray-500">Alleen NAW + datum invullen kan al — handig om een afspraak vast te leggen vóórdat je bij de klant bent. Op locatie open je 'm terug en vul je de rest aan (foto's, schets, maten).</p>
       <div className="rounded-xl border border-gray-200 bg-white p-6">
         <OpnameForm onSubmit={handleSubmit} submitLabel="Opslaan" />
       </div>
