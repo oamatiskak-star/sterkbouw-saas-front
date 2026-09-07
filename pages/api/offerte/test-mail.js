@@ -35,6 +35,7 @@ export default async function handler(req, res) {
   const origin = process.env.NEXT_PUBLIC_SITE_URL || `https://${req.headers.host}`;
   const portalUrl = `${origin}/portaal/${offerte.portal_token}`;
   const cover = offerte.cover || {};
+  const content = offerte.content || {};
 
   const { subject, html, text } = buildOfferteEmail({
     klantNaam: offerte.klant_naam,
@@ -42,6 +43,7 @@ export default async function handler(req, res) {
     portalUrl,
     afzenderNaam: bedrijf.contactpersoon || null,
     bedrijfNaam: bedrijf.naam || 'STRKBOUW',
+    reviewUrl: content.reviewUrl || null,
   });
 
   const mailResult = await verstuurOfferteMail({

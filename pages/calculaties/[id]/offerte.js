@@ -236,6 +236,7 @@ function ProjectomschrijvingTab({ offerte, setVeld }) {
         </div>
         <div className="mt-3"><Veld label="Introductietekst"><textarea className={inputCls} rows={3} placeholder="Jullie wensen hebben we vertaald naar een concreet en haalbaar plan…" defaultValue={content.intro || ''} onBlur={(e) => setContent({ intro: e.target.value })} /></Veld></div>
         <div className="mt-3"><Veld label="Sfeer-quote (cover, onderaan)"><input className={inputCls} placeholder="Een sterk huis begint met goed luisteren." defaultValue={content.quote || ''} onBlur={(e) => setContent({ quote: e.target.value })} /></Veld></div>
+        <div className="mt-3"><Veld label="Review-link (per aanvraag, bijv. Trustoo) — verschijnt onderaan de offerte-mail"><input className={inputCls} placeholder="https://trustoo.nl/r/…" defaultValue={content.reviewUrl || ''} onBlur={(e) => setContent({ reviewUrl: e.target.value })} /></Veld></div>
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Veld label="Hoofdfoto projectomschrijving (URL)"><input className={inputCls} placeholder="https://…" defaultValue={content.fotoHoofd || ''} onBlur={(e) => setContent({ fotoHoofd: e.target.value })} /></Veld>
           <Veld label="Foto bestaande situatie (URL, optioneel)"><input className={inputCls} placeholder="https://…" defaultValue={content.fotoBestaand || ''} onBlur={(e) => setContent({ fotoBestaand: e.target.value })} /></Veld>

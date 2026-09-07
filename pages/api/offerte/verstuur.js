@@ -35,12 +35,14 @@ export default async function handler(req, res) {
   const portalUrl = `${origin}/portaal/${portal_token}`;
 
   const cover = offerte.cover || {};
+  const content = offerte.content || {};
   const { subject, html, text } = buildOfferteEmail({
     klantNaam: offerte.klant_naam,
     projectnaam: cover.projectnaam || null,
     portalUrl,
     afzenderNaam: bedrijf.contactpersoon || null,
     bedrijfNaam: bedrijf.naam || 'STRKBOUW',
+    reviewUrl: content.reviewUrl || null,
   });
 
   const mailResult = await verstuurOfferteMail({ to: offerte.klant_email, replyTo: bedrijf.email || undefined, subject, html, text });
