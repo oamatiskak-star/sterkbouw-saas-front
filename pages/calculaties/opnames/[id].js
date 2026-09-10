@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { ChevronLeft, ClipboardList, Loader2 } from 'lucide-react';
+import { ChevronLeft, ClipboardList, Loader2, Mail, Check } from 'lucide-react';
 import OpnameForm from '@/components/calculatie/opname/OpnameForm';
 import { getOpname, updateOpname, voltooiOpname, STATUS_OPTIES } from '@/services/opnames';
 
@@ -17,6 +17,8 @@ export default function OpnameBewerken() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
   const [savedAt, setSavedAt] = useState(null);
+  const [bevestigingBusy, setBevestigingBusy] = useState(false);
+  const [bevestigingMelding, setBevestigingMelding] = useState(null);
 
   useEffect(() => {
     if (!id) return;
@@ -44,6 +46,30 @@ export default function OpnameBewerken() {
       status: 'omgezet_naar_calculatie',
     }));
     return resultaat;
+  }
+
+  async function verstuurBevestiging() {
+    setBevestigingBusy(true);
+    setBevestigingMelding(null);
+    try {
+      const r = await fetch('/api/afspraak/verstuur', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ opname_id: id }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || 'Versturen mislukt');
+      if (j.mailSent) {
+        setOpname((o) => ({ ...o, bevestiging_verzonden_at: new Date().toISOString() }));
+        setBevestigingMelding({ type: 'ok', tekst: `Bevestiging verstuurd via ${j.mailResult.provider}.` });
+      } else {
+        setBevestigingMelding({ type: 'error', tekst: `Niet verstuurd: ${j.mailResult?.reason || 'onbekende fout'}` });
+      }
+    } catch (e) {
+      setBevestigingMelding({ type: 'error', tekst: e.message || 'Versturen mislukt' });
+    } finally {
+      setBevestigingBusy(false);
+    }
   }
 
   async function handleStatusChange(e) {
@@ -91,6 +117,26 @@ export default function OpnameBewerken() {
       )}
       {!opname.calculatie_id && !opname.meerwerk_calculatie_id && <div className="mb-6" />}
       {savedAt && <p className="mb-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Opgeslagen om {savedAt.toLocaleTimeString('nl-NL')}.</p>}
+
+      <div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-white p-4">
+        <div className="min-w-0 flex-1 text-sm text-gray-600">
+          {opname.bevestiging_verzonden_at
+            ? <span className="inline-flex items-center gap-1.5 font-medium text-emerald-700"><Check size={15} /> Afspraak-bevestiging verstuurd op {new Date(opname.bevestiging_verzonden_at).toLocaleString('nl-NL')}.</span>
+            : opname.email
+              ? 'Verstuur een afspraak-bevestigingsmail (vanaf info@strkbouw.nl) met datum, tijd en adres.'
+              : 'Geen e-mailadres bij deze afspraak — vul dat eerst in.'}
+        </div>
+        <button
+          onClick={verstuurBevestiging}
+          disabled={bevestigingBusy || !opname.email}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-sterkcalc-navy px-4 py-2 text-sm font-medium text-white hover:bg-sterkcalc-navy2 disabled:opacity-50"
+        >
+          {bevestigingBusy ? <Loader2 size={15} className="animate-spin" /> : <Mail size={15} />} {opname.bevestiging_verzonden_at ? 'Opnieuw versturen' : 'Verstuur bevestiging'}
+        </button>
+      </div>
+      {bevestigingMelding && (
+        <p className={`mb-4 rounded-lg px-3 py-2 text-sm ${bevestigingMelding.type === 'ok' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{bevestigingMelding.tekst}</p>
+      )}
       <div className="rounded-xl border border-gray-200 bg-white p-6">
         <OpnameForm initial={opname} onSubmit={handleSubmit} onVoltooien={handleVoltooien} submitLabel="Wijzigingen opslaan" />
       </div>

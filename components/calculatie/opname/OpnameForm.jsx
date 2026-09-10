@@ -9,6 +9,7 @@ import FotoUploads from './FotoUploads';
 import MeerwerkBlok, { initieleMeerwerkWaarde } from './MeerwerkBlok';
 
 const TYPE_OPTIES = ['Nieuwbouw', 'Verbouw', 'Aanbouw', 'Onderhoud & Herstel', 'Meerwerk', 'Anders'];
+const BRON_OPTIES = ['Trustoo', 'Homedeal', 'Werkspot', 'Website', 'Overig'];
 
 function vandaag() {
   return new Date().toISOString().slice(0, 10);
@@ -23,7 +24,9 @@ export default function OpnameForm({ initial = null, onSubmit, submitLabel = 'Op
     telefoon: initial?.telefoon || '',
     email: initial?.email || '',
     type_aanvraag: initial?.type_aanvraag || TYPE_OPTIES[1],
+    bron: initial?.bron || '',
     datum_opname: initial?.datum_opname || vandaag(),
+    tijd_opname: initial?.tijd_opname || '',
     opgenomen_door: initial?.opgenomen_door || '',
     omschrijving: initial?.omschrijving || '',
     afmetingen: initial?.afmetingen || '',
@@ -129,8 +132,21 @@ export default function OpnameForm({ initial = null, onSubmit, submitLabel = 'Op
             </select>
           </div>
           <div>
+            <label className={labelCls} htmlFor="f-bron">Bron</label>
+            <select id="f-bron" className={inputCls} {...veld('bron')}>
+              <option value="">— Onbekend —</option>
+              {BRON_OPTIES.map((b) => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </div>
+        </div>
+        <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
             <label className={labelCls} htmlFor="f-datum">Datum opname</label>
             <input id="f-datum" type="date" className={inputCls} {...veld('datum_opname')} />
+          </div>
+          <div>
+            <label className={labelCls} htmlFor="f-tijd">Tijd afspraak</label>
+            <input id="f-tijd" className={inputCls} placeholder="Bijv. 14:00 of vanaf 09:00" {...veld('tijd_opname')} />
           </div>
         </div>
         <div className="mb-4">
