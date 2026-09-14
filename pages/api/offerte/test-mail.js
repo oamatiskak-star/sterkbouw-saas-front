@@ -62,5 +62,5 @@ export default async function handler(req, res) {
     attachments: mailAttachments,
   });
 
-  return res.status(200).json({ ok: true, sentTo: to, portalUrl, mailResult });
+  return res.status(200).json({ ok: true, sentTo: to, portalUrl, mailResult, attachmentsReceived: mailAttachments?.length || 0 });
 }
