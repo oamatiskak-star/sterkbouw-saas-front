@@ -16,9 +16,16 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { offerte_id, to } = req.body || {};
+  const { offerte_id, to, attachments } = req.body || {};
   if (!offerte_id || !UUID_RE.test(offerte_id)) return res.status(400).json({ error: 'offerte_id ontbreekt of ongeldig' });
   if (!to || typeof to !== 'string' || !to.includes('@')) return res.status(400).json({ error: 'to (testadres) ontbreekt of ongeldig' });
+  // attachments: [{ filename, contentBase64 }] — optioneel, bijv. om een tekening-PDF mee te sturen
+  // bij een controle-mail. Puur voor deze test-send, wordt nergens opgeslagen.
+  const mailAttachments = Array.isArray(attachments)
+    ? attachments
+        .filter((a) => a && a.filename && a.contentBase64)
+        .map((a) => ({ filename: String(a.filename).slice(0, 200), content: Buffer.from(a.contentBase64, 'base64') }))
+    : undefined;
 
   const { data: offerte, error: loadError } = await supabase
     .from('sterkcalc_offertes')
@@ -52,6 +59,7 @@ export default async function handler(req, res) {
     subject: `[TEST kopie] ${subject}`,
     html,
     text,
+    attachments: mailAttachments,
   });
 
   return res.status(200).json({ ok: true, sentTo: to, portalUrl, mailResult });
