@@ -51,6 +51,7 @@ export default async function handler(req, res) {
     afzenderNaam: bedrijf.contactpersoon || null,
     bedrijfNaam: bedrijf.naam || 'STRKBOUW',
     reviewUrl: content.reviewUrl || null,
+    notitie: content.verzendNotitie || null,
   });
 
   const mailResult = await verstuurOfferteMail({
