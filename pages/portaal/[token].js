@@ -11,6 +11,7 @@ import { genereerOffertePdf } from '@/lib/offerte/genereerOffertePdf';
 import OffertePortalHero from '@/components/portaal/OffertePortalHero';
 import OffertePortalIntro from '@/components/portaal/OffertePortalIntro';
 import OffertePortalWerkzaamheden from '@/components/portaal/OffertePortalWerkzaamheden';
+import OffertePortalOntwerp from '@/components/portaal/OffertePortalOntwerp';
 import OffertePortalPrijsoverzicht from '@/components/portaal/OffertePortalPrijsoverzicht';
 import OffertePortalPlanning from '@/components/portaal/OffertePortalPlanning';
 import OffertePortalDocumenten from '@/components/portaal/OffertePortalDocumenten';
@@ -120,6 +121,7 @@ export default function Klantportaal() {
       <OffertePortalHero offerte={offerte} cover={cover} content={content} bedrijfNaam={bedrijfNaam} onNaarOfferte={scrollNaarOfferte} />
       <OffertePortalIntro offerte={offerte} content={content} bedrijfNaam={bedrijfNaam} />
       <OffertePortalWerkzaamheden chapters={chapters} rows={rows} kpi={kpi} offerte={offerte} getekend={getekend} onToggleOptie={toggleOptie} />
+      <OffertePortalOntwerp ontwerpAfbeeldingen={cover.ontwerpAfbeeldingen} />
       <OffertePortalPrijsoverzicht totalen={totalen} kpi={kpi} offerte={offerte} />
       <OffertePortalPlanning planning={offerte.planning} termijnen={termijnen} kpi={kpi} />
       <OffertePortalDocumenten documenten={content.documenten} />
