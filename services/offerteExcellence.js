@@ -85,7 +85,7 @@ export async function loadOfferteByToken(token) {
   const { data: offerte } = await supabase.from('sterkcalc_offertes').select('*').eq('portal_token', token).maybeSingle();
   if (!offerte) return null;
   const calc = await calcData(offerte.calculatie_id).catch(() => ({}));
-  return { offerte, calculatie: calc.calculatie || null, chapters: calc.chapters || [], rows: calc.rows || [], totalen: calc.totalen || null };
+  return { offerte, calculatie: calc.calculatie || null, chapters: calc.chapters || [], rows: calc.rows || [], opslagen: calc.opslagen || null, totalen: calc.totalen || null };
 }
 
 export async function logEvent(offerteId, type, { bericht = null, ip = null, meta = {} } = {}) {

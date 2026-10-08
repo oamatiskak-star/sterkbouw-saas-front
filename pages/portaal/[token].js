@@ -15,6 +15,8 @@ import OffertePortalOntwerp from '@/components/portaal/OffertePortalOntwerp';
 import OffertePortalPrijsoverzicht from '@/components/portaal/OffertePortalPrijsoverzicht';
 import OffertePortalPlanning from '@/components/portaal/OffertePortalPlanning';
 import OffertePortalDocumenten from '@/components/portaal/OffertePortalDocumenten';
+import OffertePortalWerkomschrijving from '@/components/portaal/OffertePortalWerkomschrijving';
+import OffertePortalCalculatie from '@/components/portaal/OffertePortalCalculatie';
 import OffertePortalOndertekening from '@/components/portaal/OffertePortalOndertekening';
 import OffertePortalBedankt from '@/components/portaal/OffertePortalBedankt';
 
@@ -33,7 +35,7 @@ async function portalActie(token, payload) {
 
 export default function Klantportaal() {
   const router = useRouter();
-  const { token } = router.query;
+  const { token, voorbeeld } = router.query;
   const [data, setData] = useState(null);
   const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);
@@ -49,23 +51,24 @@ export default function Klantportaal() {
   };
 
   useEffect(() => {
-    if (!token) return;
+    if (!router.isReady || !token) return;
     (async () => {
       try {
         const [d] = await Promise.all([herlaad(), loadSettings().then((s) => setSettings(s || {})).catch(() => {})]);
-        if (d?.offerte && !bekekenGelogd.current) {
+        // ?voorbeeld=1: interne controle vanuit het dashboard, telt niet als 'bekeken' door de klant.
+        if (d?.offerte && !bekekenGelogd.current && voorbeeld !== '1') {
           bekekenGelogd.current = true;
           await portalActie(token, { type: 'bekeken' }).catch(() => {});
           await herlaad();
         }
       } finally { setLoading(false); }
     })();
-  }, [token]); // eslint-disable-line
+  }, [router.isReady, token]); // eslint-disable-line
 
   if (loading) return <div className="flex min-h-screen items-center justify-center bg-sterkcalc-navy text-white"><Loader2 className="animate-spin" size={20} /></div>;
   if (!data?.offerte) return <div className="flex min-h-screen items-center justify-center text-gray-500">Offerte niet gevonden.</div>;
 
-  const { offerte, chapters, rows, totalen } = data;
+  const { offerte, chapters, rows, opslagen, totalen } = data;
   const cover = offerte.cover || {};
   const content = offerte.content || {};
   const kpi = oe.berekenKpi(offerte, totalen || {});
@@ -74,6 +77,8 @@ export default function Klantportaal() {
   const zekerheden = content.zekerheden?.length ? content.zekerheden : oe.DEFAULT_ZEKERHEDEN;
   const voorwaardenTekst = settings?.bedrijf?.voorwaarden || DEFAULT_VOORWAARDEN;
   const bedrijfNaam = settings?.bedrijf?.naam || 'STRKBOUW';
+  // Particuliere klanten zien na de offerte de werkomschrijving + volledige calculatie.
+  const toonCalculatie = content.klantType !== 'zakelijk' && content.toonCalculatie !== false;
 
   const scrollNaarOfferte = () => document.getElementById('werkzaamheden')?.scrollIntoView({ behavior: 'smooth' });
 
@@ -124,6 +129,8 @@ export default function Klantportaal() {
       <OffertePortalOntwerp ontwerpAfbeeldingen={cover.ontwerpAfbeeldingen} />
       <OffertePortalPrijsoverzicht totalen={totalen} kpi={kpi} offerte={offerte} />
       <OffertePortalPlanning planning={offerte.planning} termijnen={termijnen} kpi={kpi} />
+      {toonCalculatie && <OffertePortalWerkomschrijving werkomschrijving={content.werkomschrijving} chapters={chapters} rows={rows} />}
+      {toonCalculatie && <OffertePortalCalculatie chapters={chapters} rows={rows} opslagen={opslagen} totalen={totalen} />}
       <OffertePortalDocumenten documenten={content.documenten} />
 
       <section className="mx-auto max-w-5xl px-6 py-4 sm:px-8">
