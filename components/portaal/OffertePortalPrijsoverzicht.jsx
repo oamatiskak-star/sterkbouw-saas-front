@@ -1,20 +1,34 @@
 // components/portaal/OffertePortalPrijsoverzicht.jsx — referentie-spec item 6: basissom,
 // geselecteerde opties, subtotaal, btw, totaal incl. btw. Correcte, niet-afgeronde waarden uit
 // dezelfde totalen als PDF/dashboard (geen aparte berekening, geen afrondingsverschillen).
-import { fmtEUR } from '@/lib/calc/werktafelTotals';
+// Btw per tarief (totalen.btwVerdeling) wanneer regels een afwijkend tarief dragen, bijv.
+// 21% over de bouwposten en 0% over zonnepanelen bij een woning.
+import { fmtEUR, fmtNum } from '@/lib/calc/werktafelTotals';
 import { optiesNetto } from '@/services/offerteExcellence';
 
 export default function OffertePortalPrijsoverzicht({ totalen, kpi, offerte }) {
   const netto = optiesNetto(offerte.opties);
   const basissom = kpi.bouwsom - netto;
-  const btwPct = Number(totalen?.opslagen?.btw) || 21;
-  const btwBedrag = kpi.bouwsom * (btwPct / 100);
+  const calcPct = totalen?.opslagen?.btw !== undefined && totalen?.opslagen?.btw !== null ? Number(totalen.opslagen.btw) : 21;
+  const verdeling = Array.isArray(totalen?.btwVerdeling) ? totalen.btwVerdeling : [];
+
+  let btwRegels;
+  if (verdeling.length > 1) {
+    // Opties vallen onder het calculatietarief en tellen mee in die grondslag.
+    btwRegels = verdeling.map((v) => {
+      const grondslag = v.grondslag + (v.pct === calcPct ? netto : 0);
+      return [`Btw ${fmtNum(v.pct)}% over ${fmtEUR(grondslag)}`, fmtEUR(grondslag * (v.pct / 100))];
+    });
+  } else {
+    const pct = verdeling.length ? verdeling[0].pct : (Number(totalen?.opslagen?.btw) || 21);
+    btwRegels = [[`Btw (${fmtNum(pct)}%)`, fmtEUR(kpi.btw ?? kpi.bouwsom * (pct / 100))]];
+  }
 
   const regels = [
     ['Basissom (excl. btw)', fmtEUR(basissom)],
     ...(netto ? [['Geselecteerde opties', `${netto < 0 ? '−' : '+'} ${fmtEUR(Math.abs(netto))}`]] : []),
     ['Subtotaal (excl. btw)', fmtEUR(kpi.bouwsom)],
-    [`Btw (${btwPct}%)`, fmtEUR(btwBedrag)],
+    ...btwRegels,
   ];
 
   return (

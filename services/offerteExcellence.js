@@ -45,12 +45,17 @@ export function optiesNetto(opties) {
 export function berekenKpi(offerte, totalen) {
   const netto = optiesNetto(offerte?.opties);
   const bouwsom = n(totalen?.verkoopprijs_excl) + netto;
-  const btw = bouwsom * (n(totalen?.opslagen?.btw) || 21) / 100;
+  // Btw uit de calculatie (per tarief, zie computeTotalen.btwVerdeling); opties tegen het calculatietarief.
+  const optieBtwPct = totalen?.opslagen?.btw !== undefined && totalen?.opslagen?.btw !== null ? n(totalen.opslagen.btw) : 21;
+  const btw = Array.isArray(totalen?.btwVerdeling) && totalen.btwVerdeling.length
+    ? n(totalen.btwBedrag) + netto * optieBtwPct / 100
+    : bouwsom * (n(totalen?.opslagen?.btw) || 21) / 100;
   const investering = bouwsom + btw;
   const bouwtijd = (offerte?.planning || DEFAULT_PLANNING).reduce((s, f) => s + n(f.weken), 0);
   return {
     investering,
     bouwsom,
+    btw,
     oppervlakte_m2: n(offerte?.kpi?.oppervlakte_m2) || null,
     bouwtijd_weken: bouwtijd || null,
     risico: n(totalen?.risicoBedrag),
