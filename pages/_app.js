@@ -14,6 +14,7 @@ import '@/styles/tailwind-addons.css'
 // GLOBALS
 // ===============================
 import '@/styles/globals.css'
+import '@/styles/portaal.css'
 
 // ===============================
 // NEXT
