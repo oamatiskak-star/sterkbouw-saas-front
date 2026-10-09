@@ -1,4 +1,4 @@
-/* GEGENEREERD door scripts/gen-portaal-css.py — niet handmatig bewerken.
+/* GEGENEREERD door scripts/gen-portaal-css.mjs (npm prebuild) — niet handmatig bewerken.
    Tailwind-utilities in het klantportaal laten winnen van Tabler (!important). */
 .portaal .-mx-1 { @apply !-mx-1; }
 .portaal .border { @apply !border; }

@@ -2,9 +2,16 @@
 
 Next.js 14 (Pages Router) + Supabase. Live SterkCalc-frontend (Vercel `sterkbouw-saas-front`, domein **app.sterkbouw.nl**).
 Supabase-DB: **pmovazftwoxjopqkuuhp** (sterkbouww). `NEXT_PUBLIC_SUPABASE_URL`/anon wijst hierheen.
-Laatst bijgewerkt: **2026-07-06** (projecttypes Verbouw/Herstel/Aanbouw calculeerbaar).
+Laatst bijgewerkt: **2026-10-09** (offerteportaal: werkomschrijving + calculatie, btw per tarief, mobiele standaard).
 
 ## 🔴 HERSTEL HIER NA CRASH
+### ✅ ACTUELE WAARHEID (2026-10-09) — dit overschrijft alles hieronder
+- **Offerteportaal (`/portaal/[token]`, calculatie.strkbouw.nl) — LIVE op main (92b48f0+).** Particulier: offerte → werkomschrijving (`OffertePortalWerkomschrijving`, bron `content.werkomschrijving` of afgeleid) → volledige calculatie (`OffertePortalCalculatie`). Uit via `content.klantType='zakelijk'` of `content.toonCalculatie=false`. `?voorbeeld=1` logt geen 'bekeken'.
+- **Btw per tarief:** `computeTotalen` → `btwVerdeling` via `row.meta.btw`; `berekenKpi` → `kpi.btw`; prijsoverzicht toont per tarief. Eén tarief = identiek aan vroeger.
+- **Mobiele standaard (goedgekeurd door Orlando 09-10):** Tabler-!important-conflict opgelost met `.portaal` + gegenereerde `styles/portaal.css` (`scripts/gen-portaal-css.mjs`, draait in `prebuild`/`dev`). Regels in `.claude/CLAUDE.md`.
+- **Offertes in portaal:** Breedland OFF-20261005-00009 (verzonden, bekeken; € 134.041,15 = PDF), De Groot OFF-20261009-00011 (concept, € 8.813,62; nog niet verzonden). Postma (€ 12.005 vs PDF € 11.811) nog NIET gelijkgetrokken.
+- **Volgende stap:** Postma-calculatie in werktafel gelijk aan PDF (gemengd 9/21% via meta.btw); importer stabu_data.py → werktafel generiek maken (voorbeeld: scratchpad degroot_import.py).
+
 ### ✅ ACTUELE WAARHEID (2026-07-06 — LAATSTE SESSIE) — dit overschrijft alles hieronder
 - **Google-Ads lead-funnel `calculatie-aanvraag` — GEMERGED naar main (PR #95, squash, branch verwijderd).** Conversie-funnel `pages/calculatie-aanvragen/index.js` (3-staps wizard: projecttype[6] → omvang/urgentie/adres → contact+uploads → bedankt), **hergebruikt de bestaande quickscan-leadmachine** (geen duplicatie). `bron='calculatie_aanvraag'`, UTM+gclid-capture, config-gedreven Google-Ads gtag-conversie. **E-mailnotificatie** `lib/notifyLead.js` → **info@strkbouw.nl** via Resend HTTP-API (env-gated, reply-to=aanvrager). KPI-dashboard toont ad-funnel apart (views `v_quickscan_bron` + `v_quickscan_projecttype`). Backend: `submit.js`+`track.js`+`kpi.js`. Styled-jsx STRKBOUW navy/goud. Build exit 0. Fable 5, geverifieerd.
   - **✅ Migratie `20260706_01` toegepast op pmovaz-prod** (kolom `quickscan_leads.projecttype` + 2 views geverifieerd, 2026-07-06 via Supabase-MCP na proxy-outage).

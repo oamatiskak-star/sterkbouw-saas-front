@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/gen-portaal-css.mjs && next dev",
+    "prebuild": "node scripts/gen-portaal-css.mjs",
     "build": "NODE_OPTIONS='--max-old-space-size=4096' next build",
     "start": "node server.js",
     "lint": "next lint",
