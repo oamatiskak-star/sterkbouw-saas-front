@@ -122,7 +122,7 @@ export default function Klantportaal() {
   if (getekend) return <OffertePortalBedankt cover={cover} content={content} pdfUrl={offerte.pdf_url} bedrijfNaam={bedrijfNaam} />;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="portaal min-h-screen bg-white antialiased">
       <OffertePortalHero offerte={offerte} cover={cover} content={content} bedrijfNaam={bedrijfNaam} onNaarOfferte={scrollNaarOfferte} />
       <OffertePortalIntro offerte={offerte} content={content} bedrijfNaam={bedrijfNaam} />
       <OffertePortalWerkzaamheden chapters={chapters} rows={rows} kpi={kpi} offerte={offerte} getekend={getekend} onToggleOptie={toggleOptie} />

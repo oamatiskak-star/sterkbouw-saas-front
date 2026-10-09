@@ -7,8 +7,8 @@ export default function OffertePortalOntwerp({ ontwerpAfbeeldingen }) {
   if (!items.length) return null;
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-4 sm:px-8">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+    <section className="mx-auto max-w-5xl px-3 py-3 sm:px-8 sm:py-4">
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
         <h2 className="text-lg font-bold text-gray-900">Ontwerp</h2>
         <p className="mt-1 text-sm text-gray-500">Plattegrondvoorstellen en visualisaties bij deze offerte.</p>
         <div className="mt-4 space-y-6">

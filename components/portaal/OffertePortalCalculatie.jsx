@@ -49,8 +49,8 @@ export default function OffertePortalCalculatie({ chapters, rows, opslagen, tota
   ].filter(([, pct, bedrag]) => Number(pct) > 0 || Number(bedrag) > 0);
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-4 sm:px-8" id="calculatie">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+    <section className="mx-auto max-w-5xl px-3 py-3 sm:px-8 sm:py-4" id="calculatie">
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
         <h2 className="text-lg font-bold text-gray-900">Volledige calculatie</h2>
         <p className="mt-1 text-sm text-gray-500">
           De complete onderbouwing van uw offerte volgens STABU: per post de hoeveelheid, uren, arbeid en materiaal. Klik op een hoofdstuk voor alle regels.
@@ -59,18 +59,20 @@ export default function OffertePortalCalculatie({ chapters, rows, opslagen, tota
         <div className="mt-5 divide-y divide-gray-100">
           {hoofdstukken.map((h) => (
             <div key={h.id}>
-              <button onClick={() => setOpen(open === h.id ? null : h.id)} className="flex w-full items-center gap-3 bg-white py-3 text-left [color-scheme:light]">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sterkcalc-navy/5 text-sterkcalc-navy"><Calculator size={16} /></span>
+              <button onClick={() => setOpen(open === h.id ? null : h.id)} className="flex w-full items-start gap-3 bg-white py-3 text-left [color-scheme:light]">
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sterkcalc-navy/5 text-sterkcalc-navy sm:h-9 sm:w-9"><Calculator size={16} /></span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold leading-snug text-gray-900">{h.code ? `${h.code} — ` : ''}{h.naam}</span>
-                  <span className="block text-xs text-gray-400">{h.items.length} regel{h.items.length === 1 ? '' : 's'} · {fmtNum(h.som.uren, 1)} uur</span>
+                  <span className="block break-words text-sm font-semibold leading-snug text-gray-900">{h.code ? `${h.code} — ` : ''}{h.naam}</span>
+                  <span className="mt-0.5 flex items-baseline justify-between gap-3">
+                    <span className="text-xs text-gray-400">{h.items.length} regel{h.items.length === 1 ? '' : 's'} · {fmtNum(h.som.uren, 1)} uur</span>
+                    <span className="shrink-0 text-sm font-semibold tabular-nums text-gray-900">{fmtEUR(h.som.kostprijs)}</span>
+                  </span>
                 </span>
-                <span className="shrink-0 text-sm font-semibold tabular-nums text-gray-900">{fmtEUR(h.som.kostprijs)}</span>
-                <ChevronDown size={16} className={`shrink-0 text-gray-400 transition-transform ${open === h.id ? 'rotate-180' : ''}`} />
+                <ChevronDown size={16} className={`mt-1 shrink-0 text-gray-400 transition-transform ${open === h.id ? 'rotate-180' : ''}`} />
               </button>
               {open === h.id && (
-                <div className="mb-3 overflow-x-auto rounded-lg border border-gray-100">
-                  <table className="min-w-[720px] w-full border-collapse">
+                <div className="-mx-1 mb-3 overflow-x-auto rounded-lg border border-gray-100 sm:mx-0">
+                  <table className="w-full min-w-[640px] border-collapse">
                     <thead className="bg-gray-50">
                       <tr>
                         <th className={th}>Code</th><th className={th}>Omschrijving</th>
@@ -111,9 +113,9 @@ export default function OffertePortalCalculatie({ chapters, rows, opslagen, tota
         </div>
 
         <div className="mt-6 space-y-2 border-t border-gray-100 pt-4 text-sm">
-          <div className="flex justify-between text-gray-600"><span>Directe kosten ({fmtNum(totalen.uren, 1)} uur)</span><span className="tabular-nums text-gray-800">{fmtEUR(totalen.directe_kosten)}</span></div>
+          <div className="flex justify-between text-gray-600"><span className="pr-3">Directe kosten ({fmtNum(totalen.uren, 1)} uur)</span><span className="tabular-nums text-gray-800">{fmtEUR(totalen.directe_kosten)}</span></div>
           {opslagRegels.map(([label, pct, bedrag]) => (
-            <div key={label} className="flex justify-between text-gray-600"><span>{label} ({fmtNum(pct, 1)}%)</span><span className="tabular-nums text-gray-800">{fmtEUR(bedrag)}</span></div>
+            <div key={label} className="flex justify-between text-gray-600"><span className="pr-3">{label} ({fmtNum(pct, 1)}%)</span><span className="tabular-nums text-gray-800">{fmtEUR(bedrag)}</span></div>
           ))}
           <div className="flex justify-between border-t border-gray-100 pt-2 font-semibold text-gray-900"><span>Basissom (excl. btw)</span><span className="tabular-nums">{fmtEUR(totalen.verkoopprijs_excl)}</span></div>
           <p className="text-xs text-gray-400">De basissom sluit aan op het prijsoverzicht hierboven; eventueel gekozen opties en btw staan daar.</p>

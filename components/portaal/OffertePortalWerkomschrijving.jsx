@@ -39,20 +39,20 @@ export default function OffertePortalWerkomschrijving({ werkomschrijving, chapte
   if (!onderdelen.length) return null;
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-4 sm:px-8" id="werkomschrijving">
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+    <section className="mx-auto max-w-5xl px-3 py-3 sm:px-8 sm:py-4" id="werkomschrijving">
+      <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
         <h2 className="text-lg font-bold text-gray-900">Werkomschrijving</h2>
         <p className="mt-1 text-sm text-gray-500">Per onderdeel wat wij voor u uitvoeren — precies wat in de offerte is meegerekend.</p>
         <div className="mt-5 divide-y divide-gray-100">
           {onderdelen.map((o, i) => (
             <div key={i}>
-              <button onClick={() => setOpen(open === i ? null : i)} className="flex w-full items-center gap-3 bg-white py-3 text-left [color-scheme:light]">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sterkcalc-navy/5 text-sterkcalc-navy"><ClipboardList size={16} /></span>
-                <span className="min-w-0 flex-1 text-sm font-semibold leading-snug text-gray-900">{o.titel}</span>
-                <ChevronDown size={16} className={`shrink-0 text-gray-400 transition-transform ${open === i ? 'rotate-180' : ''}`} />
+              <button onClick={() => setOpen(open === i ? null : i)} className="flex w-full items-start gap-3 bg-white py-3 text-left [color-scheme:light]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sterkcalc-navy/5 text-sterkcalc-navy sm:h-9 sm:w-9"><ClipboardList size={16} /></span>
+                <span className="min-w-0 flex-1 self-center break-words text-sm font-semibold leading-snug text-gray-900">{o.titel}</span>
+                <ChevronDown size={16} className={`mt-1 shrink-0 text-gray-400 transition-transform ${open === i ? 'rotate-180' : ''}`} />
               </button>
               {open === i && (
-                <div className="mb-3 ml-12 rounded-lg bg-gray-50 p-3 text-sm text-gray-700">
+                <div className="mb-3 rounded-lg bg-gray-50 p-3 text-sm text-gray-700 sm:ml-12">
                   {o.toelichting && <p className="mb-2 text-xs italic text-gray-500">{o.toelichting}</p>}
                   <ul className="list-disc space-y-1 pl-4">
                     {o.regels.map((r, j) => <li key={j}>{r}</li>)}

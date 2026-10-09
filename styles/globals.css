@@ -615,6 +615,26 @@ button:focus {
   @apply outline-none;
 }
 
+/* Klantportaal: preflight staat uit (tailwind.config), waardoor iOS/Safari eigen knopranden,
+   -padding en systeemfont op <button> zet. :where() houdt de specificiteit op 0,0,1 zodat
+   Tailwind-klassen (border, rounded, px-*) op de knoppen zelf altijd winnen. */
+:where(.portaal) button {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 0 solid transparent;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  line-height: inherit;
+  cursor: pointer;
+}
+:where(.portaal) {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 /* 18. CUSTOM GRADIENTS */
 .sb-gradient-primary {
   @apply bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800;

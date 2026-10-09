@@ -18,7 +18,7 @@ export default function OffertePortalOndertekening({ zekerheden, voorwaardenTeks
   const klaar = akkoordVoorwaarden && naam.trim().length > 1 && !!handtekening;
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-4 sm:px-8">
+    <section className="mx-auto max-w-5xl px-3 py-3 sm:px-8 sm:py-4">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-bold text-gray-900">Zekerheden</h2>
