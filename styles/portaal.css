@@ -23,7 +23,6 @@
 .portaal .h-14 { @apply !h-14; }
 .portaal .h-20 { @apply !h-20; }
 .portaal .h-3 { @apply !h-3; }
-.portaal .h-4\.5 { @apply !h-4.5; }
 .portaal .h-6 { @apply !h-6; }
 .portaal .h-72 { @apply !h-72; }
 .portaal .h-8 { @apply !h-8; }
@@ -94,7 +93,6 @@
 .portaal .w-20 { @apply !w-20; }
 .portaal .w-3 { @apply !w-3; }
 .portaal .w-32 { @apply !w-32; }
-.portaal .w-4\.5 { @apply !w-4.5; }
 .portaal .w-6 { @apply !w-6; }
 .portaal .w-8 { @apply !w-8; }
 .portaal .w-9 { @apply !w-9; }

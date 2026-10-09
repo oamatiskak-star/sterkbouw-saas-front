@@ -31,6 +31,10 @@ for var in VARIANTEN:
         v, _, basis = t.rpartition(':') if ':' in t else ('', '', t)
         if v != var or not FAMILIE.match(basis) or basis.startswith('space-'):
             continue
+        # Halve stappen bestaan in Tailwind alleen t/m 3.5 (h-4.5 e.d. zijn geen klassen).
+        hs = re.search(r'-(\d+)\.5$', basis)
+        if hs and int(hs.group(1)) > 3:
+            continue
         sel = '.' + re.sub(r'([:.\[\]/])', r'\\\1', t)
         apply = f'{var}:!{basis}' if var else f'!{basis}'
         regels.append(f'.portaal {sel} {{ @apply {apply}; }}')
