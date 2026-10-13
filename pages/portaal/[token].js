@@ -6,7 +6,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Loader2, MessageSquare, Repeat, PlusCircle, Calendar } from 'lucide-react';
 import * as oe from '@/services/offerteExcellence';
-import { loadSettings } from '@/services/calcModules';
+import supabase from '@/lib/supabase';
+import { OffertePortalVerificatie, OffertePortalVerlopen } from '@/components/portaal/OffertePortalToegang';
 import { genereerOffertePdf } from '@/lib/offerte/genereerOffertePdf';
 import OffertePortalHero from '@/components/portaal/OffertePortalHero';
 import OffertePortalIntro from '@/components/portaal/OffertePortalIntro';
@@ -22,10 +23,38 @@ import OffertePortalBedankt from '@/components/portaal/OffertePortalBedankt';
 
 const DEFAULT_VOORWAARDEN = 'Deze offerte is 30 dagen geldig. Bedragen excl. btw tenzij anders vermeld. Meer- en minderwerk wordt separaat verrekend. Uitvoering conform de actuele calculatie en STABU-systematiek. Termijnen worden gefactureerd bij het bereiken van de betreffende bouwfase.';
 
+// Ingelogde dashboardgebruiker? Dan meesturen als Bearer (interne voorbeeldweergave).
+async function authHeaders() {
+  try {
+    const { data } = await supabase.auth.getSession();
+    const t = data?.session?.access_token;
+    return t ? { Authorization: `Bearer ${t}` } : {};
+  } catch { return {}; }
+}
+
+async function laadPortaal(token) {
+  const r = await fetch(`/api/portaal/data?token=${encodeURIComponent(token)}`, { headers: await authHeaders(), credentials: 'same-origin' });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401) return { gate: 'verificatie', ...j };
+  if (r.status === 410) return { gate: 'verlopen', ...j };
+  if (!r.ok) return { gate: 'fout', ...j };
+  return j;
+}
+
+function blobNaarBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(String(fr.result));
+    fr.onerror = reject;
+    fr.readAsDataURL(blob);
+  });
+}
+
 async function portalActie(token, payload) {
   const r = await fetch('/api/offerte/portal-actie', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
+    credentials: 'same-origin',
     body: JSON.stringify({ token, ...payload }),
   });
   const j = await r.json().catch(() => ({}));
@@ -45,8 +74,9 @@ export default function Klantportaal() {
   const bekekenGelogd = useRef(false);
 
   const herlaad = async () => {
-    const d = await oe.loadOfferteByToken(token);
+    const d = await laadPortaal(token);
     setData(d);
+    if (d?.settings) setSettings(d.settings);
     return d;
   };
 
@@ -54,9 +84,9 @@ export default function Klantportaal() {
     if (!router.isReady || !token) return;
     (async () => {
       try {
-        const [d] = await Promise.all([herlaad(), loadSettings().then((s) => setSettings(s || {})).catch(() => {})]);
-        // ?voorbeeld=1: interne controle vanuit het dashboard, telt niet als 'bekeken' door de klant.
-        if (d?.offerte && !bekekenGelogd.current && voorbeeld !== '1') {
+        const d = await herlaad();
+        // ?voorbeeld=1 of ingelogde dashboardgebruiker: interne controle, telt niet als 'bekeken'.
+        if (d?.offerte && !d.voorbeeld && !bekekenGelogd.current && voorbeeld !== '1') {
           bekekenGelogd.current = true;
           await portalActie(token, { type: 'bekeken' }).catch(() => {});
           await herlaad();
@@ -66,6 +96,10 @@ export default function Klantportaal() {
   }, [router.isReady, token]); // eslint-disable-line
 
   if (loading) return <div className="flex min-h-screen items-center justify-center bg-sterkcalc-navy text-white"><Loader2 className="animate-spin" size={20} /></div>;
+  if (data?.gate === 'verificatie') {
+    return <OffertePortalVerificatie token={token} emailHint={data.emailHint} nummer={data.nummer} onGeverifieerd={async () => { setLoading(true); try { const d = await herlaad(); if (d?.offerte && !d.voorbeeld && !bekekenGelogd.current) { bekekenGelogd.current = true; await portalActie(token, { type: 'bekeken' }).catch(() => {}); } } finally { setLoading(false); } }} />;
+  }
+  if (data?.gate === 'verlopen') return <OffertePortalVerlopen geldigTot={data.geldigTot} nummer={data.nummer} contact={data.contact} />;
   if (!data?.offerte) return <div className="flex min-h-screen items-center justify-center text-gray-500">Offerte niet gevonden.</div>;
 
   const { offerte, chapters, rows, opslagen, totalen } = data;
@@ -101,8 +135,8 @@ export default function Klantportaal() {
       // geüpload en de URL server-side vastgelegd (RLS-veilig via dezelfde portal-actie-route).
       try {
         const { blob, naam: bestandsnaam } = await genereerOffertePdf({ ...vers, settings, download: false });
-        const pdf_url = await oe.uploadOffertePdfBestand(vers.offerte.id, blob, bestandsnaam);
-        await portalActie(token, { type: 'pdf_url', pdf_url });
+        const pdfBase64 = await blobNaarBase64(blob);
+        await portalActie(token, { type: 'pdf_upload', pdfBase64, bestandsnaam });
         await herlaad();
       } catch { /* PDF-generatie mag de ondertekening niet blokkeren; klant is al akkoord */ }
     } catch (e) {
@@ -113,7 +147,7 @@ export default function Klantportaal() {
   const conversie = async (type) => {
     setBusy(true);
     try {
-      await oe.logEvent(offerte.id, type, { bericht: tekst || null });
+      await portalActie(token, { type: 'conversie', conversieType: type, bericht: tekst || null });
       setTekst(''); setModal(null);
       window.alert('Verzonden. We nemen contact met u op.');
     } catch (e) { window.alert('Mislukt: ' + (e.message || e)); } finally { setBusy(false); }
