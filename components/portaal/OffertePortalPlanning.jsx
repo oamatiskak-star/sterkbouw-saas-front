@@ -2,26 +2,45 @@
 // akkoord" (linkerkolom: Planning + Betalingstermijnen). Verwachte start/oplevering worden
 // afgeleid uit de planning-fasen (weken vanaf vandaag) — later aanpasbaar via de Planning-tab
 // in het interne dashboard, geen hardcoded datums.
+// Optioneel: offerte.content.verwachteStart ('YYYY-MM' of 'YYYY-MM-DD') zet een vaste startdatum;
+// oplevering = start + uitvoeringsweken (fasen met `aanloop: true` tellen dan niet mee).
 import { CalendarDays, CheckCircle2 } from 'lucide-react';
 import { fmtEUR } from '@/lib/calc/werktafelTotals';
 
-function verwachteData(planning) {
-  const totaalWeken = (planning || []).reduce((s, f) => s + (Number(f.weken) || 0), 0);
-  if (!totaalWeken) return null;
-  const start = new Date();
-  const oplevering = new Date(start.getTime() + totaalWeken * 7 * 24 * 3600 * 1000);
-  const fmt = (d) => d.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' });
-  return { start: fmt(start), oplevering: fmt(oplevering) };
+const WEEK_MS = 7 * 24 * 3600 * 1000;
+
+function parseStart(waarde) {
+  if (typeof waarde !== 'string') return null;
+  const m = waarde.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?$/);
+  if (!m) return null;
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, m[3] ? Number(m[3]) : 1);
+  return Number.isNaN(d.getTime()) ? null : d;
 }
 
-export default function OffertePortalPlanning({ planning, termijnen, kpi }) {
+function verwachteData(planning, verwachteStart) {
+  const fasen = planning || [];
+  const totaalWeken = fasen.reduce((s, f) => s + (Number(f.weken) || 0), 0);
+  if (!totaalWeken) return null;
+  const fmt = (d) => d.toLocaleDateString('nl-NL', { month: 'long', year: 'numeric' });
+  const vasteStart = parseStart(verwachteStart);
+  if (vasteStart) {
+    const uitvoeringWeken = fasen.filter((f) => !f.aanloop).reduce((s, f) => s + (Number(f.weken) || 0), 0);
+    const oplevering = new Date(vasteStart.getTime() + uitvoeringWeken * WEEK_MS);
+    return { start: fmt(vasteStart), oplevering: fmt(oplevering), weken: uitvoeringWeken, wekenLabel: 'Uitvoering' };
+  }
+  const start = new Date();
+  const oplevering = new Date(start.getTime() + totaalWeken * WEEK_MS);
+  return { start: fmt(start), oplevering: fmt(oplevering), weken: totaalWeken, wekenLabel: 'Totaal' };
+}
+
+export default function OffertePortalPlanning({ planning, termijnen, kpi, verwachteStart }) {
   let cumulatief = 0;
   const fasen = (planning || []).map((f) => {
     const vanaf = cumulatief + 1;
     cumulatief += Number(f.weken) || 0;
     return { ...f, label: Number(f.weken) === 1 ? `Week ${vanaf}` : `Week ${vanaf}-${cumulatief}` };
   });
-  const verwacht = verwachteData(planning);
+  const verwacht = verwachteData(planning, verwachteStart);
 
   return (
     <section className="mx-auto max-w-5xl px-3 py-3 sm:px-8 sm:py-4">
@@ -58,7 +77,7 @@ export default function OffertePortalPlanning({ planning, termijnen, kpi }) {
             <div className="text-base font-semibold text-gray-900">{verwacht.start}</div>
             <div className="mt-3 text-xs font-medium uppercase tracking-wide text-gray-400">Verwachte oplevering</div>
             <div className="text-base font-semibold text-gray-900">{verwacht.oplevering}</div>
-            <div className="mt-3 text-xs text-gray-400">Totaal {(planning || []).reduce((s, f) => s + (Number(f.weken) || 0), 0)} weken</div>
+            <div className="mt-3 text-xs text-gray-400">{verwacht.wekenLabel} {verwacht.weken} weken</div>
           </div>
         )}
       </div>

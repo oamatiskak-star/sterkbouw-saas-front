@@ -128,7 +128,7 @@ export default function Klantportaal() {
       <OffertePortalWerkzaamheden chapters={chapters} rows={rows} kpi={kpi} offerte={offerte} getekend={getekend} onToggleOptie={toggleOptie} />
       <OffertePortalOntwerp ontwerpAfbeeldingen={cover.ontwerpAfbeeldingen} />
       <OffertePortalPrijsoverzicht totalen={totalen} kpi={kpi} offerte={offerte} />
-      <OffertePortalPlanning planning={offerte.planning} termijnen={termijnen} kpi={kpi} />
+      <OffertePortalPlanning planning={offerte.planning} termijnen={termijnen} kpi={kpi} verwachteStart={content.verwachteStart} />
       {toonCalculatie && <OffertePortalWerkomschrijving werkomschrijving={content.werkomschrijving} chapters={chapters} rows={rows} />}
       {toonCalculatie && <OffertePortalCalculatie chapters={chapters} rows={rows} opslagen={opslagen} totalen={totalen} />}
       <OffertePortalDocumenten documenten={content.documenten} />
