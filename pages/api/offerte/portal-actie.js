@@ -4,6 +4,9 @@
 // anon-client schrijven. De token is hier de autorisatie — nooit een oplopend/publiek ID, en na
 // 'getekend' is de offerte immutable (server weigert elke verdere mutatie, ongeacht client-state).
 import { createClient } from '@supabase/supabase-js';
+import { heeftToegangCookie, internGebruiker, isVerlopen } from '@/lib/portaal/toegang';
+
+export const config = { api: { bodyParser: { sizeLimit: '12mb' } } };
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -26,6 +29,16 @@ export default async function handler(req, res) {
   const { type, token } = req.body || {};
   const offerte = await laadViaToken(token);
   if (!offerte) return res.status(404).json({ error: 'Offerte niet gevonden' });
+
+  // Alleen de geverifieerde klant (toegangscookie) of een ingelogde dashboardgebruiker.
+  const intern = await internGebruiker(req);
+  if (!intern && !heeftToegangCookie(req, offerte)) return res.status(401).json({ error: 'Geen toegang tot deze offerte' });
+  // Interne voorbeeldweergave telt niet als klantactie.
+  if (intern && type === 'bekeken') return res.status(200).json({ ok: true, voorbeeld: true });
+  // Verlopen offerte: geen wijzigingen of ondertekening meer mogelijk.
+  if (isVerlopen(offerte) && ['optie', 'onderteken'].includes(type)) {
+    return res.status(410).json({ error: 'Deze offerte is verlopen en kan niet meer worden geaccepteerd.' });
+  }
 
   if (type === 'bekeken') {
     const patch = { updated_at: new Date().toISOString() };
@@ -96,6 +109,33 @@ export default async function handler(req, res) {
     });
 
     return res.status(200).json({ ok: true, offerte_id: offerte.id });
+  }
+
+  if (type === 'pdf_upload') {
+    // Definitieve PDF na ondertekening: upload server-side (storage is niet meer anoniem beschrijfbaar).
+    const { pdfBase64, bestandsnaam } = req.body || {};
+    if (offerte.status !== 'getekend') return res.status(409).json({ error: 'Offerte is nog niet ondertekend' });
+    if (!pdfBase64 || typeof pdfBase64 !== 'string') return res.status(400).json({ error: 'PDF ontbreekt' });
+    const naam = String(bestandsnaam || 'offerte.pdf').replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 120);
+    const buffer = Buffer.from(pdfBase64.replace(/^data:application\/pdf;base64,/, ''), 'base64');
+    if (buffer.length < 1000 || buffer.slice(0, 4).toString() !== '%PDF') return res.status(400).json({ error: 'Ongeldige PDF' });
+    const path = `${offerte.id}/${naam}`;
+    const { error: upErr } = await supabase.storage.from('sterkcalc-visual-assets').upload(path, buffer, { contentType: 'application/pdf', upsert: true });
+    if (upErr) return res.status(500).json({ error: upErr.message });
+    const { data: pub } = supabase.storage.from('sterkcalc-visual-assets').getPublicUrl(path);
+    await supabase.from('sterkcalc_offertes').update({ pdf_url: pub?.publicUrl, updated_at: new Date().toISOString() }).eq('id', offerte.id);
+    return res.status(200).json({ ok: true, pdf_url: pub?.publicUrl });
+  }
+
+  if (type === 'conversie') {
+    // Vraag / terugbelverzoek / afspraak vanuit het portaal.
+    const { conversieType, bericht } = req.body || {};
+    const toegestaan = ['vraag', 'alternatief', 'meerwerk', 'afspraak'];
+    const t = toegestaan.includes(conversieType) ? conversieType : 'vraag';
+    await supabase.from('sterkcalc_offerte_events').insert({
+      offerte_id: offerte.id, type: t, bericht: bericht ? String(bericht).slice(0, 2000) : null, ip: clientIp(req),
+    });
+    return res.status(200).json({ ok: true });
   }
 
   if (type === 'pdf_url') {
