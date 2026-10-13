@@ -33,13 +33,68 @@ function verwachteData(planning, verwachteStart) {
   return { start: fmt(start), oplevering: fmt(oplevering), weken: totaalWeken, wekenLabel: 'Totaal' };
 }
 
-export default function OffertePortalPlanning({ planning, termijnen, kpi, verwachteStart }) {
-  let cumulatief = 0;
-  const fasen = (planning || []).map((f) => {
-    const vanaf = cumulatief + 1;
-    cumulatief += Number(f.weken) || 0;
-    return { ...f, label: Number(f.weken) === 1 ? `Week ${vanaf}` : `Week ${vanaf}-${cumulatief}` };
+// ISO-weeknummer + ISO-jaar van een datum.
+function isoWeek(d) {
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dag = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - dag);
+  const jaar = t.getUTCFullYear();
+  const week = Math.ceil(((t - Date.UTC(jaar, 0, 1)) / 86400000 + 1) / 7);
+  return { week, jaar };
+}
+
+// Maandag van de week waarin d valt.
+function maandagVan(d) {
+  const m = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  m.setDate(m.getDate() - ((m.getDay() + 6) % 7));
+  return m;
+}
+
+function weekLabel(van, tot) {
+  const a = isoWeek(van);
+  const b = isoWeek(tot);
+  if (a.week === b.week && a.jaar === b.jaar) return `Week ${a.week} (${a.jaar})`;
+  if (a.jaar === b.jaar) return `Week ${a.week}–${b.week} (${a.jaar})`;
+  return `Week ${a.week} (${a.jaar}) – week ${b.week} (${b.jaar})`;
+}
+
+// Met vaste startdatum: echte kalenderweken. Aanloopfasen lopen van de huidige week tot de
+// startweek; uitvoeringsfasen volgen elkaar op vanaf de maandag van de startweek.
+function fasenMetWeeknummers(planning, vasteStart) {
+  const fasen = planning || [];
+  const startMaandag = maandagVan(vasteStart);
+  const aanloop = fasen.filter((f) => f.aanloop);
+  let aanloopCursor = maandagVan(new Date());
+  if (aanloopCursor > startMaandag) aanloopCursor = startMaandag;
+  let cursor = new Date(startMaandag);
+  return fasen.map((f) => {
+    const weken = Math.max(1, Math.ceil(Number(f.weken) || 0));
+    if (f.aanloop) {
+      const van = new Date(aanloopCursor);
+      const isLaatste = aanloop[aanloop.length - 1] === f;
+      const tot = isLaatste
+        ? new Date(startMaandag.getTime() - WEEK_MS)
+        : new Date(van.getTime() + (weken - 1) * WEEK_MS);
+      aanloopCursor = new Date(tot.getTime() + WEEK_MS);
+      return { ...f, label: weekLabel(van, tot < van ? van : tot) };
+    }
+    const van = new Date(cursor);
+    const tot = new Date(van.getTime() + (weken - 1) * WEEK_MS);
+    cursor = new Date(tot.getTime() + WEEK_MS);
+    return { ...f, label: weekLabel(van, tot) };
   });
+}
+
+export default function OffertePortalPlanning({ planning, termijnen, kpi, verwachteStart }) {
+  const vasteStart = parseStart(verwachteStart);
+  let cumulatief = 0;
+  const fasen = vasteStart
+    ? fasenMetWeeknummers(planning, vasteStart)
+    : (planning || []).map((f) => {
+      const vanaf = cumulatief + 1;
+      cumulatief += Number(f.weken) || 0;
+      return { ...f, label: Number(f.weken) === 1 ? `Week ${vanaf}` : `Week ${vanaf}-${cumulatief}` };
+    });
   const verwacht = verwachteData(planning, verwachteStart);
 
   return (
