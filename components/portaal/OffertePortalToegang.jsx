@@ -7,8 +7,8 @@ import { Loader2, Lock, Mail, CalendarX } from 'lucide-react';
 
 function Kader({ nummer, children }) {
   return (
-    <div className="portaal flex min-h-screen items-center justify-center bg-sterkcalc-navy px-3 py-3 antialiased">
-      <div className="w-full max-w-md rounded-2xl bg-white p-4 shadow-lg sm:p-8">
+    <div className="portaal flex min-h-screen items-center justify-center bg-sterkcalc-navy antialiased" style={{ padding: 16, boxSizing: 'border-box' }}>
+      <div className="rounded-2xl bg-white shadow-lg" style={{ width: '100%', maxWidth: 440, padding: 20, boxSizing: 'border-box' }}>
         <div className="text-xs font-semibold uppercase tracking-wide text-gray-400">STRKBOUW{nummer ? ` · Offerte ${nummer}` : ''}</div>
         {children}
       </div>
@@ -58,13 +58,14 @@ export function OffertePortalVerificatie({ token, emailHint, nummer, onGeverifie
       <div className="mt-3 flex items-center gap-2 text-lg font-bold text-gray-900"><Lock size={18} /> Beveiligde offerte</div>
       {stap === 'email' ? (
         <form onSubmit={vraagCode} className="mt-3">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600" style={{ overflowWrap: 'anywhere' }}>
             Deze offerte is persoonlijk. Vul het e-mailadres in waarop u de offerte heeft ontvangen{emailHint ? ` (${emailHint})` : ''}. U ontvangt een eenmalige code.
           </p>
           <input
             type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)}
             placeholder="uw e-mailadres"
             className="mt-4 w-full rounded-lg border border-gray-200 px-3 py-3 text-sm"
+            style={{ width: '100%', boxSizing: 'border-box', background: '#fff', color: '#111827' }}
           />
           {fout && <p className="mt-2 text-sm text-red-600">{fout}</p>}
           <button type="submit" disabled={busy} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-sterkcalc-navy px-4 py-3 text-sm font-semibold text-white disabled:opacity-60">
@@ -73,7 +74,7 @@ export function OffertePortalVerificatie({ token, emailHint, nummer, onGeverifie
         </form>
       ) : (
         <form onSubmit={controleer} className="mt-3">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600" style={{ overflowWrap: 'anywhere' }}>
             Als dit het e-mailadres is waarop u de offerte ontving, ontvangt u binnen enkele minuten een 6-cijferige code. Controleer ook uw spammap.
           </p>
           <input
@@ -81,6 +82,7 @@ export function OffertePortalVerificatie({ token, emailHint, nummer, onGeverifie
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
             placeholder="123456"
             className="mt-4 w-full rounded-lg border border-gray-200 px-3 py-3 text-center text-lg font-semibold tracking-widest"
+            style={{ width: '100%', boxSizing: 'border-box', background: '#fff', color: '#111827' }}
           />
           {fout && <p className="mt-2 text-sm text-red-600">{fout}</p>}
           <button type="submit" disabled={busy} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-sterkcalc-navy px-4 py-3 text-sm font-semibold text-white disabled:opacity-60">
@@ -100,7 +102,7 @@ export function OffertePortalVerlopen({ geldigTot, nummer, contact }) {
   return (
     <Kader nummer={nummer}>
       <div className="mt-3 flex items-center gap-2 text-lg font-bold text-gray-900"><CalendarX size={18} /> Offerte verlopen</div>
-      <p className="mt-3 text-sm text-gray-600">
+      <p className="mt-3 text-sm text-gray-600" style={{ overflowWrap: 'anywhere' }}>
         Deze offerte {datum ? `was geldig tot en met ${datum} en ` : ''}is niet meer beschikbaar. Wilt u een actuele offerte ontvangen? Neem dan contact met ons op.
       </p>
       {(contact?.telefoon || contact?.email) && (
