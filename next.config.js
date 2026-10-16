@@ -58,14 +58,12 @@ const nextConfig = {
   // VEILIG GATED: alleen actief als env STERKCALC_DOMAIN_REDIRECT=true. Zet die flag op Vercel
   // PAS NADAT calculatie.strkbouw.nl aan het project hangt en serveert (anders outage).
   async redirects() {
-    // STRKBOUW biedt geen gratis calculatie: de oude gratis-funnel gaat permanent naar de betaalde calculatiepagina.
-    const funnel = [
-      {
-        source: '/calculatie-aanvragen/:path*',
-        destination: 'https://strkbouw.nl/calculatie.html',
-        permanent: true,
-      },
-    ]
+    // STRKBOUW doet niets gratis: de oude gratis-funnels gaan permanent naar de betaalde calculatiepagina.
+    const funnel = ['/calculatie-aanvragen/:path*', '/bouwkosten-quickscan/:path*'].map((source) => ({
+      source,
+      destination: 'https://strkbouw.nl/calculatie.html',
+      permanent: true,
+    }))
     if (process.env.STERKCALC_DOMAIN_REDIRECT !== 'true') return funnel
     return [
       ...funnel,
