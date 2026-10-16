@@ -5,6 +5,7 @@ Supabase-DB: **pmovazftwoxjopqkuuhp** (sterkbouww). `NEXT_PUBLIC_SUPABASE_URL`/a
 Laatst bijgewerkt: **2026-10-09** (offerteportaal: werkomschrijving + calculatie, btw per tarief, mobiele standaard).
 
 ## 🔴 HERSTEL HIER NA CRASH
+- **16-10-2026 — gratis-funnel weg:** `/calculatie-aanvragen` ("Gratis bouwcalculatie binnen 24 uur") verwijderd → permanente redirect naar https://strkbouw.nl/calculatie.html (next.config.js). VASTE regel: STRKBOUW biedt nooit een gratis calculatie.
 ### ✅ ACTUELE WAARHEID (2026-10-09) — dit overschrijft alles hieronder
 - **Offerteportaal (`/portaal/[token]`, calculatie.strkbouw.nl) — LIVE op main (92b48f0+).** Particulier: offerte → werkomschrijving (`OffertePortalWerkomschrijving`, bron `content.werkomschrijving` of afgeleid) → volledige calculatie (`OffertePortalCalculatie`). Uit via `content.klantType='zakelijk'` of `content.toonCalculatie=false`. `?voorbeeld=1` logt geen 'bekeken'.
 - **Btw per tarief:** `computeTotalen` → `btwVerdeling` via `row.meta.btw`; `berekenKpi` → `kpi.btw`; prijsoverzicht toont per tarief. Eén tarief = identiek aan vroeger.
