@@ -35,7 +35,8 @@ async function nieuwsteBestand(base, key) {
 async function laadPrijslijst() {
   if (CACHE && Date.now() - CACHE_TS < TTL_MS) return CACHE;
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Bucket is alleen voor interne accounts leesbaar (D1, 19-10-2026): server-side met service-role.
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!base || !key) throw new Error('Supabase-config ontbreekt op de server.');
   const bestand = (await nieuwsteBestand(base, key)) || FALLBACK_BESTAND;
   const url = `${base}/storage/v1/object/authenticated/${BUCKET}/${bestand}`;

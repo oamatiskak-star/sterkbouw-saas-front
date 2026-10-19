@@ -132,6 +132,12 @@ export default async function handler(req, res) {
 
   const { fileUrl, mediaType } = req.body || {}
   if (!fileUrl || !mediaType) return res.status(400).json({ error: 'fileUrl en mediaType zijn verplicht.' })
+  // Alleen ondertekende URL's uit de eigen vision-bucket (geen willekeurige URL's ophalen).
+  // Toegang (sessie + intern account) wordt afgedwongen in middleware.js.
+  const toegestaanPrefix = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/sign/sterkcalc-vision-uploads/`
+  if (typeof fileUrl !== 'string' || !fileUrl.startsWith(toegestaanPrefix)) {
+    return res.status(400).json({ error: 'fileUrl moet een ondertekende URL uit de eigen opslag zijn.' })
+  }
 
   const block = SUPPORTED[mediaType]
   if (!block) {

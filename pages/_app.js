@@ -41,6 +41,12 @@ import SterkCalcLayout from '@/components/sterkcalc/SterkCalcLayout'
 import RequireAuth from '@/components/sterkcalc/RequireAuth'
 
 // ===============================
+// API-TOEGANG: sessie mee naar /api (middleware.js eist Bearer + intern account)
+// ===============================
+import { installeerApiAuth } from '@/lib/apiAuthFetch'
+if (typeof window !== 'undefined') installeerApiAuth()
+
+// ===============================
 // APP
 // ===============================
 export default function App({ Component, pageProps }) {
