@@ -1,7 +1,8 @@
 // services/visualLibrary.js — consumeert L2 sterkcalc_visual_* (read-only).
 import supabase from '@/lib/supabase';
 
-const BUCKET = 'sterkcalc-visual-assets';
+// Publieke bucket met alleen bibliotheekafbeeldingen (geen klantdata; incident D1, 19-10-2026).
+const BUCKET = 'sterkcalc-bibliotheek';
 function publicUrl(path) {
   if (!path) return null;
   try {

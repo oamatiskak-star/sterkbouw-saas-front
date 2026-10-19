@@ -2,6 +2,7 @@
 import supabase from '@/lib/supabase';
 import { loadWerktafel } from '@/services/werktafel';
 import { computeTotalen, computeRow } from '@/lib/calc/werktafelTotals';
+import { ondertekenVisualUrls, canoniekeVisualUrls } from '@/lib/storage/visualUrls';
 
 // Totalen + regels van een calculatie (hergebruikt werktafel-rekenkern).
 export async function calcData(calculatieId) {
@@ -23,7 +24,7 @@ export async function loadOffertes() {
 }
 export async function loadOfferte(id) {
   const { data } = await supabase.from('sterkcalc_offertes').select('*').eq('id', id).maybeSingle();
-  return data || null;
+  return data ? ondertekenVisualUrls(supabase, data) : null;
 }
 export async function maakOfferte(calculatieId) {
   const { calculatie, totalen } = await calcData(calculatieId);
@@ -48,7 +49,7 @@ export async function maakOfferte(calculatieId) {
   return data;
 }
 export async function updateOfferte(id, patch) {
-  const { error } = await supabase.from('sterkcalc_offertes').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id);
+  const { error } = await supabase.from('sterkcalc_offertes').update({ ...canoniekeVisualUrls(patch), updated_at: new Date().toISOString() }).eq('id', id);
   if (error) throw error;
 }
 
