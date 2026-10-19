@@ -5,10 +5,11 @@ import { calcData } from '@/services/calcModules';
 import { derivePlanning } from '@/services/planning';
 import { loadBestellingen } from '@/services/bestellen';
 import { bouwRapportage } from '@/lib/calc/rapportageEngine';
+import { ondertekenVisualUrls } from '@/lib/storage/visualUrls';
 
 async function loadOfferte(calculatieId) {
   const { data } = await supabase.from('sterkcalc_offertes').select('*').eq('calculatie_id', calculatieId).order('created_at', { ascending: false }).limit(1);
-  return data?.[0] || null;
+  return data?.[0] ? ondertekenVisualUrls(supabase, data[0]) : null;
 }
 async function loadVersieSnapshots(calculatieId) {
   const { data } = await supabase.from('calculation_versions').select('version_no, label, snapshot').eq('calculatie_id', calculatieId).order('version_no', { ascending: false }).limit(10);

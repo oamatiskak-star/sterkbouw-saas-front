@@ -5,6 +5,7 @@
 // 'getekend' is de offerte immutable (server weigert elke verdere mutatie, ongeacht client-state).
 import { createClient } from '@supabase/supabase-js';
 import { heeftToegangCookie, internGebruiker, isVerlopen } from '@/lib/portaal/toegang';
+import { ondertekenVisualUrls, canoniekeVisualUrls, vasteVisualUrl } from '@/lib/storage/visualUrls';
 
 export const config = { api: { bodyParser: { sizeLimit: '12mb' } } };
 
@@ -122,9 +123,9 @@ export default async function handler(req, res) {
     const path = `${offerte.id}/${naam}`;
     const { error: upErr } = await supabase.storage.from('sterkcalc-visual-assets').upload(path, buffer, { contentType: 'application/pdf', upsert: true });
     if (upErr) return res.status(500).json({ error: upErr.message });
-    const { data: pub } = supabase.storage.from('sterkcalc-visual-assets').getPublicUrl(path);
-    await supabase.from('sterkcalc_offertes').update({ pdf_url: pub?.publicUrl, updated_at: new Date().toISOString() }).eq('id', offerte.id);
-    return res.status(200).json({ ok: true, pdf_url: pub?.publicUrl });
+    const vast = vasteVisualUrl(path);
+    await supabase.from('sterkcalc_offertes').update({ pdf_url: vast, updated_at: new Date().toISOString() }).eq('id', offerte.id);
+    return res.status(200).json({ ok: true, pdf_url: await ondertekenVisualUrls(supabase, vast, 4 * 3600) });
   }
 
   if (type === 'conversie') {
@@ -141,7 +142,7 @@ export default async function handler(req, res) {
   if (type === 'pdf_url') {
     const { pdf_url } = req.body || {};
     if (!pdf_url) return res.status(400).json({ error: 'pdf_url ontbreekt' });
-    await supabase.from('sterkcalc_offertes').update({ pdf_url, updated_at: new Date().toISOString() }).eq('id', offerte.id);
+    await supabase.from('sterkcalc_offertes').update({ pdf_url: canoniekeVisualUrls(pdf_url), updated_at: new Date().toISOString() }).eq('id', offerte.id);
     return res.status(200).json({ ok: true });
   }
 

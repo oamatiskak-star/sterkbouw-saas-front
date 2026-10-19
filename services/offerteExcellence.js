@@ -3,6 +3,7 @@
 // Geen nieuwe AI/IFC/combi/STABU-logica; bouwt op de bestaande calculatie + offerte.
 import supabase from '@/lib/supabase';
 import { calcData } from '@/services/calcModules';
+import { ondertekenVisualUrls, canoniekeVisualUrls } from '@/lib/storage/visualUrls';
 
 export const DEFAULT_TERMIJNEN = [
   { label: 'Bij opdracht', pct: 10 },
@@ -76,19 +77,20 @@ export async function loadOfferteContext(calculatieId) {
     supabase.from('sterkcalc_offertes').select('*').eq('calculatie_id', calculatieId).order('created_at', { ascending: false }).limit(1),
     calcData(calculatieId),
   ]);
-  const offerte = offRows?.[0] || null;
+  const offerte = offRows?.[0] ? await ondertekenVisualUrls(supabase, offRows[0]) : null;
   return { offerte, calculatie: calc.calculatie, chapters: calc.chapters, rows: calc.rows, totalen: calc.totalen };
 }
 
 export async function saveOfferteVelden(id, patch) {
-  const { error } = await supabase.from('sterkcalc_offertes').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id);
+  const { error } = await supabase.from('sterkcalc_offertes').update({ ...canoniekeVisualUrls(patch), updated_at: new Date().toISOString() }).eq('id', id);
   if (error) throw error;
 }
 
 // ---- Klantportaal ----
 export async function loadOfferteByToken(token) {
-  const { data: offerte } = await supabase.from('sterkcalc_offertes').select('*').eq('portal_token', token).maybeSingle();
-  if (!offerte) return null;
+  const { data: rij } = await supabase.from('sterkcalc_offertes').select('*').eq('portal_token', token).maybeSingle();
+  if (!rij) return null;
+  const offerte = await ondertekenVisualUrls(supabase, rij);
   const calc = await calcData(offerte.calculatie_id).catch(() => ({}));
   return { offerte, calculatie: calc.calculatie || null, chapters: calc.chapters || [], rows: calc.rows || [], opslagen: calc.opslagen || null, totalen: calc.totalen || null };
 }
@@ -103,8 +105,8 @@ export async function loadEvents(offerteId) {
   return data || [];
 }
 
-// Definitieve PDF na ondertekening: alleen de upload naar Storage (dat mag via de publieke
-// blanket storage-policy, ook anoniem). Het wegschrijven van de resulterende URL naar
+// Definitieve PDF na ondertekening: alleen de upload naar Storage (bucket privé sinds D1; alleen
+// interne accounts). Geeft de vaste URL terug (zie lib/storage/visualUrls). Het wegschrijven van de resulterende URL naar
 // sterkcalc_offertes.pdf_url loopt NIET via deze functie: die kolom-update vereist auth.uid()
 // (RLS) en moet daarom server-side via /api/offerte/portal-actie (type: 'pdf_url') vanaf het
 // anonieme klantportaal, of via saveOfferteVelden vanuit het geauthenticeerde dashboard.
