@@ -1,13 +1,14 @@
 // components/calculatie/opname/FotoUploads.jsx — foto's maken/kiezen op locatie (los van de
 // handgetekende schetsen). Geen `capture`-attribuut op de file-input: zo toont iOS/iPadOS de
 // keuze "Foto's / Neem foto / Kies bestand" i.p.v. alleen de camera te forceren.
-// Upload gaat direct naar Supabase Storage (bucket calculatie-documenten, al publiek en in
-// gebruik elders in de app) i.p.v. base64 in de rij — camera-foto's zijn te groot voor jsonb.
+// Upload gaat direct naar Supabase Storage (bucket calculatie-documenten, privé) i.p.v. base64
+// in de rij — camera-foto's zijn te groot voor jsonb.
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { Camera, Loader2, X } from 'lucide-react';
 import supabase from '@/lib/supabase';
 
 const BUCKET = 'calculatie-documenten';
+const FOTO_URL_GELDIG_SEC = 60 * 60 * 24 * 365;
 
 function veiligeNaam(naam) {
   return naam.replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -34,8 +35,10 @@ const FotoUploads = forwardRef(function FotoUploads({ folderId, initialFotos = [
         const path = `opnames/${folderId}/${Date.now()}-${veiligeNaam(file.name)}`;
         const { error } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: false });
         if (error) throw error;
-        const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
-        geupload.push({ path, url: data.publicUrl, naam: file.name });
+        // Bucket is privé sinds D1 (19-10-2026): ondertekende URL i.p.v. publieke URL.
+        const { data, error: signErr } = await supabase.storage.from(BUCKET).createSignedUrl(path, FOTO_URL_GELDIG_SEC);
+        if (signErr) throw signErr;
+        geupload.push({ path, url: data.signedUrl, naam: file.name });
       }
       setFotos((f) => [...f, ...geupload]);
     } catch (err) {
