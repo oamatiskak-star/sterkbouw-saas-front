@@ -28,7 +28,10 @@ const STATUS = {
 };
 const REDEN = {
   verlopen: STATUS.verlopen, vervangen: STATUS.vervangen, inhoud_gewijzigd: 'Het voorstel is gewijzigd. Laad de pagina opnieuw.',
-  andere_versie_geaccepteerd: 'Een andere versie van dit voorstel is al geaccepteerd.', betalen_niet_beschikbaar: 'Betalen is op dit moment niet beschikbaar. Neem contact met ons op.',
+  andere_versie_geaccepteerd: 'Een andere versie van dit voorstel is al geaccepteerd.',
+  betalen_niet_beschikbaar: 'Online betalen lukt op dit moment niet. Uw keuze en gegevens blijven bewaard en er is nog niets vastgelegd of betaald. Probeer het over enkele minuten opnieuw of bel 085 200 96 01.',
+  mollie_fout: 'De betaalpagina kon niet worden geopend. Er is niets betaald; uw keuze en gegevens blijven bewaard. Probeer het opnieuw.',
+  mollie_onbereikbaar: 'De betaalpagina is tijdelijk niet bereikbaar. Er is niets betaald; probeer het over enkele minuten opnieuw.',
   factuurgegevens: 'Controleer de factuurgegevens.', voorwaarden: 'Ga akkoord met de voorwaarden.',
 };
 
@@ -136,9 +139,9 @@ export default function SterkCalcPortaal() {
 
   return (
     <div className="portaal min-h-screen bg-white antialiased">
-      <OffertePortalHero offerte={{ nummer: i.referentie, klant_naam: i.klant?.bedrijf, created_at: null }}
+      <OffertePortalHero offerte={{ nummer: String(i.referentie || '').replace(/-/g, '\u2011'), klant_naam: i.klant?.bedrijf, created_at: null }}
         cover={{ projectnaam: pr.project_adres || i.project?.locatie }} content={{ headline: 'Uw calculatievoorstel' }}
-        bedrijfNaam={BEDRIJF} onNaarOfferte={() => document.getElementById('opdracht')?.scrollIntoView({ behavior: 'smooth' })} />
+        bedrijfNaam={BEDRIJF} compact onNaarOfferte={() => document.getElementById('opdracht')?.scrollIntoView({ behavior: 'smooth' })} />
       <OffertePortalIntro offerte={{ nummer: i.referentie }} bedrijfNaam={BEDRIJF} content={{
         headline: `Beste ${pr.aanhef_naam || i.klant?.contact || ''},`.replace(' ,', ','),
         intro: `Bedankt voor het toesturen van de ${pr.stukken_omschrijving || 'stukken'} voor het project aan de ${pr.project_adres || i.project?.locatie || ''}. `
@@ -179,7 +182,7 @@ export default function SterkCalcPortaal() {
       {betaalbaar && (
         <>
           <SterkCalcFactuurgegevens waarden={factuur} fouten={fouten} onChange={(k, v) => setFactuur((f) => ({ ...f, [k]: v }))} />
-          {melding && <Melding tekst={melding} fout />}
+          {melding && <Melding tekst={melding} fout={Object.keys(fouten).length > 0} />}
           <OffertePortalOndertekening zekerheden={[]} voorwaardenTekst={`${i.voorwaarden} ${i.start} ${i.oplevering}`} busy={busy} onOndertekenen={akkoord}
             knopTekst={`🔒 Akkoord geven en veilig betalen ${fmt(i.prijs?.totaal)}`} eenvoudig
             ondertitel="Met de knop hieronder gaat u akkoord met dit voorstel, inclusief de prijs, de opdrachtomschrijving en de voorwaarden hierboven, en betaalt u via de beveiligde betaalpagina van Mollie." />
@@ -195,7 +198,7 @@ const fmt = (x) => `€ ${Number(x || 0).toLocaleString('nl-NL', { minimumFracti
 function Melding({ tekst, fout }) {
   return (
     <section className="mx-auto max-w-5xl px-3 py-3 sm:px-8">
-      <div className={`rounded-xl border p-4 text-sm ${fout ? 'border-red-200 bg-red-50 text-red-700' : 'border-sterkcalc-gold bg-white text-gray-700'}`}>{tekst}</div>
+      <div role="status" className={`rounded-xl border border-solid p-4 text-sm ${fout ? 'border-red-200 bg-red-50 text-red-700' : 'border-sterkcalc-gold bg-white text-gray-700'}`}>{tekst}</div>
     </section>
   );
 }
