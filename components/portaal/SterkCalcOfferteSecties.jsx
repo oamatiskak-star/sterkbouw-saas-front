@@ -219,29 +219,58 @@ export function SterkCalcVoorwaarden({ inhoud }) {
   );
 }
 
+// [veld, label, autocomplete, volle breedte, optioneel]
 const VELDEN = [
   ['bedrijfsnaam', 'Bedrijfsnaam', 'organization', true], ['straat_huisnummer', 'Straat en huisnummer', 'street-address', true],
   ['postcode', 'Postcode', 'postal-code', false], ['plaats', 'Plaats', 'address-level2', false],
-  ['factuur_email', 'E-mailadres voor de factuur', 'email', false], ['kvk', 'KvK-nummer (optioneel)', 'off', false],
-  ['tav', 'Ter attentie van (optioneel)', 'name', true],
+  ['factuur_email', 'E-mailadres voor de factuur', 'email', true],
+  ['kvk', 'KvK-nummer', 'off', false, true], ['tav', 'Ter attentie van', 'name', false, true],
 ];
+
+function Veld({ k, label, ac, breed, waarden, fouten, onChange }) {
+  return (
+    <div className={breed ? 'col-span-2' : ''}>
+      <label className="block text-xs font-medium text-gray-500">{label}</label>
+      <input value={waarden[k] || ''} autoComplete={ac} onChange={(e) => onChange(k, e.target.value)}
+        className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 [color-scheme:light]" />
+      {fouten?.[k] && <div className="mt-1 text-xs text-red-600">{fouten[k]}</div>}
+    </div>
+  );
+}
+
+export function SterkCalcZekerheden({ items }) {
+  return (
+    <section className={sectie}>
+      <div className={kaart}>
+        <h2 className="text-lg font-bold text-gray-900">Zekerheden</h2>
+        <ul className="mt-4 space-y-2">
+          {items.map((z) => (
+            <li key={z} className="flex items-start gap-2 break-words text-sm text-gray-700"><ShieldCheck size={15} className="mt-0.5 shrink-0 text-sterkcalc-gold" /> {z}</li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
 
 export function SterkCalcFactuurgegevens({ waarden, fouten, onChange }) {
   return (
     <section id="akkoord" className={sectie}>
       <div className={kaart}>
         <h2 className="text-lg font-bold text-gray-900">Factuurgegevens</h2>
-        <p className="mt-1 text-sm text-gray-500">De factuur wordt na de bevestigde betaling op deze gegevens opgesteld. Alleen Nederlandse factuuradressen.</p>
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {VELDEN.map(([k, label, ac, breed]) => (
-            <div key={k} className={breed ? 'sm:col-span-2' : ''}>
-              <label className="block text-xs font-medium text-gray-500">{label}</label>
-              <input value={waarden[k] || ''} autoComplete={ac} onChange={(e) => onChange(k, e.target.value)}
-                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 [color-scheme:light]" />
-              {fouten?.[k] && <div className="mt-1 text-xs text-red-600">{fouten[k]}</div>}
-            </div>
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          {VELDEN.filter(([, , , , optioneel]) => !optioneel).map(([k, label, ac, breed]) => (
+            <Veld key={k} k={k} label={label} ac={ac} breed={breed} waarden={waarden} fouten={fouten} onChange={onChange} />
           ))}
         </div>
+        <details className="mt-3" open={!!(fouten?.kvk || fouten?.tav)}>
+          <summary className="cursor-pointer text-xs font-medium text-gray-500">KvK-nummer of t.a.v. toevoegen (optioneel)</summary>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            {VELDEN.filter(([, , , , optioneel]) => optioneel).map(([k, label, ac, breed]) => (
+              <Veld key={k} k={k} label={label} ac={ac} breed={breed} waarden={waarden} fouten={fouten} onChange={onChange} />
+            ))}
+          </div>
+        </details>
       </div>
     </section>
   );

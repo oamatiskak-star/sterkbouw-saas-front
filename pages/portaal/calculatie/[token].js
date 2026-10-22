@@ -10,7 +10,7 @@ import OffertePortalHero from '@/components/portaal/OffertePortalHero';
 import OffertePortalIntro from '@/components/portaal/OffertePortalIntro';
 import OffertePortalOndertekening from '@/components/portaal/OffertePortalOndertekening';
 import {
-  SterkCalcOpdracht, SterkCalcOntvangt, SterkCalcLeveropties, SterkCalcKeuze, SterkCalcVoorwaarden, SterkCalcFactuurgegevens,
+  SterkCalcOpdracht, SterkCalcOntvangt, SterkCalcLeveropties, SterkCalcKeuze, SterkCalcVoorwaarden, SterkCalcFactuurgegevens, SterkCalcZekerheden,
 } from '@/components/portaal/SterkCalcOfferteSecties';
 import { akkoordEnBetalen, geldigToken, haalVoorstel, spoedAanvragen } from '@/lib/sterkcalc/voorstelApi';
 
@@ -151,11 +151,10 @@ export default function SterkCalcPortaal() {
 
       <SterkCalcOpdracht inhoud={i} />
       <SterkCalcOntvangt inhoud={i} />
-      <SterkCalcLeveropties inhoud={i} keuze={keuze} onKies={kiesOptie} levering={levering} />
       <SterkCalcVoorwaarden inhoud={i} />
-      {kanAkkoord && <SterkCalcKeuze inhoud={i} keuze={keuze}
-        onVerder={betaalbaar ? naarAkkoord : spoedAanvraag ? () => document.getElementById('spoed-aanvraag')?.scrollIntoView({ behavior: 'smooth' }) : null}
-        verderTekst={betaalbaar ? 'Naar akkoord en betalen' : 'Naar spoed aanvragen'} />}
+      <SterkCalcZekerheden items={ZEKERHEDEN} />
+      <SterkCalcLeveropties inhoud={i} keuze={keuze} onKies={kiesOptie} levering={levering} />
+      {kanAkkoord && <SterkCalcKeuze inhoud={i} keuze={keuze} />}
 
       {spoedAanvraag && (
         <section id="spoed-aanvraag" className="mx-auto max-w-5xl px-3 py-3 sm:px-8 sm:py-4">
@@ -181,13 +180,7 @@ export default function SterkCalcPortaal() {
         <>
           <SterkCalcFactuurgegevens waarden={factuur} fouten={fouten} onChange={(k, v) => setFactuur((f) => ({ ...f, [k]: v }))} />
           {melding && <Melding tekst={melding} fout />}
-          <section className="mx-auto max-w-5xl px-3 pt-3 sm:px-8">
-            <p className="rounded-xl bg-gray-50 p-4 text-sm text-gray-600">
-              Na uw akkoord wordt u doorgestuurd naar de beveiligde betaalpagina van Mollie om {fmt(i.prijs?.totaal)} incl. btw ({levering === 'spoed' ? 'spoedcalculatie' : 'reguliere calculatie'}) te betalen.
-              De calculatie start pas na bevestigde betaling én complete documenten.
-            </p>
-          </section>
-          <OffertePortalOndertekening zekerheden={ZEKERHEDEN} voorwaardenTekst={`${i.voorwaarden} ${i.start} ${i.oplevering}`} busy={busy} onOndertekenen={akkoord}
+          <OffertePortalOndertekening zekerheden={[]} voorwaardenTekst={`${i.voorwaarden} ${i.start} ${i.oplevering}`} busy={busy} onOndertekenen={akkoord}
             knopTekst={`🔒 Akkoord geven en veilig betalen ${fmt(i.prijs?.totaal)}`} ondertitel="Geef akkoord en betaal direct via de beveiligde betaalpagina van Mollie." />
         </>
       )}

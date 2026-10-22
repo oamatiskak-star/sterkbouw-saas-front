@@ -21,7 +21,8 @@ export default function OffertePortalOndertekening({ zekerheden, voorwaardenTeks
 
   return (
     <section className="mx-auto max-w-5xl px-3 py-3 sm:px-8 sm:py-4">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className={`grid grid-cols-1 gap-6 ${zekerheden?.length ? 'md:grid-cols-2' : ''}`}>
+        {zekerheden?.length > 0 && (
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-bold text-gray-900">Zekerheden</h2>
           <ul className="mt-4 space-y-2.5">
@@ -30,6 +31,7 @@ export default function OffertePortalOndertekening({ zekerheden, voorwaardenTeks
             ))}
           </ul>
         </div>
+        )}
 
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-bold text-gray-900">Akkoord</h2>
