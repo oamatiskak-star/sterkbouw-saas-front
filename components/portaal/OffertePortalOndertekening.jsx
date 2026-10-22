@@ -10,14 +10,15 @@ export const VOORWAARDEN_VERSIE = '2026.1';
 
 // Optioneel (zakelijke SterkCalc-offerte): knopTekst, ondertitel en toonOntbrekend. Zonder deze props blijft de
 // particuliere weergave exact gelijk.
-export default function OffertePortalOndertekening({ zekerheden, voorwaardenTekst, busy, onOndertekenen, knopTekst, ondertitel, toonOntbrekend }) {
+// eenvoudig: alleen naam + knop (zakelijke SterkCalc-offerte; voorwaarden staan op de pagina, de knop is het akkoord).
+export default function OffertePortalOndertekening({ zekerheden, voorwaardenTekst, busy, onOndertekenen, knopTekst, ondertitel, toonOntbrekend, eenvoudig }) {
   const [voorwaardenOpen, setVoorwaardenOpen] = useState(false);
   const [akkoordVoorwaarden, setAkkoordVoorwaarden] = useState(false);
   const [naam, setNaam] = useState('');
   const [handtekening, setHandtekening] = useState(null);
   const [padOpen, setPadOpen] = useState(false);
 
-  const klaar = akkoordVoorwaarden && naam.trim().length > 1 && !!handtekening;
+  const klaar = eenvoudig ? naam.trim().length > 1 : akkoordVoorwaarden && naam.trim().length > 1 && !!handtekening;
 
   return (
     <section className="mx-auto max-w-5xl px-3 py-3 sm:px-8 sm:py-4">
@@ -37,6 +38,7 @@ export default function OffertePortalOndertekening({ zekerheden, voorwaardenTeks
           <h2 className="text-lg font-bold text-gray-900">Akkoord</h2>
           <p className="mt-1 text-sm text-gray-500">{ondertitel || 'Tevreden? Onderteken direct digitaal.'}</p>
 
+          {!eenvoudig && (<>
           <button onClick={() => setVoorwaardenOpen((v) => !v)} className="mt-4 flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-sm text-gray-700 [color-scheme:light]">
             Algemene voorwaarden STRKBOUW <ChevronDown size={15} className={`transition-transform ${voorwaardenOpen ? 'rotate-180' : ''}`} />
           </button>
@@ -48,11 +50,13 @@ export default function OffertePortalOndertekening({ zekerheden, voorwaardenTeks
             Ik heb de algemene voorwaarden gelezen en ga hiermee akkoord.
           </label>
 
+          </>)}
           <div className="mt-4">
             <label className="block text-xs font-medium text-gray-500">Volledige naam</label>
             <input value={naam} onChange={(e) => setNaam(e.target.value)} placeholder="Uw naam" className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 [color-scheme:light]" />
           </div>
 
+          {!eenvoudig && (
           <div className="mt-4">
             <label className="block text-xs font-medium text-gray-500">Handtekening</label>
             {handtekening ? (
@@ -66,7 +70,7 @@ export default function OffertePortalOndertekening({ zekerheden, voorwaardenTeks
               </button>
             )}
           </div>
-
+          )}
           <button
             onClick={() => onOndertekenen({ naam: naam.trim(), handtekeningDataUrl: handtekening?.dataUrl, voorwaardenVersie: VOORWAARDEN_VERSIE })}
             disabled={!klaar || busy}

@@ -181,7 +181,8 @@ export default function SterkCalcPortaal() {
           <SterkCalcFactuurgegevens waarden={factuur} fouten={fouten} onChange={(k, v) => setFactuur((f) => ({ ...f, [k]: v }))} />
           {melding && <Melding tekst={melding} fout />}
           <OffertePortalOndertekening zekerheden={[]} voorwaardenTekst={`${i.voorwaarden} ${i.start} ${i.oplevering}`} busy={busy} onOndertekenen={akkoord}
-            knopTekst={`🔒 Akkoord geven en veilig betalen ${fmt(i.prijs?.totaal)}`} ondertitel="Geef akkoord en betaal direct via de beveiligde betaalpagina van Mollie." />
+            knopTekst={`🔒 Akkoord geven en veilig betalen ${fmt(i.prijs?.totaal)}`} eenvoudig
+            ondertitel="Met de knop hieronder gaat u akkoord met dit voorstel, inclusief de prijs, de opdrachtomschrijving en de voorwaarden hierboven, en betaalt u via de beveiligde betaalpagina van Mollie." />
         </>
       )}
 
