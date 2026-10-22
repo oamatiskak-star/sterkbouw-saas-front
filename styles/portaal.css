@@ -9,6 +9,7 @@
 .portaal .border-gray-200 { @apply !border-gray-200; }
 .portaal .border-gray-300 { @apply !border-gray-300; }
 .portaal .border-l-2 { @apply !border-l-2; }
+.portaal .border-solid { @apply !border-solid; }
 .portaal .border-sterkcalc-gold { @apply !border-sterkcalc-gold; }
 .portaal .border-t { @apply !border-t; }
 .portaal .border-t-2 { @apply !border-t-2; }
@@ -23,8 +24,10 @@
 .portaal .h-10 { @apply !h-10; }
 .portaal .h-11 { @apply !h-11; }
 .portaal .h-14 { @apply !h-14; }
+.portaal .h-2\.5 { @apply !h-2.5; }
 .portaal .h-20 { @apply !h-20; }
 .portaal .h-3 { @apply !h-3; }
+.portaal .h-5 { @apply !h-5; }
 .portaal .h-6 { @apply !h-6; }
 .portaal .h-7 { @apply !h-7; }
 .portaal .h-72 { @apply !h-72; }
@@ -61,12 +64,14 @@
 .portaal .p-4 { @apply !p-4; }
 .portaal .p-5 { @apply !p-5; }
 .portaal .p-6 { @apply !p-6; }
+.portaal .pb-1 { @apply !pb-1; }
 .portaal .pb-10 { @apply !pb-10; }
 .portaal .pb-3 { @apply !pb-3; }
 .portaal .pb-8 { @apply !pb-8; }
 .portaal .pl-14 { @apply !pl-14; }
 .portaal .pl-4 { @apply !pl-4; }
 .portaal .pl-5 { @apply !pl-5; }
+.portaal .pl-7 { @apply !pl-7; }
 .portaal .pr-3 { @apply !pr-3; }
 .portaal .pt-2 { @apply !pt-2; }
 .portaal .pt-3 { @apply !pt-3; }
@@ -98,9 +103,11 @@
 .portaal .shadow-xl { @apply !shadow-xl; }
 .portaal .w-10 { @apply !w-10; }
 .portaal .w-11 { @apply !w-11; }
+.portaal .w-2\.5 { @apply !w-2.5; }
 .portaal .w-20 { @apply !w-20; }
 .portaal .w-3 { @apply !w-3; }
 .portaal .w-32 { @apply !w-32; }
+.portaal .w-5 { @apply !w-5; }
 .portaal .w-6 { @apply !w-6; }
 .portaal .w-7 { @apply !w-7; }
 .portaal .w-8 { @apply !w-8; }
@@ -117,3 +124,4 @@
 .portaal .sm\:py-4 { @apply sm:!py-4; }
 .portaal .sm\:w-40 { @apply sm:!w-40; }
 .portaal .sm\:w-9 { @apply sm:!w-9; }
+.portaal .sm\:w-auto { @apply sm:!w-auto; }

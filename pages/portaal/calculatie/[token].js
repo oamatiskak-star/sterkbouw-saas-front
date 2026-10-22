@@ -10,14 +10,15 @@ import OffertePortalHero from '@/components/portaal/OffertePortalHero';
 import OffertePortalIntro from '@/components/portaal/OffertePortalIntro';
 import OffertePortalOndertekening from '@/components/portaal/OffertePortalOndertekening';
 import {
-  SterkCalcOpdracht, SterkCalcOntvangt, SterkCalcLeveropties, SterkCalcVoorwaarden, SterkCalcFactuurgegevens,
+  SterkCalcOpdracht, SterkCalcOntvangt, SterkCalcLeveropties, SterkCalcKeuze, SterkCalcVoorwaarden, SterkCalcFactuurgegevens,
 } from '@/components/portaal/SterkCalcOfferteSecties';
 import { akkoordEnBetalen, geldigToken, haalVoorstel, spoedAanvragen } from '@/lib/sterkcalc/voorstelApi';
 
 const WAAROM = ['Ervaring met aanbestedingen en bouwinschrijvingen.', 'Heldere en open begrotingen.',
   'Technische diepgang en constructieve onderbouwing.', 'Snelle en persoonlijke communicatie.'];
-const ZEKERHEDEN = ['Betrouwbaar: onderbouwde en complete begroting', 'Transparant: open en inzichtelijke kostenopbouw',
-  'Praktisch: direct bruikbaar voor de bouwinschrijving', 'Snel geregeld: duidelijke opleverafspraken'];
+// Concrete afspraken (geen herhaling van de commerciële voordelen bovenaan).
+const ZEKERHEDEN = ['Transparante begrotingsopbouw per onderdeel', 'Duidelijke afbakening van de opdracht',
+  'Vastgelegde levertermijn en startvoorwaarden', 'Beschreven correctieronde en revisievoorwaarden'];
 const BEDRIJF = 'SterkCalc · STRKBOUW B.V.';
 const STATUS = {
   verlopen: 'Dit voorstel is verlopen. Neem contact met ons op voor een nieuw voorstel.',
@@ -51,11 +52,13 @@ export default function SterkCalcPortaal() {
   const [melding, setMelding] = useState(null);
   const [factuur, setFactuur] = useState({});
   const [fouten, setFouten] = useState({});
+  const [keuze, setKeuze] = useState(null);
 
   const laad = async (metOptie) => {
     const r = await haalVoorstel(String(token), metOptie ? optie : null);
     setD(r);
     if (r?.ok && r.voorinvulling) setFactuur((f) => (Object.keys(f).length ? f : { ...r.voorinvulling }));
+    if (r?.ok) setKeuze((k) => k || (optie === 'spoed' || optie === 'regulier' ? optie : (r.levering || 'regulier')));
     return r;
   };
 
@@ -89,6 +92,10 @@ export default function SterkCalcPortaal() {
   const levering = d.levering || null;
   const kanAkkoord = d.status === 'verstuurd';
   const naarAkkoord = () => document.getElementById('akkoord')?.scrollIntoView({ behavior: 'smooth' });
+  // De gekozen optie is alleen betaalbaar als het de optie van deze voorstelversie is (bedrag = versie, server-side).
+  const betaalbaar = kanAkkoord && (!levering || keuze === levering);
+  const spoedAanvraag = kanAkkoord && levering === 'regulier' && keuze === 'spoed';
+  const kiesOptie = (k) => { setKeuze(k); setMelding(null); };
 
   const spoed = async () => {
     setBusy(true);
@@ -99,6 +106,7 @@ export default function SterkCalcPortaal() {
   };
 
   const akkoord = async ({ naam }) => {
+    if (!betaalbaar) return;
     const fout = controleer(factuur);
     setFouten(fout);
     if (Object.keys(fout).length) { setMelding('Controleer de factuurgegevens.'); naarAkkoord(); return; }
@@ -143,17 +151,37 @@ export default function SterkCalcPortaal() {
 
       <SterkCalcOpdracht inhoud={i} />
       <SterkCalcOntvangt inhoud={i} />
-      <SterkCalcLeveropties inhoud={i} levering={levering} spoedAangevraagd={!!d.spoed_aangevraagd_op} busy={busy}
-        onSpoed={spoed} onNaarAkkoord={naarAkkoord} kanAkkoord={kanAkkoord} />
+      <SterkCalcLeveropties inhoud={i} keuze={keuze} onKies={kiesOptie} levering={levering} />
       <SterkCalcVoorwaarden inhoud={i} />
+      {kanAkkoord && <SterkCalcKeuze inhoud={i} keuze={keuze} />}
 
-      {kanAkkoord && (
+      {spoedAanvraag && (
+        <section className="mx-auto max-w-5xl px-3 py-3 sm:px-8 sm:py-4">
+          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
+            <h2 className="text-lg font-bold text-gray-900">Spoed aanvragen</h2>
+            {d.spoed_aangevraagd_op ? (
+              <p className="mt-2 break-words text-sm leading-relaxed text-gray-600">Uw spoedaanvraag is ontvangen. Na bevestiging van onze capaciteit ontvangt u per e-mail een spoedvoorstel waarmee u direct kunt akkoord geven en betalen. Er is nog niets betaald of geaccepteerd.</p>
+            ) : (
+              <>
+                <p className="mt-2 break-words text-sm leading-relaxed text-gray-600">Spoed is beschikbaar na bevestiging van onze productiecapaciteit. Na uw aanvraag beoordelen wij de capaciteit; bij bevestiging ontvangt u per e-mail een spoedvoorstel. Een aanvraag is geen akkoord en er wordt niets betaald.</p>
+                {melding && <p className="mt-3 text-sm text-red-700">{melding}</p>}
+                <button onClick={spoed} disabled={busy} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-sterkcalc-gold px-4 py-3 text-sm font-semibold text-white hover:bg-sterkcalc-gold2 disabled:opacity-50 sm:w-auto">{busy ? <Loader2 size={15} className="animate-spin" /> : null} Spoed aanvragen</button>
+              </>
+            )}
+          </div>
+        </section>
+      )}
+      {kanAkkoord && levering === 'spoed' && keuze === 'regulier' && (
+        <Melding tekst="Dit voorstel is opgesteld voor spoed. Liever regulier? Antwoord op de e-mail of bel 085 200 96 01; u ontvangt dan een regulier voorstel." />
+      )}
+
+      {betaalbaar && (
         <>
           <SterkCalcFactuurgegevens waarden={factuur} fouten={fouten} onChange={(k, v) => setFactuur((f) => ({ ...f, [k]: v }))} />
           {melding && <Melding tekst={melding} fout />}
           <section className="mx-auto max-w-5xl px-3 pt-3 sm:px-8">
             <p className="rounded-xl bg-gray-50 p-4 text-sm text-gray-600">
-              Na uw akkoord wordt u doorgestuurd naar de beveiligde betaalpagina van Mollie om {fmt(i.prijs?.totaal)} incl. btw te betalen.
+              Na uw akkoord wordt u doorgestuurd naar de beveiligde betaalpagina van Mollie om {fmt(i.prijs?.totaal)} incl. btw ({levering === 'spoed' ? 'spoedcalculatie' : 'reguliere calculatie'}) te betalen.
               De calculatie start pas na bevestigde betaling én complete documenten.
             </p>
           </section>
@@ -181,7 +209,7 @@ function Betaalstatus({ d, busy, onBetaal }) {
   const betaald = st === 'paid';
   return (
     <section className="mx-auto max-w-5xl px-3 py-3 sm:px-8 sm:py-4">
-      <div className="rounded-2xl border-2 border-sterkcalc-gold bg-white p-4 shadow-sm sm:p-8">
+      <div className="rounded-2xl border-2 border-solid border-sterkcalc-gold bg-white p-4 shadow-sm sm:p-8">
         <div className="flex items-start gap-3">
           {betaald ? <CheckCircle2 className="mt-0.5 shrink-0 text-green-600" size={20} /> : <Clock className="mt-0.5 shrink-0 text-sterkcalc-gold" size={20} />}
           <div className="min-w-0">
