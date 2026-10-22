@@ -188,11 +188,10 @@ export default function SterkCalcPortaal() {
             </p>
           </section>
           <OffertePortalOndertekening zekerheden={ZEKERHEDEN} voorwaardenTekst={`${i.voorwaarden} ${i.start} ${i.oplevering}`} busy={busy} onOndertekenen={akkoord}
-            knopTekst={`🔒 Akkoord geven en veilig betalen ${fmt(i.prijs?.totaal)}`} ondertitel="Geef akkoord en betaal direct via de beveiligde betaalpagina van Mollie." toonOntbrekend />
+            knopTekst={`🔒 Akkoord geven en veilig betalen ${fmt(i.prijs?.totaal)}`} ondertitel="Geef akkoord en betaal direct via de beveiligde betaalpagina van Mollie." />
         </>
       )}
 
-      <footer className="px-6 py-8 text-center text-xs text-gray-400">SterkCalc | STRKBOUW B.V. · Annie Westlandstraat 30, 8923 BD Leeuwarden · KvK 42068733 · Voorstel {i.referentie} · versie {d.versie}</footer>
     </div>
   );
 }
