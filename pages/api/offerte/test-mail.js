@@ -3,7 +3,7 @@
 // Mutateert NIETS aan de offerte (geen status/verzonden_at/portal_token/events) — puur een
 // verzend-test los van de echte audittrail. Retourneert de volledige SMTP-diagnostiek.
 import { createClient } from '@supabase/supabase-js';
-import { buildOfferteEmail } from '@/lib/offerte/emailTemplate';
+import { buildOfferteEmail, geldigePortaalUrl } from '@/lib/offerte/emailTemplate';
 import { verstuurOfferteMail } from '@/lib/offerte/verstuurOfferteMail';
 
 const supabase = createClient(
@@ -45,6 +45,7 @@ export default async function handler(req, res) {
 
   const origin = process.env.NEXT_PUBLIC_SITE_URL || `https://${req.headers.host}`;
   const portalUrl = `${origin}/portaal/${offerte.portal_token}`;
+  if (!geldigePortaalUrl(portalUrl)) return res.status(400).json({ error: 'Geen geldige productielink voor deze offerte; testmail niet verzonden', portalUrl });
   const cover = offerte.cover || {};
   const content = offerte.content || {};
 

@@ -2,7 +2,7 @@
 // de offerte op status 'verzonden' (portal_token + verzonden_at + audit-event). Server-side
 // omdat de mail-provider-key (MAILTRAP_API_TOKEN/RESEND_API_KEY) nooit naar de client mag.
 import { createClient } from '@supabase/supabase-js';
-import { buildOfferteEmail } from '@/lib/offerte/emailTemplate';
+import { buildOfferteEmail, geldigePortaalUrl } from '@/lib/offerte/emailTemplate';
 import { verstuurOfferteMail } from '@/lib/offerte/verstuurOfferteMail';
 
 const supabase = createClient(
@@ -33,6 +33,8 @@ export default async function handler(req, res) {
   const portal_token = offerte.portal_token || (globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : `tok_${Date.now()}_${Math.round(Math.random() * 1e6)}`);
   const origin = process.env.NEXT_PUBLIC_SITE_URL || `https://${req.headers.host}`;
   const portalUrl = `${origin}/portaal/${portal_token}`;
+  // Alleen een echte productielink naar de klant (geen preview-, tunnel- of lokale host): anders niets versturen en niets wijzigen.
+  if (!geldigePortaalUrl(portalUrl)) return res.status(400).json({ error: 'Geen geldige productielink voor deze offerte; niet verzonden', portalUrl });
 
   const cover = offerte.cover || {};
   const content = offerte.content || {};
