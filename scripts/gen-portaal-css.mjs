@@ -15,6 +15,7 @@ const compDir = join(root, 'components/portaal');
 const bronnen = [
   ...readdirSync(compDir).filter((f) => f.endsWith('.jsx')).map((f) => join(compDir, f)),
   join(root, 'pages/portaal/[token].js'),
+  join(root, 'pages/portaal/calculatie/[token].js'),
 ];
 const tekst = bronnen.map((p) => readFileSync(p, 'utf8')).join('\n');
 
