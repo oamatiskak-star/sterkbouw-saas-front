@@ -8,18 +8,22 @@ import SignaturePad from '@/components/shared/SignaturePad';
 
 export const VOORWAARDEN_VERSIE = '2026.1';
 
-export default function OffertePortalOndertekening({ zekerheden, voorwaardenTekst, busy, onOndertekenen }) {
+// Optioneel (zakelijke SterkCalc-offerte): knopTekst, ondertitel en toonOntbrekend. Zonder deze props blijft de
+// particuliere weergave exact gelijk.
+// eenvoudig: alleen naam + knop (zakelijke SterkCalc-offerte; voorwaarden staan op de pagina, de knop is het akkoord).
+export default function OffertePortalOndertekening({ zekerheden, voorwaardenTekst, busy, onOndertekenen, knopTekst, ondertitel, toonOntbrekend, eenvoudig }) {
   const [voorwaardenOpen, setVoorwaardenOpen] = useState(false);
   const [akkoordVoorwaarden, setAkkoordVoorwaarden] = useState(false);
   const [naam, setNaam] = useState('');
   const [handtekening, setHandtekening] = useState(null);
   const [padOpen, setPadOpen] = useState(false);
 
-  const klaar = akkoordVoorwaarden && naam.trim().length > 1 && !!handtekening;
+  const klaar = eenvoudig ? naam.trim().length > 1 : akkoordVoorwaarden && naam.trim().length > 1 && !!handtekening;
 
   return (
     <section className="mx-auto max-w-5xl px-3 py-3 sm:px-8 sm:py-4">
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div className={`grid grid-cols-1 gap-6 ${zekerheden?.length ? 'md:grid-cols-2' : ''}`}>
+        {zekerheden?.length > 0 && (
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-bold text-gray-900">Zekerheden</h2>
           <ul className="mt-4 space-y-2.5">
@@ -28,11 +32,13 @@ export default function OffertePortalOndertekening({ zekerheden, voorwaardenTeks
             ))}
           </ul>
         </div>
+        )}
 
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-bold text-gray-900">Akkoord</h2>
-          <p className="mt-1 text-sm text-gray-500">Tevreden? Onderteken direct digitaal.</p>
+          <p className="mt-1 text-sm text-gray-500">{ondertitel || 'Tevreden? Onderteken direct digitaal.'}</p>
 
+          {!eenvoudig && (<>
           <button onClick={() => setVoorwaardenOpen((v) => !v)} className="mt-4 flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-sm text-gray-700 [color-scheme:light]">
             Algemene voorwaarden STRKBOUW <ChevronDown size={15} className={`transition-transform ${voorwaardenOpen ? 'rotate-180' : ''}`} />
           </button>
@@ -44,11 +50,13 @@ export default function OffertePortalOndertekening({ zekerheden, voorwaardenTeks
             Ik heb de algemene voorwaarden gelezen en ga hiermee akkoord.
           </label>
 
+          </>)}
           <div className="mt-4">
             <label className="block text-xs font-medium text-gray-500">Volledige naam</label>
             <input value={naam} onChange={(e) => setNaam(e.target.value)} placeholder="Uw naam" className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 [color-scheme:light]" />
           </div>
 
+          {!eenvoudig && (
           <div className="mt-4">
             <label className="block text-xs font-medium text-gray-500">Handtekening</label>
             {handtekening ? (
@@ -62,14 +70,19 @@ export default function OffertePortalOndertekening({ zekerheden, voorwaardenTeks
               </button>
             )}
           </div>
-
+          )}
           <button
             onClick={() => onOndertekenen({ naam: naam.trim(), handtekeningDataUrl: handtekening?.dataUrl, voorwaardenVersie: VOORWAARDEN_VERSIE })}
             disabled={!klaar || busy}
             className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-sterkcalc-gold px-4 py-3 text-sm font-semibold text-white hover:bg-sterkcalc-gold2 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {busy ? <Loader2 size={16} className="animate-spin" /> : null} Offerte accepteren en ondertekenen
+            {busy ? <Loader2 size={16} className="animate-spin" /> : null} {knopTekst || 'Offerte accepteren en ondertekenen'}
           </button>
+          {toonOntbrekend && !klaar && (
+            <p className="mt-2 text-center text-xs text-gray-500">
+              Nog nodig: {[!akkoordVoorwaarden && 'voorwaarden aanvinken', naam.trim().length <= 1 && 'uw naam', !handtekening && 'uw handtekening'].filter(Boolean).join(', ')}.
+            </p>
+          )}
         </div>
       </div>
 

@@ -2,7 +2,8 @@
 // Full-bleed projectfoto, donkere overlay, STRKBOUW-merk, headline, CTA's, sfeer-quote.
 import { Home, PlayCircle, ArrowRight } from 'lucide-react';
 
-export default function OffertePortalHero({ offerte, cover, content, bedrijfNaam, onNaarOfferte }) {
+// compact: lagere openingssectie (zakelijke SterkCalc-offerte); zonder deze prop ongewijzigd.
+export default function OffertePortalHero({ offerte, cover, content, bedrijfNaam, onNaarOfferte, compact }) {
   const naam = bedrijfNaam || 'STRKBOUW';
   const headline = content.headline || cover.projectnaam || 'Bouwen aan jullie volgende hoofdstuk.';
   const sub = [
@@ -12,7 +13,7 @@ export default function OffertePortalHero({ offerte, cover, content, bedrijfNaam
   ].filter(Boolean);
 
   return (
-    <div className="relative flex min-h-[92vh] flex-col justify-between overflow-hidden bg-sterkcalc-navy text-white sm:min-h-screen">
+    <div className={`relative flex flex-col justify-between overflow-hidden bg-sterkcalc-navy text-white ${compact ? 'min-h-[46vh] sm:min-h-[55vh]' : 'min-h-[92vh] sm:min-h-screen'}`}>
       {cover.projectfoto && (
         <img src={cover.projectfoto} alt="" className="absolute inset-0 h-full w-full object-cover" />
       )}
