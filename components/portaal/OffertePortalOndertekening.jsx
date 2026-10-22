@@ -8,7 +8,9 @@ import SignaturePad from '@/components/shared/SignaturePad';
 
 export const VOORWAARDEN_VERSIE = '2026.1';
 
-export default function OffertePortalOndertekening({ zekerheden, voorwaardenTekst, busy, onOndertekenen }) {
+// Optioneel (zakelijke SterkCalc-offerte): knopTekst, ondertitel en toonOntbrekend. Zonder deze props blijft de
+// particuliere weergave exact gelijk.
+export default function OffertePortalOndertekening({ zekerheden, voorwaardenTekst, busy, onOndertekenen, knopTekst, ondertitel, toonOntbrekend }) {
   const [voorwaardenOpen, setVoorwaardenOpen] = useState(false);
   const [akkoordVoorwaarden, setAkkoordVoorwaarden] = useState(false);
   const [naam, setNaam] = useState('');
@@ -31,7 +33,7 @@ export default function OffertePortalOndertekening({ zekerheden, voorwaardenTeks
 
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-bold text-gray-900">Akkoord</h2>
-          <p className="mt-1 text-sm text-gray-500">Tevreden? Onderteken direct digitaal.</p>
+          <p className="mt-1 text-sm text-gray-500">{ondertitel || 'Tevreden? Onderteken direct digitaal.'}</p>
 
           <button onClick={() => setVoorwaardenOpen((v) => !v)} className="mt-4 flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-sm text-gray-700 [color-scheme:light]">
             Algemene voorwaarden STRKBOUW <ChevronDown size={15} className={`transition-transform ${voorwaardenOpen ? 'rotate-180' : ''}`} />
@@ -68,8 +70,13 @@ export default function OffertePortalOndertekening({ zekerheden, voorwaardenTeks
             disabled={!klaar || busy}
             className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-sterkcalc-gold px-4 py-3 text-sm font-semibold text-white hover:bg-sterkcalc-gold2 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {busy ? <Loader2 size={16} className="animate-spin" /> : null} Offerte accepteren en ondertekenen
+            {busy ? <Loader2 size={16} className="animate-spin" /> : null} {knopTekst || 'Offerte accepteren en ondertekenen'}
           </button>
+          {toonOntbrekend && !klaar && (
+            <p className="mt-2 text-center text-xs text-gray-500">
+              Nog nodig: {[!akkoordVoorwaarden && 'voorwaarden aanvinken', naam.trim().length <= 1 && 'uw naam', !handtekening && 'uw handtekening'].filter(Boolean).join(', ')}.
+            </p>
+          )}
         </div>
       </div>
 

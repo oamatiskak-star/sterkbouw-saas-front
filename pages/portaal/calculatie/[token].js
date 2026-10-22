@@ -153,10 +153,12 @@ export default function SterkCalcPortaal() {
       <SterkCalcOntvangt inhoud={i} />
       <SterkCalcLeveropties inhoud={i} keuze={keuze} onKies={kiesOptie} levering={levering} />
       <SterkCalcVoorwaarden inhoud={i} />
-      {kanAkkoord && <SterkCalcKeuze inhoud={i} keuze={keuze} />}
+      {kanAkkoord && <SterkCalcKeuze inhoud={i} keuze={keuze}
+        onVerder={betaalbaar ? naarAkkoord : spoedAanvraag ? () => document.getElementById('spoed-aanvraag')?.scrollIntoView({ behavior: 'smooth' }) : null}
+        verderTekst={betaalbaar ? 'Naar akkoord en betalen' : 'Naar spoed aanvragen'} />}
 
       {spoedAanvraag && (
-        <section className="mx-auto max-w-5xl px-3 py-3 sm:px-8 sm:py-4">
+        <section id="spoed-aanvraag" className="mx-auto max-w-5xl px-3 py-3 sm:px-8 sm:py-4">
           <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-8">
             <h2 className="text-lg font-bold text-gray-900">Spoed aanvragen</h2>
             {d.spoed_aangevraagd_op ? (
@@ -185,7 +187,8 @@ export default function SterkCalcPortaal() {
               De calculatie start pas na bevestigde betaling én complete documenten.
             </p>
           </section>
-          <OffertePortalOndertekening zekerheden={ZEKERHEDEN} voorwaardenTekst={`${i.voorwaarden} ${i.start} ${i.oplevering}`} busy={busy} onOndertekenen={akkoord} />
+          <OffertePortalOndertekening zekerheden={ZEKERHEDEN} voorwaardenTekst={`${i.voorwaarden} ${i.start} ${i.oplevering}`} busy={busy} onOndertekenen={akkoord}
+            knopTekst={`🔒 Akkoord geven en veilig betalen ${fmt(i.prijs?.totaal)}`} ondertitel="Geef akkoord en betaal direct via de beveiligde betaalpagina van Mollie." toonOntbrekend />
         </>
       )}
 

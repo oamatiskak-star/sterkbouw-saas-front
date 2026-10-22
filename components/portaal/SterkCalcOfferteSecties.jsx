@@ -171,7 +171,7 @@ export function SterkCalcLeveropties({ inhoud, keuze, onKies, levering }) {
 }
 
 // Samenvatting van de keuze vlak boven de vervolgstap.
-export function SterkCalcKeuze({ inhoud, keuze }) {
+export function SterkCalcKeuze({ inhoud, keuze, onVerder, verderTekst }) {
   const o = inhoud.opties?.[keuze];
   if (!o) return null;
   return (
@@ -187,6 +187,9 @@ export function SterkCalcKeuze({ inhoud, keuze }) {
           <div className="text-xs text-gray-500">incl. btw</div>
         </div>
       </div>
+      {onVerder && (
+        <button onClick={onVerder} className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-sterkcalc-gold px-4 py-3 text-sm font-semibold text-white hover:bg-sterkcalc-gold2">{verderTekst}</button>
+      )}
     </section>
   );
 }
