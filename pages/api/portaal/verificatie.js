@@ -6,7 +6,7 @@
 // Beperkingen: code 15 min geldig, max 5 pogingen per code, max 5 aanvragen per uur per offerte.
 import crypto from 'crypto';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
-import { verstuurOfferteMail } from '@/lib/offerte/verstuurOfferteMail';
+import { verstuurToegangscodeMail } from '@/lib/offerte/verstuurToegangscodeMail';
 import {
   laadOfferteViaToken, normEmail, hashCode, zetToegangCookie, isVerlopen, geldigTot,
 } from '@/lib/portaal/toegang';
@@ -53,19 +53,27 @@ export default async function handler(req, res) {
     // Geen onderscheid in het antwoord tussen juist/onjuist e-mailadres (geen adresvalidatie voor derden).
     if (normEmail(email) === normEmail(offerte.klant_email)) {
       const nieuweCode = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
-      await db.from('sterkcalc_portaal_codes').insert({
+      const { data: codeRij } = await db.from('sterkcalc_portaal_codes').insert({
         offerte_id: offerte.id,
         code_hash: hashCode(offerte.id, nieuweCode),
         expires_at: new Date(Date.now() + CODE_GELDIG_MIN * 60 * 1000).toISOString(),
         ip: clientIp(req),
-      });
+      }).select('id').single();
       const { data: s } = await db.from('sterkcalc_settings').select('bedrijf').eq('id', 1).maybeSingle();
       const bedrijfNaam = s?.bedrijf?.naam || 'STRKBOUW';
       const m = codeMail({ code: nieuweCode, nummer: offerte.nummer, bedrijfNaam });
-      const r = await verstuurOfferteMail({ to: offerte.klant_email, subject: m.subject, html: m.html, text: m.text });
+      const r = await verstuurToegangscodeMail({
+        to: offerte.klant_email, subject: m.subject, html: m.html, text: m.text,
+        idempotencyKey: codeRij?.id ? `portaal-code-${codeRij.id}` : undefined,
+      });
       await db.from('sterkcalc_offerte_events').insert({
         offerte_id: offerte.id, type: 'toegangscode', ip: clientIp(req),
-        bericht: r?.sent ? 'Toegangscode verstuurd naar klant-e-mail' : `Toegangscode NIET verstuurd (${r?.reason || r?.status || 'onbekend'})`,
+        bericht: r?.sent
+          ? `Toegangscode verstuurd naar klant-e-mail (${r.provider}${r.id ? ` ${r.id}` : ''}${r.terugval ? ', terugval na Resend-fout' : ''})`
+          : `Toegangscode NIET verstuurd (${r?.reason || r?.status || 'onbekend'})`,
+        meta: { mail: (r?.pogingen || [r]).filter(Boolean).map((x) => ({
+          provider: x.provider, sent: !!x.sent, id: x.id || x.messageId || null, status: x.status || null, reason: x.reason || null,
+        })) },
       });
     } else {
       await db.from('sterkcalc_portaal_codes').insert({
