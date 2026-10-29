@@ -16,6 +16,9 @@ const BESTANDEN = {
   'testcases.json': 'sterkcalc-kennis/planning/pariteit/testcases.json',
   'portaal_categorie_stabu.json': 'sterkcalc-kennis/mapping/portaal_categorie_stabu.json',
 };
+// QA8 C-L5: alleen synchroniseren uit een schone werkboom (vastgelegde commit = exact wat gekopieerd wordt)
+const vuil = execFileSync('git', ['-C', REPO, 'status', '--porcelain', '--', 'sterkcalc-kennis']).toString().trim();
+if (vuil) { console.error(`sync geweigerd: niet-vastgelegde wijzigingen in ${REPO}/sterkcalc-kennis:\n${vuil}`); process.exit(1); }
 mkdirSync(DOEL, { recursive: true });
 const sha = (p) => createHash('sha256').update(readFileSync(p)).digest('hex');
 const bron = {
@@ -30,4 +33,5 @@ for (const [naam, rel] of Object.entries(BESTANDEN)) {
   bron.bestanden[naam] = { bron: rel, sha256: sha(join(DOEL, naam)) };
 }
 writeFileSync(join(DOEL, 'BRON.json'), JSON.stringify(bron, null, 1) + '\n');
+if (bron.branch !== 'main') console.warn(`LET OP: bron is branch '${bron.branch}', niet main — alleen voor schaduw/QA, niet voor activatie`);
 console.log(`gesynchroniseerd uit ${bron.repo}@${bron.commit.slice(0, 7)} (${bron.branch}) → lib/sterkcalc-kennis/`);

@@ -10320,7 +10320,7 @@
   }
  ],
  "kennis_sha256": "528adc365e83d7e7e3c3796502e1ff32506348e205d48ffe2446475c5d0ae6de",
- "motor_sha256": "b35dec8cb9d794338b1b3c6786365343d1d92a5ba5b79942bc47c491d3c4a4a9",
+ "motor_sha256": "37c0d6acbea6b84ff34596fd4fb95cad6d21bbdf54cf3f8814159cb48da690ad",
  "registerversie": "2026-10-29",
  "schema": "sterkcalc-pariteit/1"
 }
