@@ -1,0 +1,20 @@
+{
+ "repo": "oamatiskak-star/strkbouw-nl-web",
+ "commit": "52bc74ac9c6bc9c467cd66138c79b3b2f20f93de",
+ "branch": "feat/sterkcalc-i6-pariteit",
+ "gesynchroniseerd_op": "2026-10-29T11:58:38",
+ "bestanden": {
+  "kennisregels.json": {
+   "bron": "sterkcalc-kennis/kennisregels.json",
+   "sha256": "dabb7751657a0a974360c7206f1861ca89f577d0c7a569de111af4681c791acf"
+  },
+  "testcases.json": {
+   "bron": "sterkcalc-kennis/planning/pariteit/testcases.json",
+   "sha256": "0940dfdead1aaf50fa93f471102f161432e284a1e03e32df7ed0fc3aa898ebfb"
+  },
+  "portaal_categorie_stabu.json": {
+   "bron": "sterkcalc-kennis/mapping/portaal_categorie_stabu.json",
+   "sha256": "cc76215484af7bcc42baba05c8a905c3d856b26030dca911fceaa7f2267a9678"
+  }
+ }
+}

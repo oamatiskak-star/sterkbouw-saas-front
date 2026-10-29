@@ -1,0 +1,10326 @@
+{
+ "cases": [
+  {
+   "invoer": {
+    "capaciteit": "3",
+    "hoofdstukken": [
+     {
+      "code": "05",
+      "naam": "Bouwplaatsvoorzieningen"
+     },
+     {
+      "code": "06",
+      "naam": "Door de aannemer aan te leveren documenten"
+     },
+     {
+      "code": "10",
+      "naam": "Stut- en sloopwerk"
+     },
+     {
+      "code": "12",
+      "naam": "Grondwerk"
+     },
+     {
+      "code": "14",
+      "naam": "Buitenriolering en drainage"
+     },
+     {
+      "code": "15",
+      "naam": "Terreinverhardingen"
+     },
+     {
+      "code": "16",
+      "naam": "Beplanting"
+     },
+     {
+      "code": "17",
+      "naam": "Terreininrichting"
+     },
+     {
+      "code": "21",
+      "naam": "Betonwerk"
+     },
+     {
+      "code": "22",
+      "naam": "Metselwerk"
+     },
+     {
+      "code": "24",
+      "naam": "Ruwbouwtimmerwerk"
+     },
+     {
+      "code": "25",
+      "naam": "Metaalconstructiewerk"
+     },
+     {
+      "code": "30",
+      "naam": "Kozijnen, ramen en deuren"
+     },
+     {
+      "code": "32",
+      "naam": "Trappen en balustraden"
+     },
+     {
+      "code": "33",
+      "naam": "Dakbedekkingen"
+     },
+     {
+      "code": "35",
+      "naam": "Natuur- en kunststeen"
+     },
+     {
+      "code": "37",
+      "naam": "Na-isolatie"
+     },
+     {
+      "code": "40",
+      "naam": "Stukadoorswerk"
+     },
+     {
+      "code": "41",
+      "naam": "Tegelwerk"
+     },
+     {
+      "code": "42",
+      "naam": "Dekvloeren en vloersystemen"
+     },
+     {
+      "code": "43",
+      "naam": "Metaal- en kunststofwerk"
+     },
+     {
+      "code": "44",
+      "naam": "Plafond- en wandsystemen"
+     },
+     {
+      "code": "45",
+      "naam": "Afbouwtimmerwerk"
+     },
+     {
+      "code": "46",
+      "naam": "Schilderwerk"
+     },
+     {
+      "code": "47",
+      "naam": "Binneninrichting"
+     }
+    ],
+    "ploeg": "2",
+    "regels": [
+     {
+      "code": "05.01",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "40.0"
+     },
+     {
+      "code": "05.03",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "180.4"
+     },
+     {
+      "code": "05.06",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "9.6"
+     },
+     {
+      "code": "05.11",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "89.6"
+     },
+     {
+      "code": "06.01",
+      "hoofdstuk": "06",
+      "omschrijving": "",
+      "uren": "120.0"
+     },
+     {
+      "code": "06.04",
+      "hoofdstuk": "06",
+      "omschrijving": "",
+      "uren": "40.0"
+     },
+     {
+      "code": "10.03",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "246.4"
+     },
+     {
+      "code": "10.04",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "90.0"
+     },
+     {
+      "code": "10.05",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "67.5"
+     },
+     {
+      "code": "10.06",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "90.0"
+     },
+     {
+      "code": "10.07",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "48.0"
+     },
+     {
+      "code": "10.08",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "96.3"
+     },
+     {
+      "code": "10.09",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "245.0"
+     },
+     {
+      "code": "10.10",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "48.4"
+     },
+     {
+      "code": "10.11",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "81.0"
+     },
+     {
+      "code": "12.01",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "21.0"
+     },
+     {
+      "code": "12.03",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "18.0"
+     },
+     {
+      "code": "12.04",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "28.0"
+     },
+     {
+      "code": "12.05",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "29.0"
+     },
+     {
+      "code": "14.01",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "21.6"
+     },
+     {
+      "code": "14.02",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "25.2"
+     },
+     {
+      "code": "14.03",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "12.0"
+     },
+     {
+      "code": "14.05",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "13.2"
+     },
+     {
+      "code": "15.01",
+      "hoofdstuk": "15",
+      "omschrijving": "",
+      "uren": "130.5"
+     },
+     {
+      "code": "15.02",
+      "hoofdstuk": "15",
+      "omschrijving": "",
+      "uren": "66.0"
+     },
+     {
+      "code": "16.01",
+      "hoofdstuk": "16",
+      "omschrijving": "",
+      "uren": "32.0"
+     },
+     {
+      "code": "17.01",
+      "hoofdstuk": "17",
+      "omschrijving": "",
+      "uren": "9.8"
+     },
+     {
+      "code": "17.02",
+      "hoofdstuk": "17",
+      "omschrijving": "",
+      "uren": "8.4"
+     },
+     {
+      "code": "17.03",
+      "hoofdstuk": "17",
+      "omschrijving": "",
+      "uren": "25.3"
+     },
+     {
+      "code": "21.01",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "48.0"
+     },
+     {
+      "code": "21.02",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "90.0"
+     },
+     {
+      "code": "21.03",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "25.2"
+     },
+     {
+      "code": "21.04",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "24.0"
+     },
+     {
+      "code": "22.01",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "79.2"
+     },
+     {
+      "code": "22.02",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "111.6"
+     },
+     {
+      "code": "22.03",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "98.0"
+     },
+     {
+      "code": "22.04",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "39.1"
+     },
+     {
+      "code": "22.05",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "24.0"
+     },
+     {
+      "code": "22.06",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "70.0"
+     },
+     {
+      "code": "22.07",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "36.0"
+     },
+     {
+      "code": "24.01",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "181.5"
+     },
+     {
+      "code": "24.02",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "49.0"
+     },
+     {
+      "code": "24.03",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "64.0"
+     },
+     {
+      "code": "24.05",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "56.1"
+     },
+     {
+      "code": "25.01",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "182.4"
+     },
+     {
+      "code": "25.04",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "21.0"
+     },
+     {
+      "code": "25.05",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "42.0"
+     },
+     {
+      "code": "25.06",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "32.0"
+     },
+     {
+      "code": "30.02",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "258.5"
+     },
+     {
+      "code": "30.05",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "13.5"
+     },
+     {
+      "code": "30.06",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "37.5"
+     },
+     {
+      "code": "30.07",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "72.0"
+     },
+     {
+      "code": "30.08",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "63.0"
+     },
+     {
+      "code": "30.09",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "84.0"
+     },
+     {
+      "code": "30.10",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "77.0"
+     },
+     {
+      "code": "32.04",
+      "hoofdstuk": "32",
+      "omschrijving": "",
+      "uren": "72.0"
+     },
+     {
+      "code": "32.06",
+      "hoofdstuk": "32",
+      "omschrijving": "",
+      "uren": "9.0"
+     },
+     {
+      "code": "33.01",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "56.1"
+     },
+     {
+      "code": "33.04",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "52.5"
+     },
+     {
+      "code": "33.05",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "105.0"
+     },
+     {
+      "code": "33.06",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "122.5"
+     },
+     {
+      "code": "33.07",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "52.5"
+     },
+     {
+      "code": "33.08",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "32.0"
+     },
+     {
+      "code": "35.01",
+      "hoofdstuk": "35",
+      "omschrijving": "",
+      "uren": "39.0"
+     },
+     {
+      "code": "35.02",
+      "hoofdstuk": "35",
+      "omschrijving": "",
+      "uren": "28.8"
+     },
+     {
+      "code": "35.03",
+      "hoofdstuk": "35",
+      "omschrijving": "",
+      "uren": "11.2"
+     },
+     {
+      "code": "37.01",
+      "hoofdstuk": "37",
+      "omschrijving": "",
+      "uren": "143.0"
+     },
+     {
+      "code": "37.02",
+      "hoofdstuk": "37",
+      "omschrijving": "",
+      "uren": "177.8"
+     },
+     {
+      "code": "40.01",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "92.8"
+     },
+     {
+      "code": "40.02",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "295.0"
+     },
+     {
+      "code": "40.03",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "88.0"
+     },
+     {
+      "code": "40.04",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "40.8"
+     },
+     {
+      "code": "41.01",
+      "hoofdstuk": "41",
+      "omschrijving": "",
+      "uren": "263.5"
+     },
+     {
+      "code": "41.02",
+      "hoofdstuk": "41",
+      "omschrijving": "",
+      "uren": "89.1"
+     },
+     {
+      "code": "41.03",
+      "hoofdstuk": "41",
+      "omschrijving": "",
+      "uren": "71.4"
+     },
+     {
+      "code": "41.04",
+      "hoofdstuk": "41",
+      "omschrijving": "",
+      "uren": "45.0"
+     },
+     {
+      "code": "41.05",
+      "hoofdstuk": "41",
+      "omschrijving": "",
+      "uren": "49.6"
+     },
+     {
+      "code": "41.06",
+      "hoofdstuk": "41",
+      "omschrijving": "",
+      "uren": "21.0"
+     },
+     {
+      "code": "42.01",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "65.0"
+     },
+     {
+      "code": "42.02",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "92.8"
+     },
+     {
+      "code": "42.03",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "259.8"
+     },
+     {
+      "code": "42.04",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "42.0"
+     },
+     {
+      "code": "42.06",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "20.0"
+     },
+     {
+      "code": "43.01",
+      "hoofdstuk": "43",
+      "omschrijving": "",
+      "uren": "33.0"
+     },
+     {
+      "code": "44.01",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "451.2"
+     },
+     {
+      "code": "44.02",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "385.0"
+     },
+     {
+      "code": "44.03",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "19.8"
+     },
+     {
+      "code": "44.04",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "278.4"
+     },
+     {
+      "code": "44.05",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "194.9"
+     },
+     {
+      "code": "44.06",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "84.0"
+     },
+     {
+      "code": "44.07",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "35.0"
+     },
+     {
+      "code": "44.08",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "29.7"
+     },
+     {
+      "code": "45.01",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "285.0"
+     },
+     {
+      "code": "45.02",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "24.0"
+     },
+     {
+      "code": "45.03",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "49.0"
+     },
+     {
+      "code": "45.04",
+      "hoofdstuk": "45",
+      "omschrijving": "plint",
+      "uren": "57.6"
+     },
+     {
+      "code": "45.05",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "24.0"
+     },
+     {
+      "code": "45.06",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "51.7"
+     },
+     {
+      "code": "46.01",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "117.6"
+     },
+     {
+      "code": "46.02",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "40.0"
+     },
+     {
+      "code": "46.03",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "62.4"
+     },
+     {
+      "code": "46.04",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "15.0"
+     },
+     {
+      "code": "47.03",
+      "hoofdstuk": "47",
+      "omschrijving": "",
+      "uren": "140.0"
+     }
+    ]
+   },
+   "kandidaten": false,
+   "kennis_goedgekeurd_test": [],
+   "naam": "tr14_voorbeeld_actief",
+   "type": "planner",
+   "verwacht": {
+    "activiteiten": [
+     {
+      "cf": 0,
+      "codes": [],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 0,
+      "es": 0,
+      "id": "START",
+      "kritiek": true,
+      "lf": 0,
+      "ls": 0,
+      "naam": "START BOUW",
+      "opvolgers": [
+       "H05",
+       "H06",
+       "H10",
+       "H12",
+       "H14",
+       "H15",
+       "H16",
+       "H17",
+       "H21",
+       "H22",
+       "H24",
+       "H25",
+       "H30",
+       "H32",
+       "H33",
+       "H35",
+       "H37",
+       "H40",
+       "H41",
+       "H42",
+       "H43",
+       "H44",
+       "H45",
+       "H46",
+       "H47"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": []
+     },
+     {
+      "cf": 879,
+      "codes": [
+       "05.01",
+       "05.03",
+       "05.06",
+       "05.11"
+      ],
+      "cs": 839,
+      "duur_status": "",
+      "ef": 40,
+      "es": 0,
+      "id": "H05",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 145,
+      "naam": "STABU 05 Bouwplaatsvoorzieningen — Bouwplaats algemeen",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 40,
+      "uren_e4": 3196000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1013,
+      "codes": [
+       "06.01",
+       "06.04"
+      ],
+      "cs": 993,
+      "duur_status": "",
+      "ef": 20,
+      "es": 0,
+      "id": "H06",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 165,
+      "naam": "STABU 06 Door de aannemer aan te leveren documenten — Werkvoorbereiding (uta)",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 20,
+      "uren_e4": 1600000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 312,
+      "codes": [
+       "10.03",
+       "10.04",
+       "10.05",
+       "10.06",
+       "10.07",
+       "10.08",
+       "10.09",
+       "10.10",
+       "10.11"
+      ],
+      "cs": 185,
+      "duur_status": "",
+      "ef": 127,
+      "es": 0,
+      "id": "H10",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 58,
+      "naam": "STABU 10 Stut- en sloopwerk — Sloopwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 127,
+      "uren_e4": 10126000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1043,
+      "codes": [
+       "12.01",
+       "12.03",
+       "12.04",
+       "12.05"
+      ],
+      "cs": 1031,
+      "duur_status": "",
+      "ef": 12,
+      "es": 0,
+      "id": "H12",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 173,
+      "naam": "STABU 12 Grondwerk — Grondwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 12,
+      "uren_e4": 960000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1073,
+      "codes": [
+       "14.01",
+       "14.02",
+       "14.03",
+       "14.05"
+      ],
+      "cs": 1064,
+      "duur_status": "",
+      "ef": 9,
+      "es": 0,
+      "id": "H14",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 176,
+      "naam": "STABU 14 Buitenriolering en drainage — Riolering en drainage",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 9,
+      "uren_e4": 720000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 969,
+      "codes": [
+       "15.01",
+       "15.02"
+      ],
+      "cs": 944,
+      "duur_status": "",
+      "ef": 25,
+      "es": 0,
+      "id": "H15",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 160,
+      "naam": "STABU 15 Terreinverhardingen — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 25,
+      "uren_e4": 1965000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1088,
+      "codes": [
+       "16.01"
+      ],
+      "cs": 1084,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "H16",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 181,
+      "naam": "STABU 16 Beplanting — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 320000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1079,
+      "codes": [
+       "17.01",
+       "17.02",
+       "17.03"
+      ],
+      "cs": 1073,
+      "duur_status": "",
+      "ef": 6,
+      "es": 0,
+      "id": "H17",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 179,
+      "naam": "STABU 17 Terreininrichting — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 6,
+      "uren_e4": 435000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 993,
+      "codes": [
+       "21.01",
+       "21.02",
+       "21.03",
+       "21.04"
+      ],
+      "cs": 969,
+      "duur_status": "",
+      "ef": 24,
+      "es": 0,
+      "id": "H21",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 161,
+      "naam": "STABU 21 Betonwerk — Betonwerk in het werk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 24,
+      "uren_e4": 1872000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 701,
+      "codes": [
+       "22.01",
+       "22.02",
+       "22.03",
+       "22.04",
+       "22.05",
+       "22.06",
+       "22.07"
+      ],
+      "cs": 643,
+      "duur_status": "",
+      "ef": 58,
+      "es": 0,
+      "id": "H22",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 127,
+      "naam": "STABU 22 Metselwerk — Metselwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 58,
+      "uren_e4": 4579000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 798,
+      "codes": [
+       "24.01",
+       "24.02",
+       "24.03",
+       "24.05"
+      ],
+      "cs": 754,
+      "duur_status": "",
+      "ef": 44,
+      "es": 0,
+      "id": "H24",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 141,
+      "naam": "STABU 24 Ruwbouwtimmerwerk — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 44,
+      "uren_e4": 3506000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 914,
+      "codes": [
+       "25.01",
+       "25.04",
+       "25.05",
+       "25.06"
+      ],
+      "cs": 879,
+      "duur_status": "",
+      "ef": 35,
+      "es": 0,
+      "id": "H25",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 150,
+      "naam": "STABU 25 Metaalconstructiewerk — Staalmontage",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 35,
+      "uren_e4": 2774000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 388,
+      "codes": [
+       "30.02",
+       "30.05",
+       "30.06",
+       "30.07",
+       "30.08",
+       "30.09",
+       "30.10"
+      ],
+      "cs": 312,
+      "duur_status": "",
+      "ef": 76,
+      "es": 0,
+      "id": "H30",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 109,
+      "naam": "STABU 30 Kozijnen, ramen en deuren — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 76,
+      "uren_e4": 6055000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1054,
+      "codes": [
+       "32.04",
+       "32.06"
+      ],
+      "cs": 1043,
+      "duur_status": "",
+      "ef": 11,
+      "es": 0,
+      "id": "H32",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 174,
+      "naam": "STABU 32 Trappen en balustraden — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 11,
+      "uren_e4": 810000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 754,
+      "codes": [
+       "33.01",
+       "33.04",
+       "33.05",
+       "33.06",
+       "33.07",
+       "33.08"
+      ],
+      "cs": 701,
+      "duur_status": "",
+      "ef": 53,
+      "es": 0,
+      "id": "H33",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 132,
+      "naam": "STABU 33 Dakbedekkingen — Dakdekken",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 53,
+      "uren_e4": 4206000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1064,
+      "codes": [
+       "35.01",
+       "35.02",
+       "35.03"
+      ],
+      "cs": 1054,
+      "duur_status": "",
+      "ef": 10,
+      "es": 0,
+      "id": "H35",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 175,
+      "naam": "STABU 35 Natuur- en kunststeen — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 10,
+      "uren_e4": 790000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 839,
+      "codes": [
+       "37.01",
+       "37.02"
+      ],
+      "cs": 798,
+      "duur_status": "",
+      "ef": 41,
+      "es": 0,
+      "id": "H37",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 144,
+      "naam": "STABU 37 Na-isolatie — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 41,
+      "uren_e4": 3208000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 521,
+      "codes": [
+       "40.01",
+       "40.02",
+       "40.03",
+       "40.04"
+      ],
+      "cs": 456,
+      "duur_status": "",
+      "ef": 65,
+      "es": 0,
+      "id": "H40",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 120,
+      "naam": "STABU 40 Stukadoorswerk — Stukadoorswerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 65,
+      "uren_e4": 5166000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 456,
+      "codes": [
+       "41.01",
+       "41.02",
+       "41.03",
+       "41.04",
+       "41.05",
+       "41.06"
+      ],
+      "cs": 388,
+      "duur_status": "",
+      "ef": 68,
+      "es": 0,
+      "id": "H41",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 117,
+      "naam": "STABU 41 Tegelwerk — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 68,
+      "uren_e4": 5396000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 643,
+      "codes": [
+       "42.01",
+       "42.02",
+       "42.03",
+       "42.04",
+       "42.06"
+      ],
+      "cs": 583,
+      "duur_status": "",
+      "ef": 60,
+      "es": 0,
+      "id": "H42",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 125,
+      "naam": "STABU 42 Dekvloeren en vloersystemen — Dekvloer",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 60,
+      "uren_e4": 4796000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1084,
+      "codes": [
+       "43.01"
+      ],
+      "cs": 1079,
+      "duur_status": "",
+      "ef": 5,
+      "es": 0,
+      "id": "H43",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 180,
+      "naam": "STABU 43 Metaal- en kunststofwerk — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 5,
+      "uren_e4": 330000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 185,
+      "codes": [
+       "44.01",
+       "44.02",
+       "44.03",
+       "44.04",
+       "44.05",
+       "44.06",
+       "44.07",
+       "44.08"
+      ],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 185,
+      "es": 0,
+      "id": "H44",
+      "kritiek": true,
+      "lf": 185,
+      "ls": 0,
+      "naam": "STABU 44 Plafond- en wandsystemen — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 185,
+      "uren_e4": 14780000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 583,
+      "codes": [
+       "45.01",
+       "45.02",
+       "45.03",
+       "45.04",
+       "45.05",
+       "45.06"
+      ],
+      "cs": 521,
+      "duur_status": "",
+      "ef": 62,
+      "es": 0,
+      "id": "H45",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 123,
+      "naam": "STABU 45 Afbouwtimmerwerk — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 62,
+      "uren_e4": 4913000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 944,
+      "codes": [
+       "46.01",
+       "46.02",
+       "46.03",
+       "46.04"
+      ],
+      "cs": 914,
+      "duur_status": "",
+      "ef": 30,
+      "es": 0,
+      "id": "H46",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 155,
+      "naam": "STABU 46 Schilderwerk — Schilderwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 30,
+      "uren_e4": 2350000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1031,
+      "codes": [
+       "47.03"
+      ],
+      "cs": 1013,
+      "duur_status": "",
+      "ef": 18,
+      "es": 0,
+      "id": "H47",
+      "kritiek": false,
+      "lf": 185,
+      "ls": 167,
+      "naam": "STABU 47 Binneninrichting — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 18,
+      "uren_e4": 1400000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1088,
+      "codes": [],
+      "cs": 1088,
+      "duur_status": "",
+      "ef": 185,
+      "es": 185,
+      "id": "EINDE",
+      "kritiek": true,
+      "lf": 185,
+      "ls": 185,
+      "naam": "EINDE HOOFDUITVOERING (concept)",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H06",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H14",
+        "0"
+       ],
+       [
+        "H15",
+        "0"
+       ],
+       [
+        "H16",
+        "0"
+       ],
+       [
+        "H17",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H22",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H32",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H35",
+        "0"
+       ],
+       [
+        "H37",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ],
+       [
+        "H41",
+        "0"
+       ],
+       [
+        "H42",
+        "0"
+       ],
+       [
+        "H43",
+        "0"
+       ],
+       [
+        "H44",
+        "0"
+       ],
+       [
+        "H45",
+        "0"
+       ],
+       [
+        "H46",
+        "0"
+       ],
+       [
+        "H47",
+        "0"
+       ]
+      ]
+     }
+    ],
+    "eind_cap_u": 1088,
+    "eind_cpm_u": 185,
+    "fout": [],
+    "invoer_vereist": [],
+    "kritiek": [
+     "H44"
+    ],
+    "mandagen_x_halvedag_e4": 21760000,
+    "piek_e4": 20000,
+    "regels_gebruikt": [],
+    "toegepast": [],
+    "uren_calc_e4": 86253000,
+    "uren_e4": 86253000
+   }
+  },
+  {
+   "invoer": {
+    "capaciteit": "3",
+    "hoofdstukken": [
+     {
+      "code": "05",
+      "naam": "Bouwplaatsvoorzieningen"
+     },
+     {
+      "code": "06",
+      "naam": "Door de aannemer aan te leveren documenten"
+     },
+     {
+      "code": "10",
+      "naam": "Stut- en sloopwerk"
+     },
+     {
+      "code": "12",
+      "naam": "Grondwerk"
+     },
+     {
+      "code": "14",
+      "naam": "Buitenriolering en drainage"
+     },
+     {
+      "code": "15",
+      "naam": "Terreinverhardingen"
+     },
+     {
+      "code": "16",
+      "naam": "Beplanting"
+     },
+     {
+      "code": "17",
+      "naam": "Terreininrichting"
+     },
+     {
+      "code": "21",
+      "naam": "Betonwerk"
+     },
+     {
+      "code": "22",
+      "naam": "Metselwerk"
+     },
+     {
+      "code": "24",
+      "naam": "Ruwbouwtimmerwerk"
+     },
+     {
+      "code": "25",
+      "naam": "Metaalconstructiewerk"
+     },
+     {
+      "code": "30",
+      "naam": "Kozijnen, ramen en deuren"
+     },
+     {
+      "code": "32",
+      "naam": "Trappen en balustraden"
+     },
+     {
+      "code": "33",
+      "naam": "Dakbedekkingen"
+     },
+     {
+      "code": "35",
+      "naam": "Natuur- en kunststeen"
+     },
+     {
+      "code": "37",
+      "naam": "Na-isolatie"
+     },
+     {
+      "code": "40",
+      "naam": "Stukadoorswerk"
+     },
+     {
+      "code": "41",
+      "naam": "Tegelwerk"
+     },
+     {
+      "code": "42",
+      "naam": "Dekvloeren en vloersystemen"
+     },
+     {
+      "code": "43",
+      "naam": "Metaal- en kunststofwerk"
+     },
+     {
+      "code": "44",
+      "naam": "Plafond- en wandsystemen"
+     },
+     {
+      "code": "45",
+      "naam": "Afbouwtimmerwerk"
+     },
+     {
+      "code": "46",
+      "naam": "Schilderwerk"
+     },
+     {
+      "code": "47",
+      "naam": "Binneninrichting"
+     }
+    ],
+    "ploeg": "2",
+    "regels": [
+     {
+      "code": "05.01",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "40.0"
+     },
+     {
+      "code": "05.03",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "180.4"
+     },
+     {
+      "code": "05.06",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "9.6"
+     },
+     {
+      "code": "05.11",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "89.6"
+     },
+     {
+      "code": "06.01",
+      "hoofdstuk": "06",
+      "omschrijving": "",
+      "uren": "120.0"
+     },
+     {
+      "code": "06.04",
+      "hoofdstuk": "06",
+      "omschrijving": "",
+      "uren": "40.0"
+     },
+     {
+      "code": "10.03",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "246.4"
+     },
+     {
+      "code": "10.04",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "90.0"
+     },
+     {
+      "code": "10.05",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "67.5"
+     },
+     {
+      "code": "10.06",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "90.0"
+     },
+     {
+      "code": "10.07",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "48.0"
+     },
+     {
+      "code": "10.08",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "96.3"
+     },
+     {
+      "code": "10.09",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "245.0"
+     },
+     {
+      "code": "10.10",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "48.4"
+     },
+     {
+      "code": "10.11",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "81.0"
+     },
+     {
+      "code": "12.01",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "21.0"
+     },
+     {
+      "code": "12.03",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "18.0"
+     },
+     {
+      "code": "12.04",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "28.0"
+     },
+     {
+      "code": "12.05",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "29.0"
+     },
+     {
+      "code": "14.01",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "21.6"
+     },
+     {
+      "code": "14.02",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "25.2"
+     },
+     {
+      "code": "14.03",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "12.0"
+     },
+     {
+      "code": "14.05",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "13.2"
+     },
+     {
+      "code": "15.01",
+      "hoofdstuk": "15",
+      "omschrijving": "",
+      "uren": "130.5"
+     },
+     {
+      "code": "15.02",
+      "hoofdstuk": "15",
+      "omschrijving": "",
+      "uren": "66.0"
+     },
+     {
+      "code": "16.01",
+      "hoofdstuk": "16",
+      "omschrijving": "",
+      "uren": "32.0"
+     },
+     {
+      "code": "17.01",
+      "hoofdstuk": "17",
+      "omschrijving": "",
+      "uren": "9.8"
+     },
+     {
+      "code": "17.02",
+      "hoofdstuk": "17",
+      "omschrijving": "",
+      "uren": "8.4"
+     },
+     {
+      "code": "17.03",
+      "hoofdstuk": "17",
+      "omschrijving": "",
+      "uren": "25.3"
+     },
+     {
+      "code": "21.01",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "48.0"
+     },
+     {
+      "code": "21.02",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "90.0"
+     },
+     {
+      "code": "21.03",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "25.2"
+     },
+     {
+      "code": "21.04",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "24.0"
+     },
+     {
+      "code": "22.01",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "79.2"
+     },
+     {
+      "code": "22.02",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "111.6"
+     },
+     {
+      "code": "22.03",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "98.0"
+     },
+     {
+      "code": "22.04",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "39.1"
+     },
+     {
+      "code": "22.05",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "24.0"
+     },
+     {
+      "code": "22.06",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "70.0"
+     },
+     {
+      "code": "22.07",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "36.0"
+     },
+     {
+      "code": "24.01",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "181.5"
+     },
+     {
+      "code": "24.02",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "49.0"
+     },
+     {
+      "code": "24.03",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "64.0"
+     },
+     {
+      "code": "24.05",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "56.1"
+     },
+     {
+      "code": "25.01",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "182.4"
+     },
+     {
+      "code": "25.04",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "21.0"
+     },
+     {
+      "code": "25.05",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "42.0"
+     },
+     {
+      "code": "25.06",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "32.0"
+     },
+     {
+      "code": "30.02",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "258.5"
+     },
+     {
+      "code": "30.05",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "13.5"
+     },
+     {
+      "code": "30.06",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "37.5"
+     },
+     {
+      "code": "30.07",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "72.0"
+     },
+     {
+      "code": "30.08",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "63.0"
+     },
+     {
+      "code": "30.09",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "84.0"
+     },
+     {
+      "code": "30.10",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "77.0"
+     },
+     {
+      "code": "32.04",
+      "hoofdstuk": "32",
+      "omschrijving": "",
+      "uren": "72.0"
+     },
+     {
+      "code": "32.06",
+      "hoofdstuk": "32",
+      "omschrijving": "",
+      "uren": "9.0"
+     },
+     {
+      "code": "33.01",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "56.1"
+     },
+     {
+      "code": "33.04",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "52.5"
+     },
+     {
+      "code": "33.05",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "105.0"
+     },
+     {
+      "code": "33.06",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "122.5"
+     },
+     {
+      "code": "33.07",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "52.5"
+     },
+     {
+      "code": "33.08",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "32.0"
+     },
+     {
+      "code": "35.01",
+      "hoofdstuk": "35",
+      "omschrijving": "",
+      "uren": "39.0"
+     },
+     {
+      "code": "35.02",
+      "hoofdstuk": "35",
+      "omschrijving": "",
+      "uren": "28.8"
+     },
+     {
+      "code": "35.03",
+      "hoofdstuk": "35",
+      "omschrijving": "",
+      "uren": "11.2"
+     },
+     {
+      "code": "37.01",
+      "hoofdstuk": "37",
+      "omschrijving": "",
+      "uren": "143.0"
+     },
+     {
+      "code": "37.02",
+      "hoofdstuk": "37",
+      "omschrijving": "",
+      "uren": "177.8"
+     },
+     {
+      "code": "40.01",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "92.8"
+     },
+     {
+      "code": "40.02",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "295.0"
+     },
+     {
+      "code": "40.03",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "88.0"
+     },
+     {
+      "code": "40.04",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "40.8"
+     },
+     {
+      "code": "41.01",
+      "hoofdstuk": "41",
+      "omschrijving": "",
+      "uren": "263.5"
+     },
+     {
+      "code": "41.02",
+      "hoofdstuk": "41",
+      "omschrijving": "",
+      "uren": "89.1"
+     },
+     {
+      "code": "41.03",
+      "hoofdstuk": "41",
+      "omschrijving": "",
+      "uren": "71.4"
+     },
+     {
+      "code": "41.04",
+      "hoofdstuk": "41",
+      "omschrijving": "",
+      "uren": "45.0"
+     },
+     {
+      "code": "41.05",
+      "hoofdstuk": "41",
+      "omschrijving": "",
+      "uren": "49.6"
+     },
+     {
+      "code": "41.06",
+      "hoofdstuk": "41",
+      "omschrijving": "",
+      "uren": "21.0"
+     },
+     {
+      "code": "42.01",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "65.0"
+     },
+     {
+      "code": "42.02",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "92.8"
+     },
+     {
+      "code": "42.03",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "259.8"
+     },
+     {
+      "code": "42.04",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "42.0"
+     },
+     {
+      "code": "42.06",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "20.0"
+     },
+     {
+      "code": "43.01",
+      "hoofdstuk": "43",
+      "omschrijving": "",
+      "uren": "33.0"
+     },
+     {
+      "code": "44.01",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "451.2"
+     },
+     {
+      "code": "44.02",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "385.0"
+     },
+     {
+      "code": "44.03",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "19.8"
+     },
+     {
+      "code": "44.04",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "278.4"
+     },
+     {
+      "code": "44.05",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "194.9"
+     },
+     {
+      "code": "44.06",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "84.0"
+     },
+     {
+      "code": "44.07",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "35.0"
+     },
+     {
+      "code": "44.08",
+      "hoofdstuk": "44",
+      "omschrijving": "",
+      "uren": "29.7"
+     },
+     {
+      "code": "45.01",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "285.0"
+     },
+     {
+      "code": "45.02",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "24.0"
+     },
+     {
+      "code": "45.03",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "49.0"
+     },
+     {
+      "code": "45.04",
+      "hoofdstuk": "45",
+      "omschrijving": "plint",
+      "uren": "57.6"
+     },
+     {
+      "code": "45.05",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "24.0"
+     },
+     {
+      "code": "45.06",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "51.7"
+     },
+     {
+      "code": "46.01",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "117.6"
+     },
+     {
+      "code": "46.02",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "40.0"
+     },
+     {
+      "code": "46.03",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "62.4"
+     },
+     {
+      "code": "46.04",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "15.0"
+     },
+     {
+      "code": "47.03",
+      "hoofdstuk": "47",
+      "omschrijving": "",
+      "uren": "140.0"
+     }
+    ]
+   },
+   "kandidaten": true,
+   "kennis_goedgekeurd_test": [],
+   "naam": "tr14_voorbeeld_kandidaten",
+   "type": "planner",
+   "verwacht": {
+    "activiteiten": [
+     {
+      "cf": 0,
+      "codes": [],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 0,
+      "es": 0,
+      "id": "START",
+      "kritiek": true,
+      "lf": 0,
+      "ls": 0,
+      "naam": "START BOUW",
+      "opvolgers": [
+       "H05",
+       "H06",
+       "H10",
+       "H12",
+       "H14",
+       "H15",
+       "H16",
+       "H17",
+       "H21",
+       "H22",
+       "H24",
+       "H25",
+       "H30",
+       "H32",
+       "H33",
+       "H35",
+       "H37",
+       "H40",
+       "H41",
+       "H42",
+       "H43",
+       "H44",
+       "H45",
+       "H46",
+       "H47"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": []
+     },
+     {
+      "cf": 40,
+      "codes": [
+       "05.01",
+       "05.03",
+       "05.06",
+       "05.11"
+      ],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 40,
+      "es": 0,
+      "id": "H05",
+      "kritiek": true,
+      "lf": 40,
+      "ls": 0,
+      "naam": "STABU 05 Bouwplaatsvoorzieningen — Bouwplaats algemeen",
+      "opvolgers": [
+       "H24",
+       "H33",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 40,
+      "uren_e4": 3196000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1027,
+      "codes": [
+       "06.01",
+       "06.04"
+      ],
+      "cs": 1007,
+      "duur_status": "",
+      "ef": 20,
+      "es": 0,
+      "id": "H06",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 273,
+      "naam": "STABU 06 Door de aannemer aan te leveren documenten — Werkvoorbereiding (uta)",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 20,
+      "uren_e4": 1600000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 203,
+      "codes": [
+       "10.03",
+       "10.04",
+       "10.05",
+       "10.06",
+       "10.07",
+       "10.08",
+       "10.09",
+       "10.10",
+       "10.11"
+      ],
+      "cs": 76,
+      "duur_status": "",
+      "ef": 127,
+      "es": 0,
+      "id": "H10",
+      "kritiek": false,
+      "lf": 160,
+      "ls": 33,
+      "naam": "STABU 10 Stut- en sloopwerk — Sloopwerk",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 127,
+      "uren_e4": 10126000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 76,
+      "codes": [
+       "12.01",
+       "12.03",
+       "12.04",
+       "12.05"
+      ],
+      "cs": 64,
+      "duur_status": "",
+      "ef": 12,
+      "es": 0,
+      "id": "H12",
+      "kritiek": false,
+      "lf": 40,
+      "ls": 28,
+      "naam": "STABU 12 Grondwerk — Grondwerk",
+      "opvolgers": [
+       "H22",
+       "H24",
+       "H25",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 12,
+      "uren_e4": 960000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 663,
+      "codes": [
+       "14.01",
+       "14.02",
+       "14.03",
+       "14.05"
+      ],
+      "cs": 654,
+      "duur_status": "",
+      "ef": 9,
+      "es": 0,
+      "id": "H14",
+      "kritiek": false,
+      "lf": 160,
+      "ls": 151,
+      "naam": "STABU 14 Buitenriolering en drainage — Riolering en drainage",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 9,
+      "uren_e4": 720000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1007,
+      "codes": [
+       "15.01",
+       "15.02"
+      ],
+      "cs": 982,
+      "duur_status": "",
+      "ef": 25,
+      "es": 0,
+      "id": "H15",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 268,
+      "naam": "STABU 15 Terreinverhardingen — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 25,
+      "uren_e4": 1965000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1089,
+      "codes": [
+       "16.01"
+      ],
+      "cs": 1085,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "H16",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 289,
+      "naam": "STABU 16 Beplanting — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 320000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1080,
+      "codes": [
+       "17.01",
+       "17.02",
+       "17.03"
+      ],
+      "cs": 1074,
+      "duur_status": "",
+      "ef": 6,
+      "es": 0,
+      "id": "H17",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 287,
+      "naam": "STABU 17 Terreininrichting — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 6,
+      "uren_e4": 435000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 64,
+      "codes": [
+       "21.01",
+       "21.02",
+       "21.03",
+       "21.04"
+      ],
+      "cs": 40,
+      "duur_status": "",
+      "ef": 24,
+      "es": 0,
+      "id": "H21",
+      "kritiek": false,
+      "lf": 40,
+      "ls": 16,
+      "naam": "STABU 21 Betonwerk — Betonwerk in het werk",
+      "opvolgers": [
+       "H22",
+       "H24",
+       "H25",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 24,
+      "uren_e4": 1872000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 416,
+      "codes": [
+       "22.01",
+       "22.02",
+       "22.03",
+       "22.04",
+       "22.05",
+       "22.06",
+       "22.07"
+      ],
+      "cs": 358,
+      "duur_status": "",
+      "ef": 82,
+      "es": 24,
+      "id": "H22",
+      "kritiek": false,
+      "lf": 160,
+      "ls": 102,
+      "naam": "STABU 22 Metselwerk — Metselwerk",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 58,
+      "uren_e4": 4579000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 247,
+      "codes": [
+       "24.01",
+       "24.02",
+       "24.03",
+       "24.05"
+      ],
+      "cs": 203,
+      "duur_status": "",
+      "ef": 84,
+      "es": 40,
+      "id": "H24",
+      "kritiek": true,
+      "lf": 84,
+      "ls": 40,
+      "naam": "STABU 24 Ruwbouwtimmerwerk — Timmerwerk",
+      "opvolgers": [
+       "H30",
+       "H33",
+       "H40",
+       "H40",
+       "H42",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 44,
+      "uren_e4": 3506000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 282,
+      "codes": [
+       "25.01",
+       "25.04",
+       "25.05",
+       "25.06"
+      ],
+      "cs": 247,
+      "duur_status": "",
+      "ef": 59,
+      "es": 24,
+      "id": "H25",
+      "kritiek": false,
+      "lf": 84,
+      "ls": 49,
+      "naam": "STABU 25 Metaalconstructiewerk — Staalmontage",
+      "opvolgers": [
+       "H30",
+       "H33",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 35,
+      "uren_e4": 2774000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 358,
+      "codes": [
+       "30.02",
+       "30.05",
+       "30.06",
+       "30.07",
+       "30.08",
+       "30.09",
+       "30.10"
+      ],
+      "cs": 282,
+      "duur_status": "",
+      "ef": 160,
+      "es": 84,
+      "id": "H30",
+      "kritiek": true,
+      "lf": 160,
+      "ls": 84,
+      "naam": "STABU 30 Kozijnen, ramen en deuren — Timmerwerk",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 76,
+      "uren_e4": 6055000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1056,
+      "codes": [
+       "32.04",
+       "32.06"
+      ],
+      "cs": 1045,
+      "duur_status": "",
+      "ef": 11,
+      "es": 0,
+      "id": "H32",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 282,
+      "naam": "STABU 32 Trappen en balustraden — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 11,
+      "uren_e4": 810000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 469,
+      "codes": [
+       "33.01",
+       "33.04",
+       "33.05",
+       "33.06",
+       "33.07",
+       "33.08"
+      ],
+      "cs": 416,
+      "duur_status": "",
+      "ef": 137,
+      "es": 84,
+      "id": "H33",
+      "kritiek": false,
+      "lf": 160,
+      "ls": 107,
+      "naam": "STABU 33 Dakbedekkingen — Dakdekken",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 53,
+      "uren_e4": 4206000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1066,
+      "codes": [
+       "35.01",
+       "35.02",
+       "35.03"
+      ],
+      "cs": 1056,
+      "duur_status": "",
+      "ef": 10,
+      "es": 0,
+      "id": "H35",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 283,
+      "naam": "STABU 35 Natuur- en kunststeen — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 10,
+      "uren_e4": 790000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 952,
+      "codes": [
+       "37.01",
+       "37.02"
+      ],
+      "cs": 911,
+      "duur_status": "",
+      "ef": 41,
+      "es": 0,
+      "id": "H37",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 252,
+      "naam": "STABU 37 Na-isolatie — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 41,
+      "uren_e4": 3208000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 728,
+      "codes": [
+       "40.01",
+       "40.02",
+       "40.03",
+       "40.04"
+      ],
+      "cs": 663,
+      "duur_status": "",
+      "ef": 225,
+      "es": 160,
+      "id": "H40",
+      "kritiek": true,
+      "lf": 225,
+      "ls": 160,
+      "naam": "STABU 40 Stukadoorswerk — Stukadoorswerk",
+      "opvolgers": [
+       "H42",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 65,
+      "uren_e4": 5166000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H14",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H22",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 796,
+      "codes": [
+       "41.01",
+       "41.02",
+       "41.03",
+       "41.04",
+       "41.05",
+       "41.06"
+      ],
+      "cs": 728,
+      "duur_status": "",
+      "ef": 68,
+      "es": 0,
+      "id": "H41",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 225,
+      "naam": "STABU 41 Tegelwerk — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 68,
+      "uren_e4": 5396000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 856,
+      "codes": [
+       "42.01",
+       "42.02",
+       "42.03",
+       "42.04",
+       "42.06"
+      ],
+      "cs": 796,
+      "duur_status": "",
+      "ef": 285,
+      "es": 225,
+      "id": "H42",
+      "kritiek": true,
+      "lf": 285,
+      "ls": 225,
+      "naam": "STABU 42 Dekvloeren en vloersystemen — Dekvloer",
+      "opvolgers": [
+       "W42",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 60,
+      "uren_e4": 4796000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H14",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H22",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1085,
+      "codes": [
+       "43.01"
+      ],
+      "cs": 1080,
+      "duur_status": "",
+      "ef": 5,
+      "es": 0,
+      "id": "H43",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 288,
+      "naam": "STABU 43 Metaal- en kunststofwerk — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 5,
+      "uren_e4": 330000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 654,
+      "codes": [
+       "44.01",
+       "44.02",
+       "44.03",
+       "44.04",
+       "44.05",
+       "44.06",
+       "44.07",
+       "44.08"
+      ],
+      "cs": 469,
+      "duur_status": "",
+      "ef": 185,
+      "es": 0,
+      "id": "H44",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 108,
+      "naam": "STABU 44 Plafond- en wandsystemen — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 185,
+      "uren_e4": 14780000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 911,
+      "codes": [
+       "45.01",
+       "45.02",
+       "45.03",
+       "45.05",
+       "45.06"
+      ],
+      "cs": 856,
+      "duur_status": "",
+      "ef": 182,
+      "es": 127,
+      "id": "H45",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 238,
+      "naam": "STABU 45 Afbouwtimmerwerk — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 55,
+      "uren_e4": 4337000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H14",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H22",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 982,
+      "codes": [
+       "46.01",
+       "46.02",
+       "46.03",
+       "46.04"
+      ],
+      "cs": 952,
+      "duur_status": "",
+      "ef": 255,
+      "es": 225,
+      "id": "H46",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 263,
+      "naam": "STABU 46 Schilderwerk — Schilderwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 30,
+      "uren_e4": 2350000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H14",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H22",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1045,
+      "codes": [
+       "47.03"
+      ],
+      "cs": 1027,
+      "duur_status": "",
+      "ef": 18,
+      "es": 0,
+      "id": "H47",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 275,
+      "naam": "STABU 47 Binneninrichting — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 18,
+      "uren_e4": 1400000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 856,
+      "codes": [],
+      "cs": 856,
+      "duur_status": "INVOER VEREIST",
+      "ef": 285,
+      "es": 285,
+      "id": "W42",
+      "kritiek": true,
+      "lf": 285,
+      "ls": 285,
+      "naam": "Wachttijd na STABU 42 (Droogtijd dekvloer is een wachttijd, geen bouwstop) — INVOER VEREIST: duur uit bestek/fabrikant",
+      "opvolgers": [
+       "T45"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "wacht",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "H42",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1074,
+      "codes": [
+       "45.04"
+      ],
+      "cs": 1066,
+      "duur_status": "",
+      "ef": 293,
+      "es": 285,
+      "id": "T45",
+      "kritiek": true,
+      "lf": 293,
+      "ls": 285,
+      "naam": "Terugkommoment: plinten na vloerafwerking door derden (PL-006)",
+      "opvolgers": [],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 8,
+      "uren_e4": 576000,
+      "voor": [
+       [
+        "W42",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 1089,
+      "codes": [],
+      "cs": 1089,
+      "duur_status": "",
+      "ef": 285,
+      "es": 285,
+      "id": "EINDE",
+      "kritiek": false,
+      "lf": 293,
+      "ls": 293,
+      "naam": "EINDE HOOFDUITVOERING (concept)",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H06",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H14",
+        "0"
+       ],
+       [
+        "H15",
+        "0"
+       ],
+       [
+        "H16",
+        "0"
+       ],
+       [
+        "H17",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H22",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H32",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H35",
+        "0"
+       ],
+       [
+        "H37",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ],
+       [
+        "H41",
+        "0"
+       ],
+       [
+        "H42",
+        "0"
+       ],
+       [
+        "H43",
+        "0"
+       ],
+       [
+        "H44",
+        "0"
+       ],
+       [
+        "H45",
+        "0"
+       ],
+       [
+        "H46",
+        "0"
+       ],
+       [
+        "H47",
+        "0"
+       ]
+      ]
+     }
+    ],
+    "eind_cap_u": 1089,
+    "eind_cpm_u": 293,
+    "fout": [],
+    "invoer_vereist": [
+     "W42"
+    ],
+    "kritiek": [
+     "H05",
+     "H24",
+     "H30",
+     "H40",
+     "H42",
+     "T45"
+    ],
+    "mandagen_x_halvedag_e4": 21780000,
+    "piek_e4": 20000,
+    "regels_gebruikt": [
+     "PL-001",
+     "PL-002",
+     "PL-003",
+     "PL-004",
+     "PL-006",
+     "PL-014",
+     "PL-015",
+     "PL-018",
+     "PL-019",
+     "PL-020"
+    ],
+    "toegepast": [
+     "PL-001: 10→40",
+     "PL-001: 12→40",
+     "PL-001: 14→40",
+     "PL-001: 21→40",
+     "PL-001: 22→40",
+     "PL-001: 24→40",
+     "PL-001: 25→40",
+     "PL-001: 10→42",
+     "PL-001: 12→42",
+     "PL-001: 14→42",
+     "PL-001: 21→42",
+     "PL-001: 22→42",
+     "PL-001: 24→42",
+     "PL-001: 25→42",
+     "PL-001: 10→45",
+     "PL-001: 12→45",
+     "PL-001: 14→45",
+     "PL-001: 21→45",
+     "PL-001: 22→45",
+     "PL-001: 24→45",
+     "PL-001: 25→45",
+     "PL-001: 10→46",
+     "PL-001: 12→46",
+     "PL-001: 14→46",
+     "PL-001: 21→46",
+     "PL-001: 22→46",
+     "PL-001: 24→46",
+     "PL-001: 25→46",
+     "PL-002: 30→40",
+     "PL-002: 33→40",
+     "PL-002: 30→42",
+     "PL-002: 33→42",
+     "PL-003: 40→42",
+     "PL-004: wachttijd na 42 (duur ontbreekt → invoer vereist)",
+     "PL-014: 24→40",
+     "PL-014: 24→42",
+     "PL-015: 05→24",
+     "PL-015: 05→33",
+     "PL-018: 40→46",
+     "PL-019: 12→22",
+     "PL-019: 21→22",
+     "PL-019: 12→24",
+     "PL-019: 21→24",
+     "PL-019: 12→25",
+     "PL-019: 21→25",
+     "PL-020: 24→30",
+     "PL-020: 25→30",
+     "PL-020: 24→33",
+     "PL-020: 25→33",
+     "PL-006: terugkommoment plinten 45.04"
+    ],
+    "uren_calc_e4": 86253000,
+    "uren_e4": 86253000
+   }
+  },
+  {
+   "invoer": {
+    "capaciteit": "3",
+    "hoofdstukken": [
+     {
+      "code": "05",
+      "naam": "Bouwplaatsvoorzieningen"
+     },
+     {
+      "code": "06",
+      "naam": "Door de aannemer aan te leveren documenten"
+     },
+     {
+      "code": "10",
+      "naam": "Stut- en sloopwerk"
+     },
+     {
+      "code": "12",
+      "naam": "Grondwerk"
+     },
+     {
+      "code": "14",
+      "naam": "Buitenriolering en drainage"
+     },
+     {
+      "code": "21",
+      "naam": "Betonwerk"
+     },
+     {
+      "code": "22",
+      "naam": "Metselwerk"
+     },
+     {
+      "code": "24",
+      "naam": "Ruwbouwtimmerwerk"
+     },
+     {
+      "code": "25",
+      "naam": "Metaalconstructiewerk"
+     },
+     {
+      "code": "30",
+      "naam": "Kozijnen, ramen en deuren"
+     },
+     {
+      "code": "33",
+      "naam": "Dakbedekkingen"
+     },
+     {
+      "code": "34",
+      "naam": "Beglazing"
+     },
+     {
+      "code": "40",
+      "naam": "Stukadoorswerk"
+     },
+     {
+      "code": "42",
+      "naam": "Dekvloeren en vloersystemen"
+     },
+     {
+      "code": "45",
+      "naam": "Afbouwtimmerwerk"
+     },
+     {
+      "code": "46",
+      "naam": "Schilderwerk"
+     },
+     {
+      "code": "50",
+      "naam": "Dakgoten en hemelwaterafvoeren"
+     }
+    ],
+    "ploeg": "2",
+    "regels": [
+     {
+      "code": "05.01",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "16.00"
+     },
+     {
+      "code": "05.03",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "6.60"
+     },
+     {
+      "code": "05.07",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "10.00"
+     },
+     {
+      "code": "06.01",
+      "hoofdstuk": "06",
+      "omschrijving": "",
+      "uren": "28.00"
+     },
+     {
+      "code": "10.01",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "3.21"
+     },
+     {
+      "code": "10.02",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "7.60"
+     },
+     {
+      "code": "10.03",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "16.00"
+     },
+     {
+      "code": "10.04",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "17.40"
+     },
+     {
+      "code": "10.05",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "4.00"
+     },
+     {
+      "code": "10.06",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "6.00"
+     },
+     {
+      "code": "10.07",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "2.00"
+     },
+     {
+      "code": "10.08",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "6.00"
+     },
+     {
+      "code": "10.09",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "13.08"
+     },
+     {
+      "code": "12.01",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "7.92"
+     },
+     {
+      "code": "12.03",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "1.50"
+     },
+     {
+      "code": "12.05",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "1.92"
+     },
+     {
+      "code": "14.01",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "3.60"
+     },
+     {
+      "code": "14.02",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "4.00"
+     },
+     {
+      "code": "14.03",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "2.25"
+     },
+     {
+      "code": "21.01",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "10.56"
+     },
+     {
+      "code": "21.02",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "12.00"
+     },
+     {
+      "code": "21.03",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "3.18"
+     },
+     {
+      "code": "21.05",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "11.36"
+     },
+     {
+      "code": "21.06",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "5.52"
+     },
+     {
+      "code": "22.01",
+      "hoofdstuk": "22",
+      "omschrijving": "plint",
+      "uren": "11.36"
+     },
+     {
+      "code": "22.02",
+      "hoofdstuk": "22",
+      "omschrijving": "plint",
+      "uren": "7.26"
+     },
+     {
+      "code": "22.03",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "3.96"
+     },
+     {
+      "code": "22.05",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "2.00"
+     },
+     {
+      "code": "22.06",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "7.04"
+     },
+     {
+      "code": "22.07",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "2.80"
+     },
+     {
+      "code": "24.01",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "14.56"
+     },
+     {
+      "code": "24.02",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "6.00"
+     },
+     {
+      "code": "24.03",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "10.53"
+     },
+     {
+      "code": "24.04",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "6.55"
+     },
+     {
+      "code": "24.05",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "3.75"
+     },
+     {
+      "code": "24.06",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "1.07"
+     },
+     {
+      "code": "24.07",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "2.00"
+     },
+     {
+      "code": "24.08",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "3.00"
+     },
+     {
+      "code": "24.09",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "35.53"
+     },
+     {
+      "code": "24.10",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "9.30"
+     },
+     {
+      "code": "25.01",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "13.40"
+     },
+     {
+      "code": "25.02",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "2.16"
+     },
+     {
+      "code": "25.03",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "6.00"
+     },
+     {
+      "code": "25.04",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "5.28"
+     },
+     {
+      "code": "30.03",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "12.00"
+     },
+     {
+      "code": "30.04",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "3.00"
+     },
+     {
+      "code": "30.05",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "2.00"
+     },
+     {
+      "code": "30.06",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "6.00"
+     },
+     {
+      "code": "30.08",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "1.00"
+     },
+     {
+      "code": "33.01",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "2.68"
+     },
+     {
+      "code": "33.03",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "5.28"
+     },
+     {
+      "code": "33.04",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "3.60"
+     },
+     {
+      "code": "33.05",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "5.60"
+     },
+     {
+      "code": "33.06",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "6.80"
+     },
+     {
+      "code": "34.01",
+      "hoofdstuk": "34",
+      "omschrijving": "",
+      "uren": "3.65"
+     },
+     {
+      "code": "34.02",
+      "hoofdstuk": "34",
+      "omschrijving": "",
+      "uren": "1.32"
+     },
+     {
+      "code": "40.01",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "3.60"
+     },
+     {
+      "code": "40.02",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "5.48"
+     },
+     {
+      "code": "40.03",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "12.00"
+     },
+     {
+      "code": "40.04",
+      "hoofdstuk": "40",
+      "omschrijving": "plint",
+      "uren": "3.96"
+     },
+     {
+      "code": "40.05",
+      "hoofdstuk": "40",
+      "omschrijving": "plint",
+      "uren": "13.10"
+     },
+     {
+      "code": "42.01",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "2.35"
+     },
+     {
+      "code": "45.01",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "1.50"
+     },
+     {
+      "code": "45.02",
+      "hoofdstuk": "45",
+      "omschrijving": "plint",
+      "uren": "0.66"
+     },
+     {
+      "code": "45.03",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "0.99"
+     },
+     {
+      "code": "45.04",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "5.95"
+     },
+     {
+      "code": "45.05",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "15.75"
+     },
+     {
+      "code": "45.06",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "5.51"
+     },
+     {
+      "code": "46.01",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "24.00"
+     },
+     {
+      "code": "46.02",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "3.26"
+     },
+     {
+      "code": "50.01",
+      "hoofdstuk": "50",
+      "omschrijving": "",
+      "uren": "1.65"
+     },
+     {
+      "code": "50.02",
+      "hoofdstuk": "50",
+      "omschrijving": "",
+      "uren": "1.20"
+     }
+    ]
+   },
+   "kandidaten": false,
+   "kennis_goedgekeurd_test": [],
+   "naam": "sc8_geanonimiseerd_actief",
+   "type": "planner",
+   "verwacht": {
+    "activiteiten": [
+     {
+      "cf": 0,
+      "codes": [],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 0,
+      "es": 0,
+      "id": "START",
+      "kritiek": true,
+      "lf": 0,
+      "ls": 0,
+      "naam": "START BOUW",
+      "opvolgers": [
+       "H05",
+       "H06",
+       "H10",
+       "H12",
+       "H14",
+       "H21",
+       "H22",
+       "H24",
+       "H25",
+       "H30",
+       "H33",
+       "H34",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "H50"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": []
+     },
+     {
+      "cf": 33,
+      "codes": [
+       "05.01",
+       "05.03",
+       "05.07"
+      ],
+      "cs": 28,
+      "duur_status": "",
+      "ef": 5,
+      "es": 0,
+      "id": "H05",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 7,
+      "naam": "STABU 05 Bouwplaatsvoorzieningen — Bouwplaats algemeen",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 5,
+      "uren_e4": 326000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 47,
+      "codes": [
+       "06.01"
+      ],
+      "cs": 43,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "H06",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 8,
+      "naam": "STABU 06 Door de aannemer aan te leveren documenten — Werkvoorbereiding (uta)",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 280000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 22,
+      "codes": [
+       "10.01",
+       "10.02",
+       "10.03",
+       "10.04",
+       "10.05",
+       "10.06",
+       "10.07",
+       "10.08",
+       "10.09"
+      ],
+      "cs": 12,
+      "duur_status": "",
+      "ef": 10,
+      "es": 0,
+      "id": "H10",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 2,
+      "naam": "STABU 10 Stut- en sloopwerk — Sloopwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 10,
+      "uren_e4": 752900,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 67,
+      "codes": [
+       "12.01",
+       "12.03",
+       "12.05"
+      ],
+      "cs": 65,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H12",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 10,
+      "naam": "STABU 12 Grondwerk — Grondwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 113400,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 69,
+      "codes": [
+       "14.01",
+       "14.02",
+       "14.03"
+      ],
+      "cs": 67,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H14",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 10,
+      "naam": "STABU 14 Buitenriolering en drainage — Riolering en drainage",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 98500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 28,
+      "codes": [
+       "21.01",
+       "21.02",
+       "21.03",
+       "21.05",
+       "21.06"
+      ],
+      "cs": 22,
+      "duur_status": "",
+      "ef": 6,
+      "es": 0,
+      "id": "H21",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 6,
+      "naam": "STABU 21 Betonwerk — Betonwerk in het werk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 6,
+      "uren_e4": 426200,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 38,
+      "codes": [
+       "22.01",
+       "22.02",
+       "22.03",
+       "22.05",
+       "22.06",
+       "22.07"
+      ],
+      "cs": 33,
+      "duur_status": "",
+      "ef": 5,
+      "es": 0,
+      "id": "H22",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 7,
+      "naam": "STABU 22 Metselwerk — Metselwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 5,
+      "uren_e4": 344200,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 12,
+      "codes": [
+       "24.01",
+       "24.02",
+       "24.03",
+       "24.04",
+       "24.05",
+       "24.06",
+       "24.07",
+       "24.08",
+       "24.09",
+       "24.10"
+      ],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 12,
+      "es": 0,
+      "id": "H24",
+      "kritiek": true,
+      "lf": 12,
+      "ls": 0,
+      "naam": "STABU 24 Ruwbouwtimmerwerk — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 12,
+      "uren_e4": 922900,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 51,
+      "codes": [
+       "25.01",
+       "25.02",
+       "25.03",
+       "25.04"
+      ],
+      "cs": 47,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "H25",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 8,
+      "naam": "STABU 25 Metaalconstructiewerk — Staalmontage",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 268400,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 62,
+      "codes": [
+       "30.03",
+       "30.04",
+       "30.05",
+       "30.06",
+       "30.08"
+      ],
+      "cs": 59,
+      "duur_status": "",
+      "ef": 3,
+      "es": 0,
+      "id": "H30",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 9,
+      "naam": "STABU 30 Kozijnen, ramen en deuren — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 3,
+      "uren_e4": 240000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 65,
+      "codes": [
+       "33.01",
+       "33.03",
+       "33.04",
+       "33.05",
+       "33.06"
+      ],
+      "cs": 62,
+      "duur_status": "",
+      "ef": 3,
+      "es": 0,
+      "id": "H33",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 9,
+      "naam": "STABU 33 Dakbedekkingen — Dakdekken",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 3,
+      "uren_e4": 239600,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 70,
+      "codes": [
+       "34.01",
+       "34.02"
+      ],
+      "cs": 69,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H34",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 11,
+      "naam": "STABU 34 Beglazing — Beglazing",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 49700,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 43,
+      "codes": [
+       "40.01",
+       "40.02",
+       "40.03",
+       "40.04",
+       "40.05"
+      ],
+      "cs": 38,
+      "duur_status": "",
+      "ef": 5,
+      "es": 0,
+      "id": "H40",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 7,
+      "naam": "STABU 40 Stukadoorswerk — Stukadoorswerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 5,
+      "uren_e4": 381400,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 71,
+      "codes": [
+       "42.01"
+      ],
+      "cs": 70,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H42",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 11,
+      "naam": "STABU 42 Dekvloeren en vloersystemen — Dekvloer",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 23500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 55,
+      "codes": [
+       "45.01",
+       "45.02",
+       "45.03",
+       "45.04",
+       "45.05",
+       "45.06"
+      ],
+      "cs": 51,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "H45",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 8,
+      "naam": "STABU 45 Afbouwtimmerwerk — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 303600,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 59,
+      "codes": [
+       "46.01",
+       "46.02"
+      ],
+      "cs": 55,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "H46",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 8,
+      "naam": "STABU 46 Schilderwerk — Schilderwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 272600,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 72,
+      "codes": [
+       "50.01",
+       "50.02"
+      ],
+      "cs": 71,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H50",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 11,
+      "naam": "STABU 50 Dakgoten en hemelwaterafvoeren — Lood- en zinkwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 28500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 72,
+      "codes": [],
+      "cs": 72,
+      "duur_status": "",
+      "ef": 12,
+      "es": 12,
+      "id": "EINDE",
+      "kritiek": true,
+      "lf": 12,
+      "ls": 12,
+      "naam": "EINDE HOOFDUITVOERING (concept)",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H06",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H14",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H22",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H34",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ],
+       [
+        "H42",
+        "0"
+       ],
+       [
+        "H45",
+        "0"
+       ],
+       [
+        "H46",
+        "0"
+       ],
+       [
+        "H50",
+        "0"
+       ]
+      ]
+     }
+    ],
+    "eind_cap_u": 72,
+    "eind_cpm_u": 12,
+    "fout": [],
+    "invoer_vereist": [],
+    "kritiek": [
+     "H24"
+    ],
+    "mandagen_x_halvedag_e4": 1440000,
+    "piek_e4": 20000,
+    "regels_gebruikt": [],
+    "toegepast": [],
+    "uren_calc_e4": 5071400,
+    "uren_e4": 5071400
+   }
+  },
+  {
+   "invoer": {
+    "capaciteit": "3",
+    "hoofdstukken": [
+     {
+      "code": "05",
+      "naam": "Bouwplaatsvoorzieningen"
+     },
+     {
+      "code": "06",
+      "naam": "Door de aannemer aan te leveren documenten"
+     },
+     {
+      "code": "10",
+      "naam": "Stut- en sloopwerk"
+     },
+     {
+      "code": "12",
+      "naam": "Grondwerk"
+     },
+     {
+      "code": "14",
+      "naam": "Buitenriolering en drainage"
+     },
+     {
+      "code": "21",
+      "naam": "Betonwerk"
+     },
+     {
+      "code": "22",
+      "naam": "Metselwerk"
+     },
+     {
+      "code": "24",
+      "naam": "Ruwbouwtimmerwerk"
+     },
+     {
+      "code": "25",
+      "naam": "Metaalconstructiewerk"
+     },
+     {
+      "code": "30",
+      "naam": "Kozijnen, ramen en deuren"
+     },
+     {
+      "code": "33",
+      "naam": "Dakbedekkingen"
+     },
+     {
+      "code": "34",
+      "naam": "Beglazing"
+     },
+     {
+      "code": "40",
+      "naam": "Stukadoorswerk"
+     },
+     {
+      "code": "42",
+      "naam": "Dekvloeren en vloersystemen"
+     },
+     {
+      "code": "45",
+      "naam": "Afbouwtimmerwerk"
+     },
+     {
+      "code": "46",
+      "naam": "Schilderwerk"
+     },
+     {
+      "code": "50",
+      "naam": "Dakgoten en hemelwaterafvoeren"
+     }
+    ],
+    "ploeg": "2",
+    "regels": [
+     {
+      "code": "05.01",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "16.00"
+     },
+     {
+      "code": "05.03",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "6.60"
+     },
+     {
+      "code": "05.07",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "10.00"
+     },
+     {
+      "code": "06.01",
+      "hoofdstuk": "06",
+      "omschrijving": "",
+      "uren": "28.00"
+     },
+     {
+      "code": "10.01",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "3.21"
+     },
+     {
+      "code": "10.02",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "7.60"
+     },
+     {
+      "code": "10.03",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "16.00"
+     },
+     {
+      "code": "10.04",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "17.40"
+     },
+     {
+      "code": "10.05",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "4.00"
+     },
+     {
+      "code": "10.06",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "6.00"
+     },
+     {
+      "code": "10.07",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "2.00"
+     },
+     {
+      "code": "10.08",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "6.00"
+     },
+     {
+      "code": "10.09",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "13.08"
+     },
+     {
+      "code": "12.01",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "7.92"
+     },
+     {
+      "code": "12.03",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "1.50"
+     },
+     {
+      "code": "12.05",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "1.92"
+     },
+     {
+      "code": "14.01",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "3.60"
+     },
+     {
+      "code": "14.02",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "4.00"
+     },
+     {
+      "code": "14.03",
+      "hoofdstuk": "14",
+      "omschrijving": "",
+      "uren": "2.25"
+     },
+     {
+      "code": "21.01",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "10.56"
+     },
+     {
+      "code": "21.02",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "12.00"
+     },
+     {
+      "code": "21.03",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "3.18"
+     },
+     {
+      "code": "21.05",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "11.36"
+     },
+     {
+      "code": "21.06",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "5.52"
+     },
+     {
+      "code": "22.01",
+      "hoofdstuk": "22",
+      "omschrijving": "plint",
+      "uren": "11.36"
+     },
+     {
+      "code": "22.02",
+      "hoofdstuk": "22",
+      "omschrijving": "plint",
+      "uren": "7.26"
+     },
+     {
+      "code": "22.03",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "3.96"
+     },
+     {
+      "code": "22.05",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "2.00"
+     },
+     {
+      "code": "22.06",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "7.04"
+     },
+     {
+      "code": "22.07",
+      "hoofdstuk": "22",
+      "omschrijving": "",
+      "uren": "2.80"
+     },
+     {
+      "code": "24.01",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "14.56"
+     },
+     {
+      "code": "24.02",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "6.00"
+     },
+     {
+      "code": "24.03",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "10.53"
+     },
+     {
+      "code": "24.04",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "6.55"
+     },
+     {
+      "code": "24.05",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "3.75"
+     },
+     {
+      "code": "24.06",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "1.07"
+     },
+     {
+      "code": "24.07",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "2.00"
+     },
+     {
+      "code": "24.08",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "3.00"
+     },
+     {
+      "code": "24.09",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "35.53"
+     },
+     {
+      "code": "24.10",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "9.30"
+     },
+     {
+      "code": "25.01",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "13.40"
+     },
+     {
+      "code": "25.02",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "2.16"
+     },
+     {
+      "code": "25.03",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "6.00"
+     },
+     {
+      "code": "25.04",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "5.28"
+     },
+     {
+      "code": "30.03",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "12.00"
+     },
+     {
+      "code": "30.04",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "3.00"
+     },
+     {
+      "code": "30.05",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "2.00"
+     },
+     {
+      "code": "30.06",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "6.00"
+     },
+     {
+      "code": "30.08",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "1.00"
+     },
+     {
+      "code": "33.01",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "2.68"
+     },
+     {
+      "code": "33.03",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "5.28"
+     },
+     {
+      "code": "33.04",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "3.60"
+     },
+     {
+      "code": "33.05",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "5.60"
+     },
+     {
+      "code": "33.06",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "6.80"
+     },
+     {
+      "code": "34.01",
+      "hoofdstuk": "34",
+      "omschrijving": "",
+      "uren": "3.65"
+     },
+     {
+      "code": "34.02",
+      "hoofdstuk": "34",
+      "omschrijving": "",
+      "uren": "1.32"
+     },
+     {
+      "code": "40.01",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "3.60"
+     },
+     {
+      "code": "40.02",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "5.48"
+     },
+     {
+      "code": "40.03",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "12.00"
+     },
+     {
+      "code": "40.04",
+      "hoofdstuk": "40",
+      "omschrijving": "plint",
+      "uren": "3.96"
+     },
+     {
+      "code": "40.05",
+      "hoofdstuk": "40",
+      "omschrijving": "plint",
+      "uren": "13.10"
+     },
+     {
+      "code": "42.01",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "2.35"
+     },
+     {
+      "code": "45.01",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "1.50"
+     },
+     {
+      "code": "45.02",
+      "hoofdstuk": "45",
+      "omschrijving": "plint",
+      "uren": "0.66"
+     },
+     {
+      "code": "45.03",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "0.99"
+     },
+     {
+      "code": "45.04",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "5.95"
+     },
+     {
+      "code": "45.05",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "15.75"
+     },
+     {
+      "code": "45.06",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "5.51"
+     },
+     {
+      "code": "46.01",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "24.00"
+     },
+     {
+      "code": "46.02",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "3.26"
+     },
+     {
+      "code": "50.01",
+      "hoofdstuk": "50",
+      "omschrijving": "",
+      "uren": "1.65"
+     },
+     {
+      "code": "50.02",
+      "hoofdstuk": "50",
+      "omschrijving": "",
+      "uren": "1.20"
+     }
+    ]
+   },
+   "kandidaten": true,
+   "kennis_goedgekeurd_test": [],
+   "naam": "sc8_geanonimiseerd_kandidaten",
+   "type": "planner",
+   "verwacht": {
+    "activiteiten": [
+     {
+      "cf": 0,
+      "codes": [],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 0,
+      "es": 0,
+      "id": "START",
+      "kritiek": true,
+      "lf": 0,
+      "ls": 0,
+      "naam": "START BOUW",
+      "opvolgers": [
+       "H05",
+       "H06",
+       "H10",
+       "H12",
+       "H14",
+       "H21",
+       "H22",
+       "H24",
+       "H25",
+       "H30",
+       "H33",
+       "H34",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "H50"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": []
+     },
+     {
+      "cf": 11,
+      "codes": [
+       "05.01",
+       "05.03",
+       "05.07"
+      ],
+      "cs": 6,
+      "duur_status": "",
+      "ef": 5,
+      "es": 0,
+      "id": "H05",
+      "kritiek": false,
+      "lf": 6,
+      "ls": 1,
+      "naam": "STABU 05 Bouwplaatsvoorzieningen — Bouwplaats algemeen",
+      "opvolgers": [
+       "H24",
+       "H33",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 5,
+      "uren_e4": 326000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 62,
+      "codes": [
+       "06.01"
+      ],
+      "cs": 58,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "H06",
+      "kritiek": false,
+      "lf": 30,
+      "ls": 26,
+      "naam": "STABU 06 Door de aannemer aan te leveren documenten — Werkvoorbereiding (uta)",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 280000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 35,
+      "codes": [
+       "10.01",
+       "10.02",
+       "10.03",
+       "10.04",
+       "10.05",
+       "10.06",
+       "10.07",
+       "10.08",
+       "10.09"
+      ],
+      "cs": 25,
+      "duur_status": "",
+      "ef": 10,
+      "es": 0,
+      "id": "H10",
+      "kritiek": false,
+      "lf": 21,
+      "ls": 11,
+      "naam": "STABU 10 Stut- en sloopwerk — Sloopwerk",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 10,
+      "uren_e4": 752900,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 13,
+      "codes": [
+       "12.01",
+       "12.03",
+       "12.05"
+      ],
+      "cs": 11,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H12",
+      "kritiek": false,
+      "lf": 6,
+      "ls": 4,
+      "naam": "STABU 12 Grondwerk — Grondwerk",
+      "opvolgers": [
+       "H22",
+       "H24",
+       "H25",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 113400,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 52,
+      "codes": [
+       "14.01",
+       "14.02",
+       "14.03"
+      ],
+      "cs": 50,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H14",
+      "kritiek": false,
+      "lf": 21,
+      "ls": 19,
+      "naam": "STABU 14 Buitenriolering en drainage — Riolering en drainage",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 98500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 6,
+      "codes": [
+       "21.01",
+       "21.02",
+       "21.03",
+       "21.05",
+       "21.06"
+      ],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 6,
+      "es": 0,
+      "id": "H21",
+      "kritiek": true,
+      "lf": 6,
+      "ls": 0,
+      "naam": "STABU 21 Betonwerk — Betonwerk in het werk",
+      "opvolgers": [
+       "H22",
+       "H24",
+       "H25",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 6,
+      "uren_e4": 426200,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 44,
+      "codes": [
+       "22.01",
+       "22.02",
+       "22.03",
+       "22.05",
+       "22.06",
+       "22.07"
+      ],
+      "cs": 39,
+      "duur_status": "",
+      "ef": 11,
+      "es": 6,
+      "id": "H22",
+      "kritiek": false,
+      "lf": 21,
+      "ls": 16,
+      "naam": "STABU 22 Metselwerk — Metselwerk",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 5,
+      "uren_e4": 344200,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 25,
+      "codes": [
+       "24.01",
+       "24.02",
+       "24.03",
+       "24.04",
+       "24.05",
+       "24.06",
+       "24.07",
+       "24.08",
+       "24.09",
+       "24.10"
+      ],
+      "cs": 13,
+      "duur_status": "",
+      "ef": 18,
+      "es": 6,
+      "id": "H24",
+      "kritiek": true,
+      "lf": 18,
+      "ls": 6,
+      "naam": "STABU 24 Ruwbouwtimmerwerk — Timmerwerk",
+      "opvolgers": [
+       "H30",
+       "H33",
+       "H40",
+       "H40",
+       "H42",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 12,
+      "uren_e4": 922900,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 39,
+      "codes": [
+       "25.01",
+       "25.02",
+       "25.03",
+       "25.04"
+      ],
+      "cs": 35,
+      "duur_status": "",
+      "ef": 10,
+      "es": 6,
+      "id": "H25",
+      "kritiek": false,
+      "lf": 18,
+      "ls": 14,
+      "naam": "STABU 25 Metaalconstructiewerk — Staalmontage",
+      "opvolgers": [
+       "H30",
+       "H33",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 268400,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 47,
+      "codes": [
+       "30.03",
+       "30.04",
+       "30.05",
+       "30.06",
+       "30.08"
+      ],
+      "cs": 44,
+      "duur_status": "",
+      "ef": 21,
+      "es": 18,
+      "id": "H30",
+      "kritiek": true,
+      "lf": 21,
+      "ls": 18,
+      "naam": "STABU 30 Kozijnen, ramen en deuren — Timmerwerk",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 3,
+      "uren_e4": 240000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 50,
+      "codes": [
+       "33.01",
+       "33.03",
+       "33.04",
+       "33.05",
+       "33.06"
+      ],
+      "cs": 47,
+      "duur_status": "",
+      "ef": 21,
+      "es": 18,
+      "id": "H33",
+      "kritiek": true,
+      "lf": 21,
+      "ls": 18,
+      "naam": "STABU 33 Dakbedekkingen — Dakdekken",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 3,
+      "uren_e4": 239600,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 53,
+      "codes": [
+       "34.01",
+       "34.02"
+      ],
+      "cs": 52,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H34",
+      "kritiek": false,
+      "lf": 21,
+      "ls": 20,
+      "naam": "STABU 34 Beglazing — Beglazing",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 49700,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 58,
+      "codes": [
+       "40.01",
+       "40.02",
+       "40.03",
+       "40.04",
+       "40.05"
+      ],
+      "cs": 53,
+      "duur_status": "",
+      "ef": 26,
+      "es": 21,
+      "id": "H40",
+      "kritiek": true,
+      "lf": 26,
+      "ls": 21,
+      "naam": "STABU 40 Stukadoorswerk — Stukadoorswerk",
+      "opvolgers": [
+       "H42",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 5,
+      "uren_e4": 381400,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H14",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H22",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H34",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 71,
+      "codes": [
+       "42.01"
+      ],
+      "cs": 70,
+      "duur_status": "",
+      "ef": 27,
+      "es": 26,
+      "id": "H42",
+      "kritiek": false,
+      "lf": 29,
+      "ls": 28,
+      "naam": "STABU 42 Dekvloeren en vloersystemen — Dekvloer",
+      "opvolgers": [
+       "W42",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 23500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H14",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H22",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H34",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 66,
+      "codes": [
+       "45.01",
+       "45.03",
+       "45.04",
+       "45.05",
+       "45.06"
+      ],
+      "cs": 62,
+      "duur_status": "",
+      "ef": 22,
+      "es": 18,
+      "id": "H45",
+      "kritiek": false,
+      "lf": 30,
+      "ls": 26,
+      "naam": "STABU 45 Afbouwtimmerwerk — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 297000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H14",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H22",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 70,
+      "codes": [
+       "46.01",
+       "46.02"
+      ],
+      "cs": 66,
+      "duur_status": "",
+      "ef": 30,
+      "es": 26,
+      "id": "H46",
+      "kritiek": true,
+      "lf": 30,
+      "ls": 26,
+      "naam": "STABU 46 Schilderwerk — Schilderwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 272600,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H14",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H22",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 72,
+      "codes": [
+       "50.01",
+       "50.02"
+      ],
+      "cs": 71,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H50",
+      "kritiek": false,
+      "lf": 30,
+      "ls": 29,
+      "naam": "STABU 50 Dakgoten en hemelwaterafvoeren — Lood- en zinkwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 28500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 71,
+      "codes": [],
+      "cs": 71,
+      "duur_status": "INVOER VEREIST",
+      "ef": 27,
+      "es": 27,
+      "id": "W42",
+      "kritiek": false,
+      "lf": 29,
+      "ls": 29,
+      "naam": "Wachttijd na STABU 42 (Droogtijd dekvloer is een wachttijd, geen bouwstop) — INVOER VEREIST: duur uit bestek/fabrikant",
+      "opvolgers": [
+       "T45"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "wacht",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "H42",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 72,
+      "codes": [
+       "45.02"
+      ],
+      "cs": 71,
+      "duur_status": "",
+      "ef": 28,
+      "es": 27,
+      "id": "T45",
+      "kritiek": false,
+      "lf": 30,
+      "ls": 29,
+      "naam": "Terugkommoment: plinten na vloerafwerking door derden (PL-006)",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 6600,
+      "voor": [
+       [
+        "W42",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 72,
+      "codes": [],
+      "cs": 72,
+      "duur_status": "",
+      "ef": 30,
+      "es": 30,
+      "id": "EINDE",
+      "kritiek": true,
+      "lf": 30,
+      "ls": 30,
+      "naam": "EINDE HOOFDUITVOERING (concept)",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H06",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H14",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H22",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H34",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ],
+       [
+        "H42",
+        "0"
+       ],
+       [
+        "H45",
+        "0"
+       ],
+       [
+        "H46",
+        "0"
+       ],
+       [
+        "H50",
+        "0"
+       ]
+      ]
+     }
+    ],
+    "eind_cap_u": 72,
+    "eind_cpm_u": 30,
+    "fout": [],
+    "invoer_vereist": [
+     "W42"
+    ],
+    "kritiek": [
+     "H21",
+     "H24",
+     "H30",
+     "H33",
+     "H40",
+     "H46"
+    ],
+    "mandagen_x_halvedag_e4": 1450000,
+    "piek_e4": 30000,
+    "regels_gebruikt": [
+     "PL-001",
+     "PL-002",
+     "PL-003",
+     "PL-004",
+     "PL-006",
+     "PL-014",
+     "PL-015",
+     "PL-018",
+     "PL-019",
+     "PL-020"
+    ],
+    "toegepast": [
+     "PL-001: 10→40",
+     "PL-001: 12→40",
+     "PL-001: 14→40",
+     "PL-001: 21→40",
+     "PL-001: 22→40",
+     "PL-001: 24→40",
+     "PL-001: 25→40",
+     "PL-001: 10→42",
+     "PL-001: 12→42",
+     "PL-001: 14→42",
+     "PL-001: 21→42",
+     "PL-001: 22→42",
+     "PL-001: 24→42",
+     "PL-001: 25→42",
+     "PL-001: 10→45",
+     "PL-001: 12→45",
+     "PL-001: 14→45",
+     "PL-001: 21→45",
+     "PL-001: 22→45",
+     "PL-001: 24→45",
+     "PL-001: 25→45",
+     "PL-001: 10→46",
+     "PL-001: 12→46",
+     "PL-001: 14→46",
+     "PL-001: 21→46",
+     "PL-001: 22→46",
+     "PL-001: 24→46",
+     "PL-001: 25→46",
+     "PL-002: 30→40",
+     "PL-002: 33→40",
+     "PL-002: 34→40",
+     "PL-002: 30→42",
+     "PL-002: 33→42",
+     "PL-002: 34→42",
+     "PL-003: 40→42",
+     "PL-004: wachttijd na 42 (duur ontbreekt → invoer vereist)",
+     "PL-014: 24→40",
+     "PL-014: 24→42",
+     "PL-015: 05→24",
+     "PL-015: 05→33",
+     "PL-018: 40→46",
+     "PL-019: 12→22",
+     "PL-019: 21→22",
+     "PL-019: 12→24",
+     "PL-019: 21→24",
+     "PL-019: 12→25",
+     "PL-019: 21→25",
+     "PL-020: 24→30",
+     "PL-020: 25→30",
+     "PL-020: 24→33",
+     "PL-020: 25→33",
+     "PL-006: terugkommoment plinten 45.02"
+    ],
+    "uren_calc_e4": 5071400,
+    "uren_e4": 5071400
+   }
+  },
+  {
+   "invoer": {
+    "capaciteit": "3",
+    "hoofdstukken": [
+     {
+      "code": "05",
+      "naam": "Bouwplaats"
+     },
+     {
+      "code": "10",
+      "naam": "Sloop"
+     },
+     {
+      "code": "12",
+      "naam": "Grond"
+     },
+     {
+      "code": "21",
+      "naam": "Beton"
+     },
+     {
+      "code": "24",
+      "naam": "Timmer"
+     },
+     {
+      "code": "25",
+      "naam": "Staal"
+     },
+     {
+      "code": "30",
+      "naam": "Kozijnen"
+     },
+     {
+      "code": "33",
+      "naam": "Dak"
+     },
+     {
+      "code": "40",
+      "naam": "Stuc"
+     },
+     {
+      "code": "42",
+      "naam": "Dekvloer"
+     },
+     {
+      "code": "45",
+      "naam": "Afbouw"
+     },
+     {
+      "code": "46",
+      "naam": "Schilder"
+     },
+     {
+      "code": "ONGEMAPT-36",
+      "naam": "Arbeid & uren (geen STABU)"
+     }
+    ],
+    "ploeg": "2",
+    "regels": [
+     {
+      "code": "05.01",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "7.5"
+     },
+     {
+      "code": "10.01",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "12.25"
+     },
+     {
+      "code": "12.01",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "3.1234"
+     },
+     {
+      "code": "21.01",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "40"
+     },
+     {
+      "code": "21.02",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "8"
+     },
+     {
+      "code": "24.01",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "60.5"
+     },
+     {
+      "code": "25.01",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "15.99"
+     },
+     {
+      "code": "30.01",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "10"
+     },
+     {
+      "code": "33.01",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "16"
+     },
+     {
+      "code": "40.01",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "24.75"
+     },
+     {
+      "code": "42.01",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "4"
+     },
+     {
+      "code": "45.01",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "6"
+     },
+     {
+      "code": "45.02",
+      "hoofdstuk": "45",
+      "omschrijving": "vloerplinten",
+      "uren": "0.66"
+     },
+     {
+      "code": "46.01",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "30"
+     },
+     {
+      "code": "ONGEMAPT-36.01",
+      "hoofdstuk": "ONGEMAPT-36",
+      "omschrijving": "",
+      "uren": "9"
+     }
+    ]
+   },
+   "kandidaten": false,
+   "kennis_goedgekeurd_test": [],
+   "naam": "synthetisch_actief",
+   "type": "planner",
+   "verwacht": {
+    "activiteiten": [
+     {
+      "cf": 0,
+      "codes": [],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 0,
+      "es": 0,
+      "id": "START",
+      "kritiek": true,
+      "lf": 0,
+      "ls": 0,
+      "naam": "START BOUW",
+      "opvolgers": [
+       "H05",
+       "H10",
+       "H12",
+       "H21",
+       "H24",
+       "H25",
+       "H30",
+       "H33",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "HONGEMAPT-36"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": []
+     },
+     {
+      "cf": 33,
+      "codes": [
+       "05.01"
+      ],
+      "cs": 32,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H05",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 7,
+      "naam": "STABU 05 Bouwplaats — Bouwplaats algemeen",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 75000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 24,
+      "codes": [
+       "10.01"
+      ],
+      "cs": 22,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H10",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 6,
+      "naam": "STABU 10 Sloop — Sloopwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 122500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 34,
+      "codes": [
+       "12.01"
+      ],
+      "cs": 33,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H12",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 7,
+      "naam": "STABU 12 Grond — Grondwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 31234,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 14,
+      "codes": [
+       "21.01",
+       "21.02"
+      ],
+      "cs": 8,
+      "duur_status": "",
+      "ef": 6,
+      "es": 0,
+      "id": "H21",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 2,
+      "naam": "STABU 21 Beton — Betonwerk in het werk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 6,
+      "uren_e4": 480000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 8,
+      "codes": [
+       "24.01"
+      ],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 8,
+      "es": 0,
+      "id": "H24",
+      "kritiek": true,
+      "lf": 8,
+      "ls": 0,
+      "naam": "STABU 24 Timmer — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 8,
+      "uren_e4": 605000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 26,
+      "codes": [
+       "25.01"
+      ],
+      "cs": 24,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H25",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 6,
+      "naam": "STABU 25 Staal — Staalmontage",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 159900,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 28,
+      "codes": [
+       "30.01"
+      ],
+      "cs": 26,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H30",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 6,
+      "naam": "STABU 30 Kozijnen — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 100000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 30,
+      "codes": [
+       "33.01"
+      ],
+      "cs": 28,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H33",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 6,
+      "naam": "STABU 33 Dak — Dakdekken",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 160000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 18,
+      "codes": [
+       "40.01"
+      ],
+      "cs": 14,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "H40",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 4,
+      "naam": "STABU 40 Stuc — Stukadoorswerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 247500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 35,
+      "codes": [
+       "42.01"
+      ],
+      "cs": 34,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H42",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 7,
+      "naam": "STABU 42 Dekvloer — Dekvloer",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 40000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 36,
+      "codes": [
+       "45.01",
+       "45.02"
+      ],
+      "cs": 35,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H45",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 7,
+      "naam": "STABU 45 Afbouw — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 66600,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 22,
+      "codes": [
+       "46.01"
+      ],
+      "cs": 18,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "H46",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 4,
+      "naam": "STABU 46 Schilder — Schilderwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 300000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 32,
+      "codes": [
+       "ONGEMAPT-36.01"
+      ],
+      "cs": 30,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "HONGEMAPT-36",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 6,
+      "naam": "STABU ONGEMAPT-36 Arbeid & uren (geen STABU) — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 90000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 36,
+      "codes": [],
+      "cs": 36,
+      "duur_status": "",
+      "ef": 8,
+      "es": 8,
+      "id": "EINDE",
+      "kritiek": true,
+      "lf": 8,
+      "ls": 8,
+      "naam": "EINDE HOOFDUITVOERING (concept)",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ],
+       [
+        "H42",
+        "0"
+       ],
+       [
+        "H45",
+        "0"
+       ],
+       [
+        "H46",
+        "0"
+       ],
+       [
+        "HONGEMAPT-36",
+        "0"
+       ]
+      ]
+     }
+    ],
+    "eind_cap_u": 36,
+    "eind_cpm_u": 8,
+    "fout": [],
+    "invoer_vereist": [],
+    "kritiek": [
+     "H24"
+    ],
+    "mandagen_x_halvedag_e4": 720000,
+    "piek_e4": 20000,
+    "regels_gebruikt": [],
+    "toegepast": [],
+    "uren_calc_e4": 2477734,
+    "uren_e4": 2477734
+   }
+  },
+  {
+   "invoer": {
+    "capaciteit": "3",
+    "hoofdstukken": [
+     {
+      "code": "05",
+      "naam": "Bouwplaats"
+     },
+     {
+      "code": "10",
+      "naam": "Sloop"
+     },
+     {
+      "code": "12",
+      "naam": "Grond"
+     },
+     {
+      "code": "21",
+      "naam": "Beton"
+     },
+     {
+      "code": "24",
+      "naam": "Timmer"
+     },
+     {
+      "code": "25",
+      "naam": "Staal"
+     },
+     {
+      "code": "30",
+      "naam": "Kozijnen"
+     },
+     {
+      "code": "33",
+      "naam": "Dak"
+     },
+     {
+      "code": "40",
+      "naam": "Stuc"
+     },
+     {
+      "code": "42",
+      "naam": "Dekvloer"
+     },
+     {
+      "code": "45",
+      "naam": "Afbouw"
+     },
+     {
+      "code": "46",
+      "naam": "Schilder"
+     },
+     {
+      "code": "ONGEMAPT-36",
+      "naam": "Arbeid & uren (geen STABU)"
+     }
+    ],
+    "ploeg": "2",
+    "regels": [
+     {
+      "code": "05.01",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "7.5"
+     },
+     {
+      "code": "10.01",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "12.25"
+     },
+     {
+      "code": "12.01",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "3.1234"
+     },
+     {
+      "code": "21.01",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "40"
+     },
+     {
+      "code": "21.02",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "8"
+     },
+     {
+      "code": "24.01",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "60.5"
+     },
+     {
+      "code": "25.01",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "15.99"
+     },
+     {
+      "code": "30.01",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "10"
+     },
+     {
+      "code": "33.01",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "16"
+     },
+     {
+      "code": "40.01",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "24.75"
+     },
+     {
+      "code": "42.01",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "4"
+     },
+     {
+      "code": "45.01",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "6"
+     },
+     {
+      "code": "45.02",
+      "hoofdstuk": "45",
+      "omschrijving": "vloerplinten",
+      "uren": "0.66"
+     },
+     {
+      "code": "46.01",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "30"
+     },
+     {
+      "code": "ONGEMAPT-36.01",
+      "hoofdstuk": "ONGEMAPT-36",
+      "omschrijving": "",
+      "uren": "9"
+     }
+    ]
+   },
+   "kandidaten": true,
+   "kennis_goedgekeurd_test": [],
+   "naam": "synthetisch_kandidaten",
+   "type": "planner",
+   "verwacht": {
+    "activiteiten": [
+     {
+      "cf": 0,
+      "codes": [],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 0,
+      "es": 0,
+      "id": "START",
+      "kritiek": true,
+      "lf": 0,
+      "ls": 0,
+      "naam": "START BOUW",
+      "opvolgers": [
+       "H05",
+       "H10",
+       "H12",
+       "H21",
+       "H24",
+       "H25",
+       "H30",
+       "H33",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "HONGEMAPT-36"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": []
+     },
+     {
+      "cf": 7,
+      "codes": [
+       "05.01"
+      ],
+      "cs": 6,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H05",
+      "kritiek": false,
+      "lf": 6,
+      "ls": 5,
+      "naam": "STABU 05 Bouwplaats — Bouwplaats algemeen",
+      "opvolgers": [
+       "H24",
+       "H33",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 75000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 20,
+      "codes": [
+       "10.01"
+      ],
+      "cs": 18,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H10",
+      "kritiek": false,
+      "lf": 16,
+      "ls": 14,
+      "naam": "STABU 10 Sloop — Sloopwerk",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 122500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 8,
+      "codes": [
+       "12.01"
+      ],
+      "cs": 7,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H12",
+      "kritiek": false,
+      "lf": 6,
+      "ls": 5,
+      "naam": "STABU 12 Grond — Grondwerk",
+      "opvolgers": [
+       "H24",
+       "H25",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 31234,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 6,
+      "codes": [
+       "21.01",
+       "21.02"
+      ],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 6,
+      "es": 0,
+      "id": "H21",
+      "kritiek": true,
+      "lf": 6,
+      "ls": 0,
+      "naam": "STABU 21 Beton — Betonwerk in het werk",
+      "opvolgers": [
+       "H24",
+       "H25",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 6,
+      "uren_e4": 480000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 16,
+      "codes": [
+       "24.01"
+      ],
+      "cs": 8,
+      "duur_status": "",
+      "ef": 14,
+      "es": 6,
+      "id": "H24",
+      "kritiek": true,
+      "lf": 14,
+      "ls": 6,
+      "naam": "STABU 24 Timmer — Timmerwerk",
+      "opvolgers": [
+       "H30",
+       "H33",
+       "H40",
+       "H40",
+       "H42",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 8,
+      "uren_e4": 605000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 18,
+      "codes": [
+       "25.01"
+      ],
+      "cs": 16,
+      "duur_status": "",
+      "ef": 8,
+      "es": 6,
+      "id": "H25",
+      "kritiek": false,
+      "lf": 14,
+      "ls": 12,
+      "naam": "STABU 25 Staal — Staalmontage",
+      "opvolgers": [
+       "H30",
+       "H33",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 159900,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 22,
+      "codes": [
+       "30.01"
+      ],
+      "cs": 20,
+      "duur_status": "",
+      "ef": 16,
+      "es": 14,
+      "id": "H30",
+      "kritiek": true,
+      "lf": 16,
+      "ls": 14,
+      "naam": "STABU 30 Kozijnen — Timmerwerk",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 100000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 24,
+      "codes": [
+       "33.01"
+      ],
+      "cs": 22,
+      "duur_status": "",
+      "ef": 16,
+      "es": 14,
+      "id": "H33",
+      "kritiek": true,
+      "lf": 16,
+      "ls": 14,
+      "naam": "STABU 33 Dak — Dakdekken",
+      "opvolgers": [
+       "H40",
+       "H42",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 160000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 28,
+      "codes": [
+       "40.01"
+      ],
+      "cs": 24,
+      "duur_status": "",
+      "ef": 20,
+      "es": 16,
+      "id": "H40",
+      "kritiek": true,
+      "lf": 20,
+      "ls": 16,
+      "naam": "STABU 40 Stuc — Stukadoorswerk",
+      "opvolgers": [
+       "H42",
+       "H46",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 247500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 33,
+      "codes": [
+       "42.01"
+      ],
+      "cs": 32,
+      "duur_status": "",
+      "ef": 21,
+      "es": 20,
+      "id": "H42",
+      "kritiek": false,
+      "lf": 23,
+      "ls": 22,
+      "naam": "STABU 42 Dekvloer — Dekvloer",
+      "opvolgers": [
+       "W42",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 40000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 36,
+      "codes": [
+       "45.01"
+      ],
+      "cs": 35,
+      "duur_status": "",
+      "ef": 15,
+      "es": 14,
+      "id": "H45",
+      "kritiek": false,
+      "lf": 24,
+      "ls": 23,
+      "naam": "STABU 45 Afbouw — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 60000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 32,
+      "codes": [
+       "46.01"
+      ],
+      "cs": 28,
+      "duur_status": "",
+      "ef": 24,
+      "es": 20,
+      "id": "H46",
+      "kritiek": true,
+      "lf": 24,
+      "ls": 20,
+      "naam": "STABU 46 Schilder — Schilderwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 300000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 35,
+      "codes": [
+       "ONGEMAPT-36.01"
+      ],
+      "cs": 33,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "HONGEMAPT-36",
+      "kritiek": false,
+      "lf": 24,
+      "ls": 22,
+      "naam": "STABU ONGEMAPT-36 Arbeid & uren (geen STABU) — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 90000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 33,
+      "codes": [],
+      "cs": 33,
+      "duur_status": "INVOER VEREIST",
+      "ef": 21,
+      "es": 21,
+      "id": "W42",
+      "kritiek": false,
+      "lf": 23,
+      "ls": 23,
+      "naam": "Wachttijd na STABU 42 (Droogtijd dekvloer is een wachttijd, geen bouwstop) — INVOER VEREIST: duur uit bestek/fabrikant",
+      "opvolgers": [
+       "T45"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "wacht",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "H42",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 34,
+      "codes": [
+       "45.02"
+      ],
+      "cs": 33,
+      "duur_status": "",
+      "ef": 22,
+      "es": 21,
+      "id": "T45",
+      "kritiek": false,
+      "lf": 24,
+      "ls": 23,
+      "naam": "Terugkommoment: plinten na vloerafwerking door derden (PL-006)",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 6600,
+      "voor": [
+       [
+        "W42",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 36,
+      "codes": [],
+      "cs": 36,
+      "duur_status": "",
+      "ef": 24,
+      "es": 24,
+      "id": "EINDE",
+      "kritiek": true,
+      "lf": 24,
+      "ls": 24,
+      "naam": "EINDE HOOFDUITVOERING (concept)",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ],
+       [
+        "H42",
+        "0"
+       ],
+       [
+        "H45",
+        "0"
+       ],
+       [
+        "H46",
+        "0"
+       ],
+       [
+        "HONGEMAPT-36",
+        "0"
+       ]
+      ]
+     }
+    ],
+    "eind_cap_u": 36,
+    "eind_cpm_u": 24,
+    "fout": [],
+    "invoer_vereist": [
+     "W42"
+    ],
+    "kritiek": [
+     "H21",
+     "H24",
+     "H30",
+     "H33",
+     "H40",
+     "H46"
+    ],
+    "mandagen_x_halvedag_e4": 730000,
+    "piek_e4": 30000,
+    "regels_gebruikt": [
+     "PL-001",
+     "PL-002",
+     "PL-003",
+     "PL-004",
+     "PL-006",
+     "PL-014",
+     "PL-015",
+     "PL-018",
+     "PL-019",
+     "PL-020"
+    ],
+    "toegepast": [
+     "PL-001: 10→40",
+     "PL-001: 12→40",
+     "PL-001: 21→40",
+     "PL-001: 24→40",
+     "PL-001: 25→40",
+     "PL-001: 10→42",
+     "PL-001: 12→42",
+     "PL-001: 21→42",
+     "PL-001: 24→42",
+     "PL-001: 25→42",
+     "PL-001: 10→45",
+     "PL-001: 12→45",
+     "PL-001: 21→45",
+     "PL-001: 24→45",
+     "PL-001: 25→45",
+     "PL-001: 10→46",
+     "PL-001: 12→46",
+     "PL-001: 21→46",
+     "PL-001: 24→46",
+     "PL-001: 25→46",
+     "PL-002: 30→40",
+     "PL-002: 33→40",
+     "PL-002: 30→42",
+     "PL-002: 33→42",
+     "PL-003: 40→42",
+     "PL-004: wachttijd na 42 (duur ontbreekt → invoer vereist)",
+     "PL-014: 24→40",
+     "PL-014: 24→42",
+     "PL-015: 05→24",
+     "PL-015: 05→33",
+     "PL-018: 40→46",
+     "PL-019: 12→24",
+     "PL-019: 21→24",
+     "PL-019: 12→25",
+     "PL-019: 21→25",
+     "PL-020: 24→30",
+     "PL-020: 25→30",
+     "PL-020: 24→33",
+     "PL-020: 25→33",
+     "PL-006: terugkommoment plinten 45.02"
+    ],
+    "uren_calc_e4": 2477734,
+    "uren_e4": 2477734
+   }
+  },
+  {
+   "invoer": {
+    "capaciteit": "3",
+    "hoofdstukken": [
+     {
+      "code": "05",
+      "naam": "Bouwplaats"
+     },
+     {
+      "code": "10",
+      "naam": "Sloop"
+     },
+     {
+      "code": "12",
+      "naam": "Grond"
+     },
+     {
+      "code": "21",
+      "naam": "Beton"
+     },
+     {
+      "code": "24",
+      "naam": "Timmer"
+     },
+     {
+      "code": "25",
+      "naam": "Staal"
+     },
+     {
+      "code": "30",
+      "naam": "Kozijnen"
+     },
+     {
+      "code": "33",
+      "naam": "Dak"
+     },
+     {
+      "code": "40",
+      "naam": "Stuc"
+     },
+     {
+      "code": "42",
+      "naam": "Dekvloer"
+     },
+     {
+      "code": "45",
+      "naam": "Afbouw"
+     },
+     {
+      "code": "46",
+      "naam": "Schilder"
+     },
+     {
+      "code": "ONGEMAPT-36",
+      "naam": "Arbeid & uren (geen STABU)"
+     }
+    ],
+    "ploeg": "2",
+    "regels": [
+     {
+      "code": "05.01",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "7.5"
+     },
+     {
+      "code": "10.01",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "12.25"
+     },
+     {
+      "code": "12.01",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "3.1234"
+     },
+     {
+      "code": "21.01",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "40"
+     },
+     {
+      "code": "21.02",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "8"
+     },
+     {
+      "code": "24.01",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "60.5"
+     },
+     {
+      "code": "25.01",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "15.99"
+     },
+     {
+      "code": "30.01",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "10"
+     },
+     {
+      "code": "33.01",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "16"
+     },
+     {
+      "code": "40.01",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "24.75"
+     },
+     {
+      "code": "42.01",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "4"
+     },
+     {
+      "code": "45.01",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "6"
+     },
+     {
+      "code": "45.02",
+      "hoofdstuk": "45",
+      "omschrijving": "vloerplinten",
+      "uren": "0.66"
+     },
+     {
+      "code": "46.01",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "30"
+     },
+     {
+      "code": "ONGEMAPT-36.01",
+      "hoofdstuk": "ONGEMAPT-36",
+      "omschrijving": "",
+      "uren": "9"
+     }
+    ]
+   },
+   "kandidaten": false,
+   "kennis_goedgekeurd_test": [
+    "PL-003",
+    "PL-004",
+    "PL-006",
+    "PL-019"
+   ],
+   "naam": "synthetisch_actief_met_testgoedkeuring",
+   "type": "planner",
+   "verwacht": {
+    "activiteiten": [
+     {
+      "cf": 0,
+      "codes": [],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 0,
+      "es": 0,
+      "id": "START",
+      "kritiek": true,
+      "lf": 0,
+      "ls": 0,
+      "naam": "START BOUW",
+      "opvolgers": [
+       "H05",
+       "H10",
+       "H12",
+       "H21",
+       "H24",
+       "H25",
+       "H30",
+       "H33",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "HONGEMAPT-36"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": []
+     },
+     {
+      "cf": 35,
+      "codes": [
+       "05.01"
+      ],
+      "cs": 34,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H05",
+      "kritiek": false,
+      "lf": 14,
+      "ls": 13,
+      "naam": "STABU 05 Bouwplaats — Bouwplaats algemeen",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 75000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 25,
+      "codes": [
+       "10.01"
+      ],
+      "cs": 23,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H10",
+      "kritiek": false,
+      "lf": 14,
+      "ls": 12,
+      "naam": "STABU 10 Sloop — Sloopwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 122500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 7,
+      "codes": [
+       "12.01"
+      ],
+      "cs": 6,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H12",
+      "kritiek": false,
+      "lf": 6,
+      "ls": 5,
+      "naam": "STABU 12 Grond — Grondwerk",
+      "opvolgers": [
+       "H24",
+       "H25",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 31234,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 6,
+      "codes": [
+       "21.01",
+       "21.02"
+      ],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 6,
+      "es": 0,
+      "id": "H21",
+      "kritiek": true,
+      "lf": 6,
+      "ls": 0,
+      "naam": "STABU 21 Beton — Betonwerk in het werk",
+      "opvolgers": [
+       "H24",
+       "H25",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 6,
+      "uren_e4": 480000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 15,
+      "codes": [
+       "24.01"
+      ],
+      "cs": 7,
+      "duur_status": "",
+      "ef": 14,
+      "es": 6,
+      "id": "H24",
+      "kritiek": true,
+      "lf": 14,
+      "ls": 6,
+      "naam": "STABU 24 Timmer — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 8,
+      "uren_e4": 605000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 27,
+      "codes": [
+       "25.01"
+      ],
+      "cs": 25,
+      "duur_status": "",
+      "ef": 8,
+      "es": 6,
+      "id": "H25",
+      "kritiek": false,
+      "lf": 14,
+      "ls": 12,
+      "naam": "STABU 25 Staal — Staalmontage",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 159900,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 29,
+      "codes": [
+       "30.01"
+      ],
+      "cs": 27,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H30",
+      "kritiek": false,
+      "lf": 14,
+      "ls": 12,
+      "naam": "STABU 30 Kozijnen — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 100000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 31,
+      "codes": [
+       "33.01"
+      ],
+      "cs": 29,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H33",
+      "kritiek": false,
+      "lf": 14,
+      "ls": 12,
+      "naam": "STABU 33 Dak — Dakdekken",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 160000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 19,
+      "codes": [
+       "40.01"
+      ],
+      "cs": 15,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "H40",
+      "kritiek": false,
+      "lf": 12,
+      "ls": 8,
+      "naam": "STABU 40 Stuc — Stukadoorswerk",
+      "opvolgers": [
+       "H42",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 247500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 32,
+      "codes": [
+       "42.01"
+      ],
+      "cs": 31,
+      "duur_status": "",
+      "ef": 5,
+      "es": 4,
+      "id": "H42",
+      "kritiek": false,
+      "lf": 13,
+      "ls": 12,
+      "naam": "STABU 42 Dekvloer — Dekvloer",
+      "opvolgers": [
+       "W42",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 40000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 36,
+      "codes": [
+       "45.01"
+      ],
+      "cs": 35,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H45",
+      "kritiek": false,
+      "lf": 14,
+      "ls": 13,
+      "naam": "STABU 45 Afbouw — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 60000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 23,
+      "codes": [
+       "46.01"
+      ],
+      "cs": 19,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "H46",
+      "kritiek": false,
+      "lf": 14,
+      "ls": 10,
+      "naam": "STABU 46 Schilder — Schilderwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 300000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 34,
+      "codes": [
+       "ONGEMAPT-36.01"
+      ],
+      "cs": 32,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "HONGEMAPT-36",
+      "kritiek": false,
+      "lf": 14,
+      "ls": 12,
+      "naam": "STABU ONGEMAPT-36 Arbeid & uren (geen STABU) — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 90000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 32,
+      "codes": [],
+      "cs": 32,
+      "duur_status": "INVOER VEREIST",
+      "ef": 5,
+      "es": 5,
+      "id": "W42",
+      "kritiek": false,
+      "lf": 13,
+      "ls": 13,
+      "naam": "Wachttijd na STABU 42 (Droogtijd dekvloer is een wachttijd, geen bouwstop) — INVOER VEREIST: duur uit bestek/fabrikant",
+      "opvolgers": [
+       "T45"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "wacht",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "H42",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 33,
+      "codes": [
+       "45.02"
+      ],
+      "cs": 32,
+      "duur_status": "",
+      "ef": 6,
+      "es": 5,
+      "id": "T45",
+      "kritiek": false,
+      "lf": 14,
+      "ls": 13,
+      "naam": "Terugkommoment: plinten na vloerafwerking door derden (PL-006)",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 6600,
+      "voor": [
+       [
+        "W42",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 36,
+      "codes": [],
+      "cs": 36,
+      "duur_status": "",
+      "ef": 14,
+      "es": 14,
+      "id": "EINDE",
+      "kritiek": true,
+      "lf": 14,
+      "ls": 14,
+      "naam": "EINDE HOOFDUITVOERING (concept)",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ],
+       [
+        "H42",
+        "0"
+       ],
+       [
+        "H45",
+        "0"
+       ],
+       [
+        "H46",
+        "0"
+       ],
+       [
+        "HONGEMAPT-36",
+        "0"
+       ]
+      ]
+     }
+    ],
+    "eind_cap_u": 36,
+    "eind_cpm_u": 14,
+    "fout": [],
+    "invoer_vereist": [
+     "W42"
+    ],
+    "kritiek": [
+     "H21",
+     "H24"
+    ],
+    "mandagen_x_halvedag_e4": 730000,
+    "piek_e4": 30000,
+    "regels_gebruikt": [
+     "PL-003",
+     "PL-004",
+     "PL-006",
+     "PL-019"
+    ],
+    "toegepast": [
+     "PL-003: 40→42",
+     "PL-004: wachttijd na 42 (duur ontbreekt → invoer vereist)",
+     "PL-019: 12→24",
+     "PL-019: 21→24",
+     "PL-019: 12→25",
+     "PL-019: 21→25",
+     "PL-006: terugkommoment plinten 45.02"
+    ],
+    "uren_calc_e4": 2477734,
+    "uren_e4": 2477734
+   }
+  },
+  {
+   "invoer": {
+    "capaciteit": "3",
+    "hoofdstukken": [
+     {
+      "code": "05",
+      "naam": "Bouwplaats"
+     },
+     {
+      "code": "10",
+      "naam": "Sloop"
+     },
+     {
+      "code": "12",
+      "naam": "Grond"
+     },
+     {
+      "code": "21",
+      "naam": "Beton"
+     },
+     {
+      "code": "24",
+      "naam": "Timmer"
+     },
+     {
+      "code": "25",
+      "naam": "Staal"
+     },
+     {
+      "code": "30",
+      "naam": "Kozijnen"
+     },
+     {
+      "code": "33",
+      "naam": "Dak"
+     },
+     {
+      "code": "40",
+      "naam": "Stuc"
+     },
+     {
+      "code": "42",
+      "naam": "Dekvloer"
+     },
+     {
+      "code": "45",
+      "naam": "Afbouw"
+     },
+     {
+      "code": "46",
+      "naam": "Schilder"
+     },
+     {
+      "code": "ONGEMAPT-36",
+      "naam": "Arbeid & uren (geen STABU)"
+     }
+    ],
+    "ploeg": "2",
+    "regels": [
+     {
+      "code": "05.01",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "7.5"
+     },
+     {
+      "code": "10.01",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "12.25"
+     },
+     {
+      "code": "12.01",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "3.1234"
+     },
+     {
+      "code": "21.01",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "40"
+     },
+     {
+      "code": "21.02",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "8"
+     },
+     {
+      "code": "24.01",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "60.5"
+     },
+     {
+      "code": "25.01",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "15.99"
+     },
+     {
+      "code": "30.01",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "10"
+     },
+     {
+      "code": "33.01",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "16"
+     },
+     {
+      "code": "40.01",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "24.75"
+     },
+     {
+      "code": "42.01",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "4"
+     },
+     {
+      "code": "45.01",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "6"
+     },
+     {
+      "code": "45.02",
+      "hoofdstuk": "45",
+      "omschrijving": "vloerplinten",
+      "uren": "0.66"
+     },
+     {
+      "code": "46.01",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "30"
+     },
+     {
+      "code": "ONGEMAPT-36.01",
+      "hoofdstuk": "ONGEMAPT-36",
+      "omschrijving": "",
+      "uren": "9"
+     }
+    ]
+   },
+   "kandidaten": false,
+   "kennis_goedgekeurd_test": [
+    "PL-004"
+   ],
+   "naam": "synthetisch_actief_PL004_zonder_PL006",
+   "type": "planner",
+   "verwacht": {
+    "activiteiten": [
+     {
+      "cf": 0,
+      "codes": [],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 0,
+      "es": 0,
+      "id": "START",
+      "kritiek": true,
+      "lf": 0,
+      "ls": 0,
+      "naam": "START BOUW",
+      "opvolgers": [
+       "H05",
+       "H10",
+       "H12",
+       "H21",
+       "H24",
+       "H25",
+       "H30",
+       "H33",
+       "H40",
+       "H42",
+       "H45",
+       "H46",
+       "HONGEMAPT-36"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": []
+     },
+     {
+      "cf": 33,
+      "codes": [
+       "05.01"
+      ],
+      "cs": 32,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H05",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 7,
+      "naam": "STABU 05 Bouwplaats — Bouwplaats algemeen",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 75000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 24,
+      "codes": [
+       "10.01"
+      ],
+      "cs": 22,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H10",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 6,
+      "naam": "STABU 10 Sloop — Sloopwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 122500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 34,
+      "codes": [
+       "12.01"
+      ],
+      "cs": 33,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H12",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 7,
+      "naam": "STABU 12 Grond — Grondwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 31234,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 14,
+      "codes": [
+       "21.01",
+       "21.02"
+      ],
+      "cs": 8,
+      "duur_status": "",
+      "ef": 6,
+      "es": 0,
+      "id": "H21",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 2,
+      "naam": "STABU 21 Beton — Betonwerk in het werk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 6,
+      "uren_e4": 480000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 8,
+      "codes": [
+       "24.01"
+      ],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 8,
+      "es": 0,
+      "id": "H24",
+      "kritiek": true,
+      "lf": 8,
+      "ls": 0,
+      "naam": "STABU 24 Timmer — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 8,
+      "uren_e4": 605000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 26,
+      "codes": [
+       "25.01"
+      ],
+      "cs": 24,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H25",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 6,
+      "naam": "STABU 25 Staal — Staalmontage",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 159900,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 28,
+      "codes": [
+       "30.01"
+      ],
+      "cs": 26,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H30",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 6,
+      "naam": "STABU 30 Kozijnen — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 100000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 30,
+      "codes": [
+       "33.01"
+      ],
+      "cs": 28,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "H33",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 6,
+      "naam": "STABU 33 Dak — Dakdekken",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 160000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 18,
+      "codes": [
+       "40.01"
+      ],
+      "cs": 14,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "H40",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 4,
+      "naam": "STABU 40 Stuc — Stukadoorswerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 247500,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 35,
+      "codes": [
+       "42.01"
+      ],
+      "cs": 34,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H42",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 7,
+      "naam": "STABU 42 Dekvloer — Dekvloer",
+      "opvolgers": [
+       "W42",
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 40000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 36,
+      "codes": [
+       "45.01",
+       "45.02"
+      ],
+      "cs": 35,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "H45",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 7,
+      "naam": "STABU 45 Afbouw — Timmerwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 66600,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 22,
+      "codes": [
+       "46.01"
+      ],
+      "cs": 18,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "H46",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 4,
+      "naam": "STABU 46 Schilder — Schilderwerk",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 300000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 32,
+      "codes": [
+       "ONGEMAPT-36.01"
+      ],
+      "cs": 30,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "HONGEMAPT-36",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 6,
+      "naam": "STABU ONGEMAPT-36 Arbeid & uren (geen STABU) — discipline n.t.b.",
+      "opvolgers": [
+       "EINDE"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 90000,
+      "voor": [
+       [
+        "START",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 35,
+      "codes": [],
+      "cs": 35,
+      "duur_status": "INVOER VEREIST",
+      "ef": 1,
+      "es": 1,
+      "id": "W42",
+      "kritiek": false,
+      "lf": 8,
+      "ls": 8,
+      "naam": "Wachttijd na STABU 42 (Droogtijd dekvloer is een wachttijd, geen bouwstop) — INVOER VEREIST: duur uit bestek/fabrikant",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "wacht",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "H42",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 36,
+      "codes": [],
+      "cs": 36,
+      "duur_status": "",
+      "ef": 8,
+      "es": 8,
+      "id": "EINDE",
+      "kritiek": true,
+      "lf": 8,
+      "ls": 8,
+      "naam": "EINDE HOOFDUITVOERING (concept)",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "H05",
+        "0"
+       ],
+       [
+        "H10",
+        "0"
+       ],
+       [
+        "H12",
+        "0"
+       ],
+       [
+        "H21",
+        "0"
+       ],
+       [
+        "H24",
+        "0"
+       ],
+       [
+        "H25",
+        "0"
+       ],
+       [
+        "H30",
+        "0"
+       ],
+       [
+        "H33",
+        "0"
+       ],
+       [
+        "H40",
+        "0"
+       ],
+       [
+        "H42",
+        "0"
+       ],
+       [
+        "H45",
+        "0"
+       ],
+       [
+        "H46",
+        "0"
+       ],
+       [
+        "HONGEMAPT-36",
+        "0"
+       ]
+      ]
+     }
+    ],
+    "eind_cap_u": 36,
+    "eind_cpm_u": 8,
+    "fout": [],
+    "invoer_vereist": [
+     "W42"
+    ],
+    "kritiek": [
+     "H24"
+    ],
+    "mandagen_x_halvedag_e4": 720000,
+    "piek_e4": 20000,
+    "regels_gebruikt": [
+     "PL-004"
+    ],
+    "toegepast": [
+     "PL-004: wachttijd na 42 (duur ontbreekt → invoer vereist)"
+    ],
+    "uren_calc_e4": 2477734,
+    "uren_e4": 2477734
+   }
+  },
+  {
+   "invoer": {
+    "capaciteit": "3",
+    "hoofdstukken": [
+     {
+      "code": "05",
+      "naam": "Bouwplaats"
+     },
+     {
+      "code": "10",
+      "naam": "Sloop"
+     },
+     {
+      "code": "12",
+      "naam": "Grond"
+     },
+     {
+      "code": "21",
+      "naam": "Beton"
+     },
+     {
+      "code": "24",
+      "naam": "Timmer"
+     },
+     {
+      "code": "25",
+      "naam": "Staal"
+     },
+     {
+      "code": "30",
+      "naam": "Kozijnen"
+     },
+     {
+      "code": "33",
+      "naam": "Dak"
+     },
+     {
+      "code": "40",
+      "naam": "Stuc"
+     },
+     {
+      "code": "42",
+      "naam": "Dekvloer"
+     },
+     {
+      "code": "45",
+      "naam": "Afbouw"
+     },
+     {
+      "code": "46",
+      "naam": "Schilder"
+     },
+     {
+      "code": "ONGEMAPT-36",
+      "naam": "Arbeid & uren (geen STABU)"
+     }
+    ],
+    "ploeg": "4",
+    "regels": [
+     {
+      "code": "05.01",
+      "hoofdstuk": "05",
+      "omschrijving": "",
+      "uren": "7.5"
+     },
+     {
+      "code": "10.01",
+      "hoofdstuk": "10",
+      "omschrijving": "",
+      "uren": "12.25"
+     },
+     {
+      "code": "12.01",
+      "hoofdstuk": "12",
+      "omschrijving": "",
+      "uren": "3.1234"
+     },
+     {
+      "code": "21.01",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "40"
+     },
+     {
+      "code": "21.02",
+      "hoofdstuk": "21",
+      "omschrijving": "",
+      "uren": "8"
+     },
+     {
+      "code": "24.01",
+      "hoofdstuk": "24",
+      "omschrijving": "",
+      "uren": "60.5"
+     },
+     {
+      "code": "25.01",
+      "hoofdstuk": "25",
+      "omschrijving": "",
+      "uren": "15.99"
+     },
+     {
+      "code": "30.01",
+      "hoofdstuk": "30",
+      "omschrijving": "",
+      "uren": "10"
+     },
+     {
+      "code": "33.01",
+      "hoofdstuk": "33",
+      "omschrijving": "",
+      "uren": "16"
+     },
+     {
+      "code": "40.01",
+      "hoofdstuk": "40",
+      "omschrijving": "",
+      "uren": "24.75"
+     },
+     {
+      "code": "42.01",
+      "hoofdstuk": "42",
+      "omschrijving": "",
+      "uren": "4"
+     },
+     {
+      "code": "45.01",
+      "hoofdstuk": "45",
+      "omschrijving": "",
+      "uren": "6"
+     },
+     {
+      "code": "45.02",
+      "hoofdstuk": "45",
+      "omschrijving": "vloerplinten",
+      "uren": "0.66"
+     },
+     {
+      "code": "46.01",
+      "hoofdstuk": "46",
+      "omschrijving": "",
+      "uren": "30"
+     },
+     {
+      "code": "ONGEMAPT-36.01",
+      "hoofdstuk": "ONGEMAPT-36",
+      "omschrijving": "",
+      "uren": "9"
+     }
+    ]
+   },
+   "kandidaten": false,
+   "kennis_goedgekeurd_test": [],
+   "naam": "synthetisch_fout_ploeg_boven_capaciteit",
+   "type": "planner",
+   "verwacht": {
+    "fout": [
+     "ploeg_boven_capaciteit:H05",
+     "ploeg_boven_capaciteit:H10",
+     "ploeg_boven_capaciteit:H12",
+     "ploeg_boven_capaciteit:H21",
+     "ploeg_boven_capaciteit:H24",
+     "ploeg_boven_capaciteit:H25",
+     "ploeg_boven_capaciteit:H30",
+     "ploeg_boven_capaciteit:H33",
+     "ploeg_boven_capaciteit:H40",
+     "ploeg_boven_capaciteit:H42",
+     "ploeg_boven_capaciteit:H45",
+     "ploeg_boven_capaciteit:H46",
+     "ploeg_boven_capaciteit:HONGEMAPT-36"
+    ]
+   }
+  },
+  {
+   "invoer": {
+    "capaciteit": "3",
+    "hoofdstukken": [
+     {
+      "code": "22",
+      "naam": "x"
+     }
+    ],
+    "ploeg": "2",
+    "regels": []
+   },
+   "kandidaten": false,
+   "kennis_goedgekeurd_test": [],
+   "naam": "leeg_project",
+   "type": "planner",
+   "verwacht": {
+    "activiteiten": [
+     {
+      "cf": 0,
+      "codes": [],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 0,
+      "es": 0,
+      "id": "START",
+      "kritiek": true,
+      "lf": 0,
+      "ls": 0,
+      "naam": "START BOUW",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": []
+     },
+     {
+      "cf": 0,
+      "codes": [],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 0,
+      "es": 0,
+      "id": "EINDE",
+      "kritiek": true,
+      "lf": 0,
+      "ls": 0,
+      "naam": "EINDE HOOFDUITVOERING (concept)",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "mijlpaal",
+      "u": 0,
+      "uren_e4": 0,
+      "voor": []
+     }
+    ],
+    "eind_cap_u": 0,
+    "eind_cpm_u": 0,
+    "fout": [],
+    "invoer_vereist": [],
+    "kritiek": [],
+    "mandagen_x_halvedag_e4": 0,
+    "piek_e4": 0,
+    "regels_gebruikt": [],
+    "toegepast": [],
+    "uren_calc_e4": 0,
+    "uren_e4": 0
+   }
+  },
+  {
+   "invoer": {
+    "acts": [
+     {
+      "codes": [
+       "x.1"
+      ],
+      "id": "A",
+      "naam": "a",
+      "voor": []
+     },
+     {
+      "codes": [
+       "x.2"
+      ],
+      "id": "B",
+      "naam": "b",
+      "voor": [
+       [
+        "A",
+        "0"
+       ]
+      ]
+     },
+     {
+      "capaciteit": false,
+      "duur": "3.5",
+      "id": "W",
+      "naam": "wacht",
+      "soort": "wacht",
+      "voor": [
+       [
+        "A",
+        "1"
+       ]
+      ]
+     },
+     {
+      "codes": [
+       "x.3"
+      ],
+      "id": "C",
+      "naam": "c",
+      "ploeg": "1",
+      "voor": [
+       [
+        "B",
+        "0"
+       ],
+       [
+        "W",
+        "0.5"
+       ]
+      ]
+     }
+    ],
+    "cap": "2",
+    "uren": {
+     "x.1": "4",
+     "x.2": "20",
+     "x.3": "8"
+    }
+   },
+   "naam": "motor_wachttijd_halvedag_autoploeg",
+   "type": "motor",
+   "verwacht": {
+    "activiteiten": [
+     {
+      "cf": 1,
+      "codes": [
+       "x.1"
+      ],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 1,
+      "es": 0,
+      "id": "A",
+      "kritiek": true,
+      "lf": 1,
+      "ls": 0,
+      "naam": "a",
+      "opvolgers": [
+       "B",
+       "W"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 40000,
+      "voor": []
+     },
+     {
+      "cf": 4,
+      "codes": [
+       "x.2"
+      ],
+      "cs": 1,
+      "duur_status": "",
+      "ef": 4,
+      "es": 1,
+      "id": "B",
+      "kritiek": false,
+      "lf": 11,
+      "ls": 8,
+      "naam": "b",
+      "opvolgers": [
+       "C"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 3,
+      "uren_e4": 200000,
+      "voor": [
+       [
+        "A",
+        "0"
+       ]
+      ]
+     },
+     {
+      "cf": 10,
+      "codes": [],
+      "cs": 3,
+      "duur_status": "",
+      "ef": 10,
+      "es": 3,
+      "id": "W",
+      "kritiek": true,
+      "lf": 10,
+      "ls": 3,
+      "naam": "wacht",
+      "opvolgers": [
+       "C"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "wacht",
+      "u": 7,
+      "uren_e4": 0,
+      "voor": [
+       [
+        "A",
+        "1"
+       ]
+      ]
+     },
+     {
+      "cf": 13,
+      "codes": [
+       "x.3"
+      ],
+      "cs": 11,
+      "duur_status": "",
+      "ef": 13,
+      "es": 11,
+      "id": "C",
+      "kritiek": true,
+      "lf": 13,
+      "ls": 11,
+      "naam": "c",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 80000,
+      "voor": [
+       [
+        "B",
+        "0"
+       ],
+       [
+        "W",
+        "0.5"
+       ]
+      ]
+     }
+    ],
+    "eind_cap_u": 13,
+    "eind_cpm_u": 13,
+    "fout": [],
+    "invoer_vereist": [],
+    "kritiek": [
+     "A",
+     "W",
+     "C"
+    ],
+    "mandagen_x_halvedag_e4": 90000,
+    "piek_e4": 20000,
+    "regels_gebruikt": [],
+    "toegepast": [],
+    "uren_calc_e4": 320000,
+    "uren_e4": 320000
+   }
+  },
+  {
+   "invoer": {
+    "acts": [
+     {
+      "codes": [
+       "y.1"
+      ],
+      "id": "P",
+      "naam": "p",
+      "voor": []
+     },
+     {
+      "codes": [
+       "y.2"
+      ],
+      "id": "Q",
+      "naam": "q",
+      "voor": []
+     },
+     {
+      "codes": [
+       "y.3"
+      ],
+      "id": "R",
+      "naam": "r",
+      "ploeg": "1",
+      "voor": []
+     }
+    ],
+    "cap": "2",
+    "uren": {
+     "y.1": "16",
+     "y.2": "16",
+     "y.3": "16"
+    }
+   },
+   "naam": "motor_capaciteit",
+   "type": "motor",
+   "verwacht": {
+    "activiteiten": [
+     {
+      "cf": 6,
+      "codes": [
+       "y.1"
+      ],
+      "cs": 4,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "P",
+      "kritiek": false,
+      "lf": 4,
+      "ls": 2,
+      "naam": "p",
+      "opvolgers": [],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 160000,
+      "voor": []
+     },
+     {
+      "cf": 8,
+      "codes": [
+       "y.2"
+      ],
+      "cs": 6,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "Q",
+      "kritiek": false,
+      "lf": 4,
+      "ls": 2,
+      "naam": "q",
+      "opvolgers": [],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 160000,
+      "voor": []
+     },
+     {
+      "cf": 4,
+      "codes": [
+       "y.3"
+      ],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "R",
+      "kritiek": true,
+      "lf": 4,
+      "ls": 0,
+      "naam": "r",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 160000,
+      "voor": []
+     }
+    ],
+    "eind_cap_u": 8,
+    "eind_cpm_u": 4,
+    "fout": [],
+    "invoer_vereist": [],
+    "kritiek": [
+     "R"
+    ],
+    "mandagen_x_halvedag_e4": 120000,
+    "piek_e4": 20000,
+    "regels_gebruikt": [],
+    "toegepast": [],
+    "uren_calc_e4": 480000,
+    "uren_e4": 480000
+   }
+  },
+  {
+   "invoer": {
+    "acts": [
+     {
+      "codes": [
+       "z.1"
+      ],
+      "id": "A",
+      "naam": "a",
+      "ploeg": "2",
+      "voor": []
+     },
+     {
+      "duur": "1",
+      "id": "B",
+      "naam": "b",
+      "voor": [
+       [
+        "A",
+        "-1"
+       ],
+       [
+        "X",
+        "0"
+       ]
+      ]
+     }
+    ],
+    "cap": "1",
+    "uren": {
+     "z.1": "8",
+     "z.9": "4"
+    }
+   },
+   "naam": "motor_fout_ploeg_cap_negatief_onbekend",
+   "type": "motor",
+   "verwacht": {
+    "fout": [
+     "ploeg_boven_capaciteit:A",
+     "regel_niet_gepland:z.9",
+     "voorganger_onbekend:B>X",
+     "wachttijd_negatief:B>A"
+    ]
+   }
+  },
+  {
+   "invoer": {
+    "acts": [
+     {
+      "codes": [
+       "g.1"
+      ],
+      "id": "G1",
+      "naam": "g1",
+      "voor": []
+     },
+     {
+      "codes": [
+       "g.2"
+      ],
+      "id": "G2",
+      "naam": "g2",
+      "voor": []
+     },
+     {
+      "codes": [
+       "g.3"
+      ],
+      "id": "G3",
+      "naam": "g3",
+      "voor": []
+     },
+     {
+      "codes": [
+       "g.4"
+      ],
+      "id": "G4",
+      "naam": "g4",
+      "voor": [
+       [
+        "G1",
+        "0"
+       ],
+       [
+        "G2",
+        "0"
+       ],
+       [
+        "G3",
+        "0"
+       ]
+      ]
+     }
+    ],
+    "cap": "4",
+    "uren": {
+     "g.1": "12",
+     "g.2": "15.9999",
+     "g.3": "16",
+     "g.4": "0.0001"
+    }
+   },
+   "naam": "motor_autoploeg_grens",
+   "type": "motor",
+   "verwacht": {
+    "activiteiten": [
+     {
+      "cf": 3,
+      "codes": [
+       "g.1"
+      ],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 3,
+      "es": 0,
+      "id": "G1",
+      "kritiek": false,
+      "lf": 4,
+      "ls": 1,
+      "naam": "g1",
+      "opvolgers": [
+       "G4"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "werk",
+      "u": 3,
+      "uren_e4": 120000,
+      "voor": []
+     },
+     {
+      "cf": 4,
+      "codes": [
+       "g.2"
+      ],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 4,
+      "es": 0,
+      "id": "G2",
+      "kritiek": true,
+      "lf": 4,
+      "ls": 0,
+      "naam": "g2",
+      "opvolgers": [
+       "G4"
+      ],
+      "ploeg_e4": 10000,
+      "soort": "werk",
+      "u": 4,
+      "uren_e4": 159999,
+      "voor": []
+     },
+     {
+      "cf": 2,
+      "codes": [
+       "g.3"
+      ],
+      "cs": 0,
+      "duur_status": "",
+      "ef": 2,
+      "es": 0,
+      "id": "G3",
+      "kritiek": false,
+      "lf": 4,
+      "ls": 2,
+      "naam": "g3",
+      "opvolgers": [
+       "G4"
+      ],
+      "ploeg_e4": 20000,
+      "soort": "werk",
+      "u": 2,
+      "uren_e4": 160000,
+      "voor": []
+     },
+     {
+      "cf": 5,
+      "codes": [
+       "g.4"
+      ],
+      "cs": 4,
+      "duur_status": "",
+      "ef": 5,
+      "es": 4,
+      "id": "G4",
+      "kritiek": true,
+      "lf": 5,
+      "ls": 4,
+      "naam": "g4",
+      "opvolgers": [],
+      "ploeg_e4": 10000,
+      "soort": "werk",
+      "u": 1,
+      "uren_e4": 1,
+      "voor": [
+       [
+        "G1",
+        "0"
+       ],
+       [
+        "G2",
+        "0"
+       ],
+       [
+        "G3",
+        "0"
+       ]
+      ]
+     }
+    ],
+    "eind_cap_u": 5,
+    "eind_cpm_u": 5,
+    "fout": [],
+    "invoer_vereist": [],
+    "kritiek": [
+     "G2",
+     "G4"
+    ],
+    "mandagen_x_halvedag_e4": 120000,
+    "piek_e4": 40000,
+    "regels_gebruikt": [],
+    "toegepast": [],
+    "uren_calc_e4": 440000,
+    "uren_e4": 440000
+   }
+  },
+  {
+   "invoer": {
+    "acts": [
+     {
+      "duur": "1",
+      "id": "A",
+      "naam": "a",
+      "voor": [
+       [
+        "B",
+        "0"
+       ]
+      ]
+     },
+     {
+      "duur": "1",
+      "id": "B",
+      "naam": "b",
+      "voor": [
+       [
+        "A",
+        "0"
+       ]
+      ]
+     }
+    ],
+    "cap": "2",
+    "uren": {}
+   },
+   "naam": "motor_fout_kring",
+   "type": "motor",
+   "verwacht": {
+    "fout": [
+     "kring:A"
+    ]
+   }
+  }
+ ],
+ "kennis_sha256": "528adc365e83d7e7e3c3796502e1ff32506348e205d48ffe2446475c5d0ae6de",
+ "motor_sha256": "b35dec8cb9d794338b1b3c6786365343d1d92a5ba5b79942bc47c491d3c4a4a9",
+ "registerversie": "2026-10-29",
+ "schema": "sterkcalc-pariteit/1"
+}

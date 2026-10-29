@@ -1,0 +1,719 @@
+{
+ "schema": "sterkcalc-kennis/1",
+ "bijgewerkt": "2026-10-29",
+ "categorieen": [
+  "norm",
+  "contract",
+  "richtlijn",
+  "praktijk",
+  "methodiek"
+ ],
+ "regels": [
+  {
+   "id": "PL-001",
+   "titel": "Constructief en ruwbouw vóór afbouw",
+   "regel": "Sloop, grondwerk, fundering, metsel-, timmer- en staalconstructie gaan vooraf aan de afbouw in hetzelfde bouwdeel.",
+   "categorie": "praktijk",
+   "bron": "Algemene uitvoeringslogica; opdracht Orlando 29-10-2026 (planningsrichtlijn)",
+   "vakdiscipline": "alle",
+   "toepassingsgebied": "STABU 10, 12, 14, 21, 22, 24, 25 → 40, 42, 45, 46",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": {
+    "type": "volgorde",
+    "voor": [
+     "10",
+     "12",
+     "14",
+     "21",
+     "22",
+     "24",
+     "25"
+    ],
+    "na": [
+     "40",
+     "42",
+     "45",
+     "46"
+    ]
+   },
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-002",
+   "titel": "Wind- en waterdicht vóór binnenafbouw",
+   "regel": "Dak dicht (33) en kozijnen/beglazing (30, 34) zijn gereed voordat binnenafbouw (40 binnen, 42, 45 binnen) start.",
+   "categorie": "praktijk",
+   "bron": "Algemene uitvoeringslogica; opdracht Orlando 29-10-2026",
+   "vakdiscipline": "dakdekker, timmerman, stukadoor",
+   "toepassingsgebied": "STABU 30, 33, 34 → 40, 42",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": {
+    "type": "volgorde",
+    "voor": [
+     "30",
+     "33",
+     "34"
+    ],
+    "na": [
+     "40",
+     "42"
+    ]
+   },
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-003",
+   "titel": "Vochtproducerend stucwerk vóór de dekvloer",
+   "regel": "Plan vochtproducerende stukadoorswerkzaamheden binnen bij voorkeur vóór het aanbrengen van de dekvloer.",
+   "categorie": "praktijk",
+   "bron": "Opdracht Orlando 29-10-2026; niet aan een officiële norm getoetst",
+   "vakdiscipline": "stukadoor, dekvloerlegger",
+   "toepassingsgebied": "STABU 40 (binnen) → 42",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "Buitenpleisterwerk (geen vochtbelasting op de dekvloer); afwijken mag met motivering",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": {
+    "type": "volgorde",
+    "voor": [
+     "40"
+    ],
+    "na": [
+     "42"
+    ]
+   },
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-004",
+   "titel": "Droogtijd dekvloer is een wachttijd, geen bouwstop",
+   "regel": "Na de dekvloer volgt een droogtijd tot de vloerafwerking; overige werkzaamheden zonder nieuwe vochtbelasting lopen parallel.",
+   "categorie": "praktijk",
+   "bron": "Opdracht Orlando 29-10-2026; duur uit bestek/TO of fabrikant",
+   "vakdiscipline": "dekvloerlegger, vloerenlegger (derden)",
+   "toepassingsgebied": "STABU 42 → vloerafwerking (47/derden)",
+   "technische_voorwaarden": "Duur ALLEEN uit project-bestek/TO of fabrikantopgave; zonder bron = invoer vereist (geen standaardduur)",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": {
+    "type": "wachttijd",
+    "na_hoofdstuk": "42",
+    "duur": null,
+    "duur_bron_vereist": true
+   },
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-005",
+   "titel": "Restvochtmeting vóór vloerafwerking",
+   "regel": "Vóór het leggen van de vloerafwerking het restvochtgehalte van de dekvloer meten; grenswaarde volgens leverancier vloerafwerking.",
+   "categorie": "richtlijn",
+   "bron": "Fabrikantdocumenten dekvloer/parket (o.a. CM-meting; grenswaarden verschillen per product); TBA-richtlijn hierover niet gevonden",
+   "vakdiscipline": "vloerenlegger (derden)",
+   "toepassingsgebied": "STABU 42 → vloerafwerking",
+   "technische_voorwaarden": "Grenswaarde nooit als vaste norm opnemen; per product",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "deels: geen officiële norm gevonden",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-006",
+   "titel": "Plinten en restpunten na vloerafwerking door derden = terugkommoment",
+   "regel": "Vloerplinten die na de vloer worden gemonteerd en restpunten worden als apart terugkommoment ná de vloerafwerking door derden gepland.",
+   "categorie": "praktijk",
+   "bron": "Opdracht Orlando 29-10-2026; projectvoorbeeld SC-8 TO 45.02d/47.01b",
+   "vakdiscipline": "timmerman",
+   "toepassingsgebied": "STABU 45 (plinten)",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": {
+    "type": "terugkom",
+    "codes_trefwoord": "plint"
+   },
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-007",
+   "titel": "Parallel aan de droogfase",
+   "regel": "Schilderwerk, aftimmerwerk, afmontage installaties, systeemtesten en inregelen waar technisch verantwoord parallel aan de droogfase.",
+   "categorie": "praktijk",
+   "bron": "Opdracht Orlando 29-10-2026",
+   "vakdiscipline": "schilder, timmerman, installateur",
+   "toepassingsgebied": "STABU 45, 46, 60, 70",
+   "technische_voorwaarden": "Geen nieuwe vochtbelasting binnen; droogcondities behouden",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-008",
+   "titel": "Droogcondities bewaken",
+   "regel": "Bewaak temperatuur, relatieve luchtvochtigheid, ventilatie en materiaalafhankelijke droogvoorwaarden tijdens droging/uitharding.",
+   "categorie": "praktijk",
+   "bron": "Opdracht Orlando 29-10-2026; materiaalvoorschriften fabrikant",
+   "vakdiscipline": "uitvoering",
+   "toepassingsgebied": "STABU 21, 40, 42",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "deels: geen algemene norm vastgelegd",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-009",
+   "titel": "Duur arbeid uit uren en ploeg",
+   "regel": "Duur (werkdagen) = arbeidsuren uit de calculatie / (ploeggrootte × 8), naar boven afgerond; ploeggrootte is projectaanname [N].",
+   "categorie": "methodiek",
+   "bron": "SterkCalc-planningsmethodiek v1 (planning/planning_engine.py)",
+   "vakdiscipline": "alle",
+   "toepassingsgebied": "alle STABU-regels met uren",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning",
+    "calculatie-koppeling"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-010",
+   "titel": "Kritieke pad, niet optellen",
+   "regel": "Bepaal voorgangers/opvolgers per activiteit en het kritieke pad (CPM); tel activiteitenduren niet achter elkaar op. Toets daarnaast de capaciteit per dag.",
+   "categorie": "methodiek",
+   "bron": "SterkCalc-planningsmethodiek v1",
+   "vakdiscipline": "alle",
+   "toepassingsgebied": "alle projecten",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-011",
+   "titel": "Geen fictieve standaarddoorlooptijden",
+   "regel": "Wacht-, droog-, uithardings- en levertijden en duur van derden komen uit een bron (bestek/TO, fabrikant, leverancier) of zijn expliciet [N] met eigenaar.",
+   "categorie": "methodiek",
+   "bron": "Opdracht Orlando 29-10-2026",
+   "vakdiscipline": "alle",
+   "toepassingsgebied": "alle projecten",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-012",
+   "titel": "Keuringsmomenten uit bestek als mijlpalen",
+   "regel": "Keuringen/goedkeuringen die het bestek voorschrijft (bv. wapening vóór storten) worden als mijlpaal met voorganger/opvolger gepland.",
+   "categorie": "methodiek",
+   "bron": "SterkCalc-planningsmethodiek v1; voorbeeld SC-8 TO 21.01b, 24.01a",
+   "vakdiscipline": "uitvoering, directie",
+   "toepassingsgebied": "STABU 21, 24, 46",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-013",
+   "titel": "Einde hoofduitvoering ≠ contractuele oplevering",
+   "regel": "Onderscheid einde hoofduitvoering van de volledige contractuele oplevering (na derden, terugkommoment, opneming).",
+   "categorie": "methodiek",
+   "bron": "Opdracht Orlando 29-10-2026; UAV 2012 §9–10",
+   "vakdiscipline": "uitvoering",
+   "toepassingsgebied": "alle projecten",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-014",
+   "titel": "Installatievoorbereiding vóór het sluiten van wanden en vloeren",
+   "regel": "Leidingwerk en bekabeling (elektra, CV, screens) worden aangebracht in de open constructie, vóór stucwerk en dekvloer.",
+   "categorie": "praktijk",
+   "bron": "Opdracht Orlando 29-10-2026; QA6 P1",
+   "vakdiscipline": "installateur, elektricien, timmerman",
+   "toepassingsgebied": "STABU 24 → 50/60/70-voorbereiding → 40, 42",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": {
+    "type": "volgorde",
+    "voor": [
+     "24"
+    ],
+    "na": [
+     "40",
+     "42"
+    ]
+   },
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-015",
+   "titel": "Steiger en randbeveiliging vóór werk op hoogte",
+   "regel": "Steiger/randbeveiliging staat vóór gevel- en dakwerkzaamheden op hoogte (HSB-wanden, balklaag, dakbedekking).",
+   "categorie": "praktijk",
+   "bron": "Arbobesluit valgevaar (algemeen); QA6 P2 — specifiek artikel niet in dit register getoetst",
+   "vakdiscipline": "steigerbouwer, timmerman, dakdekker",
+   "toepassingsgebied": "STABU 05 (steiger) → 24, 33",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wettelijke grondslag te verifiëren",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": {
+    "type": "volgorde",
+    "voor": [
+     "05"
+    ],
+    "na": [
+     "24",
+     "33"
+    ]
+   },
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-016",
+   "titel": "Keuringen, monsters en levertijden als voorgangers",
+   "regel": "Werktekeningen, monsters en proefstukken die de directie moet goedkeuren, en levertijden van maatwerk (kozijnen, staal), staan als voorganger van de montage in het netwerk.",
+   "categorie": "methodiek",
+   "bron": "SterkCalc-methodiek; voorbeeld SC-8 TO 22.03–22.05 en 30.01a; QA6 P3",
+   "vakdiscipline": "werkvoorbereiding",
+   "toepassingsgebied": "STABU 22, 25, 30",
+   "technische_voorwaarden": "Duur uit leverancier/directie; zonder opgave [N] met eigenaar",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-017",
+   "titel": "Sloopmelding en asbest vóór sloop",
+   "regel": "Sloopmelding (indien vereist) en asbestinventarisatie, en zo nodig sanering, gaan vooraf aan het sloopwerk.",
+   "categorie": "praktijk",
+   "bron": "Bbl-meldingsplicht (algemeen, termijn niet in dit register getoetst); voorbeeld SC-8 TO 10.01e; QA6 P4",
+   "vakdiscipline": "directie, sloper",
+   "toepassingsgebied": "STABU 10",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wettelijke termijn te verifiëren",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-018",
+   "titel": "Sauswerk na droging stucwerk",
+   "regel": "Sauzen/verven van stucwerk pas na voldoende droging volgens de verf-/stucleverancier.",
+   "categorie": "richtlijn",
+   "bron": "Verwerkingsvoorschriften verf-/stucleveranciers (algemeen); QA6 P10",
+   "vakdiscipline": "schilder, stukadoor",
+   "toepassingsgebied": "STABU 40 → 46",
+   "technische_voorwaarden": "Droogtijd per product; geen standaardduur",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": {
+    "type": "volgorde",
+    "voor": [
+     "40"
+    ],
+    "na": [
+     "46"
+    ]
+   },
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-019",
+   "titel": "Ruwbouwvolgorde",
+   "regel": "Grondwerk en fundering vóór dragende constructie (staal/HSB/metselwerk), dragende constructie vóór dak en kozijnen.",
+   "categorie": "praktijk",
+   "bron": "Algemene uitvoeringslogica; QA6 K5/K6",
+   "vakdiscipline": "alle ruwbouwdisciplines",
+   "toepassingsgebied": "STABU 12, 21 → 22, 24, 25 → 30, 33",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": {
+    "type": "volgorde",
+    "voor": [
+     "12",
+     "21"
+    ],
+    "na": [
+     "22",
+     "24",
+     "25"
+    ]
+   },
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "PL-020",
+   "titel": "Dragende constructie vóór dak en kozijnen",
+   "regel": "Staal- en HSB-constructie zijn gereed voordat dakbedekking en kozijnen worden aangebracht.",
+   "categorie": "praktijk",
+   "bron": "Algemene uitvoeringslogica; QA6 K6",
+   "vakdiscipline": "timmerman, staalmonteur, dakdekker",
+   "toepassingsgebied": "STABU 24, 25 → 30, 33",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: wacht op QA",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": {
+    "type": "volgorde",
+    "voor": [
+     "24",
+     "25"
+    ],
+    "na": [
+     "30",
+     "33"
+    ]
+   },
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "CT-001",
+   "titel": "UAV 2012 §26 Algemeen tijdschema, werkplan",
+   "regel": "Aannemer stelt algemeen tijdschema op, ter goedkeuring van de directie (uiterlijk 15e werkdag; directie binnen 10 werkdagen); het schema is leidraad en ontslaat niet van tijdige oplevering (lid 5).",
+   "categorie": "contract",
+   "bron": "UAV 2012 §26 (wetten.overheid.nl BWBR0031190)",
+   "vakdiscipline": "aannemer, directie",
+   "toepassingsgebied": "projecten met UAV 2012",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "geverifieerd tegen officiële tekst 29-10-2026",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "Alleen bindend als UAV 2012 in de overeenkomst/het bestek van toepassing is en het bestek niet afwijkt",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "CT-002",
+   "titel": "UAV 2012 §9–10 Opneming, goedkeuring, oplevering",
+   "regel": "Opneming na schriftelijke aanvraag; in de regel binnen 8 dagen; oplevering = dag van (geachte) goedkeuring.",
+   "categorie": "contract",
+   "bron": "UAV 2012 §9, §10",
+   "vakdiscipline": "aannemer, directie",
+   "toepassingsgebied": "projecten met UAV 2012",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "geverifieerd tegen officiële tekst 29-10-2026",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "Alleen bindend als UAV 2012 van toepassing is",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "CT-003",
+   "titel": "UAV 2012 §8 Uitvoeringsduur",
+   "regel": "Termijn in werkbare werkdagen, kalenderdagen of datum volgens bestek; verlenging bij overmacht/wijzigingen.",
+   "categorie": "contract",
+   "bron": "UAV 2012 §8",
+   "vakdiscipline": "aannemer",
+   "toepassingsgebied": "projecten met UAV 2012",
+   "technische_voorwaarden": "geen aanvullende voorwaarden bekend",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "geverifieerd tegen officiële tekst 29-10-2026",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "planning"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "Alleen bindend als UAV 2012 van toepassing is",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "AR-001",
+   "titel": "Garantielonen cao Bouw & Infra 2025–2027",
+   "regel": "Bruto garantieloon 21+ per uur: A 18,95 · B 20,02 · C 21,24 · D 22,68 · E 23,78 (1-1-2026); 1-1-2027: 19,23/20,32/21,56/23,02/24,14.",
+   "categorie": "norm",
+   "bron": "cao Bouw & Infra 2025–2027 versie 23-04-2026, tabel 4.2",
+   "vakdiscipline": "bouwplaatswerknemers",
+   "toepassingsgebied": "aannemersbedrijven onder cao Bouw & Infra",
+   "technische_voorwaarden": "Looptijd t/m 31-03-2027; daarna nieuwe tabel controleren",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "geverifieerd tegen cao-tekst 29-10-2026",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "arbeid"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "AR-002",
+   "titel": "Functie-indeling per vakdiscipline (bijlage 1.1)",
+   "regel": "Indeling per discipline met bandbreedte laag/hoog (bv. Timmerman II B / I D); stukadoor, glaszetter en dekvloer hebben geen functie in bijlage 1.1.",
+   "categorie": "praktijk",
+   "bron": "cao Bouw & Infra bijlage 1.1 (functielijst) + SterkCalc-indeling SC-8 (arbeid_v4.py)",
+   "vakdiscipline": "alle bouwplaatsfuncties",
+   "toepassingsgebied": "STABU-hoofdstuk → discipline",
+   "technische_voorwaarden": "Werkgever deelt definitief in (cao 1.2.1)",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "kandidaat: QA CLI-R",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "arbeid",
+    "planning"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "AR-003",
+   "titel": "Werkgeverscomponenten cao/bpfBOUW 2026",
+   "regel": "Vakantietoeslag 8%, duurzame inzetbaarheid 4,51% (uta 2,30%), IB-dagen 18 (uta 13), 25 vakantie-, 20 roostervrije dagen; bpfBOUW werkgeversdeel OP 13,9612% + AOP 0,1% + RP 2,367% boven franchise € 19.172, OOBW 1,5% + SABW 2,99%.",
+   "categorie": "norm",
+   "bron": "cao Bouw & Infra 3.1, 3.2, 4.13, 4.14.3, 4.16; bpfBOUW premies 2026 v1.0 (23-12-2025)",
+   "vakdiscipline": "bouwplaatswerknemers",
+   "toepassingsgebied": "kostprijsopbouw arbeid",
+   "technische_voorwaarden": "Sociale premies, verzuim, verlet en overige kosten zijn werkgeverspecifiek: altijd [N]",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "geverifieerd 29-10-2026",
+   "status": "kandidaat",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "arbeid"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  },
+  {
+   "id": "CA-001",
+   "titel": "Vaste calculatieopslagen en rekenregels (referentie)",
+   "regel": "AK/ABK/W&R, uurtarieven en afrondingsregels worden per project vastgelegd in config/regels van het STABU-sjabloon en zijn uitsluitend door een mens te wijzigen.",
+   "categorie": "methodiek",
+   "bron": "STABU-calculatiesjabloon (Offerte Engine) + projectconfig",
+   "vakdiscipline": "calculatie",
+   "toepassingsgebied": "alle calculaties",
+   "technische_voorwaarden": "AI mag deze waarden lezen, nooit wijzigen of voorstellen als goedgekeurd",
+   "uitzonderingen": "geen bekend; afwijken alleen gemotiveerd in het projectbestand",
+   "verificatiestatus": "verwijzing; de waarden staan en worden goedgekeurd in het sjabloon/project, niet in dit register",
+   "status": "referentie",
+   "datum": "2026-10-29",
+   "versie": 1,
+   "gebruik": [
+    "calculatie"
+   ],
+   "relatie": null,
+   "contractueel_bindend": "",
+   "goedgekeurd_door": null,
+   "qa_rapport": null
+  }
+ ],
+ "stabu_discipline": {
+  "05": "Bouwplaats algemeen",
+  "06": "Werkvoorbereiding (uta)",
+  "10": "Sloopwerk",
+  "12": "Grondwerk",
+  "14": "Riolering en drainage",
+  "21": "Betonwerk in het werk",
+  "22": "Metselwerk",
+  "24": "Timmerwerk",
+  "25": "Staalmontage",
+  "30": "Timmerwerk",
+  "33": "Dakdekken",
+  "34": "Beglazing",
+  "40": "Stukadoorswerk",
+  "42": "Dekvloer",
+  "45": "Timmerwerk",
+  "46": "Schilderwerk",
+  "50": "Lood- en zinkwerk"
+ }
+}

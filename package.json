@@ -8,7 +8,9 @@
     "build": "NODE_OPTIONS='--max-old-space-size=4096' next build",
     "start": "node server.js",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test:sterkcalc": "node --test tests/sterkcalc-pariteit.test.mjs",
+    "sync:sterkcalc-kennis": "node scripts/sync-sterkcalc-kennis.mjs"
   },
   "dependencies": {
     "@ant-design/cssinjs": "1.17.0",
