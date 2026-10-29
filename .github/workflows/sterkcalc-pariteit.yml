@@ -1,0 +1,14 @@
+name: sterkcalc-pariteit
+on:
+  pull_request:
+    paths: ["lib/calc/sterkcalc/**", "lib/sterkcalc-kennis/**", "tests/sterkcalc-pariteit.test.mjs", ".github/workflows/sterkcalc-pariteit.yml"]
+jobs:
+  pariteit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: JS-planner = centrale Python-planner (testcases + kennis-hash)
+        run: node --test tests/sterkcalc-pariteit.test.mjs

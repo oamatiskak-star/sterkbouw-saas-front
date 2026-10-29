@@ -8,6 +8,9 @@ import { calcData } from '@/services/calcModules';
 import { berekenPlanning, STANDAARD_CONFIG, PROJECTTYPE_TEMPLATES } from '@/lib/calc/planningEngine';
 import { loadPlanningVersies, laatsteConfig, bewaarPlanningVersie, activeerVersie } from '@/services/planning';
 import { planningNaarPdf, planningNaarCsv } from '@/lib/planning/exportPlanning';
+import SchaduwPlanning from '@/components/sterkcalc/SchaduwPlanning';
+
+const SCHADUW = process.env.NEXT_PUBLIC_STERKCALC_SCHADUWPLANNING === '1';   // I-6 schaduwmodus: standaard uit
 
 const datNL = (d) => (d ? new Date(d).toLocaleDateString('nl-NL', { day: '2-digit', month: 'short' }) : '—');
 const PTYPES = Object.keys(PROJECTTYPE_TEMPLATES);
@@ -154,6 +157,10 @@ export default function PlanningPagina() {
           </div>
         </div>
       </div>
+      {SCHADUW && base && (
+        <SchaduwPlanning chapters={base.chapters} rows={base.rows} config={config}
+          urenPortaal={(planning?.fases || []).reduce((t, f) => t + (f.uren || 0), 0)} />
+      )}
     </div>
   );
 }

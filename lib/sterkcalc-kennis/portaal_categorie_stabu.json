@@ -1,0 +1,483 @@
+{
+ "schema": "sterkcalc-portaal-mapping/1",
+ "bron": "sterkbouw-saas-front lib/calc/werktafelCategorieMap.js (CATEGORIE_STABU)",
+ "status": "kandidaat: review CLI-R + goedkeuring Orlando vereist",
+ "categorieen": [
+  {
+   "categorie": "00",
+   "naam": "Algemeen",
+   "portaal_stabu": [],
+   "planning_hoofdstuk": null,
+   "planner_groep": "ONGEMAPT-00",
+   "reden": "geen STABU-hoofdstuk in het portaal (administratief/algemeen); niet verzinnen → planner-groep ONGEMAPT-00",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "01",
+   "naam": "Voorbereiding",
+   "portaal_stabu": [],
+   "planning_hoofdstuk": null,
+   "planner_groep": "ONGEMAPT-01",
+   "reden": "geen STABU-hoofdstuk in het portaal (administratief/algemeen); niet verzinnen → planner-groep ONGEMAPT-01",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "02",
+   "naam": "Sloopwerk",
+   "portaal_stabu": [
+    "10"
+   ],
+   "planning_hoofdstuk": "10",
+   "planner_groep": "10",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "03",
+   "naam": "Grondwerk",
+   "portaal_stabu": [
+    "12"
+   ],
+   "planning_hoofdstuk": "12",
+   "planner_groep": "12",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "04",
+   "naam": "Fundering & grondwerk",
+   "portaal_stabu": [
+    "20",
+    "21"
+   ],
+   "planning_hoofdstuk": "21",
+   "planner_groep": "21",
+   "reden": "betonfundering bepaalt de volgorde (PL-019: 12/21 vóór dragende constructie); 20 (palen) heeft geen eigen regel",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "05",
+   "naam": "Betonwerk (vloeren/constructies)",
+   "portaal_stabu": [
+    "21"
+   ],
+   "planning_hoofdstuk": "21",
+   "planner_groep": "21",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "06",
+   "naam": "Betonwerken (wanden/kolommen/balken)",
+   "portaal_stabu": [
+    "21"
+   ],
+   "planning_hoofdstuk": "21",
+   "planner_groep": "21",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "07",
+   "naam": "Staalskelet & constructie",
+   "portaal_stabu": [
+    "25"
+   ],
+   "planning_hoofdstuk": "25",
+   "planner_groep": "25",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "08",
+   "naam": "Gevel & buitenwand",
+   "portaal_stabu": [
+    "22",
+    "23"
+   ],
+   "planning_hoofdstuk": "22",
+   "planner_groep": "22",
+   "reden": "metselwerk/buitenblad is de volgorde-bepalende activiteit; 23 (vooraf vervaardigde elementen) zonder eigen regel",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "09",
+   "naam": "Metselwerk",
+   "portaal_stabu": [
+    "22",
+    "36"
+   ],
+   "planning_hoofdstuk": "22",
+   "planner_groep": "22",
+   "reden": "metselwerk; 36 (voegwerk) volgt binnen dezelfde discipline",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "10",
+   "naam": "Gevelbekleding",
+   "portaal_stabu": [
+    "31"
+   ],
+   "planning_hoofdstuk": "31",
+   "planner_groep": "31",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "11",
+   "naam": "Dakconstructie",
+   "portaal_stabu": [
+    "24"
+   ],
+   "planning_hoofdstuk": "24",
+   "planner_groep": "24",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "12",
+   "naam": "Dakbedekking",
+   "portaal_stabu": [
+    "33",
+    "50"
+   ],
+   "planning_hoofdstuk": "33",
+   "planner_groep": "33",
+   "reden": "dakbedekking (PL-002 wind- en waterdicht); 50 (hemelwaterafvoer) hoort bij het dak afmonteren",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "13",
+   "naam": "Dakopeningen & lichtstraten",
+   "portaal_stabu": [
+    "34"
+   ],
+   "planning_hoofdstuk": "34",
+   "planner_groep": "34",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "14",
+   "naam": "Ramen, deuren & kozijnen",
+   "portaal_stabu": [
+    "30"
+   ],
+   "planning_hoofdstuk": "30",
+   "planner_groep": "30",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "15",
+   "naam": "Glas & beglazing",
+   "portaal_stabu": [
+    "34"
+   ],
+   "planning_hoofdstuk": "34",
+   "planner_groep": "34",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "16",
+   "naam": "Trappen & bordessen",
+   "portaal_stabu": [
+    "32"
+   ],
+   "planning_hoofdstuk": "32",
+   "planner_groep": "32",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "17",
+   "naam": "Binnenwanden",
+   "portaal_stabu": [
+    "44"
+   ],
+   "planning_hoofdstuk": "44",
+   "planner_groep": "44",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "18",
+   "naam": "Plafonds",
+   "portaal_stabu": [
+    "44"
+   ],
+   "planning_hoofdstuk": "44",
+   "planner_groep": "44",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "19",
+   "naam": "Vloeren & dekvloeren",
+   "portaal_stabu": [
+    "42",
+    "48"
+   ],
+   "planning_hoofdstuk": "42",
+   "planner_groep": "42",
+   "reden": "dekvloer bepaalt de droogtijd (PL-003/PL-004); 48 (vloerafwerking) volgt na de droogtijd",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "20",
+   "naam": "Tegelwerk",
+   "portaal_stabu": [
+    "41"
+   ],
+   "planning_hoofdstuk": "41",
+   "planner_groep": "41",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "21",
+   "naam": "Stukadoorswerk",
+   "portaal_stabu": [
+    "40"
+   ],
+   "planning_hoofdstuk": "40",
+   "planner_groep": "40",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "22",
+   "naam": "Schilderwerk",
+   "portaal_stabu": [
+    "46"
+   ],
+   "planning_hoofdstuk": "46",
+   "planner_groep": "46",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "23",
+   "naam": "Isolatie & thermiek",
+   "portaal_stabu": [
+    "37"
+   ],
+   "planning_hoofdstuk": "37",
+   "planner_groep": "37",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "24",
+   "naam": "Installatiewerk (werktuigbouw)",
+   "portaal_stabu": [
+    "60",
+    "61",
+    "52"
+   ],
+   "planning_hoofdstuk": "60",
+   "planner_groep": "60",
+   "reden": "verwarming als hoofdinstallatie; 61/52 zonder eigen volgorderegel",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "25",
+   "naam": "Elektrotechniek",
+   "portaal_stabu": [
+    "70",
+    "75"
+   ],
+   "planning_hoofdstuk": "70",
+   "planner_groep": "70",
+   "reden": "elektrotechniek; 75 (communicatie/beveiliging) volgt binnen dezelfde discipline",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "26",
+   "naam": "Ventilatie & luchtbehandeling",
+   "portaal_stabu": [
+    "61",
+    "62"
+   ],
+   "planning_hoofdstuk": "61",
+   "planner_groep": "61",
+   "reden": "ventilatie; 62 zonder eigen volgorderegel",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "27",
+   "naam": "Sanitair",
+   "portaal_stabu": [
+    "53",
+    "51",
+    "52"
+   ],
+   "planning_hoofdstuk": "53",
+   "planner_groep": "53",
+   "reden": "sanitair; 51/52 (riolering/water binnen) zonder eigen volgorderegel",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "28",
+   "naam": "Verwarming",
+   "portaal_stabu": [
+    "60",
+    "55"
+   ],
+   "planning_hoofdstuk": "60",
+   "planner_groep": "60",
+   "reden": "verwarming; 55 zonder eigen volgorderegel",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "29",
+   "naam": "Sprinkler & brandveiligheid",
+   "portaal_stabu": [
+    "54"
+   ],
+   "planning_hoofdstuk": "54",
+   "planner_groep": "54",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "30",
+   "naam": "Terrein & buitenruimte",
+   "portaal_stabu": [
+    "15",
+    "16",
+    "17"
+   ],
+   "planning_hoofdstuk": "15",
+   "planner_groep": "15",
+   "reden": "terreinverharding als eerste terreinactiviteit; 16/17 zonder eigen volgorderegel",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "31",
+   "naam": "Hekwerk & terreinvoorzieningen",
+   "portaal_stabu": [
+    "17"
+   ],
+   "planning_hoofdstuk": "17",
+   "planner_groep": "17",
+   "reden": "enig STABU-hoofdstuk in het portaal",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "32",
+   "naam": "Afwatering & riolering",
+   "portaal_stabu": [
+    "14",
+    "50"
+   ],
+   "planning_hoofdstuk": "14",
+   "planner_groep": "14",
+   "reden": "buitenriolering (PL-001: vóór afbouw); 50 hoort bij dak/gevel",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "33",
+   "naam": "Tijdelijke voorzieningen",
+   "portaal_stabu": [],
+   "planning_hoofdstuk": null,
+   "planner_groep": "ONGEMAPT-33",
+   "reden": "geen STABU-hoofdstuk in het portaal (administratief/algemeen); niet verzinnen → planner-groep ONGEMAPT-33",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "34",
+   "naam": "Transport & hijswerk",
+   "portaal_stabu": [
+    "82",
+    "83"
+   ],
+   "planning_hoofdstuk": "82",
+   "planner_groep": "82",
+   "reden": "eerste opgegeven code; 82/83 vallen buiten de bouwkundige STABU-hoofdstukken van de kennisbasis — controleren",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "35",
+   "naam": "Materieel",
+   "portaal_stabu": [],
+   "planning_hoofdstuk": null,
+   "planner_groep": "ONGEMAPT-35",
+   "reden": "geen STABU-hoofdstuk in het portaal (administratief/algemeen); niet verzinnen → planner-groep ONGEMAPT-35",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "36",
+   "naam": "Arbeid & uren",
+   "portaal_stabu": [],
+   "planning_hoofdstuk": null,
+   "planner_groep": "ONGEMAPT-36",
+   "reden": "geen STABU-hoofdstuk in het portaal (administratief/algemeen); niet verzinnen → planner-groep ONGEMAPT-36",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "37",
+   "naam": "Materialen & toebehoren",
+   "portaal_stabu": [],
+   "planning_hoofdstuk": null,
+   "planner_groep": "ONGEMAPT-37",
+   "reden": "geen STABU-hoofdstuk in het portaal (administratief/algemeen); niet verzinnen → planner-groep ONGEMAPT-37",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "38",
+   "naam": "Kosten & prijzen",
+   "portaal_stabu": [],
+   "planning_hoofdstuk": null,
+   "planner_groep": "ONGEMAPT-38",
+   "reden": "geen STABU-hoofdstuk in het portaal (administratief/algemeen); niet verzinnen → planner-groep ONGEMAPT-38",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "39",
+   "naam": "Risico's & kwaliteit",
+   "portaal_stabu": [],
+   "planning_hoofdstuk": null,
+   "planner_groep": "ONGEMAPT-39",
+   "reden": "geen STABU-hoofdstuk in het portaal (administratief/algemeen); niet verzinnen → planner-groep ONGEMAPT-39",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "40",
+   "naam": "Onderaanneming",
+   "portaal_stabu": [],
+   "planning_hoofdstuk": null,
+   "planner_groep": "ONGEMAPT-40",
+   "reden": "geen STABU-hoofdstuk in het portaal (administratief/algemeen); niet verzinnen → planner-groep ONGEMAPT-40",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "41",
+   "naam": "Documenten & bijlagen",
+   "portaal_stabu": [],
+   "planning_hoofdstuk": null,
+   "planner_groep": "ONGEMAPT-41",
+   "reden": "geen STABU-hoofdstuk in het portaal (administratief/algemeen); niet verzinnen → planner-groep ONGEMAPT-41",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "42",
+   "naam": "Planning & fasering",
+   "portaal_stabu": [],
+   "planning_hoofdstuk": null,
+   "planner_groep": "ONGEMAPT-42",
+   "reden": "geen STABU-hoofdstuk in het portaal (administratief/algemeen); niet verzinnen → planner-groep ONGEMAPT-42",
+   "status": "kandidaat"
+  },
+  {
+   "categorie": "A0",
+   "naam": "Instellingen",
+   "portaal_stabu": [],
+   "planning_hoofdstuk": null,
+   "planner_groep": "ONGEMAPT-A0",
+   "reden": "geen STABU-hoofdstuk in het portaal (administratief/algemeen); niet verzinnen → planner-groep ONGEMAPT-A0",
+   "status": "kandidaat"
+  }
+ ]
+}
